@@ -797,31 +797,8 @@ A&S Tief- u. Straßenbau GmbH`;
     return { subject, body };
   };
 
-  const handleSendCompletionEmail = async () => {
-    const emailContent = generateEmailContent();
-    
-    try {
-      console.log('Sende E-Mail mit folgenden Daten:', {
-        to: 'auftrag@as-tief-strassenbau.de',
-        subject: emailContent.subject,
-        bodyLength: emailContent.body.length
-      });
-      
-      const result = await SendEmail({
-        from_name: 'Tiefbau.Cloud',
-        to: 'auftrag@as-tief-strassenbau.de',
-        subject: emailContent.subject,
-        body: emailContent.body
-      });
-      
-      console.log('E-Mail erfolgreich verschickt:', result);
-      alert('E-Mail wurde erfolgreich verschickt!');
-    } catch (error) {
-      console.error('Detaillierter Fehler beim Versenden der E-Mail:', error);
-      console.error('Error Stack:', error.stack);
-      console.error('Error Message:', error.message);
-      alert(`Fehler beim Versenden der E-Mail: ${error.message || 'Unbekannter Fehler'}`);
-    }
+  const handleSendCompletionEmail = () => {
+    setShowEmailModal(true);
   };
 
   const copyToClipboard = async (text, type) => {
