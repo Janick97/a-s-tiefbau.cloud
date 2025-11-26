@@ -761,38 +761,22 @@ export default function ProjectDetailPage() {
 
   const generateEmailContent = () => {
     if (!project) return { subject: '', body: '' };
-    
-    const subject = `Tiefbau abgeschlossen - Projekt ${project.project_number}`;
-    
+
+    const subject = `Montage erledigt - Tiefbau kann geschlossen werden - ${project.project_number}`;
+
     const body = `Sehr geehrte Damen und Herren,
 
-hiermit teilen wir Ihnen mit, dass der Tiefbau für folgendes Projekt abgeschlossen werden kann:
+  hiermit teilen wir Ihnen mit, dass die Montagearbeiten abgeschlossen wurden und der Tiefbau ab sofort geschlossen werden kann:
 
-Projektnummer: ${project.project_number}
-SM-Nummer: ${project.sm_number || 'Nicht angegeben'}
-Projekttitel: ${project.title}
-Kunde: ${project.client}
-Standort: ${project.street ? `${project.street}, ` : ''}${project.city || 'Nicht angegeben'}
+  Projektnummer: ${project.project_number}
+  SM-Nummer: ${project.sm_number || 'Nicht angegeben'}
+  Projekttitel: ${project.title}
+  Standort: ${project.street ? `${project.street}, ` : ''}${project.city || 'Nicht angegeben'}
 
-Projektdetails:
-- Auftragsart: ${project.order_type || 'Nicht angegeben'}
-- Ansprechpartner: ${project.contact_person || 'Nicht angegeben'}
-- Aktueller Status: ${project.project_status || 'Nicht angegeben'}
+  Status: Montage erledigt - Tiefbau kann geschlossen werden
 
-${project.start_date ? `Auftragseingang: ${new Date(project.start_date).toLocaleDateString('de-DE')}\n` : ''}
-${project.end_date ? `Baustelle fertig: ${new Date(project.end_date).toLocaleDateString('de-DE')}\n` : ''}
-${project.grube_auf_datum ? `Grube auf: ${new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}\n` : ''}
-
-Leistungen:
-- Anzahl Ausgrabungen: ${excavations.length}
-- Gesamtumsatz: €${excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0).toLocaleString('de-DE')}
-
-${project.description ? `Projektbeschreibung:\n${project.description}\n` : ''}
-
-Der Tiefbau ist soweit abgeschlossen und kann entsprechend verarbeitet werden.
-
-Mit freundlichen Grüßen
-A&S Tief- u. Straßenbau GmbH`;
+  Mit freundlichen Grüßen
+  A&S Tief- u. Straßenbau GmbH`;
 
     return { subject, body };
   };
