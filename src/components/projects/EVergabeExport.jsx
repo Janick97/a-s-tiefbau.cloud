@@ -273,30 +273,14 @@ export default function EVergabeExport({ project, excavations, priceItems, monta
                 )}
               </div>
 
-              {/* Photos */}
+              {/* Photos - Platzhalter ohne tatsächliche Bilder */}
               <div className="evergabe-photos">
-                {photos.length > 0 ? (
-                  photos.map((photo, photoIndex) => (
-                    <div key={photoIndex} className="evergabe-photo-container">
-                      <img src={photo} alt={`Position ${index + 1} - Foto ${photoIndex + 1}`} className="evergabe-photo" />
-                    </div>
-                  ))
-                ) : (
-                  <>
-                    <div className="evergabe-photo-container">
-                      <div className="evergabe-photo-placeholder">Foto 1 nicht verfügbar</div>
-                    </div>
-                    <div className="evergabe-photo-container">
-                      <div className="evergabe-photo-placeholder">Foto 2 nicht verfügbar</div>
-                    </div>
-                  </>
-                )}
-                
-                {photos.length === 1 && (
-                  <div className="evergabe-photo-container">
-                    <div className="evergabe-photo-placeholder">Foto 2 nicht verfügbar</div>
-                  </div>
-                )}
+                <div className="evergabe-photo-container">
+                  <div className="evergabe-photo-placeholder">Foto 1 (später einfügen)</div>
+                </div>
+                <div className="evergabe-photo-container">
+                  <div className="evergabe-photo-placeholder">Foto 2 (später einfügen)</div>
+                </div>
               </div>
             </div>
           );
@@ -375,30 +359,14 @@ export default function EVergabeExport({ project, excavations, priceItems, monta
                   </div>
                 )}
 
-                {/* Photos */}
+                {/* Photos - Platzhalter ohne tatsächliche Bilder */}
                 <div className="evergabe-photos">
-                  {photos.length > 0 ? (
-                    photos.map((photo, photoIndex) => (
-                      <div key={photoIndex} className="evergabe-photo-container">
-                        <img src={photo} alt={`Montage Position ${index + 1} - Foto ${photoIndex + 1}`} className="evergabe-photo" />
-                      </div>
-                    ))
-                  ) : (
-                    <>
-                      <div className="evergabe-photo-container">
-                        <div className="evergabe-photo-placeholder">Foto 1 nicht verfügbar</div>
-                      </div>
-                      <div className="evergabe-photo-container">
-                        <div className="evergabe-photo-placeholder">Foto 2 nicht verfügbar</div>
-                      </div>
-                    </>
-                  )}
-                  
-                  {photos.length === 1 && (
-                    <div className="evergabe-photo-container">
-                      <div className="evergabe-photo-placeholder">Foto 2 nicht verfügbar</div>
-                    </div>
-                  )}
+                  <div className="evergabe-photo-container">
+                    <div className="evergabe-photo-placeholder">Foto 1 (später einfügen)</div>
+                  </div>
+                  <div className="evergabe-photo-container">
+                    <div className="evergabe-photo-placeholder">Foto 2 (später einfügen)</div>
+                  </div>
                 </div>
               </div>
             );
