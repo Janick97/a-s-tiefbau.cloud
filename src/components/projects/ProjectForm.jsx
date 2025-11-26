@@ -666,18 +666,6 @@ export default function ProjectForm({ project, parentProject, onSubmit, onCancel
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="status">Allgemeiner Status</Label>
-                    <Select value={formData.status} onValueChange={(value) => handleInputChange('status', value)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="planning">Planung</SelectItem>
-                        <SelectItem value="active">Aktiv</SelectItem>
-                        <SelectItem value="completed">Abgeschlossen</SelectItem>
-                        <SelectItem value="on_hold">Pausiert</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="start_date">Auftragseingang</Label>
                     <Input
                       id="start_date"
