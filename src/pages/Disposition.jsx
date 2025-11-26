@@ -5,8 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { motion } from 'framer-motion';
-import { ClipboardList, User as UserIcon, Loader2, Search, Filter, CheckCircle, Clock, Columns, List } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ClipboardList, User as UserIcon, Loader2, Search, Filter, CheckCircle, Clock, Columns, List, X, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
@@ -23,6 +25,9 @@ export default function DispositionPage() {
   const [assignmentFilter, setAssignmentFilter] = useState("all");
   const [foremanFilter, setForemanFilter] = useState("all");
   const [viewMode, setViewMode] = useState("kanban"); // 'kanban' or 'list'
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedBauleiter, setSelectedBauleiter] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -58,9 +63,11 @@ export default function DispositionPage() {
       const updateData = userId === 'unassign' ? {
         assigned_foreman_id: null,
         assigned_foreman_name: null,
+        assigned_bauleiter: []
       } : {
         assigned_foreman_id: userId,
         assigned_foreman_name: user?.full_name || '',
+        assigned_bauleiter: [{ id: userId, name: user?.full_name || '' }]
       };
       
       await Project.update(projectId, updateData);
@@ -74,6 +81,38 @@ export default function DispositionPage() {
       console.error('Fehler bei der Zuweisung:', error);
     }
     setAssigning(null);
+  };
+
+  const handleOpenAssignModal = (project) => {
+    setSelectedProject(project);
+    setSelectedBauleiter(project.assigned_bauleiter || []);
+    setShowAssignModal(true);
+  };
+
+  const handleSaveMultipleAssignments = async () => {
+    if (!selectedProject) return;
+
+    try {
+      const updateData = {
+        assigned_bauleiter: selectedBauleiter,
+        assigned_foreman_id: selectedBauleiter.length > 0 ? selectedBauleiter[0].id : null,
+        assigned_foreman_name: selectedBauleiter.length > 0 ? selectedBauleiter[0].name : null
+      };
+
+      await Project.update(selectedProject.id, updateData);
+
+      setProjects(projects.map(p => 
+        p.id === selectedProject.id 
+          ? { ...p, ...updateData }
+          : p
+      ));
+
+      setShowAssignModal(false);
+      setSelectedProject(null);
+      setSelectedBauleiter([]);
+    } catch (error) {
+      console.error('Fehler beim Speichern der Zuweisungen:', error);
+    }
   };
 
   const onDragEnd = async (result) => {
@@ -146,22 +185,23 @@ export default function DispositionPage() {
     
     let matchesAssignment = true;
     if (assignmentFilter === "assigned") {
-      matchesAssignment = !!project.assigned_foreman_id;
+      matchesAssignment = !!(project.assigned_bauleiter && project.assigned_bauleiter.length > 0) || !!project.assigned_foreman_id;
     } else if (assignmentFilter === "unassigned") {
-      matchesAssignment = !project.assigned_foreman_id;
+      matchesAssignment = !(project.assigned_bauleiter && project.assigned_bauleiter.length > 0) && !project.assigned_foreman_id;
     }
 
     let matchesForeman = true;
     if (foremanFilter !== "all") {
-      matchesForeman = project.assigned_foreman_id === foremanFilter;
+      const bauleiterIds = (project.assigned_bauleiter || []).map(b => b.id);
+      matchesForeman = bauleiterIds.includes(foremanFilter) || project.assigned_foreman_id === foremanFilter;
     }
 
     return matchesSearch && matchesStatus && matchesAssignment && matchesForeman;
   });
 
   // Group projects by assignment status for list view
-  const assignedProjects = filteredProjects.filter(p => p.assigned_foreman_id);
-  const unassignedProjects = filteredProjects.filter(p => !p.assigned_foreman_id);
+  const assignedProjects = filteredProjects.filter(p => (p.assigned_bauleiter && p.assigned_bauleiter.length > 0) || p.assigned_foreman_id);
+  const unassignedProjects = filteredProjects.filter(p => !(p.assigned_bauleiter && p.assigned_bauleiter.length > 0) && !p.assigned_foreman_id);
 
   // Group projects for Kanban view - ordered array for consistent display
   const kanbanColumns = [
@@ -169,16 +209,21 @@ export default function DispositionPage() {
       id: 'unassigned',
       title: 'Nicht zugewiesen',
       color: 'orange',
-      projects: filteredProjects.filter(p => !p.assigned_foreman_id && !p.foreman_completed)
+      projects: filteredProjects.filter(p => 
+        !(p.assigned_bauleiter && p.assigned_bauleiter.length > 0) && 
+        !p.assigned_foreman_id && 
+        !p.foreman_completed
+      )
     },
     // Add all Bauleiter columns
     ...users.map(user => ({
       id: user.id,
       title: user.full_name,
       color: 'blue',
-      projects: filteredProjects.filter(p => 
-        p.assigned_foreman_id === user.id && !p.foreman_completed
-      )
+      projects: filteredProjects.filter(p => {
+        const bauleiterIds = (p.assigned_bauleiter || []).map(b => b.id);
+        return (bauleiterIds.includes(user.id) || p.assigned_foreman_id === user.id) && !p.foreman_completed;
+      })
     })),
     {
       id: 'completed',
@@ -477,11 +522,15 @@ export default function DispositionPage() {
                               <span>•</span>
                               <span>{project.client}</span>
                             </div>
-                            {project.assigned_foreman_name && (
+                            {((project.assigned_bauleiter && project.assigned_bauleiter.length > 0) || project.assigned_foreman_name) && (
                               <div className="flex items-center gap-2 text-sm">
-                                <UserIcon className="w-4 h-4 text-blue-500" />
+                                <Users className="w-4 h-4 text-blue-500" />
                                 <span className="text-blue-600 font-medium">
-                                  Zugewiesen an: {project.assigned_foreman_name}
+                                  Zugewiesen an: {
+                                    project.assigned_bauleiter && project.assigned_bauleiter.length > 0
+                                      ? project.assigned_bauleiter.map(b => b.name).join(', ')
+                                      : project.assigned_foreman_name
+                                  }
                                 </span>
                                 {project.foreman_completed && project.foreman_completed_date && (
                                   <span className="text-green-600 text-xs">
@@ -492,29 +541,16 @@ export default function DispositionPage() {
                             )}
                           </div>
 
-                          <div className="flex items-center gap-4 w-full md:w-auto">
-                            <div className="flex-1 md:flex-initial">
-                              <Select
-                                value={project.assigned_foreman_id || ''}
-                                onValueChange={(userId) => handleAssignForeman(project.id, userId)}
-                                disabled={assigning === project.id}
-                              >
-                                <SelectTrigger className="w-full md:w-56">
-                                  <SelectValue placeholder="Bauleiter zuweisen..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="unassign">Nicht zuweisen</SelectItem>
-                                  {users.map((user) => (
-                                    <SelectItem key={user.id} value={user.id}>
-                                      <div className="flex items-center gap-2">
-                                        <UserIcon className="w-4 h-4" />
-                                        {user.full_name}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
+                          <div className="flex items-center gap-2 w-full md:w-auto">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleOpenAssignModal(project)}
+                              className="flex-1 md:flex-initial"
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Bauleiter zuweisen
+                            </Button>
                             {assigning === project.id && (
                               <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
                             )}
@@ -544,6 +580,83 @@ export default function DispositionPage() {
             )}
           </>
         )}
+
+        {/* Assignment Modal */}
+        <AnimatePresence>
+          {showAssignModal && selectedProject && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              onClick={(e) => { if (e.target === e.currentTarget) setShowAssignModal(false); }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="w-full max-w-md"
+              >
+                <Card className="card-elevation border-none">
+                  <CardHeader className="flex flex-row items-center justify-between bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5" />
+                      Bauleiter zuweisen
+                    </CardTitle>
+                    <Button variant="ghost" size="icon" onClick={() => setShowAssignModal(false)} className="text-white hover:bg-white/20">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </CardHeader>
+
+                  <CardContent className="p-6 space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 mb-2">{selectedProject.project_number}</h3>
+                      <p className="text-sm text-gray-600">{selectedProject.title}</p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Bauleiter auswählen</Label>
+                      <div className="border rounded-lg p-3 bg-gray-50 space-y-2 max-h-64 overflow-y-auto">
+                        {users.map(user => (
+                          <div key={user.id} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`bauleiter-${user.id}`}
+                              checked={selectedBauleiter.some(b => b.id === user.id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedBauleiter([...selectedBauleiter, { id: user.id, name: user.full_name }]);
+                                } else {
+                                  setSelectedBauleiter(selectedBauleiter.filter(b => b.id !== user.id));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`bauleiter-${user.id}`} className="cursor-pointer text-sm">
+                              {user.full_name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                      {selectedBauleiter.length > 0 && (
+                        <p className="text-xs text-gray-600">
+                          {selectedBauleiter.length} Bauleiter ausgewählt
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                      <Button variant="outline" onClick={() => setShowAssignModal(false)}>
+                        Abbrechen
+                      </Button>
+                      <Button onClick={handleSaveMultipleAssignments}>
+                        Speichern
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
