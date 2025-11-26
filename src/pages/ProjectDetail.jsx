@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem } from "@/entities/all";
 import { createPageUrl } from "@/utils";
+import { SendEmail } from "@/integrations/Core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -796,20 +797,21 @@ A&S Tief- u. Straßenbau GmbH`;
     return { subject, body };
   };
 
-  const handleSendCompletionEmail = () => {
+  const handleSendCompletionEmail = async () => {
     const emailContent = generateEmailContent();
     
-    const emailTo = 'auftrag@as-tief-strassenbau.de';
-    const emailSubject = encodeURIComponent(emailContent.subject);
-    const emailBody = encodeURIComponent(emailContent.body);
-    
-    const mailtoLink = `mailto:${emailTo}?subject=${emailSubject}&body=${emailBody}`;
-    
     try {
-      window.location.href = mailtoLink;
+      await SendEmail({
+        from_name: 'Tiefbau.Cloud',
+        to: 'auftrag@as-tief-strassenbau.de',
+        subject: emailContent.subject,
+        body: emailContent.body
+      });
+      
+      alert('E-Mail wurde erfolgreich verschickt!');
     } catch (error) {
-      console.error('Fehler beim Öffnen des E-Mail-Clients:', error);
-      setShowEmailModal(true);
+      console.error('Fehler beim Versenden der E-Mail:', error);
+      alert('Fehler beim Versenden der E-Mail. Bitte versuchen Sie es erneut.');
     }
   };
 
