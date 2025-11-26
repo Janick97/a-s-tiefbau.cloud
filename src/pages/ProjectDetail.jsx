@@ -1195,10 +1195,10 @@ A&S Tief- u. Straßenbau GmbH`;
                 size="sm" 
                 onClick={handleSendCompletionEmail}
                 className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0"
-                title="Tiefbau-Abschluss melden"
+                title="Kann zu verschicken"
               >
                 <Mail className="w-3 h-3 mr-1" />
-                Abschluss
+                Kann zu
               </Button>
               <Button variant="ghost" size="sm" onClick={handlePrint} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0">
                 <Printer className="w-3 h-3 mr-1" />
@@ -1266,7 +1266,7 @@ A&S Tief- u. Straßenbau GmbH`;
                   className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Tiefbau-Abschluss melden
+                  Kann zu verschicken
                 </Button>
                 <Button variant="outline" onClick={handlePrint}>
                   <Printer className="w-4 h-4 mr-2" />
