@@ -145,22 +145,6 @@ export default function EVergabeExport({ project, excavations, priceItems, monta
           }
           
           @media print {
-            body * {
-              visibility: hidden;
-            }
-            
-            .evergabe-print-container,
-            .evergabe-print-container * {
-              visibility: visible !important;
-            }
-            
-            .evergabe-print-container {
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 100% !important;
-            }
-            
             .evergabe-export-container {
               width: 100%;
               padding: 15mm;

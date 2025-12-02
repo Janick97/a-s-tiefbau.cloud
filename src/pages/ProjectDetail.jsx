@@ -873,25 +873,103 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const handleExportEVergabePdf = () => {
-    // Verstecke alle anderen Inhalte und zeige nur E-Vergabe
-    const mainContent = document.querySelector('body > *:not(.evergabe-print-container)');
-    const evergabeContainer = document.querySelector('.evergabe-print-container');
+  const handleExportEVergabePdf = async () => {
+    if (!evergabeRef.current) {
+      alert("Fehler: E-Vergabe-Komponente konnte nicht gefunden werden.");
+      return;
+    }
 
-    if (evergabeContainer) {
-      evergabeContainer.style.display = 'block';
-      evergabeContainer.style.position = 'relative';
-      evergabeContainer.style.left = '0';
+    setIsExportingEVergabe(true);
 
-      // Drucke
-      window.print();
+    try {
+      // Position auf dem Bildschirm anzeigen für Rendering
+      const originalPosition = evergabeRef.current.style.position;
+      const originalLeft = evergabeRef.current.style.left;
 
-      // Verstecke wieder
-      setTimeout(() => {
-        evergabeContainer.style.display = 'none';
-        evergabeContainer.style.position = 'absolute';
-        evergabeContainer.style.left = '-9999px';
-      }, 100);
+      evergabeRef.current.style.position = 'fixed';
+      evergabeRef.current.style.left = '0';
+      evergabeRef.current.style.top = '0';
+      evergabeRef.current.style.zIndex = '9999';
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Finde alle Positionen einzeln
+      const positions = evergabeRef.current.querySelectorAll('.evergabe-position');
+      const header = evergabeRef.current.querySelector('.evergabe-header');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      let isFirstPage = true;
+
+      // Render Header
+      if (header) {
+        const headerCanvas = await html2canvas(header, {
+          scale: 1.5,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+        const headerImg = headerCanvas.toDataURL('image/jpeg', 0.9);
+        const headerHeight = (headerCanvas.height * 190) / headerCanvas.width;
+        pdf.addImage(headerImg, 'JPEG', 10, 10, 190, headerHeight);
+      }
+
+      // Render jede Position einzeln
+      for (let i = 0; i < positions.length; i++) {
+        const position = positions[i];
+
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
+
+        const canvas = await html2canvas(position, {
+          scale: 1.2,
+          backgroundColor: '#ffffff',
+          logging: false,
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.85);
+        const imgWidth = 190;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        // Wenn zu hoch, auf mehrere Seiten verteilen
+        if (imgHeight > 250) {
+          let yOffset = 0;
+          const maxHeight = 250;
+
+          while (yOffset < imgHeight) {
+            if (yOffset > 0) {
+              pdf.addPage();
+            } else if (!isFirstPage) {
+              // Bereits neue Seite oben hinzugefügt
+            }
+
+            pdf.addImage(imgData, 'JPEG', 10, 20 - yOffset, imgWidth, imgHeight);
+            yOffset += maxHeight;
+
+            if (yOffset < imgHeight) {
+              isFirstPage = false;
+            }
+          }
+        } else {
+          pdf.addImage(imgData, 'JPEG', 10, 20, imgWidth, imgHeight);
+        }
+
+        isFirstPage = false;
+
+        // Kleine Pause zwischen den Renderings
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Wiederherstellen
+      evergabeRef.current.style.position = originalPosition;
+      evergabeRef.current.style.left = originalLeft;
+
+      pdf.save(`EVergabe_${project.project_number}.pdf`);
+
+    } catch (error) {
+      console.error("Fehler beim Erstellen des E-Vergabe-PDFs:", error);
+      alert(`Fehler beim Erstellen des E-Vergabe-PDFs: ${error.message}`);
+    } finally {
+      setIsExportingEVergabe(false);
     }
   };
 
@@ -1738,8 +1816,8 @@ export default function ProjectDetailPage() {
         />
       </div>
 
-      {/* E-Vergabe Export - positioned off-screen for print */}
-      <div className="evergabe-print-container" style={{ position: 'absolute', left: '-9999px', top: 0, display: 'none' }}>
+      {/* E-Vergabe Export - positioned off-screen for PDF export */}
+      <div ref={evergabeRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <EVergabeExport
           project={project}
           excavations={Array.isArray(excavations) ? excavations : []}
@@ -1748,6 +1826,50 @@ export default function ProjectDetailPage() {
           montagePreisItems={Array.isArray(montagePreisItems) ? montagePreisItems : []}
         />
       </div>
+
+      {/* E-Vergabe Export Progress Dialog */}
+      <AnimatePresence>
+        {isExportingEVergabe && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md mx-4"
+            >
+              <Card className="card-elevation border-none">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8 text-white animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    E-Vergabe PDF wird erstellt...
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Positionen werden verarbeitet
+                  </p>
+                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 to-purple-600"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 3, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    Das PDF wird automatisch heruntergeladen
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Project Print Layout (for general print functionality) */}
       <ProjectPrintLayout
@@ -1762,6 +1884,6 @@ export default function ProjectDetailPage() {
       />
 
 
-    </>
+      </>
   );
 }
