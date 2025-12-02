@@ -893,10 +893,10 @@ export default function ProjectDetailPage() {
       evergabeRef.current.style.zIndex = '9999';
       evergabeRef.current.style.width = '210mm';
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 800));
 
       const canvas = await html2canvas(evergabeRef.current, {
-        scale: 2,
+        scale: 0.8,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
@@ -910,24 +910,25 @@ export default function ProjectDetailPage() {
       evergabeRef.current.style.zIndex = '';
       evergabeRef.current.style.width = originalWidth;
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.7);
       const pdf = new jsPDF('p', 'mm', 'a4');
 
       const pdfWidth = 210;
       const pdfHeight = 297;
-      const imgWidth = pdfWidth;
+      const margin = 10;
+      const imgWidth = pdfWidth - (2 * margin);
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       let heightLeft = imgHeight;
-      let position = 0;
+      let position = margin;
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight;
 
       while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+        position = -(pdfHeight * Math.floor((imgHeight - heightLeft) / pdfHeight)) + margin;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
       }
 
@@ -935,7 +936,7 @@ export default function ProjectDetailPage() {
 
     } catch (error) {
       console.error("Fehler beim Erstellen des E-Vergabe-PDFs:", error);
-      alert(`Fehler beim Erstellen des E-Vergabe-PDFs: ${error.message || 'Unbekannter Fehler'}`);
+      alert(`Fehler beim Erstellen des E-Vergabe-PDFs: ${error.message || 'Unbekannter Fehler'}. Versuchen Sie es mit weniger Positionen oder nutzen Sie den Browser-Druck.`);
 
       if (evergabeRef.current) {
         evergabeRef.current.style.position = 'absolute';
