@@ -149,24 +149,178 @@ export default function EVergabeEditor({
     setIsExporting(true);
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
-      const positions = exportRef.current.querySelectorAll('.evergabe-position');
+      let isFirstPage = true;
       
-      for (let i = 0; i < positions.length; i++) {
-        if (i > 0) pdf.addPage();
+      // Header hinzufügen
+      pdf.setFontSize(18);
+      pdf.setFont(undefined, 'bold');
+      pdf.text('E-Vergabe Aufstellung', 105, 20, { align: 'center' });
+      
+      pdf.setFontSize(12);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(`Projekt: ${project.project_number} - ${project.title}`, 105, 30, { align: 'center' });
+      pdf.text(`Kunde: ${project.client}`, 105, 37, { align: 'center' });
+      pdf.text(`Standort: ${project.street}, ${project.city}`, 105, 44, { align: 'center' });
+      
+      let yOffset = 55;
+      
+      // Excavations
+      for (let i = 0; i < editableData.excavations.length; i++) {
+        const exc = editableData.excavations[i];
+        const priceItem = priceItems.find(p => p.id === exc.price_item_id);
         
-        const canvas = await html2canvas(positions[i], {
-          scale: 2,
-          backgroundColor: '#ffffff',
-          logging: false,
-        });
+        if (yOffset > 240) {
+          pdf.addPage();
+          yOffset = 20;
+        }
         
-        const imgData = canvas.toDataURL('image/jpeg', 0.85);
-        const imgWidth = 190;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // Position Header
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(10, yOffset, 190, 10, 'F');
+        pdf.setFontSize(12);
+        pdf.setFont(undefined, 'bold');
+        pdf.text(`Position ${i + 1}: ${exc.location_name}`, 12, yOffset + 7);
         
-        pdf.addImage(imgData, 'JPEG', 10, 10, imgWidth, imgHeight);
+        yOffset += 15;
         
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // Details
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`Leistung: ${formatPriceItemDescription(priceItem)}`, 12, yOffset);
+        yOffset += 6;
+        pdf.text(`Menge: ${exc.quantity} ${priceItem?.unit || 'ST'}`, 12, yOffset);
+        yOffset += 6;
+        pdf.text(`Standort: ${exc.street}, ${exc.city}`, 12, yOffset);
+        yOffset += 6;
+        pdf.text(`Oberfläche: ${formatSurfaceType(exc.surface_type)}`, 12, yOffset);
+        yOffset += 6;
+        
+        if (exc.construction_justification) {
+          pdf.text(`Begründung: ${exc.construction_justification}`, 12, yOffset);
+          yOffset += 6;
+        }
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text(`Preis: ${exc.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
+        yOffset += 10;
+        
+        // Bilder hinzufügen
+        if (exc.evergabe_images && exc.evergabe_images.length > 0) {
+          pdf.setFont(undefined, 'normal');
+          pdf.text('Bilder:', 12, yOffset);
+          yOffset += 5;
+          
+          for (let imgIdx = 0; imgIdx < exc.evergabe_images.length; imgIdx++) {
+            const imgUrl = exc.evergabe_images[imgIdx];
+            
+            try {
+              // Bild laden und als base64 konvertieren
+              const response = await fetch(imgUrl);
+              const blob = await response.blob();
+              const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+              });
+              
+              const imgWidth = 85;
+              const imgHeight = 60;
+              const xPos = 12 + (imgIdx % 2) * 95;
+              
+              if (yOffset + imgHeight > 280) {
+                pdf.addPage();
+                yOffset = 20;
+              }
+              
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, imgWidth, imgHeight);
+              
+              if (imgIdx % 2 === 1 || imgIdx === exc.evergabe_images.length - 1) {
+                yOffset += imgHeight + 5;
+              }
+            } catch (error) {
+              console.error('Fehler beim Laden des Bildes:', error);
+            }
+          }
+        }
+        
+        yOffset += 10;
+      }
+      
+      // Montage Leistungen
+      for (let i = 0; i < editableData.montageLeistungen.length; i++) {
+        const ml = editableData.montageLeistungen[i];
+        const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
+        
+        if (yOffset > 240) {
+          pdf.addPage();
+          yOffset = 20;
+        }
+        
+        // Position Header
+        pdf.setFillColor(220, 240, 255);
+        pdf.rect(10, yOffset, 190, 10, 'F');
+        pdf.setFontSize(12);
+        pdf.setFont(undefined, 'bold');
+        pdf.text(`Position ${editableData.excavations.length + i + 1}: ${ml.location_name}`, 12, yOffset + 7);
+        
+        yOffset += 15;
+        
+        // Details
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`Leistung: ${formatPriceItemDescription(priceItem)}`, 12, yOffset);
+        yOffset += 6;
+        pdf.text(`Menge: ${ml.quantity} ${priceItem?.unit || 'ST'}`, 12, yOffset);
+        yOffset += 6;
+        
+        if (ml.work_description) {
+          pdf.text(`Beschreibung: ${ml.work_description}`, 12, yOffset);
+          yOffset += 6;
+        }
+        
+        pdf.setFont(undefined, 'bold');
+        pdf.text(`Preis: ${ml.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
+        yOffset += 10;
+        
+        // Bilder hinzufügen
+        if (ml.evergabe_images && ml.evergabe_images.length > 0) {
+          pdf.setFont(undefined, 'normal');
+          pdf.text('Bilder:', 12, yOffset);
+          yOffset += 5;
+          
+          for (let imgIdx = 0; imgIdx < ml.evergabe_images.length; imgIdx++) {
+            const imgUrl = ml.evergabe_images[imgIdx];
+            
+            try {
+              const response = await fetch(imgUrl);
+              const blob = await response.blob();
+              const base64 = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(blob);
+              });
+              
+              const imgWidth = 85;
+              const imgHeight = 60;
+              const xPos = 12 + (imgIdx % 2) * 95;
+              
+              if (yOffset + imgHeight > 280) {
+                pdf.addPage();
+                yOffset = 20;
+              }
+              
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, imgWidth, imgHeight);
+              
+              if (imgIdx % 2 === 1 || imgIdx === ml.evergabe_images.length - 1) {
+                yOffset += imgHeight + 5;
+              }
+            } catch (error) {
+              console.error('Fehler beim Laden des Bildes:', error);
+            }
+          }
+        }
+        
+        yOffset += 10;
       }
       
       pdf.save(`EVergabe_${project.project_number}.pdf`);
