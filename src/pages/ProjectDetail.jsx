@@ -873,78 +873,25 @@ export default function ProjectDetailPage() {
     }
   };
 
-  const handleExportEVergabePdf = async () => {
-    if (!evergabeRef.current) {
-      console.error("E-Vergabe-Komponente nicht für den PDF-Export gefunden.");
-      alert("Fehler: E-Vergabe-Komponente konnte nicht gefunden werden.");
-      return;
-    }
+  const handleExportEVergabePdf = () => {
+    // Verstecke alle anderen Inhalte und zeige nur E-Vergabe
+    const mainContent = document.querySelector('body > *:not(.evergabe-print-container)');
+    const evergabeContainer = document.querySelector('.evergabe-print-container');
 
-    setIsExportingEVergabe(true);
+    if (evergabeContainer) {
+      evergabeContainer.style.display = 'block';
+      evergabeContainer.style.position = 'relative';
+      evergabeContainer.style.left = '0';
 
-    try {
-      const originalPosition = evergabeRef.current.style.position;
-      const originalLeft = evergabeRef.current.style.left;
-      const originalWidth = evergabeRef.current.style.width;
+      // Drucke
+      window.print();
 
-      evergabeRef.current.style.position = 'fixed';
-      evergabeRef.current.style.left = '0';
-      evergabeRef.current.style.top = '0';
-      evergabeRef.current.style.zIndex = '9999';
-      evergabeRef.current.style.width = '210mm';
-
-      await new Promise(resolve => setTimeout(resolve, 800));
-
-      const canvas = await html2canvas(evergabeRef.current, {
-        scale: 0.8,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: 794,
-      });
-
-      evergabeRef.current.style.position = originalPosition;
-      evergabeRef.current.style.left = originalLeft;
-      evergabeRef.current.style.top = '';
-      evergabeRef.current.style.zIndex = '';
-      evergabeRef.current.style.width = originalWidth;
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.7);
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const margin = 10;
-      const imgWidth = pdfWidth - (2 * margin);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = margin;
-
-      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft >= 0) {
-        position = -(pdfHeight * Math.floor((imgHeight - heightLeft) / pdfHeight)) + margin;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      pdf.save(`EVergabe_${project.project_number}.pdf`);
-
-    } catch (error) {
-      console.error("Fehler beim Erstellen des E-Vergabe-PDFs:", error);
-      alert(`Fehler beim Erstellen des E-Vergabe-PDFs: ${error.message || 'Unbekannter Fehler'}. Versuchen Sie es mit weniger Positionen oder nutzen Sie den Browser-Druck.`);
-
-      if (evergabeRef.current) {
-        evergabeRef.current.style.position = 'absolute';
-        evergabeRef.current.style.left = '-9999px';
-        evergabeRef.current.style.width = '';
-      }
-    } finally {
-      setIsExportingEVergabe(false);
+      // Verstecke wieder
+      setTimeout(() => {
+        evergabeContainer.style.display = 'none';
+        evergabeContainer.style.position = 'absolute';
+        evergabeContainer.style.left = '-9999px';
+      }, 100);
     }
   };
 
@@ -1666,49 +1613,7 @@ export default function ProjectDetailPage() {
         )}
       </AnimatePresence>
 
-      {/* E-Vergabe Export Progress Dialog */}
-      <AnimatePresence>
-        {isExportingEVergabe && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-md mx-4"
-            >
-              <Card className="card-elevation border-none">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-white animate-pulse" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    E-Vergabe Export wird erstellt...
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Bitte warten Sie einen Moment
-                  </p>
-                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 to-purple-600"
-                      initial={{ width: '0%' }}
-                      animate={{ width: '100%' }}
-                      transition={{ duration: 2, ease: "easeInOut" }}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-500 mt-3">
-                    Das PDF wird automatisch heruntergeladen
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Email Modal */}
       <AnimatePresence>
@@ -1833,8 +1738,8 @@ export default function ProjectDetailPage() {
         />
       </div>
 
-      {/* E-Vergabe Export - positioned off-screen for PDF export */}
-      <div style={{ position: 'absolute', left: '-9999px', top: 0 }} ref={evergabeRef}>
+      {/* E-Vergabe Export - positioned off-screen for print */}
+      <div className="evergabe-print-container" style={{ position: 'absolute', left: '-9999px', top: 0, display: 'none' }}>
         <EVergabeExport
           project={project}
           excavations={Array.isArray(excavations) ? excavations : []}
