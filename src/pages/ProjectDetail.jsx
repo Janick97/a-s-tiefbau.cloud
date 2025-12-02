@@ -883,34 +883,26 @@ export default function ProjectDetailPage() {
     setIsExportingEVergabe(true);
 
     try {
-      console.log("Starte E-Vergabe Export...");
-      
       const originalPosition = evergabeRef.current.style.position;
       const originalLeft = evergabeRef.current.style.left;
       const originalWidth = evergabeRef.current.style.width;
-      
+
       evergabeRef.current.style.position = 'fixed';
       evergabeRef.current.style.left = '0';
       evergabeRef.current.style.top = '0';
       evergabeRef.current.style.zIndex = '9999';
       evergabeRef.current.style.width = '210mm';
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
 
-      console.log("Erstelle Canvas...");
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
       const canvas = await html2canvas(evergabeRef.current, {
-        scale: 1.5,
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        foreignObjectRendering: false,
-        imageTimeout: 10000,
-        removeContainer: true,
         windowWidth: 794,
       });
-
-      console.log("Canvas erstellt, Größe:", canvas.width, "x", canvas.height);
 
       evergabeRef.current.style.position = originalPosition;
       evergabeRef.current.style.left = originalLeft;
@@ -918,59 +910,33 @@ export default function ProjectDetailPage() {
       evergabeRef.current.style.zIndex = '';
       evergabeRef.current.style.width = originalWidth;
 
-      if (canvas.width <= 0 || canvas.height <= 0) {
-        throw new Error(`Ungültige Canvas-Dimensionen: ${canvas.width}x${canvas.height}`);
-      }
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.85);
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
 
       const pdfWidth = 210;
       const pdfHeight = 297;
-      const imgWidth = pdfWidth - 20;
+      const imgWidth = pdfWidth;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      console.log("PDF Dimensionen - Breite:", imgWidth, "Höhe:", imgHeight);
 
-      let yPosition = 10;
-      let remainingHeight = imgHeight;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      while (remainingHeight > 0) {
-        const pageContentHeight = Math.min(remainingHeight, pdfHeight - 20);
-        const sourceY = imgHeight - remainingHeight;
-        const sourceHeight = (pageContentHeight / imgHeight) * canvas.height;
-        
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = sourceHeight;
-        const ctx = pageCanvas.getContext('2d');
-        
-        ctx.drawImage(
-          canvas,
-          0, sourceY * (canvas.height / imgHeight),
-          canvas.width, sourceHeight,
-          0, 0,
-          canvas.width, sourceHeight
-        );
-        
-        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.85);
-        
-        if (remainingHeight < imgHeight) {
-          pdf.addPage();
-        }
-        
-        pdf.addImage(pageImgData, 'JPEG', 10, 10, imgWidth, pageContentHeight);
-        remainingHeight -= pageContentHeight;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
       }
 
-      console.log("Speichere PDF...");
       pdf.save(`EVergabe_${project.project_number}.pdf`);
 
     } catch (error) {
-      console.error("Detaillierter Fehler beim Erstellen des E-Vergabe-PDFs:", error);
-      console.error("Error Stack:", error.stack);
+      console.error("Fehler beim Erstellen des E-Vergabe-PDFs:", error);
       alert(`Fehler beim Erstellen des E-Vergabe-PDFs: ${error.message || 'Unbekannter Fehler'}`);
-      
+
       if (evergabeRef.current) {
         evergabeRef.current.style.position = 'absolute';
         evergabeRef.current.style.left = '-9999px';
