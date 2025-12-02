@@ -192,6 +192,8 @@ export default function EVergabeEditor({
         yOffset += 6;
         pdf.text(`Standort: ${exc.street}, ${exc.city}`, 12, yOffset);
         yOffset += 6;
+        pdf.text(`Maße: ${exc.excavation_length || 1.2}m x ${exc.excavation_width || 1.0}m x ${exc.excavation_depth || 1.0}m`, 12, yOffset);
+        yOffset += 6;
         pdf.text(`Oberfläche: ${formatSurfaceType(exc.surface_type)}`, 12, yOffset);
         yOffset += 6;
         
