@@ -80,6 +80,52 @@ export default function EVergabeEditor({
     });
   };
 
+  const handleSelectFromExisting = (type, index, imageUrl) => {
+    setEditableData(prev => {
+      const updated = { ...prev };
+      const key = type === 'excavation' ? 'excavations' : 'montageLeistungen';
+      const newArray = [...updated[key]];
+      const currentImages = newArray[index].evergabe_images || [];
+      
+      // Check if already selected
+      if (currentImages.includes(imageUrl)) {
+        // Deselect
+        newArray[index] = {
+          ...newArray[index],
+          evergabe_images: currentImages.filter(url => url !== imageUrl)
+        };
+      } else {
+        // Select (max 2)
+        if (currentImages.length < 2) {
+          newArray[index] = {
+            ...newArray[index],
+            evergabe_images: [...currentImages, imageUrl]
+          };
+        } else {
+          alert("Maximal 2 Bilder können ausgewählt werden");
+          return prev;
+        }
+      }
+      
+      updated[key] = newArray;
+      return updated;
+    });
+  };
+
+  const getAllExcavationPhotos = (exc) => {
+    const allPhotos = [];
+    if (exc.photos_before) allPhotos.push(...exc.photos_before.map(url => ({ url, label: 'Vorher' })));
+    if (exc.photos_after) allPhotos.push(...exc.photos_after.map(url => ({ url, label: 'Nachher' })));
+    if (exc.photos_environment) allPhotos.push(...exc.photos_environment.map(url => ({ url, label: 'Umfeld' })));
+    if (exc.photos_backfill) allPhotos.push(...exc.photos_backfill.map(url => ({ url, label: 'Verfüllung' })));
+    if (exc.photos_surface) allPhotos.push(...exc.photos_surface.map(url => ({ url, label: 'Oberfläche' })));
+    return allPhotos;
+  };
+
+  const getMontagePhotos = (ml) => {
+    return ml.photos ? ml.photos.map(url => ({ url, label: 'Montage' })) : [];
+  };
+
   const formatPriceItemDescription = (priceItem) => {
     if (!priceItem) return '';
     return `${priceItem.item_number} - ${priceItem.description}`;
@@ -212,53 +258,99 @@ export default function EVergabeEditor({
                 </div>
 
                 {/* Image Management */}
-                <div className="border-t pt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">Bilder für E-Vergabe</Label>
-                    <label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => document.getElementById(`upload-exc-${index}`).click()}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Bild hinzufügen
-                      </Button>
-                      <input
-                        id={`upload-exc-${index}`}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e.target.files[0], 'excavation', index)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {exc.evergabe_images?.map((imgUrl, imgIndex) => (
-                      <div key={imgIndex} className="relative group">
-                        <img 
-                          src={imgUrl} 
-                          alt={`Position ${index + 1} - Bild ${imgIndex + 1}`}
-                          className="w-full h-32 object-cover rounded border"
-                        />
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                          onClick={() => handleRemoveImage('excavation', index, imgIndex)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                <div className="border-t pt-4 space-y-4">
+                  {/* Available Photos from Position */}
+                  {getAllExcavationPhotos(exc).length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-blue-700">
+                        Verfügbare Bilder von der Position (max. 2 auswählen)
+                      </Label>
+                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                        {getAllExcavationPhotos(exc).map((photo, photoIndex) => {
+                          const isSelected = exc.evergabe_images?.includes(photo.url);
+                          return (
+                            <div 
+                              key={photoIndex} 
+                              className={`relative cursor-pointer rounded border-2 transition-all ${
+                                isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-400'
+                              }`}
+                              onClick={() => handleSelectFromExisting('excavation', index, photo.url)}
+                            >
+                              <img 
+                                src={photo.url} 
+                                alt={photo.label}
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
+                                {photo.label}
+                              </Badge>
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center rounded">
+                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
+                      <p className="text-xs text-gray-500">
+                        {exc.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Custom Upload */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-semibold">Eigene Bilder hochladen</Label>
+                      <label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => document.getElementById(`upload-exc-${index}`).click()}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Bild hochladen
+                        </Button>
+                        <input
+                          id={`upload-exc-${index}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e.target.files[0], 'excavation', index)}
+                        />
+                      </label>
+                    </div>
                   </div>
 
-                  {(!exc.evergabe_images || exc.evergabe_images.length === 0) && (
-                    <div className="text-center py-8 bg-gray-50 rounded border-2 border-dashed">
-                      <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-500">Keine Bilder hinzugefügt</p>
+                  {/* Selected Images Preview */}
+                  {exc.evergabe_images && exc.evergabe_images.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {exc.evergabe_images.map((imgUrl, imgIndex) => (
+                          <div key={imgIndex} className="relative group">
+                            <img 
+                              src={imgUrl} 
+                              alt={`Ausgewählt ${imgIndex + 1}`}
+                              className="w-full h-32 object-cover rounded border-2 border-green-500"
+                            />
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                              onClick={() => handleRemoveImage('excavation', index, imgIndex)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -304,53 +396,99 @@ export default function EVergabeEditor({
                 </div>
 
                 {/* Image Management */}
-                <div className="border-t pt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">Bilder für E-Vergabe</Label>
-                    <label>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => document.getElementById(`upload-ml-${index}`).click()}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Bild hinzufügen
-                      </Button>
-                      <input
-                        id={`upload-ml-${index}`}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => handleImageUpload(e.target.files[0], 'montage', index)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {ml.evergabe_images?.map((imgUrl, imgIndex) => (
-                      <div key={imgIndex} className="relative group">
-                        <img 
-                          src={imgUrl} 
-                          alt={`Position ${editableData.excavations.length + index + 1} - Bild ${imgIndex + 1}`}
-                          className="w-full h-32 object-cover rounded border"
-                        />
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                          onClick={() => handleRemoveImage('montage', index, imgIndex)}
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
+                <div className="border-t pt-4 space-y-4">
+                  {/* Available Photos from Montage */}
+                  {getMontagePhotos(ml).length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-blue-700">
+                        Verfügbare Bilder von der Montageleistung (max. 2 auswählen)
+                      </Label>
+                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                        {getMontagePhotos(ml).map((photo, photoIndex) => {
+                          const isSelected = ml.evergabe_images?.includes(photo.url);
+                          return (
+                            <div 
+                              key={photoIndex} 
+                              className={`relative cursor-pointer rounded border-2 transition-all ${
+                                isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-400'
+                              }`}
+                              onClick={() => handleSelectFromExisting('montage', index, photo.url)}
+                            >
+                              <img 
+                                src={photo.url} 
+                                alt={photo.label}
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
+                                {photo.label}
+                              </Badge>
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center rounded">
+                                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
+                      <p className="text-xs text-gray-500">
+                        {ml.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Custom Upload */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label className="text-sm font-semibold">Eigene Bilder hochladen</Label>
+                      <label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => document.getElementById(`upload-ml-${index}`).click()}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Bild hochladen
+                        </Button>
+                        <input
+                          id={`upload-ml-${index}`}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e.target.files[0], 'montage', index)}
+                        />
+                      </label>
+                    </div>
                   </div>
 
-                  {(!ml.evergabe_images || ml.evergabe_images.length === 0) && (
-                    <div className="text-center py-8 bg-gray-50 rounded border-2 border-dashed">
-                      <ImageIcon className="w-12 h-12 mx-auto mb-2 text-gray-400" />
-                      <p className="text-sm text-gray-500">Keine Bilder hinzugefügt</p>
+                  {/* Selected Images Preview */}
+                  {ml.evergabe_images && ml.evergabe_images.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {ml.evergabe_images.map((imgUrl, imgIndex) => (
+                          <div key={imgIndex} className="relative group">
+                            <img 
+                              src={imgUrl} 
+                              alt={`Ausgewählt ${imgIndex + 1}`}
+                              className="w-full h-32 object-cover rounded border-2 border-green-500"
+                            />
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
+                              onClick={() => handleRemoveImage('montage', index, imgIndex)}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
