@@ -192,8 +192,15 @@ export default function EVergabeEditor({
         yOffset += 6;
         pdf.text(`Standort: ${exc.street}, ${exc.city}`, 12, yOffset);
         yOffset += 6;
-        pdf.text(`Maße: ${exc.excavation_length || 1.2}m x ${exc.excavation_width || 1.0}m x ${exc.excavation_depth || 1.0}m`, 12, yOffset);
+        
+        // Maße je nach Typ (Grube oder Graben)
+        if (priceItem?.type === 'Graben') {
+          pdf.text(`Länge: ${exc.excavation_length || 1.2}m`, 12, yOffset);
+        } else {
+          pdf.text(`Maße: ${exc.excavation_length || 1.2}m x ${exc.excavation_width || 1.0}m x ${exc.excavation_depth || 1.0}m`, 12, yOffset);
+        }
         yOffset += 6;
+        
         pdf.text(`Oberfläche: ${formatSurfaceType(exc.surface_type)}`, 12, yOffset);
         yOffset += 6;
         
