@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,8 +10,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit, Trash2, Package, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Loader2, FileDown } from "lucide-react";
 import { ProjectMaterial, Material } from "@/entities/all";
+import { jsPDF } from 'jspdf';
 
 function MaterialForm({ open, setOpen, project, projectMaterial, allMaterials, onSubmit }) {
     const [selectedCategory, setSelectedCategory] = useState('alle');
@@ -137,10 +137,89 @@ export default function MaterialManagement({ project, projectMaterials, allMater
     const [showForm, setShowForm] = useState(false);
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [updatingMaterialId, setUpdatingMaterialId] = useState(null);
+    const [isExporting, setIsExporting] = useState(false);
 
     const allMaterialsMap = useMemo(() => {
         return new Map(allMaterials.map(item => [item.id, item]));
     }, [allMaterials]);
+
+    const handleExportPDF = async () => {
+        setIsExporting(true);
+        try {
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            // Header
+            pdf.setFontSize(18);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Materialübersicht', 105, 20, { align: 'center' });
+            
+            pdf.setFontSize(12);
+            pdf.setFont(undefined, 'normal');
+            pdf.text(`Projekt: ${project.project_number} - ${project.title}`, 105, 30, { align: 'center' });
+            pdf.text(`Kunde: ${project.client}`, 105, 37, { align: 'center' });
+            
+            let yOffset = 50;
+            
+            // Tabellenkopf
+            pdf.setFillColor(240, 240, 240);
+            pdf.rect(10, yOffset, 190, 10, 'F');
+            pdf.setFontSize(10);
+            pdf.setFont(undefined, 'bold');
+            pdf.text('Material', 12, yOffset + 7);
+            pdf.text('Art-Nr.', 80, yOffset + 7);
+            pdf.text('Menge', 130, yOffset + 7);
+            pdf.text('Kategorie', 160, yOffset + 7);
+            
+            yOffset += 15;
+            
+            // Materialen
+            pdf.setFont(undefined, 'normal');
+            projectMaterials.forEach((pm, index) => {
+                const material = allMaterialsMap.get(pm.material_id);
+                if (!material) return;
+                
+                if (yOffset > 270) {
+                    pdf.addPage();
+                    yOffset = 20;
+                }
+                
+                // Alternierende Zeilen
+                if (index % 2 === 0) {
+                    pdf.setFillColor(250, 250, 250);
+                    pdf.rect(10, yOffset - 4, 190, 8, 'F');
+                }
+                
+                pdf.text(material.name, 12, yOffset);
+                pdf.text(material.article_number, 80, yOffset);
+                pdf.text(`${pm.quantity} ${material.unit}`, 130, yOffset);
+                pdf.text(material.category || '-', 160, yOffset);
+                
+                if (pm.notes) {
+                    yOffset += 5;
+                    pdf.setFontSize(8);
+                    pdf.setTextColor(100, 100, 100);
+                    pdf.text(`Notiz: ${pm.notes}`, 12, yOffset);
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.setFontSize(10);
+                    yOffset += 2;
+                }
+                
+                yOffset += 8;
+            });
+            
+            // Footer
+            pdf.setFontSize(8);
+            pdf.setTextColor(150, 150, 150);
+            pdf.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 105, 285, { align: 'center' });
+            
+            pdf.save(`Material_${project.project_number}.pdf`);
+        } catch (error) {
+            console.error("Fehler beim PDF Export:", error);
+            alert("Fehler beim PDF Export: " + error.message);
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const handleAdd = () => {
         setEditingMaterial(null);
@@ -200,10 +279,16 @@ export default function MaterialManagement({ project, projectMaterials, allMater
         <div className="p-4 md:p-6">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold">Materialien ({projectMaterials.length})</h3>
-                <Button onClick={handleAdd}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Material hinzufügen
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleExportPDF} disabled={isExporting}>
+                        <FileDown className="w-4 h-4 mr-2" />
+                        {isExporting ? 'Exportiere...' : 'PDF Export'}
+                    </Button>
+                    <Button onClick={handleAdd}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Material hinzufügen
+                    </Button>
+                </div>
             </div>
             
             <div className="space-y-3">
