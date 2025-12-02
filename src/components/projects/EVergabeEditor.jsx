@@ -188,8 +188,6 @@ export default function EVergabeEditor({
         pdf.setFont(undefined, 'normal');
         pdf.text(`Leistung: ${formatPriceItemDescription(priceItem)}`, 12, yOffset);
         yOffset += 6;
-        pdf.text(`Menge: ${exc.quantity} ${priceItem?.unit || 'ST'}`, 12, yOffset);
-        yOffset += 6;
         pdf.text(`Standort: ${exc.street}, ${exc.city}`, 12, yOffset);
         yOffset += 6;
         
