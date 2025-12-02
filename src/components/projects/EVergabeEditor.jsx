@@ -200,9 +200,7 @@ export default function EVergabeEditor({
           yOffset += 6;
         }
         
-        pdf.setFont(undefined, 'bold');
-        pdf.text(`Preis: ${exc.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
-        yOffset += 10;
+        yOffset += 4;
         
         // Bilder hinzufügen
         if (exc.evergabe_images && exc.evergabe_images.length > 0) {
@@ -278,9 +276,7 @@ export default function EVergabeEditor({
           yOffset += 6;
         }
         
-        pdf.setFont(undefined, 'bold');
-        pdf.text(`Preis: ${ml.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
-        yOffset += 10;
+        yOffset += 4;
         
         // Bilder hinzufügen
         if (ml.evergabe_images && ml.evergabe_images.length > 0) {
