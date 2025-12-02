@@ -56,6 +56,7 @@ import MontageAuftragSection from "../components/projects/MontageAuftragSection"
 import ExcavationForm from "../components/excavations/ExcavationForm";
 import PullingWorkForm from "../components/projects/PullingWorkForm";
 import EVergabeExport from "../components/projects/EVergabeExport";
+import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 
 import html2canvas from 'html2canvas';
@@ -1098,6 +1099,7 @@ export default function ProjectDetailPage() {
   const TABS = [
     { id: 'overview', name: 'Übersicht' },
     { id: 'deckblatt', name: 'Deckblatt' },
+    { id: 'evergabe', name: 'E-Vergabe' },
     { id: 'excavations', name: `Leistungen (${excavations.length})` },
     { id: 'pulling', name: 'Einziehen' },
     { id: 'materials', name: 'Material' },
@@ -1176,10 +1178,7 @@ export default function ProjectDetailPage() {
                 <FileText className="w-3 h-3 mr-1" />
                 PDF
               </Button>
-              <Button variant="ghost" size="sm" onClick={handleExportEVergabePdf} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0 bg-purple-50 border-purple-200 text-purple-700">
-                <FileText className="w-3 h-3 mr-1" />
-                E-Vergabe
-              </Button>
+
               <Button variant="ghost" size="sm" onClick={handleShowEditForm} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0">
                 <Edit className="w-3 h-3 mr-1" />
                 Bearb.
@@ -1244,10 +1243,7 @@ export default function ProjectDetailPage() {
                   <FileText className="w-4 h-4 mr-2" />
                   Deckblatt Export
                 </Button>
-                <Button variant="outline" onClick={handleExportEVergabePdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
-                  <FileText className="w-4 h-4 mr-2" />
-                  E-Vergabe Export
-                </Button>
+
                 {!project.montage_auftrag_id && (
                   <Button 
                     variant="outline" 
@@ -1439,6 +1435,18 @@ export default function ProjectDetailPage() {
                     timesheets={timesheets}
                     documents={documents}
                     priceItems={priceItems}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'evergabe' && (
+                <div className="p-2 sm:p-4 lg:p-6">
+                  <EVergabeEditor
+                    project={project}
+                    excavations={excavations}
+                    priceItems={priceItems}
+                    montageLeistungen={montageLeistungen}
+                    montagePreisItems={montagePreisItems}
                   />
                 </div>
               )}
