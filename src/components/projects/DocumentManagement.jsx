@@ -18,7 +18,9 @@ import {
   Eye,
   Edit,
   Check,
-  X
+  X,
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
@@ -48,6 +50,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [customFolders, setCustomFolders] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [dragTargetFolder, setDragTargetFolder] = useState(null);
+  const [expandedFolders, setExpandedFolders] = useState(new Set());
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
@@ -270,6 +273,38 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     setDragTargetFolder(null);
   };
 
+  const toggleFolder = (folder) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(folder)) {
+        newSet.delete(folder);
+      } else {
+        newSet.add(folder);
+      }
+      return newSet;
+    });
+  };
+
+  const hasSubfolders = (folder) => {
+    return allFolders.some(f => f.startsWith(folder + '/') && f !== folder);
+  };
+
+  const isSubfolderOf = (folder, parentFolder) => {
+    if (!folder.startsWith(parentFolder + '/')) return false;
+    const remainingPath = folder.substring(parentFolder.length + 1);
+    return !remainingPath.includes('/');
+  };
+
+  const getVisibleFolders = () => {
+    return allFolders.filter(folder => {
+      const depth = getFolderDepth(folder);
+      if (depth === 0) return true;
+      
+      const parent = getParentFolder(folder);
+      return expandedFolders.has(parent);
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -380,8 +415,11 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </div>
         )}
 
-        {allFolders.map((folder) => {
+        {getVisibleFolders().map((folder) => {
           const docs = groupedDocuments[folder] || [];
+          const hasSubs = hasSubfolders(folder);
+          const isExpanded = expandedFolders.has(folder);
+          
           return (
             <Card 
               key={folder} 
@@ -394,12 +432,22 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
+                    {hasSubs && (
+                      <button
+                        onClick={() => toggleFolder(folder)}
+                        className="hover:bg-gray-100 rounded p-1 -ml-1"
+                      >
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4 text-gray-600" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 text-gray-600" />
+                        )}
+                      </button>
+                    )}
+                    {!hasSubs && <div className="w-6" />}
                     <FolderOpen className="w-5 h-5 text-orange-600" />
                     {getFolderName(folder)}
                     <Badge variant="outline">{docs.length} Datei(en)</Badge>
-                    {getFolderDepth(folder) > 0 && (
-                      <span className="text-xs text-gray-500">in {getParentFolder(folder)}</span>
-                    )}
                   </CardTitle>
                   <Button
                     variant="ghost"
