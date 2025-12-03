@@ -494,10 +494,17 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               </h2>
               
               <div className="space-y-4">
-                {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => (
-                  <div key={projectId} className={`w-full project-group page-break-inside-avoid ${groupIndex > 0 ? 'page-break-before' : ''}`}>
-                    {/* Projektüberschrift */}
-                    {Object.keys(excavationsByProject).length > 1 && (
+                {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => {
+                  // Teile Excavations in Gruppen von 10 auf
+                  const chunks = [];
+                  for (let i = 0; i < group.excavations.length; i += 10) {
+                    chunks.push(group.excavations.slice(i, i + 10));
+                  }
+                  
+                  return chunks.map((chunk, chunkIndex) => (
+                  <div key={`${projectId}-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                    {/* Projektüberschrift - nur beim ersten Chunk */}
+                    {chunkIndex === 0 && Object.keys(excavationsByProject).length > 1 && (
                       <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
                         <h3 className="text-base font-bold text-gray-900">
                           {group.project.project_number} - {group.project.title}
@@ -528,7 +535,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {group.excavations.map((exc, index) => {
+                          {chunk.map((exc, index) => {
                             const surfaceWork = getSurfaceWork(exc);
                             const excavationType = getExcavationType(exc);
                             const baustellenDetails = getBaustellenDetails(exc);
@@ -654,7 +661,8 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       </Table>
                     </div>
                   </div>
-                ))}
+                  ));
+                })}
               </div>
             </div>
           )}
@@ -731,15 +739,13 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                                 </TableCell>
                               </TableRow>
                             );
-                          })}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+                            })}
+                            </TableBody>
+                            </Table>
+                            </div>
+                            </div>
+                            ));
+                            })}
 
           {/* Footer */}
           <div className="w-full mt-3 pt-2 border-t border-gray-300">
