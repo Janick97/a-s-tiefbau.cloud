@@ -1050,6 +1050,30 @@ export default function ProjectsPage() {
                   className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                 />
               </TableCell>
+              <TableCell className="py-2 text-center w-24" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={project.ev_ta || false}
+                      onChange={(e) => handleCheckboxChange(project.id, 'ev_ta', e.target.checked)}
+                      disabled={updatingProject === project.id}
+                      className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-gray-600">TA</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="checkbox"
+                      checked={project.ev_sa || false}
+                      onChange={(e) => handleCheckboxChange(project.id, 'ev_sa', e.target.checked)}
+                      disabled={updatingProject === project.id}
+                      className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-xs text-gray-600">SA</span>
+                  </div>
+                </div>
+              </TableCell>
             </motion.tr>
         );
     });
@@ -1073,6 +1097,7 @@ export default function ProjectsPage() {
                   <TableHead className="py-2 w-64">Status</TableHead>
                   <TableHead className="py-2 w-24 text-center">Material</TableHead>
                   <TableHead className="py-2 w-28 text-center">Dokumentation</TableHead>
+                  <TableHead className="py-2 w-24 text-center">EV</TableHead>
                 </TableRow>
                 <TableRow className="bg-gray-50/50">
                    <TableCell className="p-1">
@@ -1226,6 +1251,8 @@ export default function ProjectsPage() {
                           <SelectItem value="no">Nein</SelectItem>
                         </SelectContent>
                      </Select>
+                   </TableCell>
+                   <TableCell className="p-1">
                    </TableCell>
                 </TableRow>
               </TableHeader>
@@ -1399,6 +1426,37 @@ export default function ProjectsPage() {
                               disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'documentation_completed')}
                               className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                             />
+                          </div>
+                          <div className="border-t pt-2 mt-2">
+                            <p className="text-gray-500 text-sm mb-2 font-medium">EV</p>
+                            <div className="flex gap-4">
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={project.ev_ta || false}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleCheckboxChange(project.id, 'ev_ta', e.target.checked);
+                                  }}
+                                  disabled={updatingProject === project.id}
+                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">TA</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={project.ev_sa || false}
+                                  onChange={(e) => {
+                                    e.stopPropagation();
+                                    handleCheckboxChange(project.id, 'ev_sa', e.target.checked);
+                                  }}
+                                  disabled={updatingProject === project.id}
+                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span className="text-sm text-gray-700">SA</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <Button
