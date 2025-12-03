@@ -727,8 +727,6 @@ export default function EVergabeEditor({
         })}
           </div>
         ))}
-          </div>
-        ))}
 
         {editableData.excavations.length === 0 && editableData.montageLeistungen.length === 0 && (
           <Card>
