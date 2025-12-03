@@ -1449,6 +1449,7 @@ export default function ProjectDetailPage() {
                     montageLeistungen={montageLeistungen}
                     montagePreisItems={montagePreisItems}
                     allProjects={[project, ...followUpProjects]}
+                    documents={documents}
                   />
                 </div>
               )}

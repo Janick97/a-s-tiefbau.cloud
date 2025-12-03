@@ -16,7 +16,8 @@ export default function EVergabeEditor({
   priceItems, 
   montageLeistungen, 
   montagePreisItems,
-  allProjects = []
+  allProjects = [],
+  documents = []
 }) {
   const [editableData, setEditableData] = useState({
     excavations: [],
@@ -160,6 +161,12 @@ export default function EVergabeEditor({
 
   const getMontagePhotos = (ml) => {
     return ml.photos ? ml.photos.map(url => ({ url, label: 'Montage' })) : [];
+  };
+
+  const getDocumentPhotos = () => {
+    return documents
+      .filter(doc => doc.file_type && doc.file_type.includes('image'))
+      .map(doc => ({ url: doc.file_url, label: doc.folder || 'Dokument' }));
   };
 
   const formatPriceItemDescription = (priceItem) => {
@@ -425,6 +432,7 @@ export default function EVergabeEditor({
             {/* Leistungen */}
             {group.excavations.map((exc, excIndex) => {
           const globalIndex = editableData.excavations.findIndex(e => e.id === exc.id);
+          const editableExc = editableData.excavations[globalIndex];
           const priceItem = priceItems.find(p => p.id === exc.price_item_id);
           
           return (
@@ -477,7 +485,7 @@ export default function EVergabeEditor({
                       </Label>
                       <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                         {getAllExcavationPhotos(exc).map((photo, photoIndex) => {
-                          const isSelected = exc.evergabe_images?.includes(photo.url);
+                          const isSelected = editableExc?.evergabe_images?.includes(photo.url);
                           return (
                             <div 
                               key={photoIndex} 
@@ -508,8 +516,49 @@ export default function EVergabeEditor({
                         })}
                       </div>
                       <p className="text-xs text-gray-500">
-                        {exc.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                        {editableExc?.evergabe_images?.length || 0} von 2 Bildern ausgewählt
                       </p>
+                    </div>
+                  )}
+
+                  {/* Available Photos from Documents */}
+                  {getDocumentPhotos().length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-purple-700">
+                        Verfügbare Bilder aus Anlagenkorb (max. 2 auswählen)
+                      </Label>
+                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                        {getDocumentPhotos().map((photo, photoIndex) => {
+                          const isSelected = editableExc?.evergabe_images?.includes(photo.url);
+                          return (
+                            <div 
+                              key={photoIndex} 
+                              className={`relative cursor-pointer rounded border-2 transition-all ${
+                                isSelected ? 'border-purple-500 ring-2 ring-purple-300' : 'border-gray-300 hover:border-purple-400'
+                              }`}
+                              onClick={() => handleSelectFromExisting('excavation', globalIndex, photo.url)}
+                            >
+                              <img 
+                                src={photo.url} 
+                                alt={photo.label}
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
+                                {photo.label}
+                              </Badge>
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center rounded">
+                                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -539,11 +588,11 @@ export default function EVergabeEditor({
                   </div>
 
                   {/* Selected Images Preview */}
-                  {exc.evergabe_images && exc.evergabe_images.length > 0 && (
+                  {editableExc?.evergabe_images && editableExc.evergabe_images.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
                       <div className="grid grid-cols-2 gap-3">
-                        {exc.evergabe_images.map((imgUrl, imgIndex) => (
+                        {editableExc.evergabe_images.map((imgUrl, imgIndex) => (
                           <div key={imgIndex} className="relative group">
                             <img 
                               src={imgUrl} 
@@ -590,6 +639,7 @@ export default function EVergabeEditor({
             {/* Leistungen */}
             {group.montageLeistungen.map((ml, mlIndex) => {
           const globalIndex = editableData.montageLeistungen.findIndex(m => m.id === ml.id);
+          const editableMl = editableData.montageLeistungen[globalIndex];
           const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
           
           return (
@@ -634,7 +684,7 @@ export default function EVergabeEditor({
                       </Label>
                       <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                         {getMontagePhotos(ml).map((photo, photoIndex) => {
-                          const isSelected = ml.evergabe_images?.includes(photo.url);
+                          const isSelected = editableMl?.evergabe_images?.includes(photo.url);
                           return (
                             <div 
                               key={photoIndex} 
@@ -665,8 +715,49 @@ export default function EVergabeEditor({
                         })}
                       </div>
                       <p className="text-xs text-gray-500">
-                        {ml.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                        {editableMl?.evergabe_images?.length || 0} von 2 Bildern ausgewählt
                       </p>
+                    </div>
+                  )}
+
+                  {/* Available Photos from Documents */}
+                  {getDocumentPhotos().length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-purple-700">
+                        Verfügbare Bilder aus Anlagenkorb (max. 2 auswählen)
+                      </Label>
+                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                        {getDocumentPhotos().map((photo, photoIndex) => {
+                          const isSelected = editableMl?.evergabe_images?.includes(photo.url);
+                          return (
+                            <div 
+                              key={photoIndex} 
+                              className={`relative cursor-pointer rounded border-2 transition-all ${
+                                isSelected ? 'border-purple-500 ring-2 ring-purple-300' : 'border-gray-300 hover:border-purple-400'
+                              }`}
+                              onClick={() => handleSelectFromExisting('montage', globalIndex, photo.url)}
+                            >
+                              <img 
+                                src={photo.url} 
+                                alt={photo.label}
+                                className="w-full h-20 object-cover rounded"
+                              />
+                              <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
+                                {photo.label}
+                              </Badge>
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center rounded">
+                                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
 
@@ -696,11 +787,11 @@ export default function EVergabeEditor({
                   </div>
 
                   {/* Selected Images Preview */}
-                  {ml.evergabe_images && ml.evergabe_images.length > 0 && (
+                  {editableMl?.evergabe_images && editableMl.evergabe_images.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
                       <div className="grid grid-cols-2 gap-3">
-                        {ml.evergabe_images.map((imgUrl, imgIndex) => (
+                        {editableMl.evergabe_images.map((imgUrl, imgIndex) => (
                           <div key={imgIndex} className="relative group">
                             <img 
                               src={imgUrl} 
