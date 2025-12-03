@@ -406,21 +406,6 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     />
                   </div>
 
-                  {uploading && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm text-gray-600">
-                        <span>Hochladen...</span>
-                        <span>{uploadProgress.current} / {uploadProgress.total}</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-orange-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  
                   <div className="flex gap-3">
                     <Button type="submit" disabled={uploading || uploadForm.files.length === 0}>
                       <Upload className="w-4 h-4 mr-2" />
