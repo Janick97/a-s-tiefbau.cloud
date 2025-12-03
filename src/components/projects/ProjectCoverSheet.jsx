@@ -495,10 +495,15 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               
               <div className="space-y-4">
                 {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => {
-                  // Teile Excavations in Gruppen von 10 auf
+                  // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
                   const chunks = [];
-                  for (let i = 0; i < group.excavations.length; i += 10) {
-                    chunks.push(group.excavations.slice(i, i + 10));
+                  if (group.excavations.length > 0) {
+                    // Erste Seite mit max 4 Items
+                    chunks.push(group.excavations.slice(0, 4));
+                    // Restliche Items in 10er Gruppen
+                    for (let i = 4; i < group.excavations.length; i += 10) {
+                      chunks.push(group.excavations.slice(i, i + 10));
+                    }
                   }
                   
                   return chunks.map((chunk, chunkIndex) => (
@@ -677,10 +682,15 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               
               <div className="space-y-4">
                 {Object.entries(groupedExcavations.special).map(([projectId, group], groupIndex) => {
-                  // Teile spezielle Excavations in Gruppen von 10 auf
+                  // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
                   const chunks = [];
-                  for (let i = 0; i < group.excavations.length; i += 10) {
-                    chunks.push(group.excavations.slice(i, i + 10));
+                  if (group.excavations.length > 0) {
+                    // Erste Seite mit max 4 Items
+                    chunks.push(group.excavations.slice(0, 4));
+                    // Restliche Items in 10er Gruppen
+                    for (let i = 4; i < group.excavations.length; i += 10) {
+                      chunks.push(group.excavations.slice(i, i + 10));
+                    }
                   }
                   
                   return chunks.map((chunk, chunkIndex) => (
