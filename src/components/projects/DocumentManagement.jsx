@@ -146,6 +146,10 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return acc;
   }, {});
 
+  const isImage = (fileType) => {
+    return fileType && fileType.includes('image');
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -238,85 +242,196 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {docs.map((doc) => (
-                  <motion.div
-                    key={doc.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <FileText className="w-5 h-5 text-gray-500 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        {editingFileName === doc.id ? (
-                          <div className="flex items-center gap-2">
-                            <Input
-                              value={newFileName}
-                              onChange={(e) => setNewFileName(e.target.value)}
-                              className="flex-1"
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') saveFileName(doc.id);
-                                if (e.key === 'Escape') cancelEditingFileName();
-                              }}
-                              autoFocus
-                            />
-                            <Button size="sm" onClick={() => saveFileName(doc.id)} className="px-2">
-                              <Check className="w-4 h-4" />
-                            </Button>
-                            <Button size="sm" variant="outline" onClick={cancelEditingFileName} className="px-2">
-                              <X className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <>
-                            <p className="font-medium text-gray-900 truncate">{doc.file_name}</p>
-                            <p className="text-sm text-gray-500">{formatFileSize(doc.file_size)} • von {doc.uploaded_by || doc.created_by}</p>
-                            {doc.description && (
-                              <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    
-                    {editingFileName !== doc.id && (
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => startEditingFileName(doc)}
-                          title="Dateiname bearbeiten"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          title="Vorschau"
-                          onClick={() => setPreviewDoc(doc)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <a href={doc.file_url} download={doc.file_name}>
-                          <Button size="sm" variant="outline" title="Herunterladen">
-                            <Download className="w-4 h-4" />
+              {/* Grid view for images */}
+              {docs.some(doc => isImage(doc.file_type)) && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+                  {docs.filter(doc => isImage(doc.file_type)).map((doc) => (
+                    <motion.div
+                      key={doc.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-orange-400 transition-all"
+                    >
+                      <img 
+                        src={doc.file_url} 
+                        alt={doc.file_name}
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => setPreviewDoc(doc)}
+                      />
+                      
+                      {/* Overlay with actions */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 bg-white/90 hover:bg-white"
+                            onClick={() => setPreviewDoc(doc)}
+                            title="Vorschau"
+                          >
+                            <Eye className="w-3 h-3" />
                           </Button>
-                        </a>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteDocument(doc.id)}
-                          className="text-red-600 hover:text-red-700"
-                          title="Löschen"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                          <a href={doc.file_url} download={doc.file_name}>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 bg-white/90 hover:bg-white"
+                              title="Herunterladen"
+                            >
+                              <Download className="w-3 h-3" />
+                            </Button>
+                          </a>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 bg-red-100 hover:bg-red-200 text-red-600"
+                            onClick={() => handleDeleteDocument(doc.id)}
+                            title="Löschen"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                        
+                        {/* Filename editor */}
+                        <div className="bg-white/95 rounded p-1">
+                          {editingFileName === doc.id ? (
+                            <div className="flex items-center gap-1">
+                              <Input
+                                value={newFileName}
+                                onChange={(e) => setNewFileName(e.target.value)}
+                                className="h-6 text-xs px-1"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveFileName(doc.id);
+                                  if (e.key === 'Escape') cancelEditingFileName();
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                autoFocus
+                              />
+                              <Button 
+                                size="sm" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  saveFileName(doc.id);
+                                }} 
+                                className="h-6 w-6 p-0"
+                              >
+                                <Check className="w-3 h-3" />
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  cancelEditingFileName();
+                                }} 
+                                className="h-6 w-6 p-0"
+                              >
+                                <X className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <div 
+                              className="flex items-center gap-1 cursor-pointer"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingFileName(doc);
+                              }}
+                            >
+                              <p className="text-xs font-medium text-gray-900 truncate flex-1">
+                                {doc.file_name}
+                              </p>
+                              <Edit className="w-3 h-3 text-gray-600 flex-shrink-0" />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+              
+              {/* List view for non-images */}
+              {docs.some(doc => !isImage(doc.file_type)) && (
+                <div className="space-y-3">
+                  {docs.filter(doc => !isImage(doc.file_type)).map((doc) => (
+                    <motion.div
+                      key={doc.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <FileText className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          {editingFileName === doc.id ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={newFileName}
+                                onChange={(e) => setNewFileName(e.target.value)}
+                                className="flex-1"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') saveFileName(doc.id);
+                                  if (e.key === 'Escape') cancelEditingFileName();
+                                }}
+                                autoFocus
+                              />
+                              <Button size="sm" onClick={() => saveFileName(doc.id)} className="px-2">
+                                <Check className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={cancelEditingFileName} className="px-2">
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="font-medium text-gray-900 truncate">{doc.file_name}</p>
+                              <p className="text-sm text-gray-500">{formatFileSize(doc.file_size)} • von {doc.uploaded_by || doc.created_by}</p>
+                              {doc.description && (
+                                <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {editingFileName !== doc.id && (
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEditingFileName(doc)}
+                            title="Dateiname bearbeiten"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            title="Vorschau"
+                            onClick={() => setPreviewDoc(doc)}
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                          <a href={doc.file_url} download={doc.file_name}>
+                            <Button size="sm" variant="outline" title="Herunterladen">
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          </a>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteDocument(doc.id)}
+                            className="text-red-600 hover:text-red-700"
+                            title="Löschen"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
