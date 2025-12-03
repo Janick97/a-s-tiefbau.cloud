@@ -521,45 +521,45 @@ export default function EVergabeEditor({
                     </div>
                   )}
 
-                  {/* Available Photos from Documents */}
+                  {/* Available Photos from Documents - Excavations */}
                   {getDocumentPhotos().length > 0 && (
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold text-purple-700">
-                        Verfügbare Bilder aus Anlagenkorb (max. 2 auswählen)
-                      </Label>
-                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                        {getDocumentPhotos().map((photo, photoIndex) => {
-                          const isSelected = editableExc?.evergabe_images?.includes(photo.url);
-                          return (
-                            <div 
-                              key={photoIndex} 
-                              className={`relative cursor-pointer rounded border-2 transition-all ${
-                                isSelected ? 'border-purple-500 ring-2 ring-purple-300' : 'border-gray-300 hover:border-purple-400'
-                              }`}
-                              onClick={() => handleSelectFromExisting('excavation', globalIndex, photo.url)}
-                            >
-                              <img 
-                                src={photo.url} 
-                                alt={photo.label}
-                                className="w-full h-20 object-cover rounded"
-                              />
-                              <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
-                                {photo.label}
-                              </Badge>
-                              {isSelected && (
-                                <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center rounded">
-                                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                   <div className="space-y-2">
+                     <Label className="text-sm font-semibold text-purple-700">
+                       Bilder aus Anlagenkorb (max. 4 auswählen)
+                     </Label>
+                     <div className="grid grid-cols-3 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
+                       {getDocumentPhotos().map((photo, photoIndex) => {
+                         const isSelected = editableExc?.evergabe_images?.includes(photo.url);
+                         return (
+                           <div 
+                             key={`doc-exc-${photoIndex}`}
+                             className={`relative cursor-pointer rounded border-2 transition-all ${
+                               isSelected ? 'border-purple-500 ring-2 ring-purple-300' : 'border-gray-300 hover:border-purple-400'
+                             }`}
+                             onClick={() => handleSelectFromExisting('excavation', globalIndex, photo.url)}
+                           >
+                             <img 
+                               src={photo.url} 
+                               alt={photo.label}
+                               className="w-full h-20 object-cover rounded"
+                             />
+                             <Badge className="absolute bottom-1 left-1 text-xs py-0 px-1 bg-black/70 text-white">
+                               {photo.label}
+                             </Badge>
+                             {isSelected && (
+                               <div className="absolute inset-0 bg-purple-500/20 flex items-center justify-center rounded">
+                                 <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                                   <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                   </svg>
+                                 </div>
+                               </div>
+                             )}
+                           </div>
+                         );
+                       })}
+                     </div>
+                   </div>
                   )}
 
                   {/* Custom Upload */}
@@ -715,7 +715,7 @@ export default function EVergabeEditor({
                         })}
                       </div>
                       <p className="text-xs text-gray-500">
-                        {editableMl?.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                        {editableMl?.evergabe_images?.length || 0} von 4 Bildern ausgewählt
                       </p>
                     </div>
                   )}
