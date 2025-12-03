@@ -119,6 +119,14 @@ export default function DispositionPage() {
     if (!project.montage_auftrag_id) return;
 
     try {
+      // Zuerst prüfen ob der Montageauftrag existiert
+      const montageAuftrag = await MontageAuftrag.get(project.montage_auftrag_id);
+      
+      if (!montageAuftrag) {
+        alert('Montageauftrag nicht gefunden. Möglicherweise wurde er gelöscht.');
+        return;
+      }
+
       await MontageAuftrag.update(project.montage_auftrag_id, {
         tiefbau_offen: true,
         tiefbau_offen_date: new Date().toISOString()
@@ -127,7 +135,7 @@ export default function DispositionPage() {
       alert('Montageauftrag wurde erfolgreich als "Tiefbau offen" markiert!');
     } catch (error) {
       console.error('Fehler beim Markieren als Tiefbau offen:', error);
-      alert('Fehler beim Markieren: ' + error.message);
+      alert('Fehler: Der Montageauftrag konnte nicht gefunden werden. Bitte erstellen Sie einen neuen Montageauftrag.');
     }
   };
 
