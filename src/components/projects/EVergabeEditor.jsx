@@ -132,14 +132,14 @@ export default function EVergabeEditor({
           evergabe_images: currentImages.filter(url => url !== imageUrl)
         };
       } else {
-        // Select (max 2)
-        if (currentImages.length < 2) {
+        // Select (max 4)
+        if (currentImages.length < 4) {
           newArray[index] = {
             ...newArray[index],
             evergabe_images: [...currentImages, imageUrl]
           };
         } else {
-          alert("Maximal 2 Bilder können ausgewählt werden");
+          alert("Maximal 4 Bilder können ausgewählt werden");
           return prev;
         }
       }
@@ -481,7 +481,7 @@ export default function EVergabeEditor({
                   {getAllExcavationPhotos(exc).length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-blue-700">
-                        Verfügbare Bilder von der Position (max. 2 auswählen)
+                        Verfügbare Bilder von der Position (max. 4 auswählen)
                       </Label>
                       <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                         {getAllExcavationPhotos(exc).map((photo, photoIndex) => {
@@ -516,7 +516,7 @@ export default function EVergabeEditor({
                         })}
                       </div>
                       <p className="text-xs text-gray-500">
-                        {editableExc?.evergabe_images?.length || 0} von 2 Bildern ausgewählt
+                        {editableExc?.evergabe_images?.length || 0} von 4 Bildern ausgewählt
                       </p>
                     </div>
                   )}
@@ -591,7 +591,7 @@ export default function EVergabeEditor({
                   {editableExc?.evergabe_images && editableExc.evergabe_images.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {editableExc.evergabe_images.map((imgUrl, imgIndex) => (
                           <div key={imgIndex} className="relative group">
                             <img 
@@ -680,7 +680,7 @@ export default function EVergabeEditor({
                   {getMontagePhotos(ml).length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-blue-700">
-                        Verfügbare Bilder von der Montageleistung (max. 2 auswählen)
+                        Verfügbare Bilder von der Montageleistung (max. 4 auswählen)
                       </Label>
                       <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
                         {getMontagePhotos(ml).map((photo, photoIndex) => {
@@ -790,7 +790,7 @@ export default function EVergabeEditor({
                   {editableMl?.evergabe_images && editableMl.evergabe_images.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-green-700">Ausgewählte Bilder für Export</Label>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {editableMl.evergabe_images.map((imgUrl, imgIndex) => (
                           <div key={imgIndex} className="relative group">
                             <img 
