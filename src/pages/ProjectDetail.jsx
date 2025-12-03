@@ -980,10 +980,19 @@ export default function ProjectDetailPage() {
       console.error("Fehler: Projektdaten sind null, Montageauftrag kann nicht erstellt werden.");
       return;
     }
-    
+
     if (project.montage_auftrag_id) {
       alert("Für dieses Projekt existiert bereits ein Montageauftrag!");
       console.warn(`Montageauftrag bereits vorhanden für Projekt ${project.id}. ID: ${project.montage_auftrag_id}`);
+      return;
+    }
+
+    // Sicherheitsabfrage
+    const confirmed = window.confirm(
+      `Möchten Sie wirklich einen Montageauftrag für das Projekt "${project.project_number} - ${project.title}" erstellen?`
+    );
+
+    if (!confirmed) {
       return;
     }
 
