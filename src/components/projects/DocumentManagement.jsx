@@ -45,16 +45,32 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [showSubfolderDialog, setShowSubfolderDialog] = useState(false);
   const [selectedParentFolder, setSelectedParentFolder] = useState("");
   const [newSubfolderName, setNewSubfolderName] = useState("");
+  const [customFolders, setCustomFolders] = useState([]);
+  const [dragActive, setDragActive] = useState(false);
+  const [dragTargetFolder, setDragTargetFolder] = useState(null);
   
   const [uploadForm, setUploadForm] = useState({
-    file: null,
+    files: [],
     folder: "Bilder",
     description: ""
   });
 
   useEffect(() => {
     loadDocuments();
+    loadCustomFolders();
   }, [projectId]);
+
+  const loadCustomFolders = () => {
+    const saved = localStorage.getItem(`custom_folders_${projectId}`);
+    if (saved) {
+      setCustomFolders(JSON.parse(saved));
+    }
+  };
+
+  const saveCustomFolders = (folders) => {
+    localStorage.setItem(`custom_folders_${projectId}`, JSON.stringify(folders));
+    setCustomFolders(folders);
+  };
 
   const loadDocuments = async () => {
     setIsLoading(true);
@@ -70,23 +86,25 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
   const handleFileUpload = async (e) => {
     e.preventDefault();
-    if (!uploadForm.file) return;
+    if (!uploadForm.files || uploadForm.files.length === 0) return;
 
     setUploading(true);
     try {
-      const { file_url } = await UploadFile({ file: uploadForm.file });
-      
-      await ProjectDocument.create({
-        project_id: projectId,
-        file_name: uploadForm.file.name,
-        file_url: file_url,
-        file_size: uploadForm.file.size,
-        file_type: uploadForm.file.type,
-        folder: uploadForm.folder,
-        description: uploadForm.description
-      });
+      for (const file of uploadForm.files) {
+        const { file_url } = await UploadFile({ file });
+        
+        await ProjectDocument.create({
+          project_id: projectId,
+          file_name: file.name,
+          file_url: file_url,
+          file_size: file.size,
+          file_type: file.type,
+          folder: uploadForm.folder,
+          description: uploadForm.description
+        });
+      }
 
-      setUploadForm({ file: null, folder: "Bilder", description: "" });
+      setUploadForm({ files: [], folder: "Bilder", description: "" });
       setShowUploadForm(false);
       await loadDocuments();
     } catch (error) {
@@ -141,9 +159,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Get all unique folders (including subfolders)
+  // Get all unique folders (including subfolders and custom empty folders)
   const allFolders = React.useMemo(() => {
-    const folders = new Set();
+    const folders = new Set([...customFolders]);
     documents.forEach(doc => {
       if (doc.folder) {
         folders.add(doc.folder);
@@ -155,7 +173,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
       }
     });
     return Array.from(folders).sort();
-  }, [documents]);
+  }, [documents, customFolders]);
 
   const groupedDocuments = documents.reduce((acc, doc) => {
     if (!acc[doc.folder]) {
@@ -199,11 +217,57 @@ export default function DocumentManagement({ projectId, project, loadData }) {
       return;
     }
     
-    setUploadForm({...uploadForm, folder: newFolderPath});
+    const updatedFolders = [...customFolders, newFolderPath];
+    saveCustomFolders(updatedFolders);
+    
     setShowSubfolderDialog(false);
     setNewSubfolderName("");
     setSelectedParentFolder("");
-    setShowUploadForm(true);
+  };
+
+  const handleDrop = async (e, folder) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    setDragTargetFolder(null);
+
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      for (const file of files) {
+        const { file_url } = await UploadFile({ file });
+        
+        await ProjectDocument.create({
+          project_id: projectId,
+          file_name: file.name,
+          file_url: file_url,
+          file_size: file.size,
+          file_type: file.type,
+          folder: folder,
+          description: ""
+        });
+      }
+      await loadDocuments();
+    } catch (error) {
+      console.error("Fehler beim Upload:", error);
+    }
+    setUploading(false);
+  };
+
+  const handleDragOver = (e, folder) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(true);
+    setDragTargetFolder(folder);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    setDragTargetFolder(null);
   };
 
   return (
@@ -228,12 +292,18 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               <CardContent className="p-6">
                 <form onSubmit={handleFileUpload} className="space-y-4">
                   <div>
-                    <Label>Datei auswählen</Label>
+                    <Label>Datei(en) auswählen</Label>
                     <Input
                       type="file"
-                      onChange={(e) => setUploadForm({...uploadForm, file: e.target.files[0]})}
+                      multiple
+                      onChange={(e) => setUploadForm({...uploadForm, files: Array.from(e.target.files)})}
                       required
                     />
+                    {uploadForm.files.length > 0 && (
+                      <p className="text-sm text-gray-600 mt-2">
+                        {uploadForm.files.length} Datei(en) ausgewählt
+                      </p>
+                    )}
                   </div>
                   
                   <div>
@@ -285,9 +355,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   </div>
 
                   <div className="flex gap-3">
-                    <Button type="submit" disabled={uploading || !uploadForm.file}>
+                    <Button type="submit" disabled={uploading || uploadForm.files.length === 0}>
                       <Upload className="w-4 h-4 mr-2" />
-                      {uploading ? "Uploading..." : "Hochladen"}
+                      {uploading ? "Uploading..." : `${uploadForm.files.length} Datei(en) hochladen`}
                     </Button>
                     <Button type="button" variant="outline" onClick={() => setShowUploadForm(false)}>
                       Abbrechen
@@ -302,7 +372,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
       {/* Documents grouped by folder */}
       <div className="space-y-6">
-        {Object.keys(groupedDocuments).length === 0 && !isLoading && (
+        {allFolders.length === 0 && !isLoading && (
           <div className="text-center py-12">
             <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <h3 className="text-lg font-medium text-gray-500 mb-2">Noch keine Dokumente</h3>
@@ -310,33 +380,49 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </div>
         )}
 
-        {Object.entries(groupedDocuments).map(([folder, docs]) => (
-          <Card key={folder} className="card-elevation border-none" style={{ marginLeft: `${getFolderDepth(folder) * 24}px` }}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <FolderOpen className="w-5 h-5 text-orange-600" />
-                  {getFolderName(folder)}
-                  <Badge variant="outline">{docs.length} Datei(en)</Badge>
-                  {getFolderDepth(folder) > 0 && (
-                    <span className="text-xs text-gray-500">in {getParentFolder(folder)}</span>
-                  )}
-                </CardTitle>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setSelectedParentFolder(folder);
-                    setShowSubfolderDialog(true);
-                  }}
-                  title="Unterordner erstellen"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Unterordner
-                </Button>
-              </div>
-            </CardHeader>
+        {allFolders.map((folder) => {
+          const docs = groupedDocuments[folder] || [];
+          return (
+            <Card 
+              key={folder} 
+              className={`card-elevation border-none transition-all ${dragActive && dragTargetFolder === folder ? 'border-2 border-orange-500 bg-orange-50' : ''}`}
+              style={{ marginLeft: `${getFolderDepth(folder) * 24}px` }}
+              onDrop={(e) => handleDrop(e, folder)}
+              onDragOver={(e) => handleDragOver(e, folder)}
+              onDragLeave={handleDragLeave}
+            >
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <FolderOpen className="w-5 h-5 text-orange-600" />
+                    {getFolderName(folder)}
+                    <Badge variant="outline">{docs.length} Datei(en)</Badge>
+                    {getFolderDepth(folder) > 0 && (
+                      <span className="text-xs text-gray-500">in {getParentFolder(folder)}</span>
+                    )}
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedParentFolder(folder);
+                      setShowSubfolderDialog(true);
+                    }}
+                    title="Unterordner erstellen"
+                  >
+                    <Plus className="w-4 h-4 mr-1" />
+                    Unterordner
+                  </Button>
+                </div>
+              </CardHeader>
             <CardContent>
+              {docs.length === 0 && (
+                <div className="text-center py-8 text-gray-400">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Ziehen Sie Dateien hierher oder klicken Sie auf "Datei hochladen"</p>
+                </div>
+              )}
+              
               {/* Grid view for images */}
               {docs.some(doc => isImage(doc.file_type)) && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
@@ -529,7 +615,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               )}
             </CardContent>
           </Card>
-        ))}
+          );
+        })}
       </div>
 
       {/* Preview Modal */}
