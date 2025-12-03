@@ -42,6 +42,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [editingFileName, setEditingFileName] = useState(null);
   const [newFileName, setNewFileName] = useState("");
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [showSubfolderDialog, setShowSubfolderDialog] = useState(false);
+  const [selectedParentFolder, setSelectedParentFolder] = useState("");
+  const [newSubfolderName, setNewSubfolderName] = useState("");
   
   const [uploadForm, setUploadForm] = useState({
     file: null,
@@ -138,6 +141,22 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  // Get all unique folders (including subfolders)
+  const allFolders = React.useMemo(() => {
+    const folders = new Set();
+    documents.forEach(doc => {
+      if (doc.folder) {
+        folders.add(doc.folder);
+        // Add parent folders
+        const parts = doc.folder.split('/');
+        for (let i = 1; i < parts.length; i++) {
+          folders.add(parts.slice(0, i).join('/'));
+        }
+      }
+    });
+    return Array.from(folders).sort();
+  }, [documents]);
+
   const groupedDocuments = documents.reduce((acc, doc) => {
     if (!acc[doc.folder]) {
       acc[doc.folder] = [];
@@ -148,6 +167,42 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
   const isImage = (fileType) => {
     return fileType && fileType.includes('image');
+  };
+
+  const getFolderDepth = (folder) => {
+    return folder.split('/').length - 1;
+  };
+
+  const getParentFolder = (folder) => {
+    const parts = folder.split('/');
+    return parts.slice(0, -1).join('/');
+  };
+
+  const getFolderName = (folder) => {
+    const parts = folder.split('/');
+    return parts[parts.length - 1];
+  };
+
+  const handleCreateSubfolder = async () => {
+    if (!newSubfolderName.trim()) {
+      alert("Bitte geben Sie einen Ordnernamen ein");
+      return;
+    }
+    
+    const newFolderPath = selectedParentFolder 
+      ? `${selectedParentFolder}/${newSubfolderName.trim()}`
+      : newSubfolderName.trim();
+    
+    // Check if folder already exists
+    if (allFolders.includes(newFolderPath)) {
+      alert("Dieser Ordner existiert bereits");
+      return;
+    }
+    
+    setUploadForm({...uploadForm, folder: newFolderPath});
+    setShowSubfolderDialog(false);
+    setNewSubfolderName("");
+    setSelectedParentFolder("");
   };
 
   return (
@@ -182,19 +237,41 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   
                   <div>
                     <Label>Ordner</Label>
-                    <Select
-                      value={uploadForm.folder}
-                      onValueChange={(value) => setUploadForm({...uploadForm, folder: value})}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {folderOptions.map(folder => (
-                          <SelectItem key={folder} value={folder}>{folder}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select
+                        value={uploadForm.folder}
+                        onValueChange={(value) => setUploadForm({...uploadForm, folder: value})}
+                        className="flex-1"
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {folderOptions.map(folder => (
+                            <SelectItem key={folder} value={folder}>{folder}</SelectItem>
+                          ))}
+                          {allFolders
+                            .filter(f => !folderOptions.includes(f))
+                            .map(folder => (
+                              <SelectItem key={folder} value={folder}>
+                                {'  '.repeat(getFolderDepth(folder))}└─ {getFolderName(folder)}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                      <Button 
+                        type="button" 
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedParentFolder(uploadForm.folder);
+                          setShowSubfolderDialog(true);
+                        }}
+                        title="Unterordner erstellen"
+                      >
+                        <FolderOpen className="w-4 h-4 mr-2" />
+                        Neu
+                      </Button>
+                    </div>
                   </div>
 
                   <div>
@@ -233,13 +310,30 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
 
         {Object.entries(groupedDocuments).map(([folder, docs]) => (
-          <Card key={folder} className="card-elevation border-none">
+          <Card key={folder} className="card-elevation border-none" style={{ marginLeft: `${getFolderDepth(folder) * 24}px` }}>
             <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <FolderOpen className="w-5 h-5 text-orange-600" />
-                {folder}
-                <Badge variant="outline">{docs.length} Datei(en)</Badge>
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <FolderOpen className="w-5 h-5 text-orange-600" />
+                  {getFolderName(folder)}
+                  <Badge variant="outline">{docs.length} Datei(en)</Badge>
+                  {getFolderDepth(folder) > 0 && (
+                    <span className="text-xs text-gray-500">in {getParentFolder(folder)}</span>
+                  )}
+                </CardTitle>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedParentFolder(folder);
+                    setShowSubfolderDialog(true);
+                  }}
+                  title="Unterordner erstellen"
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Unterordner
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {/* Grid view for images */}
@@ -504,6 +598,68 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     <p className="text-sm text-gray-700">{previewDoc.description}</p>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Subfolder Dialog */}
+      <AnimatePresence>
+        {showSubfolderDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setShowSubfolderDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold mb-4">Neuer Unterordner</h3>
+              <div className="space-y-4">
+                <div>
+                  <Label>Übergeordneter Ordner</Label>
+                  <Input
+                    value={selectedParentFolder || "Hauptebene"}
+                    disabled
+                    className="bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <Label>Name des Unterordners</Label>
+                  <Input
+                    value={newSubfolderName}
+                    onChange={(e) => setNewSubfolderName(e.target.value)}
+                    placeholder="z.B. Projekt-2024"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCreateSubfolder();
+                      if (e.key === 'Escape') setShowSubfolderDialog(false);
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowSubfolderDialog(false);
+                      setNewSubfolderName("");
+                      setSelectedParentFolder("");
+                    }}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleCreateSubfolder}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Erstellen
+                  </Button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
