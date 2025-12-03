@@ -13,6 +13,7 @@ import ProjectForm from "../components/projects/ProjectForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
+import { MultiSelect } from "@/components/ui/multi-select";
 
 const statusColors = {
   planning: "bg-blue-100 text-blue-800 border-blue-200",
@@ -68,16 +69,16 @@ export default function ProjectsPage() {
   const [parentForNewProject, setParentForNewProject] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
-    project_number: 'all',
-    sm_number: 'all',
-    order_type: 'all',
-    contact_person: 'all',
-    project_status: 'all',
+    project_number: [],
+    sm_number: [],
+    order_type: [],
+    contact_person: [],
+    project_status: [],
     material_booking_completed: 'all',
     documentation_completed: 'all',
-    city: 'all',
-    street: 'all',
-    vao_status: 'all',
+    city: [],
+    street: [],
+    vao_status: [],
     vao_valid_from: '',
     vao_valid_to: '',
     vao_days_remaining: '',
@@ -631,16 +632,16 @@ export default function ProjectsPage() {
 
   const handleResetFilters = () => {
     setFilters({
-      project_number: 'all',
-      sm_number: 'all',
-      order_type: 'all',
-      contact_person: 'all',
-      project_status: 'all',
+      project_number: [],
+      sm_number: [],
+      order_type: [],
+      contact_person: [],
+      project_status: [],
       material_booking_completed: 'all',
       documentation_completed: 'all',
-      city: 'all',
-      street: 'all',
-      vao_status: 'all',
+      city: [],
+      street: [],
+      vao_status: [],
       vao_valid_from: '',
       vao_valid_to: '',
       vao_days_remaining: '',
@@ -739,20 +740,20 @@ export default function ProjectsPage() {
             (p.city || '').toLowerCase().includes(searchLower) ||
             (p.street || '').toLowerCase().includes(searchLower);
 
-        const matchesProjectNumber = filters.project_number === 'all' || p.project_number === filters.project_number;
-        const matchesSmNumber = filters.sm_number === 'all' || p.sm_number === filters.sm_number;
-        const matchesOrderType = filters.order_type === 'all' || p.order_type === filters.order_type;
-        const matchesContactPerson = filters.contact_person === 'all' || p.contact_person === filters.contact_person;
-        const matchesProjectStatus = filters.project_status === 'all' || p.project_status === filters.project_status;
+        const matchesProjectNumber = filters.project_number.length === 0 || filters.project_number.includes(p.project_number);
+        const matchesSmNumber = filters.sm_number.length === 0 || filters.sm_number.includes(p.sm_number);
+        const matchesOrderType = filters.order_type.length === 0 || filters.order_type.includes(p.order_type);
+        const matchesContactPerson = filters.contact_person.length === 0 || filters.contact_person.includes(p.contact_person);
+        const matchesProjectStatus = filters.project_status.length === 0 || filters.project_status.includes(p.project_status);
         const matchesMaterial = filters.material_booking_completed === 'all'
             || (filters.material_booking_completed === 'yes' && p.material_booking_completed)
             || (filters.material_booking_completed === 'no' && !p.material_booking_completed);
         const matchesDocumentation = filters.documentation_completed === 'all'
             || (filters.documentation_completed === 'yes' && p.documentation_completed)
             || (filters.documentation_completed === 'no' && !p.documentation_completed);
-        const matchesCity = filters.city === 'all' || p.city === filters.city;
-        const matchesStreet = filters.street === 'all' || p.street === filters.street;
-        const matchesVaoStatus = filters.vao_status === 'all' || p.vao_status === filters.vao_status;
+        const matchesCity = filters.city.length === 0 || filters.city.includes(p.city);
+        const matchesStreet = filters.street.length === 0 || filters.street.includes(p.street);
+        const matchesVaoStatus = filters.vao_status.length === 0 || filters.vao_status.includes(p.vao_status);
         
         const matchesVaoValidFrom = !filters.vao_valid_from || (p.vao_valid_from && new Date(p.vao_valid_from) >= new Date(filters.vao_valid_from));
         const matchesVaoValidTo = !filters.vao_valid_to || (p.vao_valid_to && new Date(p.vao_valid_to) <= new Date(filters.vao_valid_to));
@@ -1075,8 +1076,8 @@ export default function ProjectsPage() {
                 </TableRow>
                 <TableRow className="bg-gray-50/50">
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...projectNumberOptions]}
+                     <MultiSelect
+                       options={projectNumberOptions}
                        value={filters.project_number}
                        onValueChange={(v) => handleFilterChange('project_number', v)}
                        placeholder="Nr..."
@@ -1085,8 +1086,8 @@ export default function ProjectsPage() {
                      />
                    </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...orderTypeOptions]}
+                     <MultiSelect
+                       options={orderTypeOptions}
                        value={filters.order_type}
                        onValueChange={(v) => handleFilterChange('order_type', v)}
                        placeholder="Filtern..."
@@ -1095,8 +1096,8 @@ export default function ProjectsPage() {
                      />
                    </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...smNumberOptions]}
+                     <MultiSelect
+                       options={smNumberOptions}
                        value={filters.sm_number}
                        onValueChange={(v) => handleFilterChange('sm_number', v)}
                        placeholder="SM..."
@@ -1105,8 +1106,8 @@ export default function ProjectsPage() {
                      />
                    </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...cityOptions]}
+                     <MultiSelect
+                       options={cityOptions}
                        value={filters.city}
                        onValueChange={(v) => handleFilterChange('city', v)}
                        placeholder="Stadt..."
@@ -1115,8 +1116,8 @@ export default function ProjectsPage() {
                      />
                    </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...streetOptions]}
+                     <MultiSelect
+                       options={streetOptions}
                        value={filters.street}
                        onValueChange={(v) => handleFilterChange('street', v)}
                        placeholder="Straße..."
@@ -1125,8 +1126,8 @@ export default function ProjectsPage() {
                      />
                    </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...contactPersonOptions]}
+                     <MultiSelect
+                       options={contactPersonOptions}
                        value={filters.contact_person}
                        onValueChange={(v) => handleFilterChange('contact_person', v)}
                        placeholder="Filtern..."
@@ -1136,8 +1137,8 @@ export default function ProjectsPage() {
                    </TableCell>
                    <TableCell className="p-1">
                      <div className="space-y-1">
-                       <Combobox
-                         options={[{ value: 'all', label: 'Alle' }, ...vaoStatusOptions]}
+                       <MultiSelect
+                         options={vaoStatusOptions}
                          value={filters.vao_status}
                          onValueChange={(v) => handleFilterChange('vao_status', v)}
                          placeholder="VAO..."
@@ -1197,8 +1198,8 @@ export default function ProjectsPage() {
                       </div>
                     </TableCell>
                    <TableCell className="p-1">
-                     <Combobox
-                       options={[{ value: 'all', label: 'Alle' }, ...projectStatusOptions]}
+                     <MultiSelect
+                       options={projectStatusOptions}
                        value={filters.project_status}
                        onValueChange={(v) => handleFilterChange('project_status', v)}
                        placeholder="Filtern..."
