@@ -135,19 +135,44 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             width: 100% !important;
             max-width: none !important;
           }
+          
+          /* Seitenumbruch-Kontrolle */
+          .page-break-inside-avoid {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .page-break-after {
+            page-break-after: always !important;
+            break-after: always !important;
+          }
+          .project-group {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .info-section {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          
           /* Ensure all borders are visible in print */
           table {
             border-collapse: collapse !important;
+            border: 2px solid rgb(31, 41, 55) !important;
           }
           table, th, td {
             border-color: rgb(31, 41, 55) !important;
             border-style: solid !important;
           }
           th {
-            border-width: 2.5px !important;
+            border-width: 2px !important;
+            border: 2px solid rgb(31, 41, 55) !important;
           }
           td {
             border-width: 2px !important;
+            border: 2px solid rgb(31, 41, 55) !important;
+          }
+          tr {
+            border-bottom: 2px solid rgb(31, 41, 55) !important;
           }
           .border {
             border-width: 2px !important;
@@ -220,7 +245,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           </div>
 
           {/* Projektinformationen - 3 Spalten (Kennzahlen & Bauakten entfernt) */}
-          <div className="w-full grid grid-cols-3 gap-6 mb-6">
+          <div className="w-full grid grid-cols-3 gap-6 mb-6 info-section">
             
             {/* Spalte 1 - Basis-Infos */}
             <div className="space-y-2.5">
@@ -413,7 +438,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             {excavations.length > 0 ? (
               <div className="space-y-4">
                 {Object.entries(excavationsByProject).map(([projectId, group]) => (
-                  <div key={projectId} className="w-full">
+                  <div key={projectId} className="w-full project-group page-break-inside-avoid">
                     {/* Projektüberschrift */}
                     {Object.keys(excavationsByProject).length > 1 && (
                       <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
@@ -428,10 +453,10 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                     )}
                     
                     {/* Leistungstabelle */}
-                    <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm">
-                      <Table className="w-full border-collapse">
+                    <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm page-break-inside-avoid">
+                      <Table className="w-full border-collapse" style={{ border: '2px solid rgb(31, 41, 55)' }}>
                         <TableHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
-                          <TableRow className="border-b-2 border-gray-700">
+                          <TableRow className="border-b-2 border-gray-700" style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
                             <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Standort</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[5%] border-r-2 border-gray-700 text-center">Typ</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[7%] border-r-2 border-gray-700">Oberfl.</TableHead>
@@ -452,7 +477,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             const baustellenDetails = getBaustellenDetails(exc);
                             
                             return (
-                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="font-semibold leading-tight">{exc.location_name}</div>
                                   <div className="text-gray-600 leading-tight text-xs">
