@@ -34,7 +34,8 @@ import {
   X,
   Clock,
   Package,
-  ListRestart
+  ListRestart,
+  Construction
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProjectForm from "../components/projects/ProjectForm";
