@@ -203,6 +203,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     setShowSubfolderDialog(false);
     setNewSubfolderName("");
     setSelectedParentFolder("");
+    setShowUploadForm(true);
   };
 
   return (
