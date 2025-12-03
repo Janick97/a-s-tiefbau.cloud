@@ -531,8 +531,9 @@ export default function ProjectForm({ project, parentProject, onSubmit, onCancel
                       <SelectContent>
                         <SelectItem value="beantragt">Beantragt</SelectItem>
                         <SelectItem value="liegt vor">Liegt vor</SelectItem>
-                        <SelectItem value="abgelaufen">Abgelaufen</SelectItem>
                         <SelectItem value="Verlängerung beantragt">Verlängerung beantragt</SelectItem>
+                        <SelectItem value="Nicht notwendig">Nicht notwendig</SelectItem>
+                        <SelectItem value="Nicht verlängern">Nicht verlängern</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
