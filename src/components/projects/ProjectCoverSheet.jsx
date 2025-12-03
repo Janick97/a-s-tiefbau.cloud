@@ -746,8 +746,11 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             </div>
                             ));
                             })}
+                            </div>
+                            </div>
+                            )}
 
-          {/* Footer */}
+                            {/* Footer */}
           <div className="w-full mt-3 pt-2 border-t border-gray-300">
             <div className="flex justify-between items-center text-xs text-gray-600">
               <div>
