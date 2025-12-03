@@ -51,6 +51,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [dragActive, setDragActive] = useState(false);
   const [dragTargetFolder, setDragTargetFolder] = useState(null);
   const [expandedFolders, setExpandedFolders] = useState(new Set());
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
@@ -92,8 +93,14 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     if (!uploadForm.files || uploadForm.files.length === 0) return;
 
     setUploading(true);
+    const totalFiles = uploadForm.files.length;
+    setUploadProgress({ current: 0, total: totalFiles });
+    
     try {
-      for (const file of uploadForm.files) {
+      for (let i = 0; i < uploadForm.files.length; i++) {
+        const file = uploadForm.files[i];
+        setUploadProgress({ current: i, total: totalFiles });
+        
         const { file_url } = await UploadFile({ file });
         
         await ProjectDocument.create({
@@ -107,6 +114,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         });
       }
 
+      setUploadProgress({ current: totalFiles, total: totalFiles });
       setUploadForm({ files: [], folder: "Bilder", description: "" });
       setShowUploadForm(false);
       await loadDocuments();
@@ -114,6 +122,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
       console.error("Fehler beim Upload:", error);
     }
     setUploading(false);
+    setUploadProgress({ current: 0, total: 0 });
   };
 
   const handleDeleteDocument = async (documentId) => {
@@ -238,8 +247,14 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     if (files.length === 0) return;
 
     setUploading(true);
+    const totalFiles = files.length;
+    setUploadProgress({ current: 0, total: totalFiles });
+    
     try {
-      for (const file of files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress({ current: i, total: totalFiles });
+        
         const { file_url } = await UploadFile({ file });
         
         await ProjectDocument.create({
@@ -252,11 +267,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           description: ""
         });
       }
+      setUploadProgress({ current: totalFiles, total: totalFiles });
       await loadDocuments();
     } catch (error) {
       console.error("Fehler beim Upload:", error);
     }
     setUploading(false);
+    setUploadProgress({ current: 0, total: 0 });
   };
 
   const handleDragOver = (e, folder) => {
@@ -389,12 +406,27 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     />
                   </div>
 
+                  {uploading && (
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>Hochladen...</span>
+                        <span>{uploadProgress.current} / {uploadProgress.total}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+                          style={{ width: `${(uploadProgress.current / uploadProgress.total) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
                   <div className="flex gap-3">
                     <Button type="submit" disabled={uploading || uploadForm.files.length === 0}>
                       <Upload className="w-4 h-4 mr-2" />
                       {uploading ? "Uploading..." : `${uploadForm.files.length} Datei(en) hochladen`}
                     </Button>
-                    <Button type="button" variant="outline" onClick={() => setShowUploadForm(false)}>
+                    <Button type="button" variant="outline" onClick={() => setShowUploadForm(false)} disabled={uploading}>
                       Abbrechen
                     </Button>
                   </div>
