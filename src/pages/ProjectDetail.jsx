@@ -582,6 +582,7 @@ export default function ProjectDetailPage() {
   const [isExportingEVergabe, setIsExportingEVergabe] = useState(false);
   const [montageLeistungen, setMontageLeistungen] = useState([]);
   const [montagePreisItems, setMontagePreisItems] = useState([]);
+  const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
 
   const coverSheetRef = useRef(null);
   const evergabeRef = useRef(null);
@@ -987,15 +988,12 @@ export default function ProjectDetailPage() {
       return;
     }
 
-    // Sicherheitsabfrage
-    const confirmed = window.confirm(
-      `Möchten Sie wirklich einen Montageauftrag für das Projekt "${project.project_number} - ${project.title}" erstellen?`
-    );
+    // Öffne Bestätigungsmodal
+    setShowMontageConfirmModal(true);
+  };
 
-    if (!confirmed) {
-      return;
-    }
-
+  const confirmCreateMontageAuftrag = async () => {
+    setShowMontageConfirmModal(false);
     console.log("Starte Montageauftrag-Erstellung für Projekt:", project);
 
     try {
@@ -1712,6 +1710,77 @@ export default function ProjectDetailPage() {
       </AnimatePresence>
 
 
+
+      {/* Montageauftrag Bestätigungsmodal */}
+      <AnimatePresence>
+        {showMontageConfirmModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={(e) => { if (e.target === e.currentTarget) setShowMontageConfirmModal(false); }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md"
+            >
+              <Card className="card-elevation border-none">
+                <CardHeader className="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2">
+                    <Construction className="w-5 h-5" />
+                    Montageauftrag erstellen
+                  </CardTitle>
+                </CardHeader>
+
+                <CardContent className="p-6 space-y-4">
+                  <div className="text-center space-y-3">
+                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                      <Construction className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Möchten Sie einen Montageauftrag erstellen?
+                    </h3>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+                      <p className="text-sm text-gray-700">
+                        <strong>Projekt:</strong> {project.project_number}
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        <strong>Titel:</strong> {project.title}
+                      </p>
+                      <p className="text-sm text-gray-700 mt-2">
+                        <strong>SM-Nummer:</strong> {project.sm_number || 'Nicht angegeben'}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Es wird ein neuer Montageauftrag mit den Projektdaten angelegt.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setShowMontageConfirmModal(false)}
+                    >
+                      Abbrechen
+                    </Button>
+                    <Button
+                      className="flex-1 bg-blue-600 hover:bg-blue-700"
+                      onClick={confirmCreateMontageAuftrag}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Erstellen
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Email Modal */}
       <AnimatePresence>
