@@ -720,18 +720,18 @@ export default function EVergabeEditor({
                     </div>
                   )}
 
-                  {/* Available Photos from Documents */}
+                  {/* Available Photos from Documents - Montage */}
                   {getDocumentPhotos().length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm font-semibold text-purple-700">
-                        Verfügbare Bilder aus Anlagenkorb (max. 2 auswählen)
+                        Bilder aus Anlagenkorb (max. 4 auswählen)
                       </Label>
-                      <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
+                      <div className="grid grid-cols-3 md:grid-cols-5 gap-2 max-h-80 overflow-y-auto">
                         {getDocumentPhotos().map((photo, photoIndex) => {
                           const isSelected = editableMl?.evergabe_images?.includes(photo.url);
                           return (
                             <div 
-                              key={photoIndex} 
+                              key={`doc-montage-${photoIndex}`}
                               className={`relative cursor-pointer rounded border-2 transition-all ${
                                 isSelected ? 'border-purple-500 ring-2 ring-purple-300' : 'border-gray-300 hover:border-purple-400'
                               }`}
