@@ -568,9 +568,28 @@ export default function EVergabeEditor({
             </Card>
           );
         })}
+          </div>
+        ))}
 
-        {/* Montage Positions */}
-        {editableData.montageLeistungen.map((ml, index) => {
+        {/* Montage Positions - Gruppiert nach Projekt */}
+        {Object.entries(montageByProject).map(([projectId, group]) => (
+          <div key={`montage-project-${projectId}`} className="space-y-6">
+            {/* Projektüberschrift */}
+            {Object.keys(montageByProject).length > 1 && (
+              <div className="bg-gradient-to-r from-blue-100 to-cyan-50 border-l-4 border-blue-500 p-4 rounded">
+                <h3 className="text-lg font-bold text-gray-900">
+                  {group.project.project_number} - {group.project.title}
+                  {group.project.id !== project.id && (
+                    <Badge variant="outline" className="ml-2">Folgeauftrag</Badge>
+                  )}
+                </h3>
+                <p className="text-sm text-gray-600">{group.montageLeistungen.length} Montage-Leistung(en)</p>
+              </div>
+            )}
+
+            {/* Leistungen */}
+            {group.montageLeistungen.map((ml, mlIndex) => {
+          const globalIndex = editableData.montageLeistungen.findIndex(m => m.id === ml.id);
           const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
           
           return (
@@ -706,6 +725,8 @@ export default function EVergabeEditor({
             </Card>
           );
         })}
+          </div>
+        ))}
           </div>
         ))}
 
