@@ -76,6 +76,8 @@ export default function ProjectsPage() {
     project_status: [],
     material_booking_completed: 'all',
     documentation_completed: 'all',
+    ev_ta: 'all',
+    ev_sa: 'all',
     city: [],
     street: [],
     vao_status: [],
@@ -639,6 +641,8 @@ export default function ProjectsPage() {
       project_status: [],
       material_booking_completed: 'all',
       documentation_completed: 'all',
+      ev_ta: 'all',
+      ev_sa: 'all',
       city: [],
       street: [],
       vao_status: [],
@@ -751,6 +755,12 @@ export default function ProjectsPage() {
         const matchesDocumentation = filters.documentation_completed === 'all'
             || (filters.documentation_completed === 'yes' && p.documentation_completed)
             || (filters.documentation_completed === 'no' && !p.documentation_completed);
+        const matchesEvTa = filters.ev_ta === 'all'
+            || (filters.ev_ta === 'yes' && p.ev_ta)
+            || (filters.ev_ta === 'no' && !p.ev_ta);
+        const matchesEvSa = filters.ev_sa === 'all'
+            || (filters.ev_sa === 'yes' && p.ev_sa)
+            || (filters.ev_sa === 'no' && !p.ev_sa);
         const matchesCity = filters.city.length === 0 || filters.city.includes(p.city);
         const matchesStreet = filters.street.length === 0 || filters.street.includes(p.street);
         const matchesVaoStatus = filters.vao_status.length === 0 || filters.vao_status.includes(p.vao_status);
@@ -809,7 +819,7 @@ export default function ProjectsPage() {
         }
 
         return matchesSearch && matchesProjectNumber && matchesSmNumber && matchesOrderType && matchesContactPerson && matchesProjectStatus && 
-               matchesMaterial && matchesDocumentation && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter;
+               matchesMaterial && matchesDocumentation && matchesEvTa && matchesEvSa && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter;
     });
 
     const projectMap = new Map(safeProjects.map(p => [p.id, p]));
@@ -1253,6 +1263,24 @@ export default function ProjectsPage() {
                      </Select>
                    </TableCell>
                    <TableCell className="p-1">
+                     <div className="space-y-1">
+                       <Select value={filters.ev_ta} onValueChange={(v) => handleFilterChange('ev_ta', v)}>
+                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="TA..."/></SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Alle</SelectItem>
+                           <SelectItem value="yes">Ja</SelectItem>
+                           <SelectItem value="no">Nein</SelectItem>
+                         </SelectContent>
+                       </Select>
+                       <Select value={filters.ev_sa} onValueChange={(v) => handleFilterChange('ev_sa', v)}>
+                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="SA..."/></SelectTrigger>
+                         <SelectContent>
+                           <SelectItem value="all">Alle</SelectItem>
+                           <SelectItem value="yes">Ja</SelectItem>
+                           <SelectItem value="no">Nein</SelectItem>
+                         </SelectContent>
+                       </Select>
+                     </div>
                    </TableCell>
                 </TableRow>
               </TableHeader>
