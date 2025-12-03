@@ -15,7 +15,8 @@ export default function EVergabeEditor({
   excavations, 
   priceItems, 
   montageLeistungen, 
-  montagePreisItems 
+  montagePreisItems,
+  allProjects = []
 }) {
   const [editableData, setEditableData] = useState({
     excavations: [],
@@ -23,6 +24,41 @@ export default function EVergabeEditor({
   });
   const [isExporting, setIsExporting] = useState(false);
   const exportRef = React.useRef(null);
+
+  // Gruppiere Daten nach Projekt
+  const excavationsByProject = React.useMemo(() => {
+    const groups = {};
+    
+    excavations.forEach(exc => {
+      const projectId = exc.project_id;
+      if (!groups[projectId]) {
+        groups[projectId] = {
+          project: allProjects.find(p => p.id === projectId) || project,
+          excavations: []
+        };
+      }
+      groups[projectId].excavations.push(exc);
+    });
+    
+    return groups;
+  }, [excavations, allProjects, project]);
+
+  const montageByProject = React.useMemo(() => {
+    const groups = {};
+    
+    montageLeistungen.forEach(ml => {
+      const projectId = ml.project_id || project.id;
+      if (!groups[projectId]) {
+        groups[projectId] = {
+          project: allProjects.find(p => p.id === projectId) || project,
+          montageLeistungen: []
+        };
+      }
+      groups[projectId].montageLeistungen.push(ml);
+    });
+    
+    return groups;
+  }, [montageLeistungen, allProjects, project]);
 
   useEffect(() => {
     // Initialize editable data with images array for each position
@@ -370,8 +406,24 @@ export default function EVergabeEditor({
           </CardHeader>
         </Card>
 
-        {/* Excavation Positions */}
-        {editableData.excavations.map((exc, index) => {
+        {/* Excavation Positions - Gruppiert nach Projekt */}
+        {Object.entries(excavationsByProject).map(([projectId, group]) => (
+          <div key={`exc-project-${projectId}`} className="space-y-6">
+            {/* Projektüberschrift */}
+            {Object.keys(excavationsByProject).length > 1 && (
+              <div className="bg-gradient-to-r from-green-100 to-emerald-50 border-l-4 border-green-500 p-4 rounded">
+                <h3 className="text-lg font-bold text-gray-900">
+                  {group.project.project_number} - {group.project.title}
+                  {group.project.id !== project.id && (
+                    <Badge variant="outline" className="ml-2">Folgeauftrag</Badge>
+                  )}
+                </h3>
+                <p className="text-sm text-gray-600">{group.excavations.length} Tiefbau-Leistung(en)</p>
+              </div>
+            )}
+
+            {/* Leistungen */}
+            {group.excavations.map((exc, index) => {
           const priceItem = priceItems.find(p => p.id === exc.price_item_id);
           
           return (
