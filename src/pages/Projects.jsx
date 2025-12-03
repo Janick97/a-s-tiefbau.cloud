@@ -1555,8 +1555,9 @@ export default function ProjectsPage() {
                           <SelectItem value={null}>Kein Status</SelectItem>
                           <SelectItem value="beantragt">Beantragt</SelectItem>
                           <SelectItem value="liegt vor">Liegt vor</SelectItem>
-                          <SelectItem value="abgelaufen">Abgelaufen</SelectItem>
                           <SelectItem value="Verlängerung beantragt">Verlängerung beantragt</SelectItem>
+                          <SelectItem value="Nicht notwendig">Nicht notwendig</SelectItem>
+                          <SelectItem value="Nicht verlängern">Nicht verlängern</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
