@@ -1435,6 +1435,7 @@ export default function ProjectDetailPage() {
                     timesheets={timesheets}
                     documents={documents}
                     priceItems={priceItems}
+                    allProjects={[project, ...followUpProjects]}
                   />
                 </div>
               )}
@@ -1821,6 +1822,7 @@ export default function ProjectDetailPage() {
           timesheets={timesheets}
           documents={documents}
           priceItems={priceItems}
+          allProjects={[project, ...followUpProjects]}
         />
       </div>
 

@@ -4,12 +4,30 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Building, MapPin, Calendar, User, FileText, Euro, Shovel, Camera, CheckCircle } from "lucide-react";
 
-export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [] }) {
+export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [], allProjects = [] }) {
   if (!project) return null;
 
   const bauakten = documents.filter(doc => doc.folder === 'Bauakte');
   const totalRevenue = excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0);
   const totalHours = timesheets.reduce((sum, ts) => sum + (ts.hours || 0), 0);
+
+  // Gruppiere Excavations nach Projekt
+  const excavationsByProject = React.useMemo(() => {
+    const groups = {};
+    
+    excavations.forEach(exc => {
+      const projectId = exc.project_id;
+      if (!groups[projectId]) {
+        groups[projectId] = {
+          project: allProjects.find(p => p.id === projectId) || project,
+          excavations: []
+        };
+      }
+      groups[projectId].excavations.push(exc);
+    });
+    
+    return groups;
+  }, [excavations, allProjects, project]);
 
   const getStatusBadge = (status) => {
     const colors = {
@@ -385,7 +403,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             </div>
           </div>
 
-          {/* Leistungsübersicht - Optimiert mit besserer Trennung */}
+          {/* Leistungsübersicht - Gruppiert nach Projekt */}
           <div className="w-full">
             <h2 className="text-xl font-bold text-orange-600 mb-3 flex items-center gap-2 pb-2 border-b-2 border-orange-500">
               <Shovel className="w-6 h-6" />
@@ -393,158 +411,168 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             </h2>
             
             {excavations.length > 0 ? (
-              <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm">
-                <Table className="w-full border-collapse">
-                  <TableHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
-                    <TableRow className="border-b-2 border-gray-700">
-                      <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Standort</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[5%] border-r-2 border-gray-700 text-center">Typ</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[7%] border-r-2 border-gray-700">Oberfl.</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[8%] border-r-2 border-gray-700">Material</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Auf</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Verfüllung</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Trag</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Fein</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Beton/<br/>Naturstein</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Platten/<br/>Pflaster</TableHead>
-                      <TableHead className="font-bold text-sm p-3 w-[12%]">Baustellendetails</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {excavations.map((exc, index) => {
-                      const surfaceWork = getSurfaceWork(exc);
-                      const excavationType = getExcavationType(exc);
-                      const baustellenDetails = getBaustellenDetails(exc); // Call new helper
-                      
-                      return (
-                        <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                          <TableCell className="p-3 text-sm border-r-2 border-gray-700">
-                            <div className="font-semibold leading-tight">{exc.location_name}</div>
-                            <div className="text-gray-600 leading-tight text-xs">
-                              {exc.street} {exc.house_number}, {exc.city}
-                            </div>
-                          </TableCell>
-                          
-                          {/* Typ-Spalte (Grube/Graben) über Maße - ZENTRIERT */}
-                          <TableCell className="p-3 text-sm border-r-2 border-gray-700">
-                            <div className="flex flex-col items-center justify-center">
-                              <Badge className={`text-xs mb-1 px-2 py-0.5 ${
-                                excavationType === 'Grube' 
-                                  ? 'bg-orange-100 text-orange-800 border-orange-200' 
-                                  : excavationType === 'Graben'
-                                  ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {excavationType}
-                              </Badge>
-                              <div className="font-medium text-xs text-center">{exc.excavation_length || 0}×{exc.excavation_width || 0}×{exc.excavation_depth || 0}</div>
-                              {exc.excavation_factor && exc.excavation_factor !== 1 && (
-                                <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
-                              )}
-                            </div>
-                          </TableCell>
-                          
-                          <TableCell className="p-3 text-sm border-r-2 border-gray-700">
-                            {exc.surface_type && (
-                              <div className="font-semibold text-xs">{exc.surface_type}</div>
-                            )}
-                            {exc.surface_type_2 && (
-                              <div className="text-purple-700 font-medium text-xs">+{exc.surface_type_2}</div>
-                            )}
-                            {!exc.surface_type && !exc.surface_type_2 && '-'}
-                          </TableCell>
-                          
-                          {/* Material-Spalte - AUSGESCHRIEBEN */}
-                          <TableCell className="p-3 text-xs font-semibold bg-amber-50 border-r-2 border-gray-700">
-                            {getMaterialInfo(exc)}
-                          </TableCell>
-                          
-                          {/* Auf (Wer geöffnet hat) */}
-                          <TableCell className="p-3 text-xs bg-blue-50 border-r-2 border-gray-700">
-                            {exc.foreman ? (
-                              <>
-                                <div className="font-semibold">{exc.foreman}</div>
-                                {exc.created_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.created_date)}</div>
-                                )}
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Verfüllung */}
-                          <TableCell className="p-3 text-xs bg-orange-50 border-r-2 border-gray-700">
-                            {exc.is_backfilled && exc.backfilled_by ? (
-                              <>
-                                <div className="font-semibold">{exc.backfilled_by}</div>
-                                {exc.backfilled_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.backfilled_date)}</div>
-                                )}
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Trag (Asphalt Tragschicht) */}
-                          <TableCell className="p-3 text-xs bg-yellow-50 border-r-2 border-gray-700">
-                            {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
-                              <>
-                                <div className="font-semibold">{exc.closed_by}</div>
-                                {exc.closed_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                )}
-                                <div className="text-[11px] text-gray-500">(Trag)</div>
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Fein (Asphalt Feinschicht) */}
-                          <TableCell className="p-3 text-xs bg-green-50 border-r-2 border-gray-700">
-                            {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
-                              <>
-                                <div className="font-semibold">{exc.closed_by}</div>
-                                {exc.closed_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                )}
-                                <div className="text-[11px] text-gray-500">(Fein)</div>
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Beton/Naturstein */}
-                          <TableCell className="p-3 text-xs bg-gray-100 border-r-2 border-gray-700">
-                            {surfaceWork.hasBeton && exc.is_closed && exc.closed_by ? (
-                              <>
-                                <div className="font-semibold">{exc.closed_by}</div>
-                                {exc.closed_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                )}
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Platten/Pflaster */}
-                          <TableCell className="p-3 text-xs bg-purple-50 border-r-2 border-gray-700">
-                            {surfaceWork.hasPlatten && exc.is_closed && exc.closed_by ? (
-                              <>
-                                <div className="font-semibold">{exc.closed_by}</div>
-                                {exc.closed_date && (
-                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                )}
-                              </>
-                            ) : '-'}
-                          </TableCell>
-                          
-                          {/* Baustellendetails */}
-                          <TableCell className="p-3 text-xs bg-yellow-50">
-                            {baustellenDetails.map((detail, idx) => (
-                              <div key={idx} className="leading-tight">{detail}</div>
-                            ))}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                    {/* Summenzeile removed as per instructions */}
-                  </TableBody>
-                </Table>
+              <div className="space-y-4">
+                {Object.entries(excavationsByProject).map(([projectId, group]) => (
+                  <div key={projectId} className="w-full">
+                    {/* Projektüberschrift */}
+                    {Object.keys(excavationsByProject).length > 1 && (
+                      <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
+                        <h3 className="text-base font-bold text-gray-900">
+                          {group.project.project_number} - {group.project.title}
+                          {group.project.id !== project.id && (
+                            <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
+                          )}
+                        </h3>
+                        <p className="text-sm text-gray-600">{group.excavations.length} Leistung(en)</p>
+                      </div>
+                    )}
+                    
+                    {/* Leistungstabelle */}
+                    <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm">
+                      <Table className="w-full border-collapse">
+                        <TableHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
+                          <TableRow className="border-b-2 border-gray-700">
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Standort</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[5%] border-r-2 border-gray-700 text-center">Typ</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[7%] border-r-2 border-gray-700">Oberfl.</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[8%] border-r-2 border-gray-700">Material</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Auf</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Verfüllung</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Trag</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Fein</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Beton/<br/>Naturstein</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Platten/<br/>Pflaster</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[12%]">Baustellendetails</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {group.excavations.map((exc, index) => {
+                            const surfaceWork = getSurfaceWork(exc);
+                            const excavationType = getExcavationType(exc);
+                            const baustellenDetails = getBaustellenDetails(exc);
+                            
+                            return (
+                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  <div className="font-semibold leading-tight">{exc.location_name}</div>
+                                  <div className="text-gray-600 leading-tight text-xs">
+                                    {exc.street} {exc.house_number}, {exc.city}
+                                  </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  <div className="flex flex-col items-center justify-center">
+                                    <Badge className={`text-xs mb-1 px-2 py-0.5 ${
+                                      excavationType === 'Grube' 
+                                        ? 'bg-orange-100 text-orange-800 border-orange-200' 
+                                        : excavationType === 'Graben'
+                                        ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {excavationType}
+                                    </Badge>
+                                    <div className="font-medium text-xs text-center">{exc.excavation_length || 0}×{exc.excavation_width || 0}×{exc.excavation_depth || 0}</div>
+                                    {exc.excavation_factor && exc.excavation_factor !== 1 && (
+                                      <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  {exc.surface_type && (
+                                    <div className="font-semibold text-xs">{exc.surface_type}</div>
+                                  )}
+                                  {exc.surface_type_2 && (
+                                    <div className="text-purple-700 font-medium text-xs">+{exc.surface_type_2}</div>
+                                  )}
+                                  {!exc.surface_type && !exc.surface_type_2 && '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs font-semibold bg-amber-50 border-r-2 border-gray-700">
+                                  {getMaterialInfo(exc)}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-blue-50 border-r-2 border-gray-700">
+                                  {exc.foreman ? (
+                                    <>
+                                      <div className="font-semibold">{exc.foreman}</div>
+                                      {exc.created_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.created_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-orange-50 border-r-2 border-gray-700">
+                                  {exc.is_backfilled && exc.backfilled_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.backfilled_by}</div>
+                                      {exc.backfilled_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.backfilled_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-yellow-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                      <div className="text-[11px] text-gray-500">(Trag)</div>
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-green-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                      <div className="text-[11px] text-gray-500">(Fein)</div>
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-gray-100 border-r-2 border-gray-700">
+                                  {surfaceWork.hasBeton && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-purple-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasPlatten && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-yellow-50">
+                                  {baustellenDetails.map((detail, idx) => (
+                                    <div key={idx} className="leading-tight">{detail}</div>
+                                  ))}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="text-center py-4 text-gray-500 border border-gray-300 rounded-lg text-sm">
