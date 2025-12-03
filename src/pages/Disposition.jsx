@@ -28,6 +28,7 @@ export default function DispositionPage() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedBauleiter, setSelectedBauleiter] = useState([]);
+  const [montageAuftraege, setMontageAuftraege] = useState([]);
 
   useEffect(() => {
     loadData();
@@ -36,10 +37,11 @@ export default function DispositionPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [projectsData, allUsers, userData] = await Promise.all([
+      const [projectsData, allUsers, userData, montageAuftraegeData] = await Promise.all([
         Project.list('-created_date'),
         User.list(),
-        User.me().catch(() => null)
+        User.me().catch(() => null),
+        MontageAuftrag.list().catch(() => [])
       ]);
       
       // Filter users: Bauleiter und Oberfläche
@@ -50,6 +52,7 @@ export default function DispositionPage() {
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setUsers(Array.isArray(usersData) ? usersData : []);
       setCurrentUser(userData);
+      setMontageAuftraege(Array.isArray(montageAuftraegeData) ? montageAuftraegeData : []);
     } catch (error) {
       console.error('Fehler beim Laden der Daten:', error);
     }
@@ -132,6 +135,9 @@ export default function DispositionPage() {
         tiefbau_offen_date: new Date().toISOString()
       });
 
+      // Reload data to refresh the status
+      await loadData();
+      
       alert('Montageauftrag wurde erfolgreich als "Tiefbau offen" markiert!');
     } catch (error) {
       console.error('Fehler beim Markieren als Tiefbau offen:', error);
@@ -575,17 +581,27 @@ export default function DispositionPage() {
                               <Users className="w-4 h-4 mr-2" />
                               Bauleiter zuweisen
                             </Button>
-                            {project.montage_auftrag_id && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleMarkTiefbauOffen(project)}
-                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                              >
-                                <Construction className="w-4 h-4 mr-2" />
-                                Tiefbau offen
-                              </Button>
-                            )}
+                            {project.montage_auftrag_id && (() => {
+                              const montageAuftrag = montageAuftraege.find(m => m.id === project.montage_auftrag_id);
+                              const isTiefbauOffen = montageAuftrag?.tiefbau_offen;
+                              
+                              return isTiefbauOffen ? (
+                                <Badge className="bg-green-100 text-green-800 px-3 py-2">
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Tiefbau offen gemeldet
+                                </Badge>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleMarkTiefbauOffen(project)}
+                                  className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                                >
+                                  <Construction className="w-4 h-4 mr-2" />
+                                  Tiefbau offen
+                                </Button>
+                              );
+                            })()}
                             {assigning === project.id && (
                               <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
                             )}
