@@ -20,7 +20,8 @@ import {
   Check,
   X,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  Search
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
@@ -52,6 +53,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [dragTargetFolder, setDragTargetFolder] = useState(null);
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [searchQuery, setSearchQuery] = useState("");
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
@@ -187,7 +189,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return Array.from(folders).sort();
   }, [documents, customFolders]);
 
-  const groupedDocuments = documents.reduce((acc, doc) => {
+  const filteredDocuments = React.useMemo(() => {
+    if (!searchQuery.trim()) return documents;
+    const query = searchQuery.toLowerCase();
+    return documents.filter(doc => 
+      doc.file_name.toLowerCase().includes(query) ||
+      doc.description?.toLowerCase().includes(query)
+    );
+  }, [documents, searchQuery]);
+
+  const groupedDocuments = filteredDocuments.reduce((acc, doc) => {
     if (!acc[doc.folder]) {
       acc[doc.folder] = [];
     }
@@ -324,13 +335,34 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <h3 className="text-xl font-bold">Anlagenkorb ({documents.length})</h3>
-        <Button onClick={() => setShowUploadForm(true)} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Datei hochladen
-        </Button>
+        <div className="flex gap-2 w-full sm:w-auto">
+          <div className="relative flex-1 sm:flex-initial sm:w-64">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Dateien durchsuchen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Button onClick={() => setShowUploadForm(true)} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 flex-shrink-0">
+            <Plus className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Datei hochladen</span>
+          </Button>
+        </div>
       </div>
+      
+      {searchQuery && (
+        <div className="text-sm text-gray-600">
+          {filteredDocuments.length} Ergebnis(se) für "{searchQuery}"
+          <Button variant="ghost" size="sm" onClick={() => setSearchQuery("")} className="ml-2 h-6 px-2">
+            <X className="w-3 h-3" />
+          </Button>
+        </div>
+      )}
 
       {/* Global Upload Progress Bar */}
       {uploading && (
