@@ -140,16 +140,40 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           .page-break-inside-avoid {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            display: block !important;
           }
           .page-break-after {
             page-break-after: always !important;
             break-after: always !important;
           }
+          .page-break-before {
+            page-break-before: always !important;
+            break-after: always !important;
+          }
           .project-group {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            page-break-before: auto !important;
+            display: block !important;
           }
           .info-section {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-after: always !important;
+            display: block !important;
+          }
+          table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          thead {
+            display: table-header-group !important;
+          }
+          tbody {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          tr {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
@@ -219,8 +243,8 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
         }
       `}</style>
       
-      <div className="print-full-width w-full h-full bg-white print:break-after-page" style={{ width: '100%', minHeight: '210mm' }}>
-        <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.8cm' }}>
+      <div className="print-full-width w-full h-full bg-white" style={{ width: '100%' }}>
+        <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.5cm' }}>
           
           {/* Header - Logo und Titel */}
           <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
@@ -245,7 +269,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           </div>
 
           {/* Projektinformationen - 3 Spalten (Kennzahlen & Bauakten entfernt) */}
-          <div className="w-full grid grid-cols-3 gap-6 mb-6 info-section">
+          <div className="w-full grid grid-cols-3 gap-4 mb-4 info-section page-break-after">
             
             {/* Spalte 1 - Basis-Infos */}
             <div className="space-y-2.5">
@@ -437,8 +461,8 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             
             {excavations.length > 0 ? (
               <div className="space-y-4">
-                {Object.entries(excavationsByProject).map(([projectId, group]) => (
-                  <div key={projectId} className="w-full project-group page-break-inside-avoid">
+                {Object.entries(excavationsByProject).map(([projectId, group], groupIndex) => (
+                  <div key={projectId} className={`w-full project-group page-break-inside-avoid ${groupIndex > 0 ? 'page-break-before' : ''}`}>
                     {/* Projektüberschrift */}
                     {Object.keys(excavationsByProject).length > 1 && (
                       <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
