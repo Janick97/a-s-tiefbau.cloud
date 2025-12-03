@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Project, User } from '@/entities/all';
+import { Project, User, MontageAuftrag } from '@/entities/all';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ClipboardList, User as UserIcon, Loader2, Search, Filter, CheckCircle, Clock, Columns, List, X, Users } from 'lucide-react';
+import { ClipboardList, User as UserIcon, Loader2, Search, Filter, CheckCircle, Clock, Columns, List, X, Users, Construction } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
@@ -112,6 +112,22 @@ export default function DispositionPage() {
       setSelectedBauleiter([]);
     } catch (error) {
       console.error('Fehler beim Speichern der Zuweisungen:', error);
+    }
+  };
+
+  const handleMarkTiefbauOffen = async (project) => {
+    if (!project.montage_auftrag_id) return;
+
+    try {
+      await MontageAuftrag.update(project.montage_auftrag_id, {
+        tiefbau_offen: true,
+        tiefbau_offen_date: new Date().toISOString()
+      });
+
+      alert('Montageauftrag wurde erfolgreich als "Tiefbau offen" markiert!');
+    } catch (error) {
+      console.error('Fehler beim Markieren als Tiefbau offen:', error);
+      alert('Fehler beim Markieren: ' + error.message);
     }
   };
 
@@ -551,6 +567,17 @@ export default function DispositionPage() {
                               <Users className="w-4 h-4 mr-2" />
                               Bauleiter zuweisen
                             </Button>
+                            {project.montage_auftrag_id && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleMarkTiefbauOffen(project)}
+                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                              >
+                                <Construction className="w-4 h-4 mr-2" />
+                                Tiefbau offen
+                              </Button>
+                            )}
                             {assigning === project.id && (
                               <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
                             )}
