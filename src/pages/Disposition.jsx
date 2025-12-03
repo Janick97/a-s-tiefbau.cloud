@@ -666,7 +666,19 @@ export default function DispositionPage() {
                     </div>
 
                     <div className="space-y-3">
-                      <Label className="text-sm font-medium">Bauleiter auswählen</Label>
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">Bauleiter auswählen</Label>
+                        {selectedBauleiter.length > 0 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedBauleiter([])}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            Alle entfernen
+                          </Button>
+                        )}
+                      </div>
                       <div className="border rounded-lg p-3 bg-gray-50 space-y-2 max-h-64 overflow-y-auto">
                         {users.map(user => (
                           <div key={user.id} className="flex items-center space-x-2">
