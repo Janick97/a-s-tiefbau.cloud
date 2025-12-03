@@ -423,14 +423,15 @@ export default function EVergabeEditor({
             )}
 
             {/* Leistungen */}
-            {group.excavations.map((exc, index) => {
+            {group.excavations.map((exc, excIndex) => {
+          const globalIndex = editableData.excavations.findIndex(e => e.id === exc.id);
           const priceItem = priceItems.find(p => p.id === exc.price_item_id);
           
           return (
             <Card key={exc.id} className="evergabe-position border-2 border-gray-300">
               <CardHeader className="bg-gray-50">
                 <CardTitle className="flex items-center justify-between">
-                  <span>Position {index + 1}: {exc.location_name}</span>
+                  <span>Position {globalIndex + 1}: {exc.location_name}</span>
                   <Badge className="bg-green-600">Tiefbau</Badge>
                 </CardTitle>
               </CardHeader>
@@ -483,7 +484,7 @@ export default function EVergabeEditor({
                               className={`relative cursor-pointer rounded border-2 transition-all ${
                                 isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-400'
                               }`}
-                              onClick={() => handleSelectFromExisting('excavation', index, photo.url)}
+                              onClick={() => handleSelectFromExisting('excavation', globalIndex, photo.url)}
                             >
                               <img 
                                 src={photo.url} 
@@ -521,17 +522,17 @@ export default function EVergabeEditor({
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => document.getElementById(`upload-exc-${index}`).click()}
+                          onClick={() => document.getElementById(`upload-exc-${globalIndex}`).click()}
                         >
                           <Plus className="w-4 h-4 mr-2" />
                           Bild hochladen
                         </Button>
                         <input
-                          id={`upload-exc-${index}`}
+                          id={`upload-exc-${globalIndex}`}
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => handleImageUpload(e.target.files[0], 'excavation', index)}
+                          onChange={(e) => handleImageUpload(e.target.files[0], 'excavation', globalIndex)}
                         />
                       </label>
                     </div>
@@ -553,7 +554,7 @@ export default function EVergabeEditor({
                               size="sm"
                               variant="destructive"
                               className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                              onClick={() => handleRemoveImage('excavation', index, imgIndex)}
+                              onClick={() => handleRemoveImage('excavation', globalIndex, imgIndex)}
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -576,7 +577,7 @@ export default function EVergabeEditor({
             <Card key={ml.id} className="evergabe-position border-2 border-gray-300">
               <CardHeader className="bg-blue-50">
                 <CardTitle className="flex items-center justify-between">
-                  <span>Position {editableData.excavations.length + index + 1}: {ml.location_name}</span>
+                  <span>Position {editableData.excavations.length + globalIndex + 1}: {ml.location_name}</span>
                   <Badge className="bg-blue-600">Montage</Badge>
                 </CardTitle>
               </CardHeader>
@@ -621,7 +622,7 @@ export default function EVergabeEditor({
                               className={`relative cursor-pointer rounded border-2 transition-all ${
                                 isSelected ? 'border-blue-500 ring-2 ring-blue-300' : 'border-gray-300 hover:border-blue-400'
                               }`}
-                              onClick={() => handleSelectFromExisting('montage', index, photo.url)}
+                              onClick={() => handleSelectFromExisting('montage', globalIndex, photo.url)}
                             >
                               <img 
                                 src={photo.url} 
@@ -659,17 +660,17 @@ export default function EVergabeEditor({
                           type="button"
                           size="sm"
                           variant="outline"
-                          onClick={() => document.getElementById(`upload-ml-${index}`).click()}
+                          onClick={() => document.getElementById(`upload-ml-${globalIndex}`).click()}
                         >
                           <Plus className="w-4 h-4 mr-2" />
                           Bild hochladen
                         </Button>
                         <input
-                          id={`upload-ml-${index}`}
+                          id={`upload-ml-${globalIndex}`}
                           type="file"
                           accept="image/*"
                           className="hidden"
-                          onChange={(e) => handleImageUpload(e.target.files[0], 'montage', index)}
+                          onChange={(e) => handleImageUpload(e.target.files[0], 'montage', globalIndex)}
                         />
                       </label>
                     </div>
@@ -691,7 +692,7 @@ export default function EVergabeEditor({
                               size="sm"
                               variant="destructive"
                               className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6 p-0"
-                              onClick={() => handleRemoveImage('montage', index, imgIndex)}
+                              onClick={() => handleRemoveImage('montage', globalIndex, imgIndex)}
                             >
                               <X className="w-4 h-4" />
                             </Button>
@@ -705,6 +706,8 @@ export default function EVergabeEditor({
             </Card>
           );
         })}
+          </div>
+        ))}
 
         {editableData.excavations.length === 0 && editableData.montageLeistungen.length === 0 && (
           <Card>
