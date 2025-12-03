@@ -332,6 +332,34 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         </Button>
       </div>
 
+      {/* Global Upload Progress Bar */}
+      {uploading && (
+        <Card className="border-orange-500 bg-orange-50">
+          <CardContent className="p-4">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-gray-900">Upload läuft...</span>
+                <span className="text-sm font-bold text-orange-600">
+                  {uploadProgress.current} / {uploadProgress.total} Dateien
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div 
+                  className="bg-gradient-to-r from-orange-500 to-amber-500 h-3 rounded-full transition-all duration-300 flex items-center justify-end pr-2"
+                  style={{ width: `${uploadProgress.total > 0 ? (uploadProgress.current / uploadProgress.total) * 100 : 0}%` }}
+                >
+                  {uploadProgress.total > 0 && (
+                    <span className="text-xs font-bold text-white">
+                      {Math.round((uploadProgress.current / uploadProgress.total) * 100)}%
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Upload Form */}
       <AnimatePresence>
         {showUploadForm && (
