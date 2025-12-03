@@ -668,10 +668,17 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               </h2>
               
               <div className="space-y-4">
-                {Object.entries(groupedExcavations.special).map(([projectId, group], groupIndex) => (
-                  <div key={projectId} className={`w-full project-group page-break-inside-avoid ${groupIndex > 0 ? 'page-break-before' : ''}`}>
-                    {/* Projektüberschrift */}
-                    {Object.keys(groupedExcavations.special).length > 1 && (
+                {Object.entries(groupedExcavations.special).map(([projectId, group], groupIndex) => {
+                  // Teile spezielle Excavations in Gruppen von 10 auf
+                  const chunks = [];
+                  for (let i = 0; i < group.excavations.length; i += 10) {
+                    chunks.push(group.excavations.slice(i, i + 10));
+                  }
+                  
+                  return chunks.map((chunk, chunkIndex) => (
+                  <div key={`${projectId}-special-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                    {/* Projektüberschrift - nur beim ersten Chunk */}
+                    {chunkIndex === 0 && Object.keys(groupedExcavations.special).length > 1 && (
                       <div className="bg-gradient-to-r from-purple-100 to-purple-50 border-l-4 border-purple-500 p-3 mb-2 rounded">
                         <h3 className="text-base font-bold text-gray-900">
                           {group.project.project_number} - {group.project.title}
@@ -694,7 +701,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {group.excavations.map((exc, index) => {
+                          {chunk.map((exc, index) => {
                             const priceItem = priceItems.find(p => p.id === exc.price_item_id);
                             const leistungsName = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : exc.location_name;
                             
