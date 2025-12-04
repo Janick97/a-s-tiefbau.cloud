@@ -130,18 +130,28 @@ export default function DispositionPage() {
         return;
       }
 
+      const isCurrentlyOpen = montageAuftrag.tiefbau_offen;
+      const message = isCurrentlyOpen
+        ? 'Möchten Sie den Status auf "Tiefbau noch nicht offen" zurücksetzen?'
+        : 'Möchten Sie diesen Auftrag als "Tiefbau offen" markieren?';
+      
+      if (!window.confirm(message)) return;
+
       await MontageAuftrag.update(project.montage_auftrag_id, {
-        tiefbau_offen: true,
-        tiefbau_offen_date: new Date().toISOString()
+        tiefbau_offen: !isCurrentlyOpen,
+        tiefbau_offen_date: isCurrentlyOpen ? null : new Date().toISOString()
       });
 
       // Reload data to refresh the status
       await loadData();
       
-      alert('Montageauftrag wurde erfolgreich als "Tiefbau offen" markiert!');
+      const successMessage = isCurrentlyOpen
+        ? 'Status wurde auf "Tiefbau noch nicht offen" zurückgesetzt.'
+        : 'Montageauftrag wurde erfolgreich als "Tiefbau offen" markiert!';
+      alert(successMessage);
     } catch (error) {
-      console.error('Fehler beim Markieren als Tiefbau offen:', error);
-      alert('Fehler: Der Montageauftrag konnte nicht gefunden werden. Bitte erstellen Sie einen neuen Montageauftrag.');
+      console.error('Fehler beim Aktualisieren des Tiefbau-Status:', error);
+      alert('Fehler: Der Montageauftrag konnte nicht aktualisiert werden.');
     }
   };
 
@@ -585,20 +595,27 @@ export default function DispositionPage() {
                               const montageAuftrag = montageAuftraege.find(m => m.id === project.montage_auftrag_id);
                               const isTiefbauOffen = montageAuftrag?.tiefbau_offen;
                               
-                              return isTiefbauOffen ? (
-                                <Badge className="bg-green-100 text-green-800 px-3 py-2">
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Tiefbau offen gemeldet
-                                </Badge>
-                              ) : (
+                              return (
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => handleMarkTiefbauOffen(project)}
-                                  className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                                  className={isTiefbauOffen 
+                                    ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                                    : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                                  }
                                 >
-                                  <Construction className="w-4 h-4 mr-2" />
-                                  Tiefbau offen
+                                  {isTiefbauOffen ? (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Tiefbau offen
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Construction className="w-4 h-4 mr-2" />
+                                      Tiefbau offen
+                                    </>
+                                  )}
                                 </Button>
                               );
                             })()}
