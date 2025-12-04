@@ -17,9 +17,13 @@ import {
 
 export function Combobox({ value, onValueChange, options = [], placeholder = "Select option...", searchPlaceholder = "Search..." }) {
   const [open, setOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState("");
 
   // Ensure options is always an array
   const safeOptions = Array.isArray(options) ? options : [];
+
+  // Check if search value is not in options
+  const isCustomValue = searchValue && !safeOptions.some(opt => opt.value.toLowerCase() === searchValue.toLowerCase());
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -30,16 +34,34 @@ export function Combobox({ value, onValueChange, options = [], placeholder = "Se
           aria-expanded={open}
           className="w-full justify-between"
         >
-          {value
-            ? safeOptions.find((option) => option.value === value)?.label
-            : placeholder}
+          {value || placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
-          <CommandEmpty>Keine Ergebnisse gefunden.</CommandEmpty>
+          <CommandInput 
+            placeholder={searchPlaceholder} 
+            value={searchValue}
+            onValueChange={setSearchValue}
+          />
+          <CommandEmpty>
+            {isCustomValue && (
+              <div className="p-2">
+                <button
+                  onClick={() => {
+                    onValueChange(searchValue);
+                    setOpen(false);
+                    setSearchValue("");
+                  }}
+                  className="w-full text-left px-2 py-1.5 hover:bg-gray-100 rounded text-sm"
+                >
+                  "{searchValue}" verwenden
+                </button>
+              </div>
+            )}
+            {!isCustomValue && "Keine Ergebnisse gefunden."}
+          </CommandEmpty>
           <CommandGroup>
             {safeOptions.map((option) => (
               <CommandItem
@@ -48,6 +70,7 @@ export function Combobox({ value, onValueChange, options = [], placeholder = "Se
                 onSelect={(currentValue) => {
                   onValueChange(currentValue === value ? "" : currentValue);
                   setOpen(false);
+                  setSearchValue("");
                 }}
               >
                 <Check
