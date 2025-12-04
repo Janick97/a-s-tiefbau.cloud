@@ -132,9 +132,9 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     mortar_used: excavation?.mortar_used || false,
     gravel_used: excavation?.gravel_used || false,
     iron_plate_laid: excavation?.iron_plate_laid || false,
-    curb_length: parseFloat(excavation?.curb_length) || 0,
-    edge_stone_length: parseFloat(excavation?.edge_stone_length) || 0,
-    gutter_length: parseFloat(excavation?.gutter_length) || 0,
+    curb_length: excavation?.curb_length !== undefined && excavation?.curb_length !== null ? parseFloat(excavation.curb_length) : '',
+    edge_stone_length: excavation?.edge_stone_length !== undefined && excavation?.edge_stone_length !== null ? parseFloat(excavation.edge_stone_length) : '',
+    gutter_length: excavation?.gutter_length !== undefined && excavation?.gutter_length !== null ? parseFloat(excavation.gutter_length) : '',
     excavated_material_left_onsite: excavation?.excavated_material_left_onsite || false,
     photos_before: Array.isArray(excavation?.photos_before) ? excavation.photos_before : [],
     photos_after: Array.isArray(excavation?.photos_after) ? excavation.photos_after : [],
@@ -896,7 +896,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     step="0.01"
                     min="0"
                     value={formData.curb_length}
-                    onChange={(e) => handleInputChange('curb_length', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleInputChange('curb_length', e.target.value === '' ? '' : parseFloat(e.target.value))}
                     placeholder="0.00"
                   />
                 </div>
@@ -908,7 +908,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     step="0.01"
                     min="0"
                     value={formData.edge_stone_length}
-                    onChange={(e) => handleInputChange('edge_stone_length', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleInputChange('edge_stone_length', e.target.value === '' ? '' : parseFloat(e.target.value))}
                     placeholder="0.00"
                   />
                 </div>
@@ -920,7 +920,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     step="0.01"
                     min="0"
                     value={formData.gutter_length}
-                    onChange={(e) => handleInputChange('gutter_length', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleInputChange('gutter_length', e.target.value === '' ? '' : parseFloat(e.target.value))}
                     placeholder="0.00"
                   />
                 </div>
