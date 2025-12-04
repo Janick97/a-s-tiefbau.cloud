@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet, RefreshCw } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ProjectForm from "../components/projects/ProjectForm";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -1649,6 +1649,14 @@ export default function ProjectsPage() {
                   className="pl-10 h-12"
                 />
               </div>
+              <Button
+                variant="outline"
+                onClick={() => loadData(user)}
+                className="h-12 whitespace-nowrap"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Aktualisieren
+              </Button>
               <Button
                 variant="outline"
                 onClick={handleResetFilters}
