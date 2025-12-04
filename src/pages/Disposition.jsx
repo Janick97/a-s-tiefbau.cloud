@@ -613,7 +613,7 @@ export default function DispositionPage() {
                                   ) : (
                                     <>
                                       <Construction className="w-4 h-4 mr-2" />
-                                      Tiefbau offen
+                                      Tiefbau nicht offen
                                     </>
                                   )}
                                 </Button>
