@@ -144,6 +144,11 @@ export default function Layout({ children, currentPageName }) {
     }
 
     return navigationItems.filter(item => {
+      // "Meine Montageaufträge" nur für Monteure, nicht für Admins
+      if (item.title === 'Meine Montageaufträge') {
+        return user.position === 'Monteur';
+      }
+
       if (user.role === 'admin') return true;
 
       if (user.position === 'Bauleiter') {
