@@ -263,7 +263,10 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
       const width = parseFloat(formData.excavation_width) || 0;
       
       // Formel: =AUFRUNDEN((((Länge * Breite) - 1,2) / 0,25) / 10; 1) + 1
-      const calculatedFactor = Math.ceil((((length * width) - 1.2) / 0.25) / 10) + 1;
+      // AUFRUNDEN mit Parameter 1 = auf 1 Dezimalstelle aufrunden
+      const intermediateValue = (((length * width) - 1.2) / 0.25) / 10;
+      const roundedValue = Math.ceil(intermediateValue * 10) / 10;
+      const calculatedFactor = roundedValue + 1;
       const finalFactor = Math.max(1, calculatedFactor); // Minimum Faktor = 1
       
       if (finalFactor !== formData.excavation_factor) {
