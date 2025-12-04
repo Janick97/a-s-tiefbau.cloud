@@ -90,6 +90,7 @@ export default function ProjectsPage() {
     date_filter_value: ''
   });
   const [tempVaoDaysRemaining, setTempVaoDaysRemaining] = useState('');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [user, setUser] = useState(null);
   const [updatingProject, setUpdatingProject] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ 
