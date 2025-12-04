@@ -877,13 +877,14 @@ export default function ProjectsPage() {
                   <TableHead className="py-2">Straße</TableHead>
                   <TableHead className="py-2">Ansprechpartner</TableHead>
                   <TableHead className="py-2">VAO-Status</TableHead>
+                  <TableHead className="py-2 text-center">BA/FA</TableHead>
                   <TableHead className="py-2">Termine</TableHead>
                   <TableHead className="py-2 text-center">Status</TableHead>
                   <TableHead className="py-2 text-center">Material</TableHead>
                   <TableHead className="py-2 text-center">Dokumentation</TableHead>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="py-2" colSpan={11}>
+                  <TableCell className="py-2" colSpan={12}>
                     <Skeleton className="h-8 w-full" />
                   </TableCell>
                 </TableRow>
@@ -891,7 +892,7 @@ export default function ProjectsPage() {
               <TableBody>
                 {Array(5).fill(0).map((_, i) => (
                   <TableRow key={i} className="h-12">
-                    <TableCell className="py-2" colSpan={11}>
+                    <TableCell className="py-2" colSpan={12}>
                       <Skeleton className="h-4 w-full" />
                     </TableCell>
                   </TableRow>
@@ -1000,6 +1001,70 @@ export default function ProjectsPage() {
                   </div>
                 </button>
               </TableCell>
+              <TableCell className="py-2 w-24 text-center" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-600 mr-1">BA</span>
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'rot')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.ba_status === 'rot' 
+                          ? 'bg-red-500 border-red-600 scale-110' 
+                          : 'bg-red-200 border-red-300 hover:bg-red-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'gelb')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.ba_status === 'gelb' 
+                          ? 'bg-yellow-500 border-yellow-600 scale-110' 
+                          : 'bg-yellow-200 border-yellow-300 hover:bg-yellow-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'grün')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.ba_status === 'grün' 
+                          ? 'bg-green-500 border-green-600 scale-110' 
+                          : 'bg-green-200 border-green-300 hover:bg-green-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs text-gray-600 mr-1">FA</span>
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'rot')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.fa_status === 'rot' 
+                          ? 'bg-red-500 border-red-600 scale-110' 
+                          : 'bg-red-200 border-red-300 hover:bg-red-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'gelb')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.fa_status === 'gelb' 
+                          ? 'bg-yellow-500 border-yellow-600 scale-110' 
+                          : 'bg-yellow-200 border-yellow-300 hover:bg-yellow-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                    <button
+                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'grün')}
+                      className={`w-5 h-5 rounded-full border-2 transition-all ${
+                        project.fa_status === 'grün' 
+                          ? 'bg-green-500 border-green-600 scale-110' 
+                          : 'bg-green-200 border-green-300 hover:bg-green-300'
+                      }`}
+                      disabled={updatingProject === project.id}
+                    />
+                  </div>
+                </div>
+              </TableCell>
               <TableCell className="py-2 w-48">
                 <div className="text-xs space-y-1">
                   {project.start_date && (
@@ -1103,6 +1168,7 @@ export default function ProjectsPage() {
                   <TableHead className="py-2 w-48">Straße</TableHead>
                   <TableHead className="py-2 w-36">Ansprechpartner</TableHead>
                   <TableHead className="py-2 w-56">VAO-Status</TableHead>
+                  <TableHead className="py-2 w-24 text-center">BA/FA</TableHead>
                   <TableHead className="py-2 w-48">Termine</TableHead>
                   <TableHead className="py-2 w-64">Status</TableHead>
                   <TableHead className="py-2 w-24 text-center">Material</TableHead>
@@ -1288,7 +1354,7 @@ export default function ProjectsPage() {
                 <AnimatePresence>
                     {mainProjects.length === 0 && followUpsByParent.size === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={11} className="h-64">
+                        <TableCell colSpan={12} className="h-64">
                           <div className="text-center py-16">
                             <FolderOpen className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                             <h3 className="text-xl font-medium text-gray-500 mb-2">Keine Projekte gefunden</h3>
