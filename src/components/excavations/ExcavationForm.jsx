@@ -127,7 +127,7 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     excavation_factor: parseFloat(excavation?.excavation_factor) || 1,
     surface_type: excavation?.surface_type || '',
     surface_type_2: excavation?.surface_type_2 || null,
-    asphalt_thickness: parseFloat(excavation?.asphalt_thickness) || 0,
+    asphalt_thickness: excavation?.asphalt_thickness !== undefined && excavation?.asphalt_thickness !== null ? parseFloat(excavation.asphalt_thickness) : '',
     concrete_base_used: excavation?.concrete_base_used || false,
     mortar_used: excavation?.mortar_used || false,
     gravel_used: excavation?.gravel_used || false,
@@ -833,7 +833,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     step="0.1"
                     min="0"
                     value={formData.asphalt_thickness}
-                    onChange={(e) => handleInputChange('asphalt_thickness', parseFloat(e.target.value) || 0)}
+                    onChange={(e) => handleInputChange('asphalt_thickness', e.target.value === '' ? '' : parseFloat(e.target.value))}
                     placeholder="z.B. 5.0"
                     required
                   />
