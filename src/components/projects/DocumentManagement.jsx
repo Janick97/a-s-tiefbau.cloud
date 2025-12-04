@@ -788,7 +788,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   />
                 ) : previewDoc.file_type?.includes('pdf') ? (
                   <iframe 
-                    src={previewDoc.file_url} 
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`}
                     className="w-full h-[70vh] border-0"
                     title={previewDoc.file_name}
                   />
