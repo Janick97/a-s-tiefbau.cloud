@@ -176,12 +176,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     
     // For Grube positions with detailed dimensions
     if (detailDimensionPositions.includes(priceItem.item_number)) {
-      const length = parseFloat(formData.excavation_length) || 0;
-      const width = parseFloat(formData.excavation_width) || 0;
-      const depth = parseFloat(formData.excavation_depth) || 0;
       const factor = parseFloat(formData.excavation_factor) || 0;
-      
-      const result = length * width * depth * factor * priceItem.price;
+      const result = factor * priceItem.price;
       return result;
     }
     
@@ -224,12 +220,9 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     const isGrabenMeterBased = selectedItem.unit === 'M' && !isGrubeWithDimensions;
 
     if (isGrubeWithDimensions) {
-        const length_dim = parseFloat(formData.excavation_length) || 0;
-        const width_dim = parseFloat(formData.excavation_width) || 0;
-        const depth_dim = parseFloat(formData.excavation_depth) || 0;
         const factor_dim = parseFloat(formData.excavation_factor) || 0;
-        effectiveQuantity = length_dim * width_dim * depth_dim * factor_dim;
-        displayUnit = 'm³';
+        effectiveQuantity = factor_dim;
+        displayUnit = 'Faktor';
     } else if (isPieceBased) {
         effectiveQuantity = inputQuantity;
         displayUnit = 'ST';
