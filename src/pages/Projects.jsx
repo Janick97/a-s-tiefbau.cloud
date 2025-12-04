@@ -317,6 +317,14 @@ export default function ProjectsPage() {
   };
 
   const handleCheckboxChange = async (projectId, field, value) => {
+    // Für Material und Dokumentation immer Bestätigung anfordern
+    if (field === 'material_booking_completed' || field === 'documentation_completed') {
+      const project = projects.find(p => p.id === projectId);
+      const oldValue = project?.[field] || false;
+      setConfirmDialog({ show: true, projectId, field, value, oldValue });
+      return;
+    }
+    
     if (value === true) {
       setConfirmDialog({ show: true, projectId, field, value, oldValue: false });
       return;
@@ -1886,11 +1894,17 @@ export default function ProjectsPage() {
                     <div className="mb-6">
                       {confirmDialog.field === 'material_booking_completed' ? (
                         <p className="text-gray-700">
-                          Wurde die Materialbuchung wirklich durchgeführt? Diese Aktion markiert das Projekt als "Material gebucht".
+                          {confirmDialog.value ? 
+                            'Wurde die Materialbuchung wirklich durchgeführt? Diese Aktion markiert das Projekt als "Material gebucht".' :
+                            'Möchten Sie die Materialbuchung wirklich als nicht erledigt markieren?'
+                          }
                         </p>
                       ) : confirmDialog.field === 'documentation_completed' ? (
                         <p className="text-gray-700">
-                          Wurde die Dokumentation wirklich durchgeführt? Diese Aktion markiert das Projekt als "Dokumentation erledigt".
+                          {confirmDialog.value ?
+                            'Wurde die Dokumentation wirklich durchgeführt? Diese Aktion markiert das Projekt als "Dokumentation erledigt".' :
+                            'Möchten Sie die Dokumentation wirklich als nicht erledigt markieren?'
+                          }
                         </p>
                       ) : (
                         <div className="space-y-3">
