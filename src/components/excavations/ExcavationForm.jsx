@@ -627,28 +627,43 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     value={formData.price_item_id} 
                     onValueChange={(value) => handlePriceItemChange(value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-auto min-h-[44px]">
                       <SelectValue placeholder={isLoadingData ? "Lade..." : "Position auswählen..."} />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[400px]">
-                      <SelectItem value="grube-header" disabled className="font-bold bg-orange-50">
+                    <SelectContent className="max-h-[60vh]">
+                      <SelectItem value="grube-header" disabled className="font-bold bg-orange-50 text-xs sm:text-sm">
                         === GRUBEN ===
                       </SelectItem>
                       {grubenItems.map(item => (
-                        <SelectItem key={item.id} value={item.id}>
-                          {item.item_number} - {item.description} ({item.unit}) - €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <SelectItem key={item.id} value={item.id} className="py-3 text-xs sm:text-sm leading-tight">
+                          <div className="flex flex-col gap-1">
+                            <div className="font-medium">{item.item_number}</div>
+                            <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
+                            <div className="text-green-700 font-semibold">{item.unit} • €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                          </div>
                         </SelectItem>
                       ))}
-                      <SelectItem value="graben-header" disabled className="font-bold bg-blue-50 mt-2">
+                      <SelectItem value="graben-header" disabled className="font-bold bg-blue-50 mt-2 text-xs sm:text-sm">
                         === GRÄBEN & ANDERE ===
                       </SelectItem>
                       {grabenItems.map(item => (
-                        <SelectItem key={item.id} value={item.id}>
-                          {item.item_number} - {item.description} ({item.unit}) - €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        <SelectItem key={item.id} value={item.id} className="py-3 text-xs sm:text-sm leading-tight">
+                          <div className="flex flex-col gap-1">
+                            <div className="font-medium">{item.item_number}</div>
+                            <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
+                            <div className="text-green-700 font-semibold">{item.unit} • €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {selectedPriceItem && (
+                    <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded border">
+                      <div className="font-medium text-gray-900">{selectedPriceItem.item_number}</div>
+                      <div className="mt-1">{selectedPriceItem.description}</div>
+                      <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit} • €{selectedPriceItem.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">
