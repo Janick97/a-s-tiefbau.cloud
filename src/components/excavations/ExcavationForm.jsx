@@ -127,6 +127,7 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     excavation_factor: parseFloat(excavation?.excavation_factor) || 1,
     surface_type: excavation?.surface_type || '',
     surface_type_2: excavation?.surface_type_2 || null,
+    asphalt_thickness: parseFloat(excavation?.asphalt_thickness) || 0,
     concrete_base_used: excavation?.concrete_base_used || false,
     mortar_used: excavation?.mortar_used || false,
     gravel_used: excavation?.gravel_used || false,
@@ -818,6 +819,29 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   )}
                 </div>
               </div>
+
+              {/* Asphaltdicke - nur wenn Asphalt gewählt */}
+              {(formData.surface_type === 'Asphalt' || formData.surface_type_2 === 'Asphalt') && (
+                <div className="space-y-2 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <Label htmlFor="asphalt_thickness" className="flex items-center gap-2 font-medium text-yellow-900">
+                    <Info className="w-4 h-4" />
+                    Asphaltdicke (cm) *
+                  </Label>
+                  <Input
+                    id="asphalt_thickness"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={formData.asphalt_thickness}
+                    onChange={(e) => handleInputChange('asphalt_thickness', parseFloat(e.target.value) || 0)}
+                    placeholder="z.B. 5.0"
+                    required
+                  />
+                  <p className="text-xs text-yellow-700">
+                    Bitte geben Sie die Dicke der Asphaltschicht in Zentimetern an
+                  </p>
+                </div>
+              )}
 
               {/* Material checkboxes */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
