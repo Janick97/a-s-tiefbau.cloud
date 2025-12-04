@@ -78,6 +78,8 @@ export default function ProjectsPage() {
     documentation_completed: 'all',
     ev_ta: 'all',
     ev_sa: 'all',
+    ba_status: [],
+    fa_status: [],
     city: [],
     street: [],
     vao_status: [],
@@ -643,6 +645,8 @@ export default function ProjectsPage() {
       documentation_completed: 'all',
       ev_ta: 'all',
       ev_sa: 'all',
+      ba_status: [],
+      fa_status: [],
       city: [],
       street: [],
       vao_status: [],
@@ -761,6 +765,8 @@ export default function ProjectsPage() {
         const matchesEvSa = filters.ev_sa === 'all'
             || (filters.ev_sa === 'yes' && p.ev_sa)
             || (filters.ev_sa === 'no' && !p.ev_sa);
+        const matchesBaStatus = filters.ba_status.length === 0 || filters.ba_status.includes(p.ba_status);
+        const matchesFaStatus = filters.fa_status.length === 0 || filters.fa_status.includes(p.fa_status);
         const matchesCity = filters.city.length === 0 || filters.city.includes(p.city);
         const matchesStreet = filters.street.length === 0 || filters.street.includes(p.street);
         const matchesVaoStatus = filters.vao_status.length === 0 || filters.vao_status.includes(p.vao_status);
@@ -819,7 +825,7 @@ export default function ProjectsPage() {
         }
 
         return matchesSearch && matchesProjectNumber && matchesSmNumber && matchesOrderType && matchesContactPerson && matchesProjectStatus && 
-               matchesMaterial && matchesDocumentation && matchesEvTa && matchesEvSa && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter;
+               matchesMaterial && matchesDocumentation && matchesEvTa && matchesEvSa && matchesBaStatus && matchesFaStatus && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter;
     });
 
     const projectMap = new Map(safeProjects.map(p => [p.id, p]));
@@ -1002,66 +1008,64 @@ export default function ProjectsPage() {
                 </button>
               </TableCell>
               <TableCell className="py-2 w-24 text-center" onClick={(e) => e.stopPropagation()}>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-600 mr-1">BA</span>
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'rot')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.ba_status === 'rot' 
-                          ? 'bg-red-500 border-red-600 scale-110' 
-                          : 'bg-red-200 border-red-300 hover:bg-red-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'gelb')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.ba_status === 'gelb' 
-                          ? 'bg-yellow-500 border-yellow-600 scale-110' 
-                          : 'bg-yellow-200 border-yellow-300 hover:bg-yellow-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'ba_status', 'grün')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.ba_status === 'grün' 
-                          ? 'bg-green-500 border-green-600 scale-110' 
-                          : 'bg-green-200 border-green-300 hover:bg-green-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">BA</span>
+                    {project.ba_status ? (
+                      <div 
+                        onClick={() => handleCheckboxChange(project.id, 'ba_status', null)}
+                        className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-all ${
+                          project.ba_status === 'rot' ? 'bg-red-500 border-red-600' :
+                          project.ba_status === 'gelb' ? 'bg-yellow-500 border-yellow-600' :
+                          'bg-green-500 border-green-600'
+                        }`}
+                        title="Klicken zum Zurücksetzen"
+                      />
+                    ) : (
+                      <Select
+                        value=""
+                        onValueChange={(value) => handleCheckboxChange(project.id, 'ba_status', value)}
+                        disabled={updatingProject === project.id}
+                      >
+                        <SelectTrigger className="h-6 w-16 text-xs p-0 border-dashed">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="rot">🔴 Rot</SelectItem>
+                          <SelectItem value="gelb">🟡 Gelb</SelectItem>
+                          <SelectItem value="grün">🟢 Grün</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs text-gray-600 mr-1">FA</span>
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'rot')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.fa_status === 'rot' 
-                          ? 'bg-red-500 border-red-600 scale-110' 
-                          : 'bg-red-200 border-red-300 hover:bg-red-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'gelb')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.fa_status === 'gelb' 
-                          ? 'bg-yellow-500 border-yellow-600 scale-110' 
-                          : 'bg-yellow-200 border-yellow-300 hover:bg-yellow-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
-                    <button
-                      onClick={() => handleCheckboxChange(project.id, 'fa_status', 'grün')}
-                      className={`w-5 h-5 rounded-full border-2 transition-all ${
-                        project.fa_status === 'grün' 
-                          ? 'bg-green-500 border-green-600 scale-110' 
-                          : 'bg-green-200 border-green-300 hover:bg-green-300'
-                      }`}
-                      disabled={updatingProject === project.id}
-                    />
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-600">FA</span>
+                    {project.fa_status ? (
+                      <div 
+                        onClick={() => handleCheckboxChange(project.id, 'fa_status', null)}
+                        className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-all ${
+                          project.fa_status === 'rot' ? 'bg-red-500 border-red-600' :
+                          project.fa_status === 'gelb' ? 'bg-yellow-500 border-yellow-600' :
+                          'bg-green-500 border-green-600'
+                        }`}
+                        title="Klicken zum Zurücksetzen"
+                      />
+                    ) : (
+                      <Select
+                        value=""
+                        onValueChange={(value) => handleCheckboxChange(project.id, 'fa_status', value)}
+                        disabled={updatingProject === project.id}
+                      >
+                        <SelectTrigger className="h-6 w-16 text-xs p-0 border-dashed">
+                          <SelectValue placeholder="-" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="rot">🔴 Rot</SelectItem>
+                          <SelectItem value="gelb">🟡 Gelb</SelectItem>
+                          <SelectItem value="grün">🟢 Grün</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 </div>
               </TableCell>
