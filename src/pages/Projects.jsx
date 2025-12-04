@@ -744,7 +744,19 @@ export default function ProjectsPage() {
   const { mainProjects, followUpsByParent } = useMemo(() => {
     const safeProjects = Array.isArray(projects) ? projects : [];
     
-    const filteredProjects = safeProjects.filter(p => {
+    // Sortiere alle Projekte nach Projektnummer
+    const sortedProjects = [...safeProjects].sort((a, b) => {
+      const numA = a.project_number || '';
+      const numB = b.project_number || '';
+      
+      if (sortOrder === 'asc') {
+        return numA.localeCompare(numB, 'de', { numeric: true });
+      } else {
+        return numB.localeCompare(numA, 'de', { numeric: true });
+      }
+    });
+    
+    const filteredProjects = sortedProjects.filter(p => {
         if (!p) return false;
         const searchLower = searchTerm.toLowerCase();
         const matchesSearch = 
@@ -866,14 +878,8 @@ export default function ProjectsPage() {
         }
     }
 
-    currentMainProjects.sort((a, b) => (a.project_number || '').localeCompare(b.project_number || ''));
-
-    for (const [parentId, followUps] of currentFollowUpsByParent.entries()) {
-      currentFollowUpsByParent.set(parentId, followUps.sort((a, b) => (a.project_number || '').localeCompare(b.project_number || '')));
-    }
-
     return { mainProjects: currentMainProjects, followUpsByParent: currentFollowUpsByParent };
-  }, [projects, searchTerm, filters]);
+  }, [projects, searchTerm, filters, sortOrder]);
 
   const renderContent = () => {
     if (isLoading) {
