@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox } from "@/components/ui/combobox";
 import { motion } from "framer-motion";
 import { X, Save, FolderPlus, Upload, FileText, Info } from "lucide-react";
 import { ContactPerson, City, Project, User, MontageAuftrag } from "@/entities/all";
@@ -364,18 +365,16 @@ export default function ProjectForm({ project, parentProject, onSubmit, onCancel
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="client">Kunde/Auftraggeber *</Label>
-                    <Select
+                    <Combobox
                       value={formData.client}
                       onValueChange={(value) => handleInputChange('client', value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Auftraggeber auswählen..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Deutsche Telekom">Deutsche Telekom</SelectItem>
-                        <SelectItem value="Relaix">Relaix</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      options={[
+                        { value: 'Deutsche Telekom', label: 'Deutsche Telekom' },
+                        { value: 'Relaix', label: 'Relaix' }
+                      ]}
+                      placeholder="Auftraggeber auswählen oder eingeben..."
+                      searchPlaceholder="Suchen oder neuen Kunden eingeben..."
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="contact_person">Ansprechpartner</Label>
