@@ -323,9 +323,16 @@ export default function ProjectsPage() {
     
     setUpdatingProject(projectId);
     try {
-      await Project.update(projectId, { [field]: value });
+      const updateData = { [field]: value };
+      
+      // Wenn BA auf rot gesetzt wird, setze auch FA auf rot
+      if (field === 'ba_status' && value === 'rot') {
+        updateData.fa_status = 'rot';
+      }
+      
+      await Project.update(projectId, updateData);
       setProjects(projects.map(p => 
-        p.id === projectId ? { ...p, [field]: value } : p
+        p.id === projectId ? { ...p, ...updateData } : p
       ));
     } catch (error) {
       console.error("Fehler beim Aktualisieren:", error);
