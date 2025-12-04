@@ -252,6 +252,26 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     priceItems
   ]);
 
+  // Auto-calculate factor for Standardgrube positions
+  useEffect(() => {
+    const selectedItem = priceItems.find(p => p.id === formData.price_item_id);
+    if (!selectedItem) return;
+
+    const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+    if (detailDimensionPositions.includes(selectedItem.item_number)) {
+      const length = parseFloat(formData.excavation_length) || 0;
+      const width = parseFloat(formData.excavation_width) || 0;
+      
+      // Formel: =AUFRUNDEN((((Länge * Breite) - 1,2) / 0,25) / 10; 1) + 1
+      const calculatedFactor = Math.ceil((((length * width) - 1.2) / 0.25) / 10) + 1;
+      const finalFactor = Math.max(1, calculatedFactor); // Minimum Faktor = 1
+      
+      if (finalFactor !== formData.excavation_factor) {
+        setFormData(prev => ({ ...prev, excavation_factor: finalFactor }));
+      }
+    }
+  }, [formData.excavation_length, formData.excavation_width, formData.price_item_id, priceItems]);
+
   // Update calculation whenever relevant fields change
   useEffect(() => {
     // Only calculate if price items are loaded and a price item is selected
@@ -716,7 +736,12 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="excavation_factor">Faktor</Label>
+                    <Label htmlFor="excavation_factor" className="flex items-center gap-1">
+                      Faktor
+                      {selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) && (
+                        <span className="text-xs text-blue-600">(auto)</span>
+                      )}
+                    </Label>
                     <Input
                       id="excavation_factor"
                       type="number"
@@ -724,6 +749,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       min="0"
                       value={formData.excavation_factor}
                       onChange={(e) => handleInputChange('excavation_factor', parseFloat(e.target.value))}
+                      readOnly={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number)}
+                      className={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) ? 'bg-gray-100 cursor-not-allowed' : ''}
                     />
                   </div>
                 </div>
