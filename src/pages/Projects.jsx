@@ -1277,6 +1277,34 @@ export default function ProjectsPage() {
                      </div>
                    </TableCell>
                    <TableCell className="p-1">
+                     <div className="space-y-1">
+                       <MultiSelect
+                         options={[
+                           { value: 'rot', label: '🔴 Rot' },
+                           { value: 'gelb', label: '🟡 Gelb' },
+                           { value: 'grün', label: '🟢 Grün' }
+                         ]}
+                         value={filters.ba_status}
+                         onValueChange={(v) => handleFilterChange('ba_status', v)}
+                         placeholder="BA..."
+                         searchPlaceholder="BA-Status..."
+                         className="h-7 text-xs"
+                       />
+                       <MultiSelect
+                         options={[
+                           { value: 'rot', label: '🔴 Rot' },
+                           { value: 'gelb', label: '🟡 Gelb' },
+                           { value: 'grün', label: '🟢 Grün' }
+                         ]}
+                         value={filters.fa_status}
+                         onValueChange={(v) => handleFilterChange('fa_status', v)}
+                         placeholder="FA..."
+                         searchPlaceholder="FA-Status..."
+                         className="h-7 text-xs"
+                       />
+                     </div>
+                   </TableCell>
+                   <TableCell className="p-1">
                       <div className="space-y-1">
                         <Select 
                           value={filters.date_filter_type} 
