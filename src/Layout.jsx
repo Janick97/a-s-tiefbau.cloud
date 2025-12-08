@@ -124,9 +124,9 @@ export default function Layout({ children, currentPageName }) {
         // Bauleiter, Oberfläche und Monteure laden
         if (userData && userData.role === 'admin') {
           const users = await User.list();
-          const bauleiterUsers = users.filter(u => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+          const bauLeiterUsers = users.filter(u => u.position === 'Bauleiter' || u.position === 'Oberfläche');
           const monteurUsers = users.filter(u => u.position === 'Monteur');
-          setBauleiter(bauleiterUsers);
+          setBauleiter(bauLeiterUsers);
           setMonteure(monteurUsers);
         }
       } catch (error) {
