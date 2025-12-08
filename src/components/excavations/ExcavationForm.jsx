@@ -409,15 +409,21 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!currentUser || !currentUser.id) {
+      alert("Fehler: Benutzerdaten konnten nicht geladen werden. Bitte laden Sie die Seite neu.");
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
-        const calculatedPrice = calculatePrice(); // Ensure the latest price is used
+        const calculatedPrice = calculatePrice();
 
         // Provisionen berechnen
         const totalPrice = calculatedPrice || 0;
-        const foremanCommission = totalPrice * 0.5;  // 50% für Bauleiter
-        const backfillCommission = totalPrice * 0.2; // 20% für Verfüllung
-        const surfaceCommission = totalPrice * 0.3;  // 30% für Oberfläche
+        const foremanCommission = totalPrice * 0.5;
+        const backfillCommission = totalPrice * 0.2;
+        const surfaceCommission = totalPrice * 0.3;
 
         const dataToSubmit = { 
           ...formData,
@@ -425,14 +431,15 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           foreman_commission: foremanCommission,
           backfill_commission: backfillCommission,
           surface_commission: surfaceCommission,
-          foreman_user_id: currentUser?.id || null,
+          foreman_user_id: currentUser.id,
         };
         
-        console.log('Submitting data:', dataToSubmit);
+        console.log('Submitting excavation data:', dataToSubmit);
         await onSubmit(dataToSubmit);
     } catch (error) {
         console.error("Submission failed:", error);
-        alert("Fehler beim Speichern der Leistung.");
+        alert(`Fehler beim Speichern der Leistung: ${error.message || 'Unbekannter Fehler'}`);
+        throw error;
     } finally {
         setIsSubmitting(false);
     }
