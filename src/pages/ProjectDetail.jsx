@@ -731,9 +731,11 @@ export default function ProjectDetailPage() {
       } else {
         await Excavation.create(dataWithProject);
       }
-      loadProjectData();
+      await loadProjectData();
     } catch (error) {
       console.error("Fehler beim Speichern der Ausgrabung:", error);
+      alert(`Fehler beim Speichern der Leistung: ${error.message || 'Unbekannter Fehler'}`);
+      throw error;
     }
   };
 
