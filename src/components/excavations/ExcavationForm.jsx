@@ -421,6 +421,11 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
         const dataToSubmit = { 
           ...formData,
+          // Convert empty strings to null for numeric fields
+          asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+          curb_length: formData.curb_length === '' ? null : formData.curb_length,
+          edge_stone_length: formData.edge_stone_length === '' ? null : formData.edge_stone_length,
+          gutter_length: formData.gutter_length === '' ? null : formData.gutter_length,
           calculated_price: calculatedPrice,
           foreman_commission: foremanCommission,
           backfill_commission: backfillCommission,
