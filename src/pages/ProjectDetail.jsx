@@ -593,7 +593,7 @@ export default function ProjectDetailPage() {
 
   // Bauakten filtern
   const bauakten = React.useMemo(() => {
-    return Array.isArray(documents) ? documents.filter(doc => doc.folder === 'Bauakte') : [];
+    return documents.filter(doc => doc.folder === 'Bauakte');
   }, [documents]);
 
   // Load current user
@@ -731,11 +731,9 @@ export default function ProjectDetailPage() {
       } else {
         await Excavation.create(dataWithProject);
       }
-      await loadProjectData();
+      loadProjectData();
     } catch (error) {
       console.error("Fehler beim Speichern der Ausgrabung:", error);
-      alert(`Fehler beim Speichern der Leistung: ${error.message || 'Unbekannter Fehler'}`);
-      throw error;
     }
   };
 
