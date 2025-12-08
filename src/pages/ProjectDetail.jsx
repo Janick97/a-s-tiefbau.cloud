@@ -593,7 +593,7 @@ export default function ProjectDetailPage() {
 
   // Bauakten filtern
   const bauakten = React.useMemo(() => {
-    return documents.filter(doc => doc.folder === 'Bauakte');
+    return Array.isArray(documents) ? documents.filter(doc => doc.folder === 'Bauakte') : [];
   }, [documents]);
 
   // Load current user
