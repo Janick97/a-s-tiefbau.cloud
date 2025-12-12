@@ -53,6 +53,7 @@ import PullingWorkManagement from "../components/projects/PullingWorkManagement"
 import ProjectPrintLayout from "../components/projects/ProjectPrintLayout";
 import ProjectChat from "../components/projects/ProjectChat";
 import ProjectCoverSheet from "../components/projects/ProjectCoverSheet";
+import ServicesOverview from "../components/projects/ServicesOverview";
 import MontageAuftragSection from "../components/projects/MontageAuftragSection";
 import ExcavationForm from "../components/excavations/ExcavationForm";
 import PullingWorkForm from "../components/projects/PullingWorkForm";
@@ -584,12 +585,14 @@ export default function ProjectDetailPage() {
   const [monteure, setMonteure] = useState([]);
   const [user, setUser] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [isExportingServicesOverview, setIsExportingServicesOverview] = useState(false);
   const [isExportingEVergabe, setIsExportingEVergabe] = useState(false);
   const [montageLeistungen, setMontageLeistungen] = useState([]);
   const [montagePreisItems, setMontagePreisItems] = useState([]);
   const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
 
   const coverSheetRef = useRef(null);
+  const servicesOverviewRef = useRef(null);
   const evergabeRef = useRef(null);
 
   const projectId = new URLSearchParams(location.search).get("id");
@@ -799,6 +802,79 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.error('Fehler beim Kopieren:', error);
       alert('Fehler beim Kopieren. Bitte manuell markieren und kopieren.');
+    }
+  };
+
+  const handleExportServicesOverviewPdf = async () => {
+    if (!servicesOverviewRef.current) {
+      alert("Fehler: Leistungsübersicht-Komponente konnte nicht gefunden werden.");
+      return;
+    }
+
+    setIsExportingServicesOverview(true);
+
+    try {
+      const originalPosition = servicesOverviewRef.current.style.position;
+      const originalLeft = servicesOverviewRef.current.style.left;
+      const originalWidth = servicesOverviewRef.current.style.width;
+      
+      servicesOverviewRef.current.style.position = 'fixed';
+      servicesOverviewRef.current.style.left = '0';
+      servicesOverviewRef.current.style.top = '0';
+      servicesOverviewRef.current.style.zIndex = '9999';
+      servicesOverviewRef.current.style.width = '1400px';
+      
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      const canvas = await html2canvas(servicesOverviewRef.current, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        foreignObjectRendering: false,
+        imageTimeout: 0,
+        removeContainer: true,
+      });
+
+      servicesOverviewRef.current.style.position = originalPosition;
+      servicesOverviewRef.current.style.left = originalLeft;
+      servicesOverviewRef.current.style.top = '';
+      servicesOverviewRef.current.style.zIndex = '';
+      servicesOverviewRef.current.style.width = originalWidth;
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF('l', 'mm', 'a4');
+
+      const imgWidth = 297;
+      const pageHeight = 210;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`Leistungsuebersicht_${project.project_number}.pdf`);
+
+    } catch (error) {
+      console.error("Fehler beim Erstellen des Leistungsübersicht-PDFs:", error);
+      alert("Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.");
+      
+      if (servicesOverviewRef.current) {
+        servicesOverviewRef.current.style.position = 'absolute';
+        servicesOverviewRef.current.style.left = '-9999px';
+        servicesOverviewRef.current.style.width = '';
+      }
+    } finally {
+      setIsExportingServicesOverview(false);
     }
   };
 
@@ -1103,6 +1179,16 @@ export default function ProjectDetailPage() {
             priceItems={priceItems}
           />
         </div>
+
+        {/* Services Overview (hidden, für PDF export) */}
+        <div style={{ position: 'absolute', left: '-9999px', top: 0 }} ref={servicesOverviewRef}>
+          <ServicesOverview
+            project={project}
+            excavations={excavations}
+            priceItems={priceItems}
+            allProjects={[project, ...followUpProjects]}
+          />
+        </div>
       </>
     );
   }
@@ -1250,6 +1336,10 @@ export default function ProjectDetailPage() {
                 <Button variant="outline" onClick={handlePrint}>
                   <Printer className="w-4 h-4 mr-2" />
                   Drucken
+                </Button>
+                <Button variant="outline" onClick={handleExportServicesOverviewPdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Leistungsübersicht Export
                 </Button>
                 <Button variant="outline" onClick={handleExportCoverSheetPdf}>
                   <FileText className="w-4 h-4 mr-2" />
@@ -1674,7 +1764,7 @@ export default function ProjectDetailPage() {
         </div>
       </div>
 
-      {/* PDF Export Progress Dialog */}
+      {/* PDF Export Progress Dialog - Deckblatt */}
       <AnimatePresence>
         {isExportingPdf && (
           <motion.div
@@ -1703,6 +1793,50 @@ export default function ProjectDetailPage() {
                   <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                     <motion.div
                       className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-500 to-amber-600"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 2, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">
+                    Das PDF wird automatisch heruntergeladen
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* PDF Export Progress Dialog - Leistungsübersicht */}
+      <AnimatePresence>
+        {isExportingServicesOverview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md mx-4"
+            >
+              <Card className="card-elevation border-none">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8 text-white animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    Leistungsübersicht wird erstellt...
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    Bitte warten Sie einen Moment
+                  </p>
+                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-purple-500 to-purple-600"
                       initial={{ width: '0%' }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 2, ease: "easeInOut" }}

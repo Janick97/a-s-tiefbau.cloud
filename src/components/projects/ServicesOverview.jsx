@@ -1,0 +1,563 @@
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Shovel, CheckCircle } from "lucide-react";
+
+export default function ServicesOverview({ project, excavations, priceItems = [], allProjects = [] }) {
+  if (!project) return null;
+
+  // Formatiere Datum für die Anzeige
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  };
+
+  // Bestimme, welche Art von Oberfläche eingebaut wurde
+  const getSurfaceWork = (exc) => {
+    const surface1 = exc.surface_type?.toLowerCase() || '';
+    const surface2 = exc.surface_type_2?.toLowerCase() || '';
+    
+    const hasAsphalt = surface1.includes('asphalt') || surface2.includes('asphalt');
+    const hasBeton = exc.concrete_base_used || surface1.includes('beton') || surface2.includes('beton');
+    const hasPlatten = surface1.includes('platten') || surface1.includes('pflaster') || 
+                       surface2.includes('platten') || surface2.includes('pflaster') ||
+                       surface1.includes('naturstein') || surface2.includes('naturstein');
+
+    return { hasAsphalt, hasBeton, hasPlatten };
+  };
+
+  // Generiere Material-Info-Text
+  const getMaterialInfo = (exc) => {
+    const materialsList = [];
+    if (exc.concrete_base_used) materialsList.push('Unterbeton');
+    if (exc.mortar_used) materialsList.push('Mörtel');
+    if (exc.gravel_used) materialsList.push('Splitt');
+    return materialsList.length > 0 ? materialsList.join(', ') : '-';
+  };
+
+  // Bestimme Typ (Grube/Graben) basierend auf price_item_id
+  const getExcavationType = (exc) => {
+    if (!exc.price_item_id || priceItems.length === 0) return '-';
+    const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+    return priceItem?.type || '-';
+  };
+
+  // Generiere Baustellendetails-Text
+  const getBaustellenDetails = (exc) => {
+    const details = [];
+    
+    if (exc.iron_plate_laid) {
+      details.push('✓ Eisenplatte');
+    }
+    
+    if (exc.curb_length && exc.curb_length > 0) {
+      details.push(`Bordstein: ${exc.curb_length}m`);
+    }
+    
+    if (exc.edge_stone_length && exc.edge_stone_length > 0) {
+      details.push(`Kantenstein: ${exc.edge_stone_length}m`);
+    }
+    
+    if (exc.gutter_length && exc.gutter_length > 0) {
+      details.push(`Rinne: ${exc.gutter_length}m`);
+    }
+    
+    if (exc.excavated_material_left_onsite) {
+      details.push('✓ Aushub vor Ort');
+    }
+    
+    return details.length > 0 ? details : ['-'];
+  };
+
+  const getItemNumber = (exc) => {
+    const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+    return priceItem?.item_number || '';
+  };
+
+  // Spezielle Positionen nach item_number
+  const specialItemNumbers = [
+    '10021010', '10010413', '10037473', '10037352',
+    '10037463', '10037372', '10021040', '10037342', '10037363'
+  ];
+
+  // Gruppiere Excavations: Normal und Spezial
+  const groupedExcavations = React.useMemo(() => {
+    const grouped = { normal: {}, special: {} };
+    
+    excavations.forEach(exc => {
+      const itemNumber = getItemNumber(exc);
+      const isSpecial = specialItemNumbers.includes(itemNumber);
+      const targetGroup = isSpecial ? grouped.special : grouped.normal;
+      const projectId = exc.project_id;
+      
+      if (!targetGroup[projectId]) {
+        targetGroup[projectId] = {
+          project: allProjects.find(p => p.id === projectId) || project,
+          excavations: []
+        };
+      }
+      targetGroup[projectId].excavations.push(exc);
+    });
+    
+    return grouped;
+  }, [excavations, allProjects, project, priceItems]);
+
+  const excavationsByProject = React.useMemo(() => {
+    const groups = {};
+    
+    excavations.forEach(exc => {
+      const projectId = exc.project_id;
+      if (!groups[projectId]) {
+        groups[projectId] = {
+          project: allProjects.find(p => p.id === projectId) || project,
+          excavations: []
+        };
+      }
+      groups[projectId].excavations.push(exc);
+    });
+    
+    return groups;
+  }, [excavations, allProjects, project]);
+
+  return (
+    <>
+      <style>{`
+        @media print {
+          @page {
+            size: A4 landscape;
+            margin: 0;
+          }
+          body {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            color-adjust: exact;
+            margin: 0;
+            padding: 0;
+          }
+          * {
+            max-width: none !important;
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
+          .print-full-width {
+            width: 100% !important;
+            max-width: none !important;
+          }
+          
+          /* Seitenumbruch-Kontrolle */
+          .page-break-inside-avoid {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            display: block !important;
+          }
+          .page-break-after {
+            page-break-after: always !important;
+            break-after: always !important;
+          }
+          .page-break-before {
+            page-break-before: always !important;
+            break-after: always !important;
+          }
+          .project-group {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            page-break-before: auto !important;
+            display: block !important;
+          }
+          table {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          thead {
+            display: table-header-group !important;
+          }
+          tbody {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          tr {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          
+          /* Ensure all borders are visible in print */
+          table {
+            border-collapse: collapse !important;
+            border: 2px solid rgb(31, 41, 55) !important;
+          }
+          table, th, td {
+            border-color: rgb(31, 41, 55) !important;
+            border-style: solid !important;
+          }
+          th {
+            border-width: 2px !important;
+            border: 2px solid rgb(31, 41, 55) !important;
+          }
+          td {
+            border-width: 2px !important;
+            border: 2px solid rgb(31, 41, 55) !important;
+          }
+          tr {
+            border-bottom: 2px solid rgb(31, 41, 55) !important;
+          }
+          .border {
+            border-width: 2px !important;
+          }
+          .border-2 {
+            border-width: 3px !important;
+          }
+          .border-r {
+            border-right-width: 2px !important;
+          }
+          .border-b {
+            border-bottom-width: 2px !important;
+          }
+          .border-r-2 {
+            border-right-width: 2.5px !important;
+          }
+          .border-b-2 {
+            border-bottom-width: 3px !important;
+          }
+          .border-gray-300 {
+            border-color: rgb(31, 41, 55) !important;
+          }
+          .border-gray-400 {
+            border-color: rgb(31, 41, 55) !important;
+          }
+          .border-gray-700 {
+            border-color: rgb(31, 41, 55) !important;
+          }
+          .border-orange-500 {
+            border-color: rgb(249, 115, 22) !important;
+          }
+          /* Ensure background colors are printed */
+          .bg-gray-50,
+          .bg-gray-100,
+          .bg-blue-50,
+          .bg-orange-50,
+          .bg-yellow-50,
+          .bg-green-50,
+          .bg-amber-50,
+          .bg-purple-50 {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      `}</style>
+      
+      <div className="print-full-width w-full h-full bg-white" style={{ width: '100%' }}>
+        <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.5cm' }}>
+          
+          {/* Header - Logo und Titel */}
+          <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
+            <div className="flex items-start justify-between w-full">
+              <div className="flex items-center gap-5">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" 
+                  alt="Logo" 
+                  className="h-16"
+                />
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-1">LEISTUNGSÜBERSICHT</h1>
+                  <p className="text-base text-gray-600">{project.project_number} - {project.title}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-gray-600">Erstellt am:</div>
+                <div className="text-lg font-semibold">{new Date().toLocaleDateString('de-DE')}</div>
+                <div className="text-sm text-gray-600 mt-1">{new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Leistungsübersicht - Standard Positionen */}
+          {Object.keys(groupedExcavations.normal).length > 0 && (
+            <div className="w-full">
+              <h2 className="text-xl font-bold text-orange-600 mb-3 flex items-center gap-2 pb-2 border-b-2 border-orange-500">
+                <Shovel className="w-6 h-6" />
+                Leistungsübersicht ({Object.values(groupedExcavations.normal).reduce((sum, g) => sum + g.excavations.length, 0)} Positionen)
+              </h2>
+              
+              <div className="space-y-4">
+                {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => {
+                  // Erste Seite: max 5 Positionen, weitere Seiten: max 12 Positionen
+                  const chunks = [];
+                  if (group.excavations.length > 0) {
+                    chunks.push(group.excavations.slice(0, 5));
+                    for (let i = 5; i < group.excavations.length; i += 12) {
+                      chunks.push(group.excavations.slice(i, i + 12));
+                    }
+                  }
+                  
+                  return chunks.map((chunk, chunkIndex) => (
+                  <div key={`${projectId}-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                    {/* Projektüberschrift - nur beim ersten Chunk */}
+                    {chunkIndex === 0 && Object.keys(excavationsByProject).length > 1 && (
+                      <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
+                        <h3 className="text-base font-bold text-gray-900">
+                          {group.project.project_number} - {group.project.title}
+                          {group.project.id !== project.id && (
+                            <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
+                          )}
+                        </h3>
+                        <p className="text-sm text-gray-600">{group.excavations.length} Leistung(en)</p>
+                      </div>
+                    )}
+                    
+                    {/* Leistungstabelle */}
+                    <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm page-break-inside-avoid">
+                      <Table className="w-full border-collapse" style={{ border: '2px solid rgb(31, 41, 55)' }}>
+                        <TableHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
+                          <TableRow className="border-b-2 border-gray-700" style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Standort</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[5%] border-r-2 border-gray-700 text-center">Typ</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[7%] border-r-2 border-gray-700">Oberfl.</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[8%] border-r-2 border-gray-700">Material</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Auf</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Verfüllung</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Trag</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Fein</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Beton/<br/>Naturstein</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Platten/<br/>Pflaster</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[12%]">Baustellendetails</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {chunk.map((exc, index) => {
+                            const surfaceWork = getSurfaceWork(exc);
+                            const excavationType = getExcavationType(exc);
+                            const baustellenDetails = getBaustellenDetails(exc);
+                            
+                            return (
+                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  <div className="font-semibold leading-tight">{exc.location_name}</div>
+                                  <div className="text-gray-600 leading-tight text-xs">
+                                    {exc.street} {exc.house_number}, {exc.city}
+                                  </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  <div className="flex flex-col items-center justify-center">
+                                    <Badge className={`text-xs mb-1 px-2 py-0.5 ${
+                                      excavationType === 'Grube' 
+                                        ? 'bg-orange-100 text-orange-800 border-orange-200' 
+                                        : excavationType === 'Graben'
+                                        ? 'bg-blue-100 text-blue-800 border-blue-200'
+                                        : 'bg-gray-100 text-gray-800'
+                                    }`}>
+                                      {excavationType}
+                                    </Badge>
+                                    <div className="font-medium text-xs text-center">{exc.excavation_length || 0}×{exc.excavation_width || 0}×{exc.excavation_depth || 0}</div>
+                                    {exc.excavation_factor && exc.excavation_factor !== 1 && (
+                                      <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  {exc.surface_type && (
+                                    <div className="font-semibold text-xs">{exc.surface_type}</div>
+                                  )}
+                                  {exc.surface_type_2 && (
+                                    <div className="text-purple-700 font-medium text-xs">+{exc.surface_type_2}</div>
+                                  )}
+                                  {!exc.surface_type && !exc.surface_type_2 && '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs font-semibold bg-amber-50 border-r-2 border-gray-700">
+                                  {getMaterialInfo(exc)}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-blue-50 border-r-2 border-gray-700">
+                                  {exc.foreman ? (
+                                    <>
+                                      <div className="font-semibold">{exc.foreman}</div>
+                                      {exc.created_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.created_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-orange-50 border-r-2 border-gray-700">
+                                  {exc.is_backfilled && exc.backfilled_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.backfilled_by}</div>
+                                      {exc.backfilled_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.backfilled_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-yellow-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                      <div className="text-[11px] text-gray-500">(Trag)</div>
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-green-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                      <div className="text-[11px] text-gray-500">(Fein)</div>
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-gray-100 border-r-2 border-gray-700">
+                                  {surfaceWork.hasBeton && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-purple-50 border-r-2 border-gray-700">
+                                  {surfaceWork.hasPlatten && exc.is_closed && exc.closed_by ? (
+                                    <>
+                                      <div className="font-semibold">{exc.closed_by}</div>
+                                      {exc.closed_date && (
+                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                      )}
+                                    </>
+                                  ) : '-'}
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-xs bg-yellow-50">
+                                  {baustellenDetails.map((detail, idx) => (
+                                    <div key={idx} className="leading-tight">{detail}</div>
+                                  ))}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                  ));
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Spezielle Positionen */}
+          {Object.keys(groupedExcavations.special).length > 0 && (
+            <div className="w-full mt-6 page-break-before">
+              <h2 className="text-xl font-bold text-purple-600 mb-3 flex items-center gap-2 pb-2 border-b-2 border-purple-500">
+                <Shovel className="w-6 h-6" />
+                Spezielle Leistungen ({Object.values(groupedExcavations.special).reduce((sum, g) => sum + g.excavations.length, 0)} Positionen)
+              </h2>
+              
+              <div className="space-y-4">
+                {Object.entries(groupedExcavations.special).map(([projectId, group], groupIndex) => {
+                  const chunks = [];
+                  if (group.excavations.length > 0) {
+                    chunks.push(group.excavations.slice(0, 5));
+                    for (let i = 5; i < group.excavations.length; i += 12) {
+                      chunks.push(group.excavations.slice(i, i + 12));
+                    }
+                  }
+                  
+                  return chunks.map((chunk, chunkIndex) => (
+                  <div key={`${projectId}-special-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                    {chunkIndex === 0 && Object.keys(groupedExcavations.special).length > 1 && (
+                      <div className="bg-gradient-to-r from-purple-100 to-purple-50 border-l-4 border-purple-500 p-3 mb-2 rounded">
+                        <h3 className="text-base font-bold text-gray-900">
+                          {group.project.project_number} - {group.project.title}
+                          {group.project.id !== project.id && (
+                            <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
+                          )}
+                        </h3>
+                        <p className="text-sm text-gray-600">{group.excavations.length} Spezielle Leistung(en)</p>
+                      </div>
+                    )}
+                    
+                    <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm page-break-inside-avoid">
+                      <Table className="w-full border-collapse" style={{ border: '2px solid rgb(31, 41, 55)' }}>
+                        <TableHeader className="bg-gradient-to-r from-purple-100 to-purple-50">
+                          <TableRow className="border-b-2 border-gray-700" style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                            <TableHead className="font-bold text-sm p-3 w-[50%] border-r-2 border-gray-700">Leistungsbezeichnung</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[25%] border-r-2 border-gray-700 text-center">Menge</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[25%]">Hinzugefügt von</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {chunk.map((exc, index) => {
+                            const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+                            const leistungsName = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : exc.location_name;
+                            
+                            return (
+                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700">
+                                  <div className="font-semibold leading-tight">{leistungsName}</div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm border-r-2 border-gray-700 text-center">
+                                  <div className="font-medium">
+                                    {exc.quantity} {priceItem?.unit || 'ST'}
+                                  </div>
+                                </TableCell>
+                                
+                                <TableCell className="p-3 text-sm">
+                                  {exc.foreman ? (
+                                    <>
+                                      <div className="font-semibold">{exc.foreman}</div>
+                                      {exc.created_date && (
+                                        <div className="text-gray-600 text-xs">{formatDate(exc.created_date)}</div>
+                                      )}
+                                    </>
+                                  ) : (
+                                    <span className="text-gray-500">-</span>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                  ));
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="w-full mt-3 pt-2 border-t border-gray-300">
+            <div className="flex justify-between items-center text-xs text-gray-600">
+              <div>
+                <strong>A&S Tief- u. Straßenbau GmbH</strong>
+              </div>
+              <div className="text-center">
+                <strong>Projekt: {project.project_number}</strong> | {project.title}
+              </div>
+              <div className="text-right">
+                {new Date().toLocaleDateString('de-DE')} | {new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
+}
