@@ -2049,6 +2049,16 @@ export default function ProjectDetailPage() {
         />
       </div>
 
+      {/* Services Overview - positioned off-screen for PDF export */}
+      <div style={{ position: 'absolute', left: '-9999px', top: 0 }} ref={servicesOverviewRef}>
+        <ServicesOverview
+          project={project}
+          excavations={excavations}
+          priceItems={priceItems}
+          allProjects={[project, ...followUpProjects]}
+        />
+      </div>
+
       {/* E-Vergabe Export - positioned off-screen for PDF export */}
       <div ref={evergabeRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <EVergabeExport
