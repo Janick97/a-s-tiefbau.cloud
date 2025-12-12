@@ -683,7 +683,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded border">
                       <div className="font-medium text-gray-900">{selectedPriceItem.item_number}</div>
                       <div className="mt-1">{selectedPriceItem.description}</div>
-                      <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit} • €{selectedPriceItem.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                      <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit}{currentUser?.position !== 'Bauleiter' && ` • €${selectedPriceItem.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</div>
                     </div>
                   )}
                 </div>
@@ -758,7 +758,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </div>
 
                 {/* Price Display */}
-                {selectedPriceItem && (
+                {selectedPriceItem && currentUser?.position !== 'Bauleiter' && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-green-800">Berechneter Preis:</span>

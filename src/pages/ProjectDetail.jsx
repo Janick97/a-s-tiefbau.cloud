@@ -139,10 +139,12 @@ function ForemanProjectView({
           
           {/* Kompakte Stats */}
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-green-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Umsatz</p>
-              <p className="text-sm font-bold text-green-700">€{Math.round(totalRevenue).toLocaleString('de-DE')}</p>
-            </div>
+            {user?.position !== 'Bauleiter' && (
+              <div className="bg-green-50 rounded-lg p-2">
+                <p className="text-xs text-gray-600">Umsatz</p>
+                <p className="text-sm font-bold text-green-700">€{Math.round(totalRevenue).toLocaleString('de-DE')}</p>
+              </div>
+            )}
             <div className="bg-blue-50 rounded-lg p-2">
               <p className="text-xs text-gray-600">Leistungen</p>
               <p className="text-sm font-bold text-blue-700">{excavations.length}</p>
@@ -237,9 +239,11 @@ function ForemanProjectView({
                 >
                   <div className="flex justify-between items-start mb-1">
                     <p className="font-medium text-sm text-gray-900 truncate flex-1">{exc.location_name}</p>
-                    <p className="text-sm font-bold text-green-700 ml-2">
-                      €{Math.round(exc.calculated_price || 0).toLocaleString('de-DE')}
-                    </p>
+                    {user?.position !== 'Bauleiter' && (
+                      <p className="text-sm font-bold text-green-700 ml-2">
+                        €{Math.round(exc.calculated_price || 0).toLocaleString('de-DE')}
+                      </p>
+                    )}
                   </div>
                   <p className="text-xs text-gray-600 truncate">{exc.street}, {exc.city}</p>
                 </div>
@@ -1309,13 +1313,17 @@ export default function ProjectDetailPage() {
             <Card className="card-elevation border-none">
               <CardContent className="p-3">
                 <div className="flex justify-between items-center text-xs">
-                  <div className="text-center flex-1">
-                    <p className="text-gray-500 mb-0.5 text-[10px]">Umsatz</p>
-                    <p className="text-sm font-bold text-green-600 truncate">
-                      €{excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0).toLocaleString('de-DE')}
-                    </p>
-                  </div>
-                  <div className="w-px h-8 bg-gray-200 mx-2"></div>
+                  {user?.position !== 'Bauleiter' && (
+                    <>
+                      <div className="text-center flex-1">
+                        <p className="text-gray-500 mb-0.5 text-[10px]">Umsatz</p>
+                        <p className="text-sm font-bold text-green-600 truncate">
+                          €{excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0).toLocaleString('de-DE')}
+                        </p>
+                      </div>
+                      <div className="w-px h-8 bg-gray-200 mx-2"></div>
+                    </>
+                  )}
                   <div className="text-center flex-1">
                     <p className="text-gray-500 mb-0.5 text-[10px]">Leistungen</p>
                     <p className="text-sm font-bold text-orange-600">{excavations.length}</p>
