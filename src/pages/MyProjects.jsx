@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Project, User, Excavation } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -461,15 +460,17 @@ export default function MyProjectsPage() {
                                 {stats.completedExcavations}/{stats.totalExcavations}
                               </div>
                             </div>
-                            <div>
-                              <div className="flex items-center gap-1 text-gray-600 mb-1">
-                                <Euro className="w-3 h-3" />
-                                <span>Umsatz</span>
+                            {user?.position !== 'Bauleiter' && (
+                              <div>
+                                <div className="flex items-center gap-1 text-gray-600 mb-1">
+                                  <Euro className="w-3 h-3" />
+                                  <span>Umsatz</span>
+                                </div>
+                                <div className="font-semibold text-green-600">
+                                  €{stats.revenue.toLocaleString('de-DE')}
+                                </div>
                               </div>
-                              <div className="font-semibold text-green-600">
-                                €{stats.revenue.toLocaleString('de-DE')}
-                              </div>
-                            </div>
+                            )}
                           </div>
 
                           {/* Fortschrittsbalken */}
