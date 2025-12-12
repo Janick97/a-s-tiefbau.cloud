@@ -661,7 +661,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                           <div className="flex flex-col gap-1">
                             <div className="font-medium">{item.item_number}</div>
                             <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
-                            <div className="text-green-700 font-semibold">{item.unit} • €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            <div className="text-green-700 font-semibold">{item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</div>
                           </div>
                         </SelectItem>
                       ))}
@@ -673,7 +673,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                           <div className="flex flex-col gap-1">
                             <div className="font-medium">{item.item_number}</div>
                             <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
-                            <div className="text-green-700 font-semibold">{item.unit} • €{item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            <div className="text-green-700 font-semibold">{item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</div>
                           </div>
                         </SelectItem>
                       ))}
