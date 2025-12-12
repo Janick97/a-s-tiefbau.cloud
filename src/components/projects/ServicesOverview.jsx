@@ -283,12 +283,11 @@ export default function ServicesOverview({ project, excavations, priceItems = []
               
               <div className="space-y-4">
                 {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => {
-                  // Erste Seite: max 5 Positionen, weitere Seiten: max 12 Positionen
+                  // Pro Seite: 9 Positionen
                   const chunks = [];
                   if (group.excavations.length > 0) {
-                    chunks.push(group.excavations.slice(0, 5));
-                    for (let i = 5; i < group.excavations.length; i += 12) {
-                      chunks.push(group.excavations.slice(i, i + 12));
+                    for (let i = 0; i < group.excavations.length; i += 9) {
+                      chunks.push(group.excavations.slice(i, i + 9));
                     }
                   }
                   
