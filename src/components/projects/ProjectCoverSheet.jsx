@@ -308,9 +308,9 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             <div className="space-y-2.5">
               <h2 className="text-lg font-bold text-orange-600 mb-2">Projektinformationen</h2>
               
-              <div className="bg-orange-50 border-l-4 border-orange-500 p-3 rounded">
+              <div className="bg-orange-50 border-l-4 border-orange-800 p-3 rounded">
                 <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
-                <div className="text-2xl font-bold text-gray-500">{project.project_number}</div>
+                <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
               </div>
 
               <div>
