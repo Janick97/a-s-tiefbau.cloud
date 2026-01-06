@@ -289,7 +289,6 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                   className="h-16"
                 />
                 <div>
-                  <p className="text-base text-gray-600">Deckblatt & Leistungsübersicht</p>
                 </div>
               </div>
               <div className="text-right">
