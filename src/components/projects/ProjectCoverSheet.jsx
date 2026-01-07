@@ -345,52 +345,52 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               const followUps = allProjects.filter(p => p.parent_project_id === mainProject?.id);
               
               return (
-                <div className="border-2 border-orange-300 bg-orange-50 rounded-lg p-3 mb-3">
-                  <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1">
-                    <FileText className="w-4 h-4" />
+                <div className="border-2 border-orange-300 bg-orange-50 rounded-lg p-2 mb-2">
+                  <h3 className="text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                    <FileText className="w-3.5 h-3.5" />
                     Auftragsübersicht
                   </h3>
-                  <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="space-y-1 text-xs">
                     {/* Hauptauftrag */}
                     {mainProject && (
-                      <div className={`flex items-center gap-2 p-2 rounded ${
+                      <div className={`flex items-center gap-2 p-1.5 rounded ${
                         mainProject.id === selectedCurrentId 
                           ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
                           : 'bg-white border border-gray-200'
                       }`}>
                         {mainProject.foreman_completed ? (
-                          <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                          <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                         ) : (
-                          <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                          <div className="w-3 h-3 border-2 border-gray-400 rounded flex-shrink-0"></div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="truncate font-semibold">{mainProject.project_number}</div>
-                          <div className="text-[10px] text-gray-600">Hauptauftrag</div>
+                          <span className="font-semibold">{mainProject.project_number}</span>
+                          <span className="text-[10px] text-gray-600 ml-1">(Hauptauftrag)</span>
                         </div>
                         {mainProject.id === selectedCurrentId && (
-                          <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                          <Badge className="bg-orange-500 text-white text-[8px] px-1 py-0">Aktuell</Badge>
                         )}
                       </div>
                     )}
                     
                     {/* Folgeaufträge */}
                     {followUps.map((followUp, idx) => (
-                      <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
+                      <div key={followUp.id} className={`flex items-center gap-2 p-1.5 rounded ${
                         followUp.id === selectedCurrentId 
                           ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
                           : 'bg-white border border-gray-200'
                       }`}>
                         {followUp.foreman_completed ? (
-                          <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                          <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                         ) : (
-                          <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                          <div className="w-3 h-3 border-2 border-gray-400 rounded flex-shrink-0"></div>
                         )}
                         <div className="flex-1 min-w-0">
-                          <div className="truncate font-semibold">{followUp.project_number}</div>
-                          <div className="text-[10px] text-gray-600">Folgeauftrag {idx + 1}</div>
+                          <span className="font-semibold">{followUp.project_number}</span>
+                          <span className="text-[10px] text-gray-600 ml-1">(Folgeauftrag {idx + 1})</span>
                         </div>
                         {followUp.id === selectedCurrentId && (
-                          <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                          <Badge className="bg-orange-500 text-white text-[8px] px-1 py-0">Aktuell</Badge>
                         )}
                       </div>
                     ))}
@@ -399,146 +399,105 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               );
             })()}
 
-            {/* Kompakte 4-Spalten-Anordnung für restliche Infos */}
-            <div className="grid grid-cols-4 gap-3">
+            {/* Kompakte 2-Zeilen-Anordnung für restliche Infos */}
+            <div className="grid grid-cols-2 gap-2 text-[10px]">
               
-              {/* Spalte 1 - Basis */}
-              <div className="space-y-2 text-xs">
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                  <div className="text-gray-600 mb-1">Auftragsart</div>
+              {/* Linke Spalte */}
+              <div className="space-y-1.5">
+                <div className="flex items-start gap-2">
+                  <div className="w-20 text-gray-600 flex-shrink-0">Auftragsart:</div>
                   <div className="font-semibold text-gray-900">{project.order_type || '-'}</div>
                 </div>
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                  <div className="flex items-center gap-1 text-gray-600 mb-1">
-                    <Building className="w-3 h-3" />
-                    Kunde
-                  </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-20 text-gray-600 flex-shrink-0">Kunde:</div>
                   <div className="font-semibold text-gray-900">{project.client}</div>
                 </div>
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                  <div className="flex items-center gap-1 text-gray-600 mb-1">
-                    <MapPin className="w-3 h-3" />
-                    Standort
-                  </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-20 text-gray-600 flex-shrink-0">Standort:</div>
                   <div className="font-medium text-gray-900">
-                    {project.street && <div>{project.street}</div>}
-                    {project.city && <div>{project.city}</div>}
+                    {project.street && <span>{project.street}, </span>}
+                    {project.city}
                   </div>
                 </div>
                 {project.contact_person && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                    <div className="flex items-center gap-1 text-gray-600 mb-1">
-                      <User className="w-3 h-3" />
-                      Ansprechpartner
-                    </div>
+                  <div className="flex items-start gap-2">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Ansprechp.:</div>
                     <div className="font-medium text-gray-900">{project.contact_person}</div>
                   </div>
                 )}
-              </div>
-
-              {/* Spalte 2 - Status */}
-              <div className="space-y-2">
-                <div className="bg-blue-50 border border-blue-200 rounded p-2">
-                  <div className="text-xs font-semibold text-gray-900 mb-2">Projekt-Status</div>
-                  <Badge className="text-xs px-2 py-0.5">{project.project_status || 'Nicht angegeben'}</Badge>
+                <div className="flex items-start gap-2">
+                  <div className="w-20 text-gray-600 flex-shrink-0">Status:</div>
+                  <Badge className="text-[9px] px-1.5 py-0.5">{project.project_status || '-'}</Badge>
                 </div>
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                  <div className="text-xs font-semibold text-gray-900 mb-2">Checkliste</div>
-                  <div className="space-y-1 text-[11px]">
-                    <div className="flex items-center gap-1.5">
-                      {project.bil_wep_requested ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
-                      <span>BIL/WEP</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {project.material_booking_completed ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
-                      <span>Material</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      {project.documentation_completed ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
-                      <span>Doku</span>
-                    </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-20 text-gray-600 flex-shrink-0">Checkliste:</div>
+                  <div className="flex gap-2">
+                    <span className="flex items-center gap-0.5">
+                      {project.bil_wep_requested ? <CheckCircle className="w-2.5 h-2.5 text-green-600" /> : <div className="w-2.5 h-2.5 border border-gray-300 rounded"></div>}
+                      BIL
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      {project.material_booking_completed ? <CheckCircle className="w-2.5 h-2.5 text-green-600" /> : <div className="w-2.5 h-2.5 border border-gray-300 rounded"></div>}
+                      Mat
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      {project.documentation_completed ? <CheckCircle className="w-2.5 h-2.5 text-green-600" /> : <div className="w-2.5 h-2.5 border border-gray-300 rounded"></div>}
+                      Doku
+                    </span>
                   </div>
                 </div>
               </div>
 
-              {/* Spalte 3 - Termine */}
-              <div className="bg-blue-50 border border-blue-200 rounded p-2">
-                <div className="text-xs font-semibold text-gray-900 mb-2">Termine</div>
-                <div className="space-y-1.5 text-[11px]">
-                  {project.start_date && (
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-blue-600 flex-shrink-0" />
-                      <span className="text-gray-600">Eingang:</span>
-                      <span className="font-semibold">{new Date(project.start_date).toLocaleDateString('de-DE')}</span>
-                    </div>
-                  )}
-                  {project.end_date && (
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="w-3 h-3 text-green-600 flex-shrink-0" />
-                      <span className="text-gray-600">Fertig:</span>
-                      <span className="font-semibold">{new Date(project.end_date).toLocaleDateString('de-DE')}</span>
-                    </div>
-                  )}
-                  {project.grube_auf_datum && (
-                    <div className="flex items-center gap-1.5">
-                      <Shovel className="w-3 h-3 text-orange-600 flex-shrink-0" />
-                      <span className="text-gray-600">Grube auf:</span>
-                      <span className="font-semibold">{new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}</span>
-                    </div>
-                  )}
-                  {project.kann_zu_meldung_datum && (
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle className="w-3 h-3 text-purple-600 flex-shrink-0" />
-                      <span className="text-gray-600">Kann zu:</span>
-                      <span className="font-semibold">{new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE')}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Spalte 4 - VAO & Beschreibung */}
-              <div className="space-y-2">
-                {project.vao_status && (
-                  <div className="bg-orange-50 border border-orange-200 rounded p-2">
-                    <div className="text-xs font-semibold text-gray-900 mb-2">VAO</div>
-                    <div className="space-y-1 text-[11px]">
-                      <div>
-                        <span className="text-gray-600">Status: </span>
-                        <span className="font-semibold">{project.vao_status}</span>
-                      </div>
-                      {project.vao_valid_from && (
-                        <div>
-                          <span className="text-gray-600">Von: </span>
-                          <span className="font-semibold">{new Date(project.vao_valid_from).toLocaleDateString('de-DE')}</span>
-                        </div>
-                      )}
-                      {project.vao_valid_to && (
-                        <div>
-                          <span className="text-gray-600">Bis: </span>
-                          <span className="font-semibold">{new Date(project.vao_valid_to).toLocaleDateString('de-DE')}</span>
-                        </div>
-                      )}
-                    </div>
+              {/* Rechte Spalte */}
+              <div className="space-y-1.5">
+                {project.start_date && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Eingang:</div>
+                    <div className="font-semibold">{new Date(project.start_date).toLocaleDateString('de-DE')}</div>
                   </div>
                 )}
-                {project.description && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                    <div className="text-xs font-semibold text-gray-900 mb-1">Beschreibung</div>
-                    <div className="text-[10px] text-gray-700 leading-tight max-h-24 overflow-y-auto">
-                      {project.description}
+                {project.end_date && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Fertig:</div>
+                    <div className="font-semibold">{new Date(project.end_date).toLocaleDateString('de-DE')}</div>
+                  </div>
+                )}
+                {project.grube_auf_datum && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Grube auf:</div>
+                    <div className="font-semibold">{new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}</div>
+                  </div>
+                )}
+                {project.kann_zu_meldung_datum && (
+                  <div className="flex items-center gap-2">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Kann zu:</div>
+                    <div className="font-semibold">{new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE')}</div>
+                  </div>
+                )}
+                {project.vao_status && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <div className="w-20 text-gray-600 flex-shrink-0">VAO Status:</div>
+                      <div className="font-semibold">{project.vao_status}</div>
                     </div>
+                    {project.vao_valid_from && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 text-gray-600 flex-shrink-0">VAO von:</div>
+                        <div className="font-semibold">{new Date(project.vao_valid_from).toLocaleDateString('de-DE')}</div>
+                      </div>
+                    )}
+                    {project.vao_valid_to && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 text-gray-600 flex-shrink-0">VAO bis:</div>
+                        <div className="font-semibold">{new Date(project.vao_valid_to).toLocaleDateString('de-DE')}</div>
+                      </div>
+                    )}
+                  </>
+                )}
+                {project.description && (
+                  <div className="flex items-start gap-2 mt-1">
+                    <div className="w-20 text-gray-600 flex-shrink-0">Beschr.:</div>
+                    <div className="text-gray-700 leading-tight text-[9px]">{project.description}</div>
                   </div>
                 )}
               </div>
