@@ -282,7 +282,14 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
       <div className="print-full-width w-full h-full bg-white" style={{ width: '100%' }}>
         <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.5cm' }}>
           
-
+          {/* Header - Logo und Titel */}
+          <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
+            <div className="flex justify-end w-full">
+              <div className="text-right">
+                <div className="text-sm text-gray-600">{new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
+              </div>
+            </div>
+          </div>
 
           {/* Projektinformationen - 3 Spalten (Kennzahlen & Bauakten entfernt) */}
           <div className="w-full grid grid-cols-3 gap-4 mb-4 info-section page-break-after">
