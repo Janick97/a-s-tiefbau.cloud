@@ -320,9 +320,9 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             
             {/* Hauptinfos - Neue kompakte Anordnung */}
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-400 rounded-lg p-4 mb-3">
-              {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer */}
-              <div className="grid grid-cols-5 gap-4 mb-3">
-                <div className="bg-white mr-20 ml-1 px-3 py-3 rounded-lg border-2 border-orange-300">
+              {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer, VAO */}
+              <div className="grid grid-cols-6 gap-4 mb-3">
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
                   <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
                 </div>
@@ -344,101 +344,97 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                   <div className="text-xs text-gray-600 mb-1">SM-Nummer</div>
                   <div className="text-xl font-bold text-gray-900">{project.sm_number || '-'}</div>
                 </div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                  <div className="text-xs text-gray-600 mb-1">VAO</div>
+                  {project.vao_status ? (
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold text-gray-900">{project.vao_status}</div>
+                      {(project.vao_valid_from || project.vao_valid_to) && (
+                        <div className="text-[10px] text-gray-600">
+                          {project.vao_valid_from && (
+                            <div>von {new Date(project.vao_valid_from).toLocaleDateString('de-DE')}</div>
+                          )}
+                          {project.vao_valid_to && (
+                            <div>bis {new Date(project.vao_valid_to).toLocaleDateString('de-DE')}</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-lg font-semibold text-gray-900">-</div>
+                  )}
+                </div>
               </div>
 
-              {/* Zweite Reihe: Folgeaufträge links, VAO rechts */}
-              <div className="grid grid-cols-3 gap-4 pt-3 border-t border-orange-200">
-                {/* Linke Seite: Auftragsübersicht (2 Spalten) */}
-                <div className="col-span-2">
-                  {allProjects.length > 1 ? (() => {
-                    const isFollowUp = !!project.parent_project_id;
-                    const mainProject = isFollowUp ?
-                    allProjects.find((p) => p.id === project.parent_project_id) :
-                    project;
-                    const followUps = allProjects.filter((p) => p.parent_project_id === mainProject?.id);
+              {/* Zweite Reihe: Folgeaufträge */}
+              <div className="pt-3 border-t border-orange-200">
+                {allProjects.length > 1 ? (() => {
+                  const isFollowUp = !!project.parent_project_id;
+                  const mainProject = isFollowUp ?
+                  allProjects.find((p) => p.id === project.parent_project_id) :
+                  project;
+                  const followUps = allProjects.filter((p) => p.parent_project_id === mainProject?.id);
 
-                    return (
-                      <>
-                        <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          Auftragsübersicht
-                        </h3>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          {/* Hauptauftrag */}
-                          {mainProject &&
-                          <div className={`flex items-center gap-2 p-2 rounded ${
-                          mainProject.id === selectedCurrentId ?
-                          'bg-orange-200 border-2 border-orange-500 font-semibold' :
-                          'bg-white border border-gray-200'}`
-                          }>
+                  return (
+                    <>
+                      <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1">
+                        <FileText className="w-4 h-4" />
+                        Auftragsübersicht
+                      </h3>
+                      <div className="grid grid-cols-3 gap-2 text-xs">
+                        {/* Hauptauftrag */}
+                        {mainProject &&
+                        <div className={`flex flex-col gap-1 p-2 rounded ${
+                        mainProject.id === selectedCurrentId ?
+                        'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                        'bg-white border border-gray-200'}`
+                        }>
+                            <div className="flex items-center gap-2">
                               {mainProject.foreman_completed ?
                             <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
                             <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
                             }
                               <div className="flex-1 min-w-0">
                                 <div className="truncate font-semibold">{mainProject.project_number}</div>
-                                <div className="text-[10px] text-gray-600">Hauptauftrag</div>
                               </div>
                               {mainProject.id === selectedCurrentId &&
                             <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
                             }
                             </div>
-                          }
-                          
-                          {/* Folgeaufträge */}
-                          {followUps.map((followUp, idx) =>
-                          <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
-                          followUp.id === selectedCurrentId ?
-                          'bg-orange-200 border-2 border-orange-500 font-semibold' :
-                          'bg-white border border-gray-200'}`
-                          }>
+                            <div className="text-[10px] text-gray-600 truncate">{mainProject.title}</div>
+                            <div className="text-[10px] text-gray-500">Hauptauftrag</div>
+                          </div>
+                        }
+                        
+                        {/* Folgeaufträge */}
+                        {followUps.map((followUp, idx) =>
+                        <div key={followUp.id} className={`flex flex-col gap-1 p-2 rounded ${
+                        followUp.id === selectedCurrentId ?
+                        'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                        'bg-white border border-gray-200'}`
+                        }>
+                            <div className="flex items-center gap-2">
                               {followUp.foreman_completed ?
                             <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
                             <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
                             }
                               <div className="flex-1 min-w-0">
                                 <div className="truncate font-semibold">{followUp.project_number}</div>
-                                <div className="text-[10px] text-gray-600">Folgeauftrag {idx + 1}</div>
                               </div>
                               {followUp.id === selectedCurrentId &&
                             <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
                             }
                             </div>
-                          )}
-                        </div>
-                      </>);
-
-                  })() :
-                  <div className="text-sm text-gray-600">Keine Folgeaufträge</div>
-                  }
-                </div>
-
-                {/* Rechte Seite: VAO (1 Spalte) */}
-                <div>
-                  {project.vao_status &&
-                  <>
-                      <div className="text-sm font-bold text-gray-900 mb-2">VAO</div>
-                      <div className="space-y-1.5 text-xs">
-                        <div>
-                          <span className="text-gray-600">Status: </span>
-                          <span className="font-semibold">{project.vao_status}</span>
-                        </div>
-                        {project.vao_valid_from &&
-                      <div>
-                            <span className="text-gray-600">Von: </span>
-                            <span className="font-semibold">{new Date(project.vao_valid_from).toLocaleDateString('de-DE')}</span>
+                            <div className="text-[10px] text-gray-600 truncate">{followUp.title}</div>
+                            <div className="text-[10px] text-gray-500">Folgeauftrag {idx + 1}</div>
                           </div>
-                      }
-                        {project.vao_valid_to &&
-                      <div>
-                            <span className="text-gray-600">Bis: </span>
-                            <span className="font-semibold">{new Date(project.vao_valid_to).toLocaleDateString('de-DE')}</span>
-                          </div>
-                      }
+                        )}
                       </div>
                     </>
-                  }
-                </div>
+                  );
+                })() : (
+                  <div className="text-sm text-gray-600">Keine Folgeaufträge</div>
+                )}
               </div>
             </div>
           </div>
