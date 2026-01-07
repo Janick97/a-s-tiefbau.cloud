@@ -322,7 +322,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-400 rounded-lg p-4 mb-3">
               {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer */}
               <div className="grid grid-cols-5 gap-4 mb-3">
-                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                <div className="bg-white mr-20 ml-1 px-3 py-3 rounded-lg border-2 border-orange-300">
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
                   <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
                 </div>
@@ -406,11 +406,11 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             </div>
                           )}
                         </div>
-                      </>
-                    );
-                  })() : (
-                    <div className="text-sm text-gray-600">Keine Folgeaufträge</div>
-                  )}
+                      </>);
+
+                  })() :
+                  <div className="text-sm text-gray-600">Keine Folgeaufträge</div>
+                  }
                 </div>
 
                 {/* Rechte Seite: VAO (1 Spalte) */}
