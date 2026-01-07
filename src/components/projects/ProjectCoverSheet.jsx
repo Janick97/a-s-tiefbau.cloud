@@ -2,13 +2,40 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Building, MapPin, Calendar, User, FileText, Euro, Shovel, Camera, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Building, MapPin, Calendar, User, FileText, Euro, Shovel, Camera, CheckCircle, Download } from "lucide-react";
+import html2canvas from "html2canvas";
 
 export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [], allProjects = [], currentProjectId = null }) {
   if (!project) return null;
 
   // Verwende currentProjectId für die "Aktuell"-Markierung, fallback auf project.id
   const selectedCurrentId = currentProjectId || project.id;
+
+  const handleExportPNG = async () => {
+    const element = document.getElementById('project-cover-sheet');
+    if (!element) return;
+
+    try {
+      const canvas = await html2canvas(element, {
+        scale: 3, // Hohe Auflösung
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: element.scrollWidth,
+        height: element.scrollHeight
+      });
+
+      const link = document.createElement('a');
+      link.download = `Deckblatt_${project.project_number}_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      link.click();
+    } catch (error) {
+      console.error('Fehler beim PNG-Export:', error);
+      alert('Fehler beim Exportieren als PNG');
+    }
+  };
 
   const bauakten = documents.filter((doc) => doc.folder === 'Bauakte');
   const totalRevenue = excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0);
@@ -304,11 +331,20 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
       `}</style>
       
       <div className="print-full-width w-full h-full bg-white" style={{ width: '100%' }}>
-        <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.5cm' }}>
+        <div className="w-full h-full border-2 border-gray-300" style={{ padding: '0.5cm' }} id="project-cover-sheet">
           
           {/* Header - Logo und Titel */}
           <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
-            <div className="flex justify-end w-full">
+            <div className="flex justify-between items-center w-full">
+              <Button
+                onClick={handleExportPNG}
+                variant="outline"
+                size="sm"
+                className="no-print flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                PNG Export
+              </Button>
               <div className="text-right">
                 <div className="text-sm text-gray-600">{new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
               </div>
