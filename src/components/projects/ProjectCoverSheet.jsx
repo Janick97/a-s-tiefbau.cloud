@@ -335,20 +335,6 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           
           {/* Header - Logo und Titel */}
           <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
-            <div className="flex justify-between items-center w-full">
-              <Button
-                onClick={handleExportPNG}
-                variant="outline"
-                size="sm"
-                className="no-print flex items-center gap-2"
-              >
-                <Download className="w-4 h-4" />
-                PNG Export
-              </Button>
-              <div className="text-right">
-                <div className="text-sm text-gray-600">{new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })} Uhr</div>
-              </div>
-            </div>
           </div>
 
           {/* Projektinformationen - Kompakte Anordnung */}
