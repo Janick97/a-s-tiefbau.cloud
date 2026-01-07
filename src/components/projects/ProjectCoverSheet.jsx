@@ -359,49 +359,49 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
 
                     return (
                       <>
-                        <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          Auftragsübersicht
+                        <h3 className="text-xs font-bold text-gray-900 mb-1.5 flex items-center gap-1">
+                          <FileText className="w-3.5 h-3.5" />
+                          Aufträge
                         </h3>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="space-y-1 text-[11px]">
                           {/* Hauptauftrag */}
                           {mainProject &&
-                          <div className={`flex items-center gap-2 p-2 rounded ${
+                          <div className={`flex items-center gap-1.5 p-1.5 rounded ${
                           mainProject.id === selectedCurrentId ?
-                          'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                          'bg-orange-200 border border-orange-500' :
                           'bg-white border border-gray-200'}`
                           }>
                               {mainProject.foreman_completed ?
-                            <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
-                            <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                            <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" /> :
+                            <div className="w-3 h-3 border border-gray-400 rounded flex-shrink-0"></div>
                             }
                               <div className="flex-1 min-w-0">
-                                <div className="truncate font-semibold">{mainProject.project_number}</div>
-                                <div className="text-[10px] text-gray-600">Hauptauftrag</div>
+                                <span className="font-semibold">{mainProject.project_number}</span>
+                                <span className="text-gray-700"> - {mainProject.title}</span>
                               </div>
                               {mainProject.id === selectedCurrentId &&
-                            <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                            <Badge className="bg-orange-500 text-white text-[8px] px-1 py-0 flex-shrink-0">Aktuell</Badge>
                             }
                             </div>
                           }
                           
                           {/* Folgeaufträge */}
                           {followUps.map((followUp, idx) =>
-                          <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
+                          <div key={followUp.id} className={`flex items-center gap-1.5 p-1.5 rounded ${
                           followUp.id === selectedCurrentId ?
-                          'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                          'bg-orange-200 border border-orange-500' :
                           'bg-white border border-gray-200'}`
                           }>
                               {followUp.foreman_completed ?
-                            <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
-                            <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                            <CheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" /> :
+                            <div className="w-3 h-3 border border-gray-400 rounded flex-shrink-0"></div>
                             }
                               <div className="flex-1 min-w-0">
-                                <div className="truncate font-semibold">{followUp.project_number}</div>
-                                <div className="text-[10px] text-gray-600">Folgeauftrag {idx + 1}</div>
+                                <span className="font-semibold">{followUp.project_number}</span>
+                                <span className="text-gray-700"> - {followUp.title}</span>
                               </div>
                               {followUp.id === selectedCurrentId &&
-                            <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                            <Badge className="bg-orange-500 text-white text-[8px] px-1 py-0 flex-shrink-0">Aktuell</Badge>
                             }
                             </div>
                           )}
@@ -409,7 +409,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       </>
                     );
                   })() : (
-                    <div className="text-sm text-gray-600">Keine Folgeaufträge</div>
+                    <div className="text-xs text-gray-600">Keine Folgeaufträge</div>
                   )}
                 </div>
 
