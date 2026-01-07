@@ -321,21 +321,21 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
                   <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
                 </div>
-                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
                   <div className="text-xs text-gray-600 mb-1">Stadt</div>
                   <div className="text-lg font-semibold text-gray-900">{project.city || '-'}</div>
                 </div>
-                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
                   <div className="text-xs text-gray-600 mb-1">Ansprechpartner</div>
                   <div className="text-lg font-semibold text-gray-900">{project.contact_person || '-'}</div>
                 </div>
-                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
                   <div className="text-xs text-gray-600 mb-1">Auftragseingang</div>
                   <div className="text-lg font-semibold text-gray-900">
                     {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : '-'}
                   </div>
                 </div>
-                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
+                <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
                   <div className="text-xs text-gray-600 mb-1">SM-Nummer</div>
                   <div className="text-xl font-bold text-gray-900">{project.sm_number || '-'}</div>
                 </div>
