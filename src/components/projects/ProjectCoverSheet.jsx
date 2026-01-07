@@ -322,27 +322,27 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-400 rounded-lg p-4 mb-3">
               {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer */}
               <div className="grid grid-cols-5 gap-4 mb-3">
-                <div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
-                  <div className="text-lg font-bold text-gray-900">{project.project_number}</div>
+                  <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
                 </div>
-                <div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">Stadt</div>
-                  <div className="text-sm font-semibold text-gray-900">{project.city || '-'}</div>
+                  <div className="text-lg font-semibold text-gray-900">{project.city || '-'}</div>
                 </div>
-                <div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">Ansprechpartner</div>
-                  <div className="text-sm font-semibold text-gray-900">{project.contact_person || '-'}</div>
+                  <div className="text-lg font-semibold text-gray-900">{project.contact_person || '-'}</div>
                 </div>
-                <div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">Auftragseingang</div>
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-lg font-semibold text-gray-900">
                     {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : '-'}
                   </div>
                 </div>
-                <div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg p-3">
                   <div className="text-xs text-gray-600 mb-1">SM-Nummer</div>
-                  <div className="text-sm font-bold text-gray-900">{project.sm_number || '-'}</div>
+                  <div className="text-xl font-bold text-gray-900">{project.sm_number || '-'}</div>
                 </div>
               </div>
 
