@@ -318,9 +318,9 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           {/* Projektinformationen - Kompakte Anordnung */}
           <div className="w-full mb-4 info-section page-break-after">
             
-            {/* Hauptinfos ganz oben - Projektnummer, SM-Nummer, Titel */}
+            {/* Hauptinfos ganz oben - Projektnummer, SM-Nummer, Titel, Auftragsart, Ansprechpartner */}
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-400 rounded-lg p-4 mb-3">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4 mb-3">
                 <div>
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
                   <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
@@ -332,6 +332,16 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                 <div>
                   <div className="text-xs text-gray-600 mb-1">Projekttitel</div>
                   <div className="text-base font-bold text-gray-900 leading-tight">{project.title}</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-orange-200">
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Auftragsart</div>
+                  <div className="text-sm font-semibold text-gray-900">{project.order_type || '-'}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Ansprechpartner</div>
+                  <div className="text-sm font-semibold text-gray-900">{project.contact_person || '-'}</div>
                 </div>
               </div>
             </div>
@@ -405,10 +415,6 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               {/* Spalte 1 - Basis */}
               <div className="space-y-2 text-xs">
                 <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                  <div className="text-gray-600 mb-1">Auftragsart</div>
-                  <div className="font-semibold text-gray-900">{project.order_type || '-'}</div>
-                </div>
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
                   <div className="flex items-center gap-1 text-gray-600 mb-1">
                     <Building className="w-3 h-3" />
                     Kunde
@@ -425,15 +431,6 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                     {project.city && <div>{project.city}</div>}
                   </div>
                 </div>
-                {project.contact_person &&
-                <div className="bg-gray-50 border border-gray-200 rounded p-2">
-                    <div className="flex items-center gap-1 text-gray-600 mb-1">
-                      <User className="w-3 h-3" />
-                      Ansprechpartner
-                    </div>
-                    <div className="font-medium text-gray-900">{project.contact_person}</div>
-                  </div>
-                }
               </div>
 
               {/* Spalte 2 - Status */}
