@@ -1541,7 +1541,7 @@ export default function ProjectDetailPage() {
               {activeTab === 'deckblatt' && (
                 <div className="p-2 sm:p-4 lg:p-6">
                   {/* Auswahl des aktuellen Auftrags für Deckblatt */}
-                  {allProjects.length > 1 && (isMainProject || project.parent_project_id) && (
+                  {(followUpProjects.length > 0 || project.parent_project_id) && (
                     <Card className="card-elevation border-none mb-4">
                       <CardContent className="p-4">
                         <Label className="text-sm font-medium mb-2 block">Welcher Auftrag soll als "Aktuell" markiert werden?</Label>
@@ -1550,24 +1550,28 @@ export default function ProjectDetailPage() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {/* Hauptauftrag */}
-                            {(() => {
-                              const mainProj = isMainProject ? project : allProjects.find(p => p.id === project.parent_project_id);
-                              if (mainProj) {
-                                return (
-                                  <SelectItem value={mainProj.id}>
-                                    {mainProj.project_number} - Hauptauftrag
-                                  </SelectItem>
-                                );
-                              }
-                              return null;
-                            })()}
+                            {/* Hauptauftrag - nur wenn wir den Hauptauftrag anzeigen oder es Folgeaufträge gibt */}
+                            {isMainProject ? (
+                              <SelectItem value={project.id}>
+                                {project.project_number} - Hauptauftrag
+                              </SelectItem>
+                            ) : project.parent_project_id ? (
+                              <SelectItem value={project.parent_project_id}>
+                                Hauptauftrag
+                              </SelectItem>
+                            ) : null}
                             {/* Folgeaufträge */}
                             {followUpProjects.map((followUp, idx) => (
                               <SelectItem key={followUp.id} value={followUp.id}>
                                 {followUp.project_number} - Folgeauftrag {idx + 1}
                               </SelectItem>
                             ))}
+                            {/* Wenn dies ein Folgeauftrag ist, zeige auch sich selbst */}
+                            {project.parent_project_id && (
+                              <SelectItem value={project.id}>
+                                {project.project_number} - Aktueller Auftrag
+                              </SelectItem>
+                            )}
                           </SelectContent>
                         </Select>
                       </CardContent>
