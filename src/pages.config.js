@@ -1,71 +1,73 @@
-import Dashboard from './pages/Dashboard';
-import Projects from './pages/Projects';
-import Excavations from './pages/Excavations';
 import Analytics from './pages/Analytics';
-import PriceList from './pages/PriceList';
-import ProjectDetail from './pages/ProjectDetail';
-import ProjectStatus from './pages/ProjectStatus';
-import ExcavationDetail from './pages/ExcavationDetail';
-import VAOMonitoring from './pages/VAOMonitoring';
-import ImportProjects from './pages/ImportProjects';
-import OpenMaterialBookings from './pages/OpenMaterialBookings';
-import OpenDocumentations from './pages/OpenDocumentations';
-import Disposition from './pages/Disposition';
-import VAOApplication from './pages/VAOApplication';
-import Surface from './pages/Surface';
-import MyProjects from './pages/MyProjects';
-import Profile from './pages/Profile';
-import MontageAuftraege from './pages/MontageAuftraege';
 import BaustellenKarte from './pages/BaustellenKarte';
+import Dashboard from './pages/Dashboard';
+import Disposition from './pages/Disposition';
 import DispositionBauleiter from './pages/DispositionBauleiter';
-import MeineMontageAuftraege from './pages/MeineMontageAuftraege';
-import MyMontageAuftraege from './pages/MyMontageAuftraege';
-import MyProjectsOberflaeche from './pages/MyProjectsOberflaeche';
-import ProjectDetailOberflaeche from './pages/ProjectDetailOberflaeche';
-import MaterialInventory from './pages/MaterialInventory';
-import ProjectExplorer from './pages/ProjectExplorer';
 import DispositionMonteur from './pages/DispositionMonteur';
 import DispositionMonteurDetail from './pages/DispositionMonteurDetail';
-import MontagePriceList from './pages/MontagePriceList';
-import MontageMaterialInventory from './pages/MontageMaterialInventory';
-import MontageAuftragDetail from './pages/MontageAuftragDetail';
+import ExcavationDetail from './pages/ExcavationDetail';
+import Excavations from './pages/Excavations';
+import Home from './pages/Home';
+import ImportProjects from './pages/ImportProjects';
+import MaterialInventory from './pages/MaterialInventory';
+import MeineMontageAuftraege from './pages/MeineMontageAuftraege';
 import MitarbeiterDetail from './pages/MitarbeiterDetail';
+import MontageAuftraege from './pages/MontageAuftraege';
+import MontageAuftragDetail from './pages/MontageAuftragDetail';
+import MontageMaterialInventory from './pages/MontageMaterialInventory';
+import MontagePriceList from './pages/MontagePriceList';
+import MyMontageAuftraege from './pages/MyMontageAuftraege';
+import MyProjects from './pages/MyProjects';
+import MyProjectsOberflaeche from './pages/MyProjectsOberflaeche';
+import OpenDocumentations from './pages/OpenDocumentations';
+import OpenMaterialBookings from './pages/OpenMaterialBookings';
+import PriceList from './pages/PriceList';
+import Profile from './pages/Profile';
+import ProjectDetail from './pages/ProjectDetail';
+import ProjectDetailOberflaeche from './pages/ProjectDetailOberflaeche';
+import ProjectExplorer from './pages/ProjectExplorer';
+import ProjectStatus from './pages/ProjectStatus';
+import Projects from './pages/Projects';
+import Surface from './pages/Surface';
+import VAOApplication from './pages/VAOApplication';
+import VAOMonitoring from './pages/VAOMonitoring';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
-    "Projects": Projects,
-    "Excavations": Excavations,
     "Analytics": Analytics,
-    "PriceList": PriceList,
-    "ProjectDetail": ProjectDetail,
-    "ProjectStatus": ProjectStatus,
-    "ExcavationDetail": ExcavationDetail,
-    "VAOMonitoring": VAOMonitoring,
-    "ImportProjects": ImportProjects,
-    "OpenMaterialBookings": OpenMaterialBookings,
-    "OpenDocumentations": OpenDocumentations,
-    "Disposition": Disposition,
-    "VAOApplication": VAOApplication,
-    "Surface": Surface,
-    "MyProjects": MyProjects,
-    "Profile": Profile,
-    "MontageAuftraege": MontageAuftraege,
     "BaustellenKarte": BaustellenKarte,
+    "Dashboard": Dashboard,
+    "Disposition": Disposition,
     "DispositionBauleiter": DispositionBauleiter,
-    "MeineMontageAuftraege": MeineMontageAuftraege,
-    "MyMontageAuftraege": MyMontageAuftraege,
-    "MyProjectsOberflaeche": MyProjectsOberflaeche,
-    "ProjectDetailOberflaeche": ProjectDetailOberflaeche,
-    "MaterialInventory": MaterialInventory,
-    "ProjectExplorer": ProjectExplorer,
     "DispositionMonteur": DispositionMonteur,
     "DispositionMonteurDetail": DispositionMonteurDetail,
-    "MontagePriceList": MontagePriceList,
-    "MontageMaterialInventory": MontageMaterialInventory,
-    "MontageAuftragDetail": MontageAuftragDetail,
+    "ExcavationDetail": ExcavationDetail,
+    "Excavations": Excavations,
+    "Home": Home,
+    "ImportProjects": ImportProjects,
+    "MaterialInventory": MaterialInventory,
+    "MeineMontageAuftraege": MeineMontageAuftraege,
     "MitarbeiterDetail": MitarbeiterDetail,
+    "MontageAuftraege": MontageAuftraege,
+    "MontageAuftragDetail": MontageAuftragDetail,
+    "MontageMaterialInventory": MontageMaterialInventory,
+    "MontagePriceList": MontagePriceList,
+    "MyMontageAuftraege": MyMontageAuftraege,
+    "MyProjects": MyProjects,
+    "MyProjectsOberflaeche": MyProjectsOberflaeche,
+    "OpenDocumentations": OpenDocumentations,
+    "OpenMaterialBookings": OpenMaterialBookings,
+    "PriceList": PriceList,
+    "Profile": Profile,
+    "ProjectDetail": ProjectDetail,
+    "ProjectDetailOberflaeche": ProjectDetailOberflaeche,
+    "ProjectExplorer": ProjectExplorer,
+    "ProjectStatus": ProjectStatus,
+    "Projects": Projects,
+    "Surface": Surface,
+    "VAOApplication": VAOApplication,
+    "VAOMonitoring": VAOMonitoring,
 }
 
 export const pagesConfig = {

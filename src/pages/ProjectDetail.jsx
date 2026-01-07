@@ -590,6 +590,7 @@ export default function ProjectDetailPage() {
   const [montageLeistungen, setMontageLeistungen] = useState([]);
   const [montagePreisItems, setMontagePreisItems] = useState([]);
   const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
+  const [currentProjectForCoverSheet, setCurrentProjectForCoverSheet] = useState(null);
 
   const coverSheetRef = useRef(null);
   const servicesOverviewRef = useRef(null);
@@ -629,6 +630,11 @@ export default function ProjectDetailPage() {
         throw new Error("Projekt nicht gefunden.");
       }
       setProject(projectData);
+
+      // Setze initialen "aktuellen" Auftrag für Deckblatt (standardmäßig das aktuelle Projekt)
+      if (!currentProjectForCoverSheet) {
+        setCurrentProjectForCoverSheet(projectData.id);
+      }
 
       if (tabParam && ['overview', 'excavations', 'pulling', 'materials', 'timesheets', 'documents'].includes(tabParam)) {
         setActiveTab(tabParam);
@@ -1534,6 +1540,40 @@ export default function ProjectDetailPage() {
               
               {activeTab === 'deckblatt' && (
                 <div className="p-2 sm:p-4 lg:p-6">
+                  {/* Auswahl des aktuellen Auftrags für Deckblatt */}
+                  {allProjects.length > 1 && (isMainProject || project.parent_project_id) && (
+                    <Card className="card-elevation border-none mb-4">
+                      <CardContent className="p-4">
+                        <Label className="text-sm font-medium mb-2 block">Welcher Auftrag soll als "Aktuell" markiert werden?</Label>
+                        <Select value={currentProjectForCoverSheet || project.id} onValueChange={setCurrentProjectForCoverSheet}>
+                          <SelectTrigger className="w-full md:w-96">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {/* Hauptauftrag */}
+                            {(() => {
+                              const mainProj = isMainProject ? project : allProjects.find(p => p.id === project.parent_project_id);
+                              if (mainProj) {
+                                return (
+                                  <SelectItem value={mainProj.id}>
+                                    {mainProj.project_number} - Hauptauftrag
+                                  </SelectItem>
+                                );
+                              }
+                              return null;
+                            })()}
+                            {/* Folgeaufträge */}
+                            {followUpProjects.map((followUp, idx) => (
+                              <SelectItem key={followUp.id} value={followUp.id}>
+                                {followUp.project_number} - Folgeauftrag {idx + 1}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+                  )}
+
                   <ProjectCoverSheet
                     project={project}
                     excavations={excavations}
@@ -1542,6 +1582,7 @@ export default function ProjectDetailPage() {
                     documents={documents}
                     priceItems={priceItems}
                     allProjects={[project, ...followUpProjects]}
+                    currentProjectId={currentProjectForCoverSheet || project.id}
                   />
                 </div>
               )}
@@ -2046,6 +2087,7 @@ export default function ProjectDetailPage() {
           documents={documents}
           priceItems={priceItems}
           allProjects={[project, ...followUpProjects]}
+          currentProjectId={currentProjectForCoverSheet || project.id}
         />
       </div>
 

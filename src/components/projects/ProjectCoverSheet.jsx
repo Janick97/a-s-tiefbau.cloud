@@ -4,8 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Building, MapPin, Calendar, User, FileText, Euro, Shovel, Camera, CheckCircle } from "lucide-react";
 
-export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [], allProjects = [] }) {
+export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [], allProjects = [], currentProjectId = null }) {
   if (!project) return null;
+  
+  // Verwende currentProjectId für die "Aktuell"-Markierung, fallback auf project.id
+  const selectedCurrentId = currentProjectId || project.id;
 
   const bauakten = documents.filter(doc => doc.folder === 'Bauakte');
   const totalRevenue = excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0);
@@ -329,7 +332,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       {/* Hauptauftrag */}
                       {mainProject && (
                         <div className={`flex items-center gap-2 p-2 rounded ${
-                          mainProject.id === project.id 
+                          mainProject.id === selectedCurrentId 
                             ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
                             : 'bg-white'
                         }`}>
@@ -342,7 +345,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             <div className="truncate">{mainProject.project_number}</div>
                             <div className="text-[10px] text-gray-600">Hauptauftrag</div>
                           </div>
-                          {mainProject.id === project.id && (
+                          {mainProject.id === selectedCurrentId && (
                             <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">Aktuell</Badge>
                           )}
                         </div>
@@ -351,7 +354,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       {/* Folgeaufträge */}
                       {followUps.map((followUp, idx) => (
                         <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
-                          followUp.id === project.id 
+                          followUp.id === selectedCurrentId 
                             ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
                             : 'bg-white'
                         }`}>
@@ -364,7 +367,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             <div className="truncate">{followUp.project_number}</div>
                             <div className="text-[10px] text-gray-600">Folgeauftrag {idx + 1}</div>
                           </div>
-                          {followUp.id === project.id && (
+                          {followUp.id === selectedCurrentId && (
                             <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5">Aktuell</Badge>
                           )}
                         </div>
