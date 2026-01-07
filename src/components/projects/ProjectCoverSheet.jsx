@@ -6,29 +6,29 @@ import { Building, MapPin, Calendar, User, FileText, Euro, Shovel, Camera, Check
 
 export default function ProjectCoverSheet({ project, excavations, materials, timesheets, documents, priceItems = [], allProjects = [], currentProjectId = null }) {
   if (!project) return null;
-  
+
   // Verwende currentProjectId für die "Aktuell"-Markierung, fallback auf project.id
   const selectedCurrentId = currentProjectId || project.id;
 
-  const bauakten = documents.filter(doc => doc.folder === 'Bauakte');
+  const bauakten = documents.filter((doc) => doc.folder === 'Bauakte');
   const totalRevenue = excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0);
   const totalHours = timesheets.reduce((sum, ts) => sum + (ts.hours || 0), 0);
 
   // Gruppiere Excavations nach Projekt
   const excavationsByProject = React.useMemo(() => {
     const groups = {};
-    
-    excavations.forEach(exc => {
+
+    excavations.forEach((exc) => {
       const projectId = exc.project_id;
       if (!groups[projectId]) {
         groups[projectId] = {
-          project: allProjects.find(p => p.id === projectId) || project,
+          project: allProjects.find((p) => p.id === projectId) || project,
           excavations: []
         };
       }
       groups[projectId].excavations.push(exc);
     });
-    
+
     return groups;
   }, [excavations, allProjects, project]);
 
@@ -59,12 +59,12 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
   const getSurfaceWork = (exc) => {
     const surface1 = exc.surface_type?.toLowerCase() || '';
     const surface2 = exc.surface_type_2?.toLowerCase() || '';
-    
+
     const hasAsphalt = surface1.includes('asphalt') || surface2.includes('asphalt');
     const hasBeton = exc.concrete_base_used || surface1.includes('beton') || surface2.includes('beton');
-    const hasPlatten = surface1.includes('platten') || surface1.includes('pflaster') || 
-                       surface2.includes('platten') || surface2.includes('pflaster') ||
-                       surface1.includes('naturstein') || surface2.includes('naturstein');
+    const hasPlatten = surface1.includes('platten') || surface1.includes('pflaster') ||
+    surface2.includes('platten') || surface2.includes('pflaster') ||
+    surface1.includes('naturstein') || surface2.includes('naturstein');
 
     return { hasAsphalt, hasBeton, hasPlatten };
   };
@@ -81,67 +81,67 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
   // Bestimme Typ (Grube/Graben) basierend auf price_item_id
   const getExcavationType = (exc) => {
     if (!exc.price_item_id || priceItems.length === 0) return '-';
-    const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+    const priceItem = priceItems.find((p) => p.id === exc.price_item_id);
     return priceItem?.type || '-';
   };
 
   // Generiere Baustellendetails-Text
   const getBaustellenDetails = (exc) => {
     const details = [];
-    
+
     if (exc.iron_plate_laid) {
       details.push('✓ Eisenplatte');
     }
-    
+
     if (exc.curb_length && exc.curb_length > 0) {
       details.push(`Bordstein: ${exc.curb_length}m`);
     }
-    
+
     if (exc.edge_stone_length && exc.edge_stone_length > 0) {
       details.push(`Kantenstein: ${exc.edge_stone_length}m`);
     }
-    
+
     if (exc.gutter_length && exc.gutter_length > 0) {
       details.push(`Rinne: ${exc.gutter_length}m`);
     }
-    
+
     if (exc.excavated_material_left_onsite) {
       details.push('✓ Aushub vor Ort');
     }
-    
+
     return details.length > 0 ? details : ['-'];
   };
 
   // Spezielle Positionen nach item_number
   const specialItemNumbers = [
-    '10021010', '10010413', '10037473', '10037352',
-    '10037463', '10037372', '10021040', '10037342', '10037363'
-  ];
+  '10021010', '10010413', '10037473', '10037352',
+  '10037463', '10037372', '10021040', '10037342', '10037363'];
+
 
   const getItemNumber = (exc) => {
-    const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+    const priceItem = priceItems.find((p) => p.id === exc.price_item_id);
     return priceItem?.item_number || '';
   };
 
   // Gruppiere Excavations: Normal und Spezial
   const groupedExcavations = React.useMemo(() => {
     const grouped = { normal: {}, special: {} };
-    
-    excavations.forEach(exc => {
+
+    excavations.forEach((exc) => {
       const itemNumber = getItemNumber(exc);
       const isSpecial = specialItemNumbers.includes(itemNumber);
       const targetGroup = isSpecial ? grouped.special : grouped.normal;
       const projectId = exc.project_id;
-      
+
       if (!targetGroup[projectId]) {
         targetGroup[projectId] = {
-          project: allProjects.find(p => p.id === projectId) || project,
+          project: allProjects.find((p) => p.id === projectId) || project,
           excavations: []
         };
       }
       targetGroup[projectId].excavations.push(exc);
     });
-    
+
     return grouped;
   }, [excavations, allProjects, project, priceItems]);
 
@@ -339,11 +339,11 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             {/* Auftragsübersicht - Falls mehrere Aufträge */}
             {allProjects.length > 1 && (() => {
               const isFollowUp = !!project.parent_project_id;
-              const mainProject = isFollowUp 
-                ? allProjects.find(p => p.id === project.parent_project_id)
-                : project;
-              const followUps = allProjects.filter(p => p.parent_project_id === mainProject?.id);
-              
+              const mainProject = isFollowUp ?
+              allProjects.find((p) => p.id === project.parent_project_id) :
+              project;
+              const followUps = allProjects.filter((p) => p.parent_project_id === mainProject?.id);
+
               return (
                 <div className="border-2 border-orange-300 bg-orange-50 rounded-lg p-3 mb-3">
                   <h3 className="text-sm font-bold text-gray-900 mb-2 flex items-center gap-1">
@@ -352,51 +352,51 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                   </h3>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     {/* Hauptauftrag */}
-                    {mainProject && (
-                      <div className={`flex items-center gap-2 p-2 rounded ${
-                        mainProject.id === selectedCurrentId 
-                          ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
-                          : 'bg-white border border-gray-200'
-                      }`}>
-                        {mainProject.foreman_completed ? (
-                          <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
-                        )}
+                    {mainProject &&
+                    <div className={`flex items-center gap-2 p-2 rounded ${
+                    mainProject.id === selectedCurrentId ?
+                    'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                    'bg-white border border-gray-200'}`
+                    }>
+                        {mainProject.foreman_completed ?
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
+
+                      <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                      }
                         <div className="flex-1 min-w-0">
                           <div className="truncate font-semibold">{mainProject.project_number}</div>
                           <div className="text-[10px] text-gray-600">Hauptauftrag</div>
                         </div>
-                        {mainProject.id === selectedCurrentId && (
-                          <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
-                        )}
+                        {mainProject.id === selectedCurrentId &&
+                      <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                      }
                       </div>
-                    )}
+                    }
                     
                     {/* Folgeaufträge */}
-                    {followUps.map((followUp, idx) => (
-                      <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
-                        followUp.id === selectedCurrentId 
-                          ? 'bg-orange-200 border-2 border-orange-500 font-semibold' 
-                          : 'bg-white border border-gray-200'
-                      }`}>
-                        {followUp.foreman_completed ? (
-                          <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
-                        )}
+                    {followUps.map((followUp, idx) =>
+                    <div key={followUp.id} className={`flex items-center gap-2 p-2 rounded ${
+                    followUp.id === selectedCurrentId ?
+                    'bg-orange-200 border-2 border-orange-500 font-semibold' :
+                    'bg-white border border-gray-200'}`
+                    }>
+                        {followUp.foreman_completed ?
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600 flex-shrink-0" /> :
+
+                      <div className="w-3.5 h-3.5 border-2 border-gray-400 rounded flex-shrink-0"></div>
+                      }
                         <div className="flex-1 min-w-0">
                           <div className="truncate font-semibold">{followUp.project_number}</div>
                           <div className="text-[10px] text-gray-600">Folgeauftrag {idx + 1}</div>
                         </div>
-                        {followUp.id === selectedCurrentId && (
-                          <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
-                        )}
+                        {followUp.id === selectedCurrentId &&
+                      <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">Aktuell</Badge>
+                      }
                       </div>
-                    ))}
+                    )}
                   </div>
-                </div>
-              );
+                </div>);
+
             })()}
 
             {/* Kompakte 4-Spalten-Anordnung für restliche Infos */}
@@ -425,15 +425,15 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                     {project.city && <div>{project.city}</div>}
                   </div>
                 </div>
-                {project.contact_person && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-2">
+                {project.contact_person &&
+                <div className="bg-gray-50 border border-gray-200 rounded p-2">
                     <div className="flex items-center gap-1 text-gray-600 mb-1">
                       <User className="w-3 h-3" />
                       Ansprechpartner
                     </div>
                     <div className="font-medium text-gray-900">{project.contact_person}</div>
                   </div>
-                )}
+                }
               </div>
 
               {/* Spalte 2 - Status */}
@@ -446,27 +446,27 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                   <div className="text-xs font-semibold text-gray-900 mb-2">Checkliste</div>
                   <div className="space-y-1 text-[11px]">
                     <div className="flex items-center gap-1.5">
-                      {project.bil_wep_requested ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
+                      {project.bil_wep_requested ?
+                      <CheckCircle className="w-3 h-3 text-green-600" /> :
+
+                      <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
+                      }
                       <span>BIL/WEP</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {project.material_booking_completed ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
+                      {project.material_booking_completed ?
+                      <CheckCircle className="w-3 h-3 text-green-600" /> :
+
+                      <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
+                      }
                       <span>Material</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {project.documentation_completed ? (
-                        <CheckCircle className="w-3 h-3 text-green-600" />
-                      ) : (
-                        <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
-                      )}
+                      {project.documentation_completed ?
+                      <CheckCircle className="w-3 h-3 text-green-600" /> :
+
+                      <div className="w-3 h-3 border-2 border-gray-300 rounded"></div>
+                      }
                       <span>Doku</span>
                     </div>
                   </div>
@@ -474,81 +474,81 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               </div>
 
               {/* Spalte 3 - Termine */}
-              <div className="bg-blue-50 border border-blue-200 rounded p-2">
+              <div className="bg-blue-50 mr-8 mb-32 px-2 rounded border border-blue-200">
                 <div className="text-xs font-semibold text-gray-900 mb-2">Termine</div>
                 <div className="space-y-1.5 text-[11px]">
-                  {project.start_date && (
-                    <div className="flex items-center gap-1.5">
+                  {project.start_date &&
+                  <div className="flex items-center gap-1.5">
                       <Calendar className="w-3 h-3 text-blue-600 flex-shrink-0" />
                       <span className="text-gray-600">Eingang:</span>
                       <span className="font-semibold">{new Date(project.start_date).toLocaleDateString('de-DE')}</span>
                     </div>
-                  )}
-                  {project.end_date && (
-                    <div className="flex items-center gap-1.5">
+                  }
+                  {project.end_date &&
+                  <div className="flex items-center gap-1.5">
                       <Calendar className="w-3 h-3 text-green-600 flex-shrink-0" />
                       <span className="text-gray-600">Fertig:</span>
                       <span className="font-semibold">{new Date(project.end_date).toLocaleDateString('de-DE')}</span>
                     </div>
-                  )}
-                  {project.grube_auf_datum && (
-                    <div className="flex items-center gap-1.5">
+                  }
+                  {project.grube_auf_datum &&
+                  <div className="flex items-center gap-1.5">
                       <Shovel className="w-3 h-3 text-orange-600 flex-shrink-0" />
                       <span className="text-gray-600">Grube auf:</span>
                       <span className="font-semibold">{new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}</span>
                     </div>
-                  )}
-                  {project.kann_zu_meldung_datum && (
-                    <div className="flex items-center gap-1.5">
+                  }
+                  {project.kann_zu_meldung_datum &&
+                  <div className="flex items-center gap-1.5">
                       <CheckCircle className="w-3 h-3 text-purple-600 flex-shrink-0" />
                       <span className="text-gray-600">Kann zu:</span>
                       <span className="font-semibold">{new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE')}</span>
                     </div>
-                  )}
+                  }
                 </div>
               </div>
 
               {/* Spalte 4 - VAO & Beschreibung */}
               <div className="space-y-2">
-                {project.vao_status && (
-                  <div className="bg-orange-50 border border-orange-200 rounded p-2">
+                {project.vao_status &&
+                <div className="bg-orange-50 border border-orange-200 rounded p-2">
                     <div className="text-xs font-semibold text-gray-900 mb-2">VAO</div>
                     <div className="space-y-1 text-[11px]">
                       <div>
                         <span className="text-gray-600">Status: </span>
                         <span className="font-semibold">{project.vao_status}</span>
                       </div>
-                      {project.vao_valid_from && (
-                        <div>
+                      {project.vao_valid_from &&
+                    <div>
                           <span className="text-gray-600">Von: </span>
                           <span className="font-semibold">{new Date(project.vao_valid_from).toLocaleDateString('de-DE')}</span>
                         </div>
-                      )}
-                      {project.vao_valid_to && (
-                        <div>
+                    }
+                      {project.vao_valid_to &&
+                    <div>
                           <span className="text-gray-600">Bis: </span>
                           <span className="font-semibold">{new Date(project.vao_valid_to).toLocaleDateString('de-DE')}</span>
                         </div>
-                      )}
+                    }
                     </div>
                   </div>
-                )}
-                {project.description && (
-                  <div className="bg-gray-50 border border-gray-200 rounded p-2">
+                }
+                {project.description &&
+                <div className="bg-gray-50 border border-gray-200 rounded p-2">
                     <div className="text-xs font-semibold text-gray-900 mb-1">Beschreibung</div>
                     <div className="text-[10px] text-gray-700 leading-tight max-h-24 overflow-y-auto">
                       {project.description}
                     </div>
                   </div>
-                )}
+                }
               </div>
 
             </div>
           </div>
 
           {/* Leistungsübersicht - Standard Positionen */}
-          {Object.keys(groupedExcavations.normal).length > 0 && (
-            <div className="w-full">
+          {Object.keys(groupedExcavations.normal).length > 0 &&
+          <div className="w-full">
               <h2 className="text-xl font-bold text-orange-600 mb-3 flex items-center gap-2 pb-2 border-b-2 border-orange-500">
                 <Shovel className="w-6 h-6" />
                 Leistungsübersicht ({Object.values(groupedExcavations.normal).reduce((sum, g) => sum + g.excavations.length, 0)} Positionen)
@@ -556,31 +556,31 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               
               <div className="space-y-4">
                 {Object.entries(groupedExcavations.normal).map(([projectId, group], groupIndex) => {
-                  // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
-                  const chunks = [];
-                  if (group.excavations.length > 0) {
-                    // Erste Seite mit max 4 Items
-                    chunks.push(group.excavations.slice(0, 4));
-                    // Restliche Items in 10er Gruppen
-                    for (let i = 4; i < group.excavations.length; i += 10) {
-                      chunks.push(group.excavations.slice(i, i + 10));
-                    }
+                // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
+                const chunks = [];
+                if (group.excavations.length > 0) {
+                  // Erste Seite mit max 4 Items
+                  chunks.push(group.excavations.slice(0, 4));
+                  // Restliche Items in 10er Gruppen
+                  for (let i = 4; i < group.excavations.length; i += 10) {
+                    chunks.push(group.excavations.slice(i, i + 10));
                   }
-                  
-                  return chunks.map((chunk, chunkIndex) => (
-                  <div key={`${projectId}-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                }
+
+                return chunks.map((chunk, chunkIndex) =>
+                <div key={`${projectId}-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${groupIndex > 0 || chunkIndex > 0 ? 'page-break-before' : ''}`}>
                     {/* Projektüberschrift - nur beim ersten Chunk */}
-                    {chunkIndex === 0 && Object.keys(excavationsByProject).length > 1 && (
-                      <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
+                    {chunkIndex === 0 && Object.keys(excavationsByProject).length > 1 &&
+                  <div className="bg-gradient-to-r from-orange-100 to-amber-50 border-l-4 border-orange-500 p-3 mb-2 rounded">
                         <h3 className="text-base font-bold text-gray-900">
                           {group.project.project_number} - {group.project.title}
-                          {group.project.id !== project.id && (
-                            <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
-                          )}
+                          {group.project.id !== project.id &&
+                      <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
+                      }
                         </h3>
                         <p className="text-sm text-gray-600">{group.excavations.length} Leistung(en)</p>
                       </div>
-                    )}
+                  }
                     
                     {/* Leistungstabelle */}
                     <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm page-break-inside-avoid">
@@ -595,19 +595,19 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                             <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Verfüllung</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Trag</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[9%] border-r-2 border-gray-700">Fein</TableHead>
-                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Beton/<br/>Naturstein</TableHead>
-                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Platten/<br/>Pflaster</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Beton/<br />Naturstein</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Platten/<br />Pflaster</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[12%]">Baustellendetails</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {chunk.map((exc, index) => {
-                            const surfaceWork = getSurfaceWork(exc);
-                            const excavationType = getExcavationType(exc);
-                            const baustellenDetails = getBaustellenDetails(exc);
-                            
-                            return (
-                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                          const surfaceWork = getSurfaceWork(exc);
+                          const excavationType = getExcavationType(exc);
+                          const baustellenDetails = getBaustellenDetails(exc);
+
+                          return (
+                            <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="font-semibold leading-tight">{exc.location_name}</div>
                                   <div className="text-gray-600 leading-tight text-xs">
@@ -618,28 +618,28 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="flex flex-col items-center justify-center">
                                     <Badge className={`text-xs mb-1 px-2 py-0.5 ${
-                                      excavationType === 'Grube' 
-                                        ? 'bg-orange-100 text-orange-800 border-orange-200' 
-                                        : excavationType === 'Graben'
-                                        ? 'bg-blue-100 text-blue-800 border-blue-200'
-                                        : 'bg-gray-100 text-gray-800'
-                                    }`}>
+                                  excavationType === 'Grube' ?
+                                  'bg-orange-100 text-orange-800 border-orange-200' :
+                                  excavationType === 'Graben' ?
+                                  'bg-blue-100 text-blue-800 border-blue-200' :
+                                  'bg-gray-100 text-gray-800'}`
+                                  }>
                                       {excavationType}
                                     </Badge>
                                     <div className="font-medium text-xs text-center">{exc.excavation_length || 0}×{exc.excavation_width || 0}×{exc.excavation_depth || 0}</div>
-                                    {exc.excavation_factor && exc.excavation_factor !== 1 && (
-                                      <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
-                                    )}
+                                    {exc.excavation_factor && exc.excavation_factor !== 1 &&
+                                  <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
+                                  }
                                   </div>
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
-                                  {exc.surface_type && (
-                                    <div className="font-semibold text-xs">{exc.surface_type}</div>
-                                  )}
-                                  {exc.surface_type_2 && (
-                                    <div className="text-purple-700 font-medium text-xs">+{exc.surface_type_2}</div>
-                                  )}
+                                  {exc.surface_type &&
+                                <div className="font-semibold text-xs">{exc.surface_type}</div>
+                                }
+                                  {exc.surface_type_2 &&
+                                <div className="text-purple-700 font-medium text-xs">+{exc.surface_type_2}</div>
+                                }
                                   {!exc.surface_type && !exc.surface_type_2 && '-'}
                                 </TableCell>
                                 
@@ -648,94 +648,94 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-blue-50 border-r-2 border-gray-700">
-                                  {exc.foreman ? (
-                                    <>
+                                  {exc.foreman ?
+                                <>
                                       <div className="font-semibold">{exc.foreman}</div>
-                                      {exc.created_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.created_date)}</div>
-                                      )}
-                                    </>
-                                  ) : '-'}
+                                      {exc.created_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.created_date)}</div>
+                                  }
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-orange-50 border-r-2 border-gray-700">
-                                  {exc.is_backfilled && exc.backfilled_by ? (
-                                    <>
+                                  {exc.is_backfilled && exc.backfilled_by ?
+                                <>
                                       <div className="font-semibold">{exc.backfilled_by}</div>
-                                      {exc.backfilled_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.backfilled_date)}</div>
-                                      )}
-                                    </>
-                                  ) : '-'}
+                                      {exc.backfilled_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.backfilled_date)}</div>
+                                  }
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-yellow-50 border-r-2 border-gray-700">
-                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
-                                    <>
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ?
+                                <>
                                       <div className="font-semibold">{exc.closed_by}</div>
-                                      {exc.closed_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                      )}
+                                      {exc.closed_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                  }
                                       <div className="text-[11px] text-gray-500">(Trag)</div>
-                                    </>
-                                  ) : '-'}
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-green-50 border-r-2 border-gray-700">
-                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ? (
-                                    <>
+                                  {surfaceWork.hasAsphalt && exc.is_closed && exc.closed_by ?
+                                <>
                                       <div className="font-semibold">{exc.closed_by}</div>
-                                      {exc.closed_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                      )}
+                                      {exc.closed_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                  }
                                       <div className="text-[11px] text-gray-500">(Fein)</div>
-                                    </>
-                                  ) : '-'}
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-gray-100 border-r-2 border-gray-700">
-                                  {surfaceWork.hasBeton && exc.is_closed && exc.closed_by ? (
-                                    <>
+                                  {surfaceWork.hasBeton && exc.is_closed && exc.closed_by ?
+                                <>
                                       <div className="font-semibold">{exc.closed_by}</div>
-                                      {exc.closed_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                      )}
-                                    </>
-                                  ) : '-'}
+                                      {exc.closed_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                  }
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-purple-50 border-r-2 border-gray-700">
-                                  {surfaceWork.hasPlatten && exc.is_closed && exc.closed_by ? (
-                                    <>
+                                  {surfaceWork.hasPlatten && exc.is_closed && exc.closed_by ?
+                                <>
                                       <div className="font-semibold">{exc.closed_by}</div>
-                                      {exc.closed_date && (
-                                        <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
-                                      )}
-                                    </>
-                                  ) : '-'}
+                                      {exc.closed_date &&
+                                  <div className="text-gray-600 text-[11px]">{formatDate(exc.closed_date)}</div>
+                                  }
+                                    </> :
+                                '-'}
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-xs bg-yellow-50">
-                                  {baustellenDetails.map((detail, idx) => (
-                                    <div key={idx} className="leading-tight">{detail}</div>
-                                  ))}
+                                  {baustellenDetails.map((detail, idx) =>
+                                <div key={idx} className="leading-tight">{detail}</div>
+                                )}
                                 </TableCell>
-                              </TableRow>
-                            );
-                          })}
+                              </TableRow>);
+
+                        })}
                         </TableBody>
                       </Table>
                     </div>
                   </div>
-                  ));
-                })}
+                );
+              })}
               </div>
             </div>
-          )}
+          }
 
           {/* Spezielle Positionen - Separat dargestellt */}
-          {Object.keys(groupedExcavations.special).length > 0 && (
-            <div className="w-full mt-6 page-break-before">
+          {Object.keys(groupedExcavations.special).length > 0 &&
+          <div className="w-full mt-6 page-break-before">
               <h2 className="text-xl font-bold text-purple-600 mb-3 flex items-center gap-2 pb-2 border-b-2 border-purple-500">
                 <Shovel className="w-6 h-6" />
                 Spezielle Leistungen ({Object.values(groupedExcavations.special).reduce((sum, g) => sum + g.excavations.length, 0)} Positionen)
@@ -743,31 +743,31 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
               
               <div className="space-y-4">
                 {Object.entries(groupedExcavations.special).map(([projectId, group], groupIndex) => {
-                  // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
-                  const chunks = [];
-                  if (group.excavations.length > 0) {
-                    // Erste Seite mit max 4 Items
-                    chunks.push(group.excavations.slice(0, 4));
-                    // Restliche Items in 10er Gruppen
-                    for (let i = 4; i < group.excavations.length; i += 10) {
-                      chunks.push(group.excavations.slice(i, i + 10));
-                    }
+                // Erste Seite: max 4 Positionen, weitere Seiten: max 10 Positionen
+                const chunks = [];
+                if (group.excavations.length > 0) {
+                  // Erste Seite mit max 4 Items
+                  chunks.push(group.excavations.slice(0, 4));
+                  // Restliche Items in 10er Gruppen
+                  for (let i = 4; i < group.excavations.length; i += 10) {
+                    chunks.push(group.excavations.slice(i, i + 10));
                   }
-                  
-                  return chunks.map((chunk, chunkIndex) => (
-                  <div key={`${projectId}-special-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${(groupIndex > 0 || chunkIndex > 0) ? 'page-break-before' : ''}`}>
+                }
+
+                return chunks.map((chunk, chunkIndex) =>
+                <div key={`${projectId}-special-${chunkIndex}`} className={`w-full project-group page-break-inside-avoid ${groupIndex > 0 || chunkIndex > 0 ? 'page-break-before' : ''}`}>
                     {/* Projektüberschrift - nur beim ersten Chunk */}
-                    {chunkIndex === 0 && Object.keys(groupedExcavations.special).length > 1 && (
-                      <div className="bg-gradient-to-r from-purple-100 to-purple-50 border-l-4 border-purple-500 p-3 mb-2 rounded">
+                    {chunkIndex === 0 && Object.keys(groupedExcavations.special).length > 1 &&
+                  <div className="bg-gradient-to-r from-purple-100 to-purple-50 border-l-4 border-purple-500 p-3 mb-2 rounded">
                         <h3 className="text-base font-bold text-gray-900">
                           {group.project.project_number} - {group.project.title}
-                          {group.project.id !== project.id && (
-                            <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
-                          )}
+                          {group.project.id !== project.id &&
+                      <Badge variant="outline" className="ml-2 text-xs">Folgeauftrag</Badge>
+                      }
                         </h3>
                         <p className="text-sm text-gray-600">{group.excavations.length} Spezielle Leistung(en)</p>
                       </div>
-                    )}
+                  }
                     
                     {/* Vereinfachte Leistungstabelle - Nur Name, Menge, Hinzugefügt von */}
                     <div className="w-full border-3 border-gray-700 rounded-lg overflow-hidden shadow-sm page-break-inside-avoid">
@@ -781,11 +781,11 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                         </TableHeader>
                         <TableBody>
                           {chunk.map((exc, index) => {
-                            const priceItem = priceItems.find(p => p.id === exc.price_item_id);
-                            const leistungsName = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : exc.location_name;
-                            
-                            return (
-                              <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                          const priceItem = priceItems.find((p) => p.id === exc.price_item_id);
+                          const leistungsName = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : exc.location_name;
+
+                          return (
+                            <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="font-semibold leading-tight">{leistungsName}</div>
                                 </TableCell>
@@ -797,29 +797,29 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                                 </TableCell>
                                 
                                 <TableCell className="p-3 text-sm">
-                                  {exc.foreman ? (
-                                    <>
+                                  {exc.foreman ?
+                                <>
                                       <div className="font-semibold">{exc.foreman}</div>
-                                      {exc.created_date && (
-                                        <div className="text-gray-600 text-xs">{formatDate(exc.created_date)}</div>
-                                      )}
-                                    </>
-                                  ) : (
-                                    <span className="text-gray-500">-</span>
-                                  )}
+                                      {exc.created_date &&
+                                  <div className="text-gray-600 text-xs">{formatDate(exc.created_date)}</div>
+                                  }
+                                    </> :
+
+                                <span className="text-gray-500">-</span>
+                                }
                                 </TableCell>
-                              </TableRow>
-                            );
-                            })}
+                              </TableRow>);
+
+                        })}
                             </TableBody>
                             </Table>
                             </div>
                             </div>
-                            ));
-                            })}
+                );
+              })}
                             </div>
                             </div>
-                            )}
+          }
 
                             {/* Footer */}
           <div className="w-full mt-3 pt-2 border-t border-gray-300">
@@ -838,6 +838,6 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
 
         </div>
       </div>
-    </>
-  );
+    </>);
+
 }
