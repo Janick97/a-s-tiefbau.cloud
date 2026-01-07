@@ -896,54 +896,88 @@ export default function ProjectDetailPage() {
 
     try {
       // Element temporär sichtbar machen mit optimaler Größe
-      const originalPosition = coverSheetRef.current.style.position;
-      const originalLeft = coverSheetRef.current.style.left;
-      const originalWidth = coverSheetRef.current.style.width;
-      
-      coverSheetRef.current.style.position = 'fixed';
-      coverSheetRef.current.style.left = '0';
-      coverSheetRef.current.style.top = '0';
-      coverSheetRef.current.style.zIndex = '9999';
-      coverSheetRef.current.style.width = '1400px'; // Feste Breite für konsistentes Rendering
-      
-      // Längere Wartezeit für vollständiges Rendering aller Elemente
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const element = coverSheetRef.current;
+      const originalStyles = {
+        position: element.style.position,
+        left: element.style.left,
+        top: element.style.top,
+        zIndex: element.style.zIndex,
+        width: element.style.width,
+        visibility: element.style.visibility,
+        overflow: element.style.overflow
+      };
 
-      const canvas = await html2canvas(coverSheetRef.current, {
-        scale: 3, // Höhere Auflösung für schärfere Darstellung
+      // Element für Rendering vorbereiten
+      element.style.position = 'fixed';
+      element.style.left = '0';
+      element.style.top = '0';
+      element.style.zIndex = '9999';
+      element.style.width = '1600px'; // Größere Breite für bessere Qualität
+      element.style.visibility = 'visible';
+      element.style.overflow = 'visible';
+
+      // Warten auf vollständiges Rendering
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      // Alle Bilder laden lassen
+      const images = element.getElementsByTagName('img');
+      await Promise.all(
+        Array.from(images).map(img => {
+          if (img.complete) return Promise.resolve();
+          return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            setTimeout(resolve, 2000); // Timeout nach 2s
+          });
+        })
+      );
+
+      const canvas = await html2canvas(element, {
+        scale: 2.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        foreignObjectRendering: false,
-        imageTimeout: 0,
-        removeContainer: true,
+        windowWidth: 1600,
+        windowHeight: element.scrollHeight,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.body.querySelector('[style*="position: fixed"]');
+          if (clonedElement) {
+            clonedElement.style.transform = 'none';
+            clonedElement.style.overflow = 'visible';
+          }
+        }
       });
 
-      // Element wieder verstecken
-      coverSheetRef.current.style.position = originalPosition;
-      coverSheetRef.current.style.left = originalLeft;
-      coverSheetRef.current.style.top = '';
-      coverSheetRef.current.style.zIndex = '';
-      coverSheetRef.current.style.width = originalWidth;
+      // Originale Styles wiederherstellen
+      Object.keys(originalStyles).forEach(key => {
+        element.style[key] = originalStyles[key];
+      });
 
-      const imgData = canvas.toDataURL('image/png', 1.0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
       const pdf = new jsPDF('l', 'mm', 'a4');
 
-      const imgWidth = 297;
-      const pageHeight = 210;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      let heightLeft = imgHeight;
+      const pdfWidth = 297;
+      const pdfHeight = 210;
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const imgScaledWidth = imgWidth * ratio;
+      const imgScaledHeight = imgHeight * ratio;
+
+      let heightLeft = imgScaledHeight;
       let position = 0;
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      // Erste Seite
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgScaledHeight, undefined, 'FAST');
+      heightLeft -= pdfHeight;
 
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
+      // Weitere Seiten bei Bedarf
+      while (heightLeft > 0) {
+        position = heightLeft - imgScaledHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
+        heightLeft -= pdfHeight;
       }
 
       pdf.save(`Deckblatt_${project.project_number}.pdf`);
@@ -951,12 +985,12 @@ export default function ProjectDetailPage() {
     } catch (error) {
       console.error("Fehler beim Erstellen des Deckblatt-PDFs:", error);
       alert("Fehler beim Erstellen des Deckblatt-PDFs. Bitte versuchen Sie es erneut.");
-      
+
       // Element wieder verstecken bei Fehler
       if (coverSheetRef.current) {
         coverSheetRef.current.style.position = 'absolute';
         coverSheetRef.current.style.left = '-9999px';
-        coverSheetRef.current.style.width = '';
+        coverSheetRef.current.style.visibility = 'hidden';
       }
     } finally {
       setIsExportingPdf(false);
