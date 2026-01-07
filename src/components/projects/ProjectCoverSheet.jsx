@@ -217,52 +217,76 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           /* Ensure all borders are visible in print */
           table {
             border-collapse: collapse !important;
-            border: 2px solid rgb(31, 41, 55) !important;
+            border: 3px solid rgb(31, 41, 55) !important;
+            table-layout: fixed !important;
+            width: 100% !important;
           }
           table, th, td {
             border-color: rgb(31, 41, 55) !important;
             border-style: solid !important;
           }
           th {
-            border-width: 2px !important;
-            border: 2px solid rgb(31, 41, 55) !important;
+            border: 3px solid rgb(31, 41, 55) !important;
+            padding: 8px !important;
+            font-weight: bold !important;
+            background-color: rgb(243, 244, 246) !important;
           }
           td {
-            border-width: 2px !important;
-            border: 2px solid rgb(31, 41, 55) !important;
+            border: 3px solid rgb(31, 41, 55) !important;
+            padding: 8px !important;
+            overflow: visible !important;
+            word-wrap: break-word !important;
           }
           tr {
-            border-bottom: 2px solid rgb(31, 41, 55) !important;
+            border-bottom: 3px solid rgb(31, 41, 55) !important;
           }
           .border {
-            border-width: 2px !important;
+            border-width: 3px !important;
+            border-style: solid !important;
           }
           .border-2 {
             border-width: 3px !important;
+            border-style: solid !important;
           }
           .border-r {
-            border-right-width: 2px !important;
+            border-right-width: 3px !important;
+            border-right-style: solid !important;
           }
           .border-b {
-            border-bottom-width: 2px !important;
+            border-bottom-width: 3px !important;
+            border-bottom-style: solid !important;
           }
           .border-r-2 {
-            border-right-width: 2.5px !important;
+            border-right-width: 3px !important;
+            border-right-style: solid !important;
           }
           .border-b-2 {
             border-bottom-width: 3px !important;
+            border-bottom-style: solid !important;
           }
-          .border-gray-300 {
-            border-color: rgb(31, 41, 55) !important;
-          }
-          .border-gray-400 {
-            border-color: rgb(31, 41, 55) !important;
-          }
+          .border-gray-300,
+          .border-gray-400,
           .border-gray-700 {
             border-color: rgb(31, 41, 55) !important;
           }
-          .border-orange-500 {
+          .border-orange-500,
+          .border-orange-400,
+          .border-orange-300 {
             border-color: rgb(249, 115, 22) !important;
+          }
+          .border-blue-200 {
+            border-color: rgb(191, 219, 254) !important;
+          }
+          .rounded,
+          .rounded-lg {
+            border-radius: 0 !important;
+          }
+          /* Ensure proper spacing */
+          .p-2, .p-3, .p-4 {
+            padding: 8px !important;
+          }
+          .gap-2, .gap-3, .gap-4 {
+            gap: 8px !important;
           }
           /* Ensure background colors are printed */
           .bg-gray-50,
