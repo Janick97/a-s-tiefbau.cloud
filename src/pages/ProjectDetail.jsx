@@ -907,17 +907,17 @@ export default function ProjectDetailPage() {
         overflow: element.style.overflow
       };
 
-      // Element für Rendering vorbereiten
+      // Element für Rendering vorbereiten - A4 Landscape optimiert
       element.style.position = 'fixed';
       element.style.left = '0';
       element.style.top = '0';
       element.style.zIndex = '9999';
-      element.style.width = '1600px'; // Größere Breite für bessere Qualität
+      element.style.width = '297mm'; // A4 Landscape Breite
       element.style.visibility = 'visible';
       element.style.overflow = 'visible';
 
       // Warten auf vollständiges Rendering
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Alle Bilder laden lassen
       const images = element.getElementsByTagName('img');
@@ -927,19 +927,21 @@ export default function ProjectDetailPage() {
           return new Promise(resolve => {
             img.onload = resolve;
             img.onerror = resolve;
-            setTimeout(resolve, 2000); // Timeout nach 2s
+            setTimeout(resolve, 2500);
           });
         })
       );
 
       const canvas = await html2canvas(element, {
-        scale: 2.5,
+        scale: 4, // Höchste Qualität
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        windowWidth: 1600,
+        windowWidth: element.scrollWidth,
         windowHeight: element.scrollHeight,
+        foreignObjectRendering: false,
+        imageTimeout: 0,
         onclone: (clonedDoc) => {
           const clonedElement = clonedDoc.body.querySelector('[style*="position: fixed"]');
           if (clonedElement) {
@@ -954,29 +956,27 @@ export default function ProjectDetailPage() {
         element.style[key] = originalStyles[key];
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      // PNG verwenden für verlustfreie Qualität
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF('l', 'mm', 'a4');
 
-      const pdfWidth = 297;
-      const pdfHeight = 210;
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgScaledWidth = imgWidth * ratio;
-      const imgScaledHeight = imgHeight * ratio;
+      const pdfWidth = 297; // A4 landscape width
+      const pdfHeight = 210; // A4 landscape height
+      const imgWidth = pdfWidth;
+      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      let heightLeft = imgScaledHeight;
+      let heightLeft = imgHeight;
       let position = 0;
 
       // Erste Seite
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgScaledHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
       heightLeft -= pdfHeight;
 
       // Weitere Seiten bei Bedarf
       while (heightLeft > 0) {
-        position = heightLeft - imgScaledHeight;
+        position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, imgScaledHeight, undefined, 'FAST');
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
         heightLeft -= pdfHeight;
       }
 
