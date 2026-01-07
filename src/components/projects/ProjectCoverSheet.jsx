@@ -284,16 +284,12 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
           
           {/* Header - Logo und Titel */}
           <div className="w-full mb-4 pb-4 border-b-2 border-orange-500">
-            <div className="flex items-start justify-between w-full">
-              <div className="flex items-center gap-5">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" 
-                  alt="Logo" 
-                  className="h-16"
-                />
-                <div>
-                </div>
-              </div>
+            <div className="flex items-center justify-between w-full">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" 
+                alt="Logo" 
+                className="h-16"
+              />
               <div className="text-right">
                 <div className="text-xs text-gray-600">Erstellt am:</div>
                 <div className="text-lg font-semibold">{new Date().toLocaleDateString('de-DE')}</div>
