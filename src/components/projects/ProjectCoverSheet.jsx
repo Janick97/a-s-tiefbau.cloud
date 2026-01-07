@@ -315,8 +315,8 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
             
             {/* Hauptinfos - Neue kompakte Anordnung */}
             <div className="bg-gradient-to-r from-orange-50 to-amber-50 border-2 border-orange-400 rounded-lg p-4 mb-3">
-              {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer */}
-              <div className="grid grid-cols-5 gap-4 mb-3">
+              {/* Obere Reihe: Projektnummer, Stadt, Ansprechpartner, Auftragseingang, SM-Nummer, VAO */}
+              <div className="grid grid-cols-6 gap-4 mb-3">
                 <div className="bg-white mr-20 ml-1 px-3 py-3 rounded-lg border-2 border-orange-300">
                   <div className="text-xs text-gray-600 mb-1">Projektnummer</div>
                   <div className="text-2xl font-bold text-gray-900">{project.project_number}</div>
@@ -338,6 +338,21 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                 <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
                   <div className="text-xs text-gray-600 mb-1">SM-Nummer</div>
                   <div className="text-xl font-bold text-gray-900">{project.sm_number || '-'}</div>
+                </div>
+                <div className="bg-white border-2 border-orange-300 rounded-lg px-2 py-2">
+                  <div className="text-xs text-gray-600 mb-1">VAO</div>
+                  {project.vao_status ? (
+                    <div className="space-y-0.5">
+                      <div className="text-sm font-semibold text-gray-900">{project.vao_status}</div>
+                      {project.vao_valid_to && (
+                        <div className="text-xs text-gray-600">
+                          bis {new Date(project.vao_valid_to).toLocaleDateString('de-DE')}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-lg font-semibold text-gray-900">-</div>
+                  )}
                 </div>
               </div>
 
