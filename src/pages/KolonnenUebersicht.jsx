@@ -308,41 +308,51 @@ export default function KolonnenUebersichtPage() {
                   </CardHeader>
                   
                   <CardContent className="space-y-4">
-                    {/* Ausgaben */}
+                    {/* Ausgaben/Einnahmen Skala */}
                     <div className="bg-white/50 rounded-lg p-3 border border-gray-200">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-gray-600">Kolonnenausgaben</span>
-                        <span className="text-lg font-bold text-red-600">
-                          -€{Math.abs(Math.round(kolonne.revenue)).toLocaleString('de-DE')}
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-sm font-medium text-gray-600">Performance</span>
+                        <span className="text-lg font-bold">
+                          {kolonne.ausgabenPercentage > 100 ? (
+                            <span className="text-green-600">+{Math.round(kolonne.ausgabenPercentage - 100)}%</span>
+                          ) : (
+                            <span className="text-red-600">-{Math.round(100 - kolonne.ausgabenPercentage)}%</span>
+                          )}
                         </span>
                       </div>
                       
-                      {/* Skala */}
+                      {/* Skala von -100% bis +100% */}
                       <div className="space-y-2">
-                        <Progress 
-                          value={Math.min(kolonne.ausgabenPercentage, 100)} 
-                          className="h-4"
-                        />
-                        <div className="flex justify-between items-center text-xs">
-                          <div className="flex items-center gap-1">
-                            {kolonne.ausgabenPercentage < 33 ? (
-                              <TrendingUp className="w-3 h-3 text-green-600" />
-                            ) : kolonne.ausgabenPercentage < 66 ? (
-                              <Minus className="w-3 h-3 text-yellow-600" />
-                            ) : (
-                              <TrendingDown className="w-3 h-3 text-red-600" />
-                            )}
-                            <span className={`font-semibold ${
-                              kolonne.ausgabenPercentage < 33 ? 'text-green-600' :
-                              kolonne.ausgabenPercentage < 66 ? 'text-yellow-600' :
-                              'text-red-600'
-                            }`}>
-                              -{Math.round(kolonne.ausgabenPercentage)}%
-                            </span>
-                          </div>
-                          <span className="text-gray-500">
-                            von -100%
-                          </span>
+                        <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden">
+                          {/* Mittellinie */}
+                          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-400 z-10"></div>
+                          
+                          {/* Roter Bereich (links = Minus) */}
+                          {kolonne.ausgabenPercentage <= 100 && (
+                            <div 
+                              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-400"
+                              style={{ width: '50%' }}
+                            >
+                              <div 
+                                className="absolute right-0 top-0 bottom-0 bg-red-800"
+                                style={{ width: `${kolonne.ausgabenPercentage}%` }}
+                              ></div>
+                            </div>
+                          )}
+                          
+                          {/* Grüner Bereich (rechts = Plus) */}
+                          {kolonne.ausgabenPercentage > 100 && (
+                            <div 
+                              className="absolute left-1/2 top-0 bottom-0 bg-gradient-to-r from-green-400 to-green-600"
+                              style={{ width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%` }}
+                            ></div>
+                          )}
+                        </div>
+                        
+                        <div className="flex justify-between items-center text-xs text-gray-600">
+                          <span>-100%</span>
+                          <span className="font-semibold">0%</span>
+                          <span>+100%</span>
                         </div>
                       </div>
                     </div>
