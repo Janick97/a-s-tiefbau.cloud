@@ -252,8 +252,8 @@ export default function KolonnenUebersichtPage() {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Ausgaben-Skala</h3>
                 <p className="text-sm text-gray-600">
-                  Die Skala zeigt die Kolonnenausgaben pro Tiefbau. <strong>-20.000€ entspricht -100%</strong> (maximale Ausgaben). 
-                  Je niedriger die Ausgaben, desto besser die Performance.
+                  Die Skala zeigt die Kolonnenausgaben pro Tiefbau. <strong>-20.000€ entspricht -100%</strong>, <strong>0€ = 0%</strong> (Nullpunkt), 
+                  darüber hinaus wird Plus-Bereich angezeigt. Links = Minus, Rechts = Plus.
                 </p>
               </div>
             </div>
