@@ -13,14 +13,6 @@ import { Link } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Fix für Leaflet Marker Icons
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
 // Komponente zum Anpassen der Kartenansicht
 function MapController({ center, zoom }) {
   const map = useMap();
@@ -32,41 +24,28 @@ function MapController({ center, zoom }) {
   return null;
 }
 
-// Custom Marker Icons - IMMER Orange für bessere Sichtbarkeit
+// Custom Marker Icons - IMMER sichtbar mit orangenen Punkten
 const createCustomIcon = (isBackfilled, isClosed) => {
-  // Verschiedene Orange-Töne je nach Status
-  let color = '#f97316'; // Standard Orange
+  // Verschiedene Farben je nach Status
+  let color = '#f97316'; // Orange = Offen
   
   if (isClosed) {
-    color = '#16a34a'; // Grün wenn komplett fertig
+    color = '#16a34a'; // Grün = Fertiggestellt
   } else if (isBackfilled) {
-    color = '#eab308'; // Gelb wenn nur verfüllt
+    color = '#eab308'; // Gelb = Verfüllt
   }
   
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `<div style="
-      background-color: ${color};
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 4px solid white;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    ">
-      <div style="
-        width: 10px;
-        height: 10px;
-        background: white;
-        border-radius: 50%;
-        opacity: 0.9;
-      "></div>
-    </div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14]
+  return new L.Icon({
+    iconUrl: `data:image/svg+xml;base64,${btoa(`
+      <svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="14" fill="${color}" stroke="white" stroke-width="3"/>
+        <circle cx="16" cy="16" r="5" fill="white" opacity="0.9"/>
+      </svg>
+    `)}`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
+    className: 'custom-marker-icon'
   });
 };
 
