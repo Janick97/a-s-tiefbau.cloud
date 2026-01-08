@@ -496,9 +496,10 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         if (!excavation && isGrabenPosition && selectedCable && createdExcavation?.id) {
           console.log('Creating cable position for cable:', selectedCable);
           
-          // Position für Kabelverlegung finden
-          const cableItemNumber = cableLayingMethod === 'auslegen' ? '10010413' : '10037463';
-          const cablePriceItem = priceItems.find(p => p.item_number === cableItemNumber);
+          // Position für Kabelverlegung finden - nach description suchen
+          const cablePriceItem = cableLayingMethod === 'auslegen' 
+            ? priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel bis 30 mm auslegen'))
+            : priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel in leerer rohr eingezogen'));
           
           console.log('Cable price item:', cablePriceItem);
           
