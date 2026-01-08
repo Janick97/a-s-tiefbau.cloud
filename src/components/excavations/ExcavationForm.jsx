@@ -542,27 +542,6 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
               
-              {/* Projekt auswählen */}
-              <div className="space-y-2">
-                <Label htmlFor="project_id">Projekt *</Label>
-                <Select 
-                  value={formData.project_id} 
-                  onValueChange={(value) => handleInputChange('project_id', value)}
-                  disabled={!!defaultProjectId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Projekt auswählen..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {projects.map(project => (
-                      <SelectItem key={project.id} value={project.id}>
-                        {project.project_number} - {project.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
               {/* Standortinformationen */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Standortinformationen</h3>
