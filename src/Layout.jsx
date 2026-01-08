@@ -98,6 +98,7 @@ const navigationItems = [
     title: "Auswertungen",
     url: createPageUrl("Analytics"),
     icon: BarChart3,
+    hasSubmenu: true,
   },
   {
     title: "Projekt-Explorer",
