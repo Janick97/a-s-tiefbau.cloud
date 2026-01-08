@@ -371,13 +371,13 @@ export default function KolonnenUebersichtPage() {
 
                     {/* Performance Indikator */}
                     <div className={`text-center py-2 rounded-lg font-semibold text-sm ${
-                      kolonne.ausgabenPercentage < 33 ? 'bg-green-100 text-green-800' :
-                      kolonne.ausgabenPercentage < 66 ? 'bg-yellow-100 text-yellow-800' :
+                      kolonne.ausgabenPercentage > 100 ? 'bg-green-100 text-green-800' :
+                      kolonne.ausgabenPercentage > 66 ? 'bg-yellow-100 text-yellow-800' :
                       'bg-red-100 text-red-800'
                     }`}>
-                      {kolonne.ausgabenPercentage < 33 ? '✓ Sehr gut' :
-                       kolonne.ausgabenPercentage < 66 ? '○ Gut' :
-                       '△ Verbesserungspotential'}
+                      {kolonne.ausgabenPercentage > 100 ? '✓ Im Plus' :
+                       kolonne.ausgabenPercentage > 66 ? '○ Nahe Null' :
+                       '△ Im Minus'}
                     </div>
                   </CardContent>
                 </Card>
