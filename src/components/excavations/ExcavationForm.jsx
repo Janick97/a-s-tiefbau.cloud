@@ -24,7 +24,7 @@ function ImageUploadSection({ title, description, images = [], onImagesChange, m
       alert(`Sie können maximal ${maxFiles} Bilder hochladen. Es werden nur die ersten ${filesToUpload.length} Bilder berücksichtigt.`);
     }
 
-    if (filesToUpload.length === 0) return; // No files to upload
+    if (filesToUpload.length === 0) return;
 
     setIsUploading(true);
     try {
@@ -37,7 +37,6 @@ function ImageUploadSection({ title, description, images = [], onImagesChange, m
       alert("Ein Fehler ist beim Hochladen aufgetreten.");
     } finally {
       setIsUploading(false);
-      // Reset input value to allow re-uploading the same file if needed
       event.target.value = null;
     }
   };
@@ -47,63 +46,54 @@ function ImageUploadSection({ title, description, images = [], onImagesChange, m
   };
 
   return (
-    <Card className="bg-gray-50/50">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Camera className="w-5 h-5 text-gray-600" />
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium flex items-center gap-2">
+          <Camera className="w-4 h-4 text-gray-600" />
           {title}
-        </CardTitle>
-        <p className="text-sm text-gray-500">{description}</p>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 mb-4">
+        </Label>
+        <span className="text-xs text-gray-500">{images.length}/{maxFiles}</span>
+      </div>
+      
+      {images.length > 0 && (
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
           {images.map((url, index) => (
-            <div key={url + index} className="relative group aspect-square rounded-md overflow-hidden border border-gray-200">
-              <img src={url} alt={`Vorschau ${index + 1}`} className="w-full h-full object-cover" />
+            <div key={url + index} className="relative group aspect-square rounded overflow-hidden border border-gray-200">
+              <img src={url} alt={`${index + 1}`} className="w-full h-full object-cover" />
               <button
                 type="button"
                 onClick={() => handleDeleteImage(url)}
-                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10"
-                aria-label="Bild löschen"
+                className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                aria-label="Löschen"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
             </div>
           ))}
-          {isUploading && (
-             <div className="flex items-center justify-center aspect-square border-2 border-dashed rounded-md bg-gray-100">
-                <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
-            </div>
-          )}
         </div>
-        
-        <Input
-          id={`file-upload-${title.replace(/\s+/g, '-')}`}
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleFileChange}
-          className="hidden"
-          disabled={isUploading || images.length >= maxFiles}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => document.getElementById(`file-upload-${title.replace(/\s+/g, '-')}`).click()}
-          disabled={isUploading || images.length >= maxFiles}
-          className="w-full"
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          {isUploading ? 'Lädt hoch...' : `Bilder auswählen (${images.length}/${maxFiles})`}
-        </Button>
-        {images.length >= maxFiles && (
-            <p className="text-sm text-yellow-600 mt-2 flex items-center gap-1">
-                <AlertTriangle className="w-4 h-4" />
-                Maximale Anzahl von {maxFiles} Bildern erreicht.
-            </p>
-        )}
-      </CardContent>
-    </Card>
+      )}
+      
+      <Input
+        id={`file-upload-${title.replace(/\s+/g, '-')}`}
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+        disabled={isUploading || images.length >= maxFiles}
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        onClick={() => document.getElementById(`file-upload-${title.replace(/\s+/g, '-')}`).click()}
+        disabled={isUploading || images.length >= maxFiles}
+        className="w-full"
+      >
+        <Upload className="w-4 h-4 mr-2" />
+        {isUploading ? 'Lädt hoch...' : 'Bilder hinzufügen'}
+      </Button>
+    </div>
   );
 }
 
@@ -992,28 +982,13 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="surface_1_sqm">Oberfläche 1 Meter</Label>
-                  <Input
-                    id="surface_1_sqm"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.surface_1_sqm}
-                    onChange={(e) => handleInputChange('surface_1_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    placeholder="Meter"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
                   <Label htmlFor="surface_type_2">Oberfläche 2 (optional)</Label>
                   <Select 
                     value={formData.surface_type_2 === null || formData.surface_type_2 === '' ? "none" : formData.surface_type_2} 
                     onValueChange={(value) => handleInputChange('surface_type_2', value === "none" ? null : value)}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Zweite Oberfläche auswählen..." />
+                      <SelectValue placeholder="Keine zweite Oberfläche" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
                       <SelectItem value="none">Keine zweite Oberfläche</SelectItem>
@@ -1026,8 +1001,22 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
 
-                {formData.surface_type_2 && formData.surface_type_2 !== "none" && formData.surface_type_2 !== "" && (
+              {formData.surface_type_2 && formData.surface_type_2 !== "none" && formData.surface_type_2 !== "" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="surface_1_sqm">Oberfläche 1 Meter</Label>
+                    <Input
+                      id="surface_1_sqm"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.surface_1_sqm}
+                      onChange={(e) => handleInputChange('surface_1_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                      placeholder="Meter"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="surface_2_sqm">Oberfläche 2 Meter</Label>
                     <Input
@@ -1040,8 +1029,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       placeholder="Meter"
                     />
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Asphaltdicke - nur wenn Asphalt gewählt */}
               {(formData.surface_type === 'Asphalt' || formData.surface_type_2 === 'Asphalt') && (
@@ -1179,38 +1168,36 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </CardContent>
               </Card>
 
-              {/* Sektionen für Bilder-Upload */}
-              <div className="space-y-6">
-                <ImageUploadSection 
-                  title="Vorher-Bilder"
-                  description="Bilder vor Beginn der Arbeiten."
-                  images={formData.photos_before}
-                  onImagesChange={(urls) => handleImagesChange('photos_before', urls)}
-                />
-                <ImageUploadSection 
-                  title="Bilder vom Umfeld"
-                  description="Fotos von der Umgebung der Baustelle."
-                  images={formData.photos_environment}
-                  onImagesChange={(urls) => handleImagesChange('photos_environment', urls)}
-                />
-                 <ImageUploadSection 
-                  title="Bilder zur Verfüllung"
-                  description="Fotos, die den Verfüllprozess dokumentieren."
-                  images={formData.photos_backfill}
-                  onImagesChange={(urls) => handleImagesChange('photos_backfill', urls)}
-                />
-                 <ImageUploadSection 
-                  title="Bilder der Oberfläche"
-                  description="Fotos der wiederhergestellten Oberfläche."
-                  images={formData.photos_surface}
-                  onImagesChange={(urls) => handleImagesChange('photos_surface', urls)}
-                />
-                <ImageUploadSection 
-                  title="Aufmaß Bilder"
-                  description="Bilder für das Aufmaß."
-                  images={formData.photos_after}
-                  onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
-                />
+              {/* Bilder-Upload */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Fotodokumentation</h3>
+                <div className="space-y-4">
+                  <ImageUploadSection 
+                    title="Vorher-Bilder"
+                    images={formData.photos_before}
+                    onImagesChange={(urls) => handleImagesChange('photos_before', urls)}
+                  />
+                  <ImageUploadSection 
+                    title="Umfeld-Bilder"
+                    images={formData.photos_environment}
+                    onImagesChange={(urls) => handleImagesChange('photos_environment', urls)}
+                  />
+                  <ImageUploadSection 
+                    title="Verfüllung-Bilder"
+                    images={formData.photos_backfill}
+                    onImagesChange={(urls) => handleImagesChange('photos_backfill', urls)}
+                  />
+                  <ImageUploadSection 
+                    title="Oberfläche-Bilder"
+                    images={formData.photos_surface}
+                    onImagesChange={(urls) => handleImagesChange('photos_surface', urls)}
+                  />
+                  <ImageUploadSection 
+                    title="Aufmaß-Bilder"
+                    images={formData.photos_after}
+                    onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
+                  />
+                </div>
               </div>
 
               <Card className="bg-gray-50/50">
