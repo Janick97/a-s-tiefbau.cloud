@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Save, Shovel, Upload, Camera, AlertTriangle, Trash2, Loader2, MapPin, Navigation, Info, User as UserIcon } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
-import { PriceItem, City, Project, User } from "@/entities/all";
+import { PriceItem, City, Project, User, Material, Excavation, ExcavationMaterial } from "@/entities/all";
 
 // Helper Component for Image Upload Sections
 function ImageUploadSection({ title, description, images = [], onImagesChange, maxFiles = 10 }) {
@@ -160,12 +160,15 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState(getInitialData(excavation, projects, defaultProjectId, null));
   const [priceItems, setPriceItems] = useState([]);
+  const [materials, setMaterials] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
   const [selectedPriceItemUnit, setSelectedPriceItemUnit] = useState(null); // State to hold the effective unit for display
   const [displayCalculatedQuantity, setDisplayCalculatedQuantity] = useState(0); // State to store the effective quantity for display
   const [serviceCategory, setServiceCategory] = useState('grube'); // 'grube', 'graben', 'andere'
+  const [selectedCable, setSelectedCable] = useState(null); // For Graben: selected cable material
+  const [cableLayingMethod, setCableLayingMethod] = useState('auslegen'); // 'auslegen' or 'einziehen'
 
   // Helper to calculate the final monetary price based on current form data and selected item
   const calculatePrice = useCallback(() => {
@@ -315,13 +318,16 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     const loadDropdownData = async () => {
         setIsLoadingData(true);
         try {
-            const [priceData] = await Promise.all([
+            const [priceData, materialsData] = await Promise.all([
                 PriceItem.list('item_number').catch(() => []),
+                Material.filter({ category: 'Kabel' }).catch(() => []),
             ]);
             setPriceItems(Array.isArray(priceData) ? priceData : []);
+            setMaterials(Array.isArray(materialsData) ? materialsData : []);
         } catch (error) {
             console.error("Fehler beim Laden der Formular-Daten:", error);
             setPriceItems([]);
+            setMaterials([]);
         }
         setIsLoadingData(false);
     };
@@ -470,7 +476,53 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         };
         
         console.log('Submitting data:', dataToSubmit);
-        await onSubmit(dataToSubmit);
+        
+        // Haupt-Excavation erstellen
+        const createdExcavation = await onSubmit(dataToSubmit);
+        
+        // Wenn Graben und Kabel ausgewählt: automatisch Kabelverlegung anlegen
+        const selectedItem = priceItems.find(p => p.id === formData.price_item_id);
+        const isGrabenPosition = selectedItem?.unit === 'M' && !anderePositionNumbers.includes(selectedItem?.item_number);
+        
+        if (isGrabenPosition && selectedCable && createdExcavation?.id) {
+          // Position für Kabelverlegung finden
+          const cableItemNumber = cableLayingMethod === 'auslegen' ? '10010413' : '10037463';
+          const cablePriceItem = priceItems.find(p => p.item_number === cableItemNumber);
+          
+          if (cablePriceItem) {
+            // Kabelverlegung als separate Position anlegen
+            const cableExcavationData = {
+              project_id: formData.project_id,
+              price_item_id: cablePriceItem.id,
+              quantity: formData.excavation_length, // Länge des Grabens
+              location_name: autoLocationName || formData.location_name,
+              street: formData.street,
+              house_number: formData.house_number,
+              city: formData.city,
+              latitude: formData.latitude,
+              longitude: formData.longitude,
+              foreman: formData.foreman,
+              foreman_user_id: currentUser?.id || null,
+              calculated_price: (formData.excavation_length || 0) * cablePriceItem.price,
+              notes: `Automatisch angelegt bei Graben - Kabel: ${selectedCable.name}`,
+            };
+            
+            const cableExcavation = await Excavation.create(cableExcavationData);
+            
+            // Material buchen
+            if (cableExcavation?.id) {
+              await ExcavationMaterial.create({
+                excavation_id: cableExcavation.id,
+                material_id: selectedCable.id,
+                quantity_used: formData.excavation_length,
+                used_by: currentUser?.full_name || formData.foreman,
+                used_by_user_id: currentUser?.id,
+                usage_date: new Date().toISOString().split('T')[0],
+                notes: 'Automatisch gebucht bei Grabenerstellung',
+              });
+            }
+          }
+        }
     } catch (error) {
         console.error("Submission failed:", error);
         alert("Fehler beim Speichern der Leistung.");
@@ -743,6 +795,70 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       required
                     />
                   </div>
+                )}
+
+                {/* Kabelauswahl für Graben */}
+                {serviceCategory === 'graben' && (
+                  <Card className="bg-blue-50/50 border-blue-200">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Info className="w-4 h-4 text-blue-600" />
+                        Kabelverlegung (optional)
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="cable">Kabel auswählen</Label>
+                        <Select 
+                          value={selectedCable?.id || ''} 
+                          onValueChange={(value) => {
+                            const cable = materials.find(m => m.id === value);
+                            setSelectedCable(cable || null);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Optional: Kabel auswählen..." />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            <SelectItem value={null}>Kein Kabel</SelectItem>
+                            {materials.map(material => (
+                              <SelectItem key={material.id} value={material.id}>
+                                {material.name} ({material.article_number})
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {selectedCable && (
+                        <div className="space-y-2">
+                          <Label>Verlegeart</Label>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              type="button"
+                              variant={cableLayingMethod === 'auslegen' ? 'default' : 'outline'}
+                              onClick={() => setCableLayingMethod('auslegen')}
+                              className={cableLayingMethod === 'auslegen' ? 'bg-blue-500 hover:bg-blue-600' : ''}
+                            >
+                              Auslegen
+                            </Button>
+                            <Button
+                              type="button"
+                              variant={cableLayingMethod === 'einziehen' ? 'default' : 'outline'}
+                              onClick={() => setCableLayingMethod('einziehen')}
+                              className={cableLayingMethod === 'einziehen' ? 'bg-blue-500 hover:bg-blue-600' : ''}
+                            >
+                              Einziehen
+                            </Button>
+                          </div>
+                          <p className="text-xs text-blue-600">
+                            Position "{cableLayingMethod === 'auslegen' ? '10010413 - Kabel bis 30 mm auslegen' : '10037463 - Kabel in leerer Rohr eingezogen'}" 
+                            wird automatisch mit {formData.excavation_length?.toFixed(2) || 0}m angelegt.
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
                 )}
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
