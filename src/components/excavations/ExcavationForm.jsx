@@ -165,6 +165,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
   const [selectedPriceItemUnit, setSelectedPriceItemUnit] = useState(null); // State to hold the effective unit for display
   const [displayCalculatedQuantity, setDisplayCalculatedQuantity] = useState(0); // State to store the effective quantity for display
+  const [serviceCategory, setServiceCategory] = useState('grube'); // 'grube', 'graben', 'andere'
 
   // Helper to calculate the final monetary price based on current form data and selected item
   const calculatePrice = useCallback(() => {
@@ -499,10 +500,24 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   }, [priceItems, detailDimensionPositions]);
 
   const grabenItems = useMemo(() => {
-    // For "Graben" category, include items with unit 'M' AND other items not in Grube, 
-    // as per the outline's structure that only has two main categories.
-    return priceItems.filter(item => !detailDimensionPositions.includes(item.item_number));
+    return priceItems.filter(item => 
+      !detailDimensionPositions.includes(item.item_number) && item.unit === 'M'
+    );
   }, [priceItems, detailDimensionPositions]);
+
+  const andereItems = useMemo(() => {
+    return priceItems.filter(item => 
+      !detailDimensionPositions.includes(item.item_number) && item.unit !== 'M'
+    );
+  }, [priceItems, detailDimensionPositions]);
+
+  // Get filtered items based on selected category
+  const filteredPriceItems = useMemo(() => {
+    if (serviceCategory === 'grube') return grubenItems;
+    if (serviceCategory === 'graben') return grabenItems;
+    if (serviceCategory === 'andere') return andereItems;
+    return priceItems;
+  }, [serviceCategory, grubenItems, grabenItems, andereItems, priceItems]);
 
   // Generate Google Maps link
   const getGoogleMapsLink = () => {
@@ -529,19 +544,55 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         className="w-full max-w-4xl my-8"
       >
         <Card className="card-elevation border-none">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
-            <CardTitle className="flex items-center gap-2">
-              <Shovel className="w-5 h-5" />
-              {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
-            </CardTitle>
-            <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80 absolute top-4 right-4">
-                <X className="w-4 h-4"/>
-            </Button>
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg py-3 px-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Shovel className="w-5 h-5" />
+                {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
+              </CardTitle>
+              <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80">
+                  <X className="w-4 h-4"/>
+              </Button>
+            </div>
           </CardHeader>
 
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
-              
+
+              {/* Kategorie-Auswahl */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Leistungsart auswählen</Label>
+                <div className="grid grid-cols-3 gap-3">
+                  <Button
+                    type="button"
+                    variant={serviceCategory === 'grube' ? 'default' : 'outline'}
+                    onClick={() => setServiceCategory('grube')}
+                    className={serviceCategory === 'grube' ? 'bg-orange-500 hover:bg-orange-600' : ''}
+                  >
+                    <Shovel className="w-4 h-4 mr-2" />
+                    Grube
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={serviceCategory === 'graben' ? 'default' : 'outline'}
+                    onClick={() => setServiceCategory('graben')}
+                    className={serviceCategory === 'graben' ? 'bg-blue-500 hover:bg-blue-600' : ''}
+                  >
+                    <Shovel className="w-4 h-4 mr-2" />
+                    Graben
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={serviceCategory === 'andere' ? 'default' : 'outline'}
+                    onClick={() => setServiceCategory('andere')}
+                    className={serviceCategory === 'andere' ? 'bg-purple-500 hover:bg-purple-600' : ''}
+                  >
+                    <Shovel className="w-4 h-4 mr-2" />
+                    Andere
+                  </Button>
+                </div>
+              </div>
+
               {/* Standortinformationen */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Standortinformationen</h3>
@@ -640,10 +691,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                           color: #000000 !important;
                         }
                       `}</style>
-                      <SelectItem value="grube-header" disabled className="font-bold bg-orange-50 text-[10px] sm:text-xs">
-                        === GRUBEN ===
-                      </SelectItem>
-                      {grubenItems.map(item => (
+                      {filteredPriceItems.map(item => (
                         <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
                           <div className="flex flex-col gap-0.5">
                             <div className="font-semibold">{item.item_number}</div>
@@ -654,20 +702,11 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                           </div>
                         </SelectItem>
                       ))}
-                      <SelectItem value="graben-header" disabled className="font-bold bg-blue-50 mt-1 text-[10px] sm:text-xs">
-                        === GRÄBEN & ANDERE ===
-                      </SelectItem>
-                      {grabenItems.map(item => (
-                        <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
-                          <div className="flex flex-col gap-0.5">
-                            <div className="font-semibold">{item.item_number}</div>
-                            <div className="line-clamp-2">{item.description}</div>
-                            <div className="font-semibold text-[9px] sm:text-[10px]">
-                              {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {filteredPriceItems.length === 0 && (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          Keine Positionen in dieser Kategorie
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                   {selectedPriceItem && (
