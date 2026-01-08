@@ -445,6 +445,64 @@ export default function Layout({ children, currentPageName }) {
                         );
                       }
 
+                      // Auswertungen mit Untermenü
+                      if (item.hasSubmenu && item.title === 'Auswertungen') {
+                        return (
+                          <Collapsible
+                            key={item.title}
+                            open={auswertungenOpen}
+                            onOpenChange={setAuswertungenOpen}
+                          >
+                            <SidebarMenuItem>
+                              <CollapsibleTrigger asChild>
+                                <SidebarMenuButton
+                                  className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                                    location.pathname.includes('Analytics') ||
+                                    location.pathname.includes('KolonnenUebersicht')
+                                      ? 'bg-white/15 text-white shadow-lg'
+                                      : 'text-white/80'
+                                  }`}
+                                >
+                                  <item.icon className="w-5 h-5" />
+                                  <span className="font-medium">{item.title}</span>
+                                  {auswertungenOpen ? (
+                                    <ChevronDown className="w-4 h-4 ml-auto" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4 ml-auto" />
+                                  )}
+                                </SidebarMenuButton>
+                              </CollapsibleTrigger>
+                              <CollapsibleContent>
+                                <SidebarMenuSub className="ml-4 mt-2 space-y-1">
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <Link 
+                                        to={item.url}
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                      >
+                                        <BarChart3 className="w-4 h-4 mr-2" />
+                                        Standard-Auswertung
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <Link 
+                                        to={createPageUrl("KolonnenUebersicht")}
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                      >
+                                        <UsersIcon className="w-4 h-4 mr-2" />
+                                        Kolonnen-Übersicht
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                              </CollapsibleContent>
+                            </SidebarMenuItem>
+                          </Collapsible>
+                        );
+                      }
+
                       // Verwaltung mit Untermenü
                       if (item.hasSubmenu && item.title === 'Verwaltung' && user?.role === 'admin') {
                         return (
