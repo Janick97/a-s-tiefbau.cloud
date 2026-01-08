@@ -813,7 +813,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="surface_1_sqm">Oberfläche 1 Quadratmeter</Label>
+                  <Label htmlFor="surface_1_sqm">Oberfläche 1 Meter</Label>
                   <Input
                     id="surface_1_sqm"
                     type="number"
@@ -821,7 +821,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     min="0"
                     value={formData.surface_1_sqm}
                     onChange={(e) => handleInputChange('surface_1_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                    placeholder="m²"
+                    placeholder="Meter"
                   />
                 </div>
               </div>
@@ -850,7 +850,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
                 {formData.surface_type_2 && formData.surface_type_2 !== "none" && formData.surface_type_2 !== "" && (
                   <div className="space-y-2">
-                    <Label htmlFor="surface_2_sqm">Oberfläche 2 Quadratmeter</Label>
+                    <Label htmlFor="surface_2_sqm">Oberfläche 2 Meter</Label>
                     <Input
                       id="surface_2_sqm"
                       type="number"
@@ -858,7 +858,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       min="0"
                       value={formData.surface_2_sqm}
                       onChange={(e) => handleInputChange('surface_2_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
-                      placeholder="m²"
+                      placeholder="Meter"
                     />
                   </div>
                 )}
