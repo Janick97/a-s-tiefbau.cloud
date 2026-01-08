@@ -171,30 +171,26 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const calculatePrice = useCallback(() => {
     const priceItem = priceItems.find(item => item.id === formData.price_item_id);
     if (!priceItem) return 0;
-    
+
     // Positions that should show detailed dimensions (alle Grube-Positionen)
     const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
-    
-    // For specific item numbers (10021010, 10021040), use simple quantity * price calculation
-    if (['10021010', '10021040'].includes(priceItem.item_number)) {
-      const result = parseFloat(formData.quantity || 0) * priceItem.price;
-      return result;
-    }
-    
-    // For Grube positions with detailed dimensions
+
+    // For Grube positions with detailed dimensions - use factor
     if (detailDimensionPositions.includes(priceItem.item_number)) {
       const factor = parseFloat(formData.excavation_factor) || 0;
       const result = factor * priceItem.price;
       return result;
     }
-    
-    // For regular ST items
-    if (priceItem.unit === 'ST') {
-      const result = parseFloat(formData.quantity || 0) * priceItem.price;
+
+    // For Graben positions (M unit and not in anderePositionNumbers) - use excavation_length
+    const isGrabenPosition = priceItem.unit === 'M' && !anderePositionNumbers.includes(priceItem.item_number);
+    if (isGrabenPosition) {
+      const length = parseFloat(formData.excavation_length) || 0;
+      const result = length * priceItem.price;
       return result;
-    } 
-    
-    // For Graben items (M unit) or any other default
+    }
+
+    // For all other positions (Andere) - use quantity
     const result = parseFloat(formData.quantity || 0) * priceItem.price;
     return result;
   }, [
@@ -220,23 +216,20 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     const inputQuantity = parseFloat(formData.quantity) || 0;
 
     const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
-    const specialPieceItems = ['10021010', '10021040'];
 
     const isGrubeWithDimensions = detailDimensionPositions.includes(selectedItem.item_number);
-    const isPieceBased = specialPieceItems.includes(selectedItem.item_number) || selectedItem.unit === 'ST';
-    const isGrabenMeterBased = selectedItem.unit === 'M' && !isGrubeWithDimensions;
+    const isGrabenPosition = selectedItem.unit === 'M' && !anderePositionNumbers.includes(selectedItem.item_number);
 
     if (isGrubeWithDimensions) {
         const factor_dim = parseFloat(formData.excavation_factor) || 0;
         effectiveQuantity = factor_dim;
         displayUnit = 'Faktor';
-    } else if (isPieceBased) {
-        effectiveQuantity = inputQuantity;
-        displayUnit = 'ST';
-    } else if (isGrabenMeterBased) {
-        effectiveQuantity = inputQuantity;
+    } else if (isGrabenPosition) {
+        const length = parseFloat(formData.excavation_length) || 0;
+        effectiveQuantity = length;
         displayUnit = 'M';
     } else {
+        // Andere Positionen - use quantity
         effectiveQuantity = inputQuantity;
         displayUnit = selectedItem.unit;
     }
@@ -734,20 +727,23 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="quantity">
-                    Menge * {selectedPriceItem && `(${selectedPriceItem.unit === 'ST' ? 'Stück' : 'Meter'})`}
-                  </Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.quantity}
-                    onChange={(e) => handleInputChange('quantity', parseFloat(e.target.value))}
-                    required
-                  />
-                </div>
+                {/* Menge nur für "Andere" Positionen anzeigen */}
+                {serviceCategory === 'andere' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="quantity">
+                      Menge * {selectedPriceItem && `(${selectedPriceItem.unit === 'ST' ? 'Stück' : 'Meter'})`}
+                    </Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.quantity}
+                      onChange={(e) => handleInputChange('quantity', parseFloat(e.target.value))}
+                      required
+                    />
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
