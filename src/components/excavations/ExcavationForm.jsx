@@ -1183,6 +1183,11 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     onImagesChange={(urls) => handleImagesChange('photos_environment', urls)}
                   />
                   <ImageUploadSection 
+                    title="Aufmaß-Bilder"
+                    images={formData.photos_after}
+                    onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
+                  />
+                  <ImageUploadSection 
                     title="Verfüllung-Bilder"
                     images={formData.photos_backfill}
                     onImagesChange={(urls) => handleImagesChange('photos_backfill', urls)}
@@ -1191,11 +1196,6 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     title="Oberfläche-Bilder"
                     images={formData.photos_surface}
                     onImagesChange={(urls) => handleImagesChange('photos_surface', urls)}
-                  />
-                  <ImageUploadSection 
-                    title="Aufmaß-Bilder"
-                    images={formData.photos_after}
-                    onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
                   />
                 </div>
               </div>
