@@ -494,6 +494,19 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   // Helper to determine form display logic based on position number and type
   const detailDimensionPositions = useMemo(() => ['10001', '10002', '10003', '10004', '10005'], []);
   
+  // Positionen die zu "Andere" gehören (auch wenn sie Einheit 'M' haben)
+  const anderePositionNumbers = useMemo(() => [
+    '10021010', // Pressung/Rohrvortrieb 50 mm
+    '10010413', // Kabel bis 30 mm auslegen
+    '10037473', // 50er Rohr auslegen
+    '10037352', // 100er Rohr auslegen
+    '10037463', // Kabel in leerer Rohr eingezogen
+    '10037372', // Kabel in belegtes Rohr eingezogen
+    '10021040', // Falls es weitere gibt
+    '10037342',
+    '10037363'
+  ], []);
+  
   // Filtering price items into categories for the select dropdown
   const grubenItems = useMemo(() => {
     return priceItems.filter(item => detailDimensionPositions.includes(item.item_number));
@@ -501,15 +514,18 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
   const grabenItems = useMemo(() => {
     return priceItems.filter(item => 
-      !detailDimensionPositions.includes(item.item_number) && item.unit === 'M'
+      !detailDimensionPositions.includes(item.item_number) && 
+      !anderePositionNumbers.includes(item.item_number) &&
+      item.unit === 'M'
     );
-  }, [priceItems, detailDimensionPositions]);
+  }, [priceItems, detailDimensionPositions, anderePositionNumbers]);
 
   const andereItems = useMemo(() => {
     return priceItems.filter(item => 
-      !detailDimensionPositions.includes(item.item_number) && item.unit !== 'M'
+      !detailDimensionPositions.includes(item.item_number) && 
+      (item.unit !== 'M' || anderePositionNumbers.includes(item.item_number))
     );
-  }, [priceItems, detailDimensionPositions]);
+  }, [priceItems, detailDimensionPositions, anderePositionNumbers]);
 
   // Get filtered items based on selected category
   const filteredPriceItems = useMemo(() => {
