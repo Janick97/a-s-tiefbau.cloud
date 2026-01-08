@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Project, User, Excavation } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
@@ -348,18 +347,12 @@ export default function DashboardPage() {
 
           {/* Statistiken */}
           {personalStats && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
               <StatsCard
                 title="Meine Projekte"
                 value={personalStats.assignedProjects}
                 icon={FolderOpen}
                 color="from-blue-500 to-blue-600"
-              />
-              <StatsCard
-                title="Meine Leistungen"
-                value={personalStats.myExcavations}
-                icon={Construction}
-                color="from-green-500 to-green-600"
               />
               <StatsCard
                 title="Mein Umsatz"
