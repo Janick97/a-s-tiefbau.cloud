@@ -477,14 +477,22 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         
         console.log('Submitting data:', dataToSubmit);
         
-        // Haupt-Excavation erstellen
-        const createdExcavation = await onSubmit(dataToSubmit);
-        
-        // Wenn Graben und Kabel ausgewählt: automatisch Kabelverlegung anlegen
+        // Prüfen ob Graben mit Kabel
         const selectedItem = priceItems.find(p => p.id === formData.price_item_id);
         const isGrabenPosition = selectedItem?.unit === 'M' && !anderePositionNumbers.includes(selectedItem?.item_number);
         
-        if (isGrabenPosition && selectedCable && createdExcavation?.id) {
+        // Haupt-Excavation erstellen
+        let createdExcavation;
+        if (excavation) {
+          // Update existing
+          await onSubmit(dataToSubmit);
+        } else {
+          // Create new - direkt mit Excavation.create
+          createdExcavation = await Excavation.create(dataToSubmit);
+        }
+        
+        // Wenn Graben und Kabel ausgewählt: automatisch Kabelverlegung anlegen
+        if (!excavation && isGrabenPosition && selectedCable && createdExcavation?.id) {
           // Position für Kabelverlegung finden
           const cableItemNumber = cableLayingMethod === 'auslegen' ? '10010413' : '10037463';
           const cablePriceItem = priceItems.find(p => p.item_number === cableItemNumber);
@@ -504,6 +512,9 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
               foreman: formData.foreman,
               foreman_user_id: currentUser?.id || null,
               calculated_price: (formData.excavation_length || 0) * cablePriceItem.price,
+              foreman_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.5,
+              backfill_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.2,
+              surface_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.3,
               notes: `Automatisch angelegt bei Graben - Kabel: ${selectedCable.name}`,
             };
             
@@ -523,6 +534,9 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
             }
           }
         }
+        
+        // Call onCancel to close form after successful submission
+        onCancel();
     } catch (error) {
         console.error("Submission failed:", error);
         alert("Fehler beim Speichern der Leistung.");
