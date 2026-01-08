@@ -663,6 +663,15 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       <SelectValue placeholder={isLoadingData ? "Lade..." : "Position auswählen..."} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh]">
+                      <style>{`
+                        [data-radix-select-viewport] [data-state="checked"] {
+                          background-color: #fed7aa !important;
+                          color: #000000 !important;
+                        }
+                        [data-radix-select-viewport] [data-state="checked"] * {
+                          color: #000000 !important;
+                        }
+                      `}</style>
                       <SelectItem value="grube-header" disabled className="font-bold bg-orange-50 text-[10px] sm:text-xs">
                         === GRUBEN ===
                       </SelectItem>
@@ -670,8 +679,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                         <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
                           <div className="flex flex-col gap-0.5">
                             <div className="font-semibold">{item.item_number}</div>
-                            <div className="text-gray-600 line-clamp-2">{item.description}</div>
-                            <div className="text-green-700 font-semibold text-[9px] sm:text-[10px]">
+                            <div className="line-clamp-2">{item.description}</div>
+                            <div className="font-semibold text-[9px] sm:text-[10px]">
                               {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
                             </div>
                           </div>
@@ -684,8 +693,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                         <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
                           <div className="flex flex-col gap-0.5">
                             <div className="font-semibold">{item.item_number}</div>
-                            <div className="text-gray-600 line-clamp-2">{item.description}</div>
-                            <div className="text-green-700 font-semibold text-[9px] sm:text-[10px]">
+                            <div className="line-clamp-2">{item.description}</div>
+                            <div className="font-semibold text-[9px] sm:text-[10px]">
                               {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
                             </div>
                           </div>
