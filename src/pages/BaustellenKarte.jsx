@@ -141,7 +141,14 @@ export default function BaustellenKartePage() {
             photosBackfill: exc.photos_backfill || [],
             photosSurface: exc.photos_surface || [],
             constructionJustification: exc.construction_justification,
-            calculatedPrice: exc.calculated_price
+            calculatedPrice: exc.calculated_price,
+            isBackfilled: exc.is_backfilled,
+            isClosed: exc.is_closed,
+            backfilledBy: exc.backfilled_by,
+            backfilledDate: exc.backfilled_date,
+            closedBy: exc.closed_by,
+            closedDate: exc.closed_date,
+            excavationStatus: exc.status
           });
         }
       }
