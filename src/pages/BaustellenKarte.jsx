@@ -566,6 +566,44 @@ export default function BaustellenKartePage() {
                                   </div>
                                 )}
 
+                                {/* Status der Leistung */}
+                                <div style={{ 
+                                  background: baustelle.isClosed ? '#dcfce7' : baustelle.isBackfilled ? '#fef9c3' : '#fee2e2',
+                                  padding: '12px',
+                                  borderRadius: '8px',
+                                  marginBottom: '12px',
+                                  border: `2px solid ${baustelle.isClosed ? '#22c55e' : baustelle.isBackfilled ? '#eab308' : '#ef4444'}`
+                                }}>
+                                  <div style={{ 
+                                    fontSize: '12px',
+                                    fontWeight: '700',
+                                    color: baustelle.isClosed ? '#166534' : baustelle.isBackfilled ? '#854d0e' : '#991b1b',
+                                    marginBottom: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                  }}>
+                                    <span style={{ fontSize: '16px' }}>
+                                      {baustelle.isClosed ? '✅' : baustelle.isBackfilled ? '🟡' : '🔴'}
+                                    </span>
+                                    {baustelle.isClosed ? 'Fertiggestellt' : baustelle.isBackfilled ? 'Verfüllt - Oberfläche offen' : 'Offen - Nicht verfüllt'}
+                                  </div>
+                                  
+                                  {baustelle.isBackfilled && baustelle.backfilledBy && (
+                                    <div style={{ fontSize: '11px', color: '#713f12', marginBottom: '4px' }}>
+                                      <strong>Verfüllt:</strong> {baustelle.backfilledBy}
+                                      {baustelle.backfilledDate && ` (${new Date(baustelle.backfilledDate).toLocaleDateString('de-DE')})`}
+                                    </div>
+                                  )}
+                                  
+                                  {baustelle.isClosed && baustelle.closedBy && (
+                                    <div style={{ fontSize: '11px', color: '#166534' }}>
+                                      <strong>Geschlossen:</strong> {baustelle.closedBy}
+                                      {baustelle.closedDate && ` (${new Date(baustelle.closedDate).toLocaleDateString('de-DE')})`}
+                                    </div>
+                                  )}
+                                </div>
+
                                 {/* Tiefbaubegründung */}
                                 {baustelle.constructionJustification && (
                                   <div style={{ 
