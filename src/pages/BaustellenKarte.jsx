@@ -870,23 +870,25 @@ export default function BaustellenKartePage() {
         {/* Legende */}
         <Card className="card-elevation border-none mt-6">
           <CardContent className="p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Legende</h3>
-            <div className="flex flex-wrap gap-4">
+            <h3 className="font-semibold text-gray-900 mb-3">Legende - Leistungsstatus</h3>
+            <div className="flex flex-wrap gap-6">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow"></div>
-                <span className="text-sm text-gray-700">Planung</span>
+                <div className="w-5 h-5 rounded-full bg-orange-500 border-3 border-white shadow-lg flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-sm text-gray-700 font-medium">Offen (nicht verfüllt)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow"></div>
-                <span className="text-sm text-gray-700">Aktiv</span>
+                <div className="w-5 h-5 rounded-full bg-yellow-500 border-3 border-white shadow-lg flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-sm text-gray-700 font-medium">Verfüllt (Oberfläche offen)</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-gray-500 border-2 border-white shadow"></div>
-                <span className="text-sm text-gray-700">Abgeschlossen</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 rounded-full bg-orange-500 border-2 border-white shadow"></div>
-                <span className="text-sm text-gray-700">Pausiert</span>
+                <div className="w-5 h-5 rounded-full bg-green-600 border-3 border-white shadow-lg flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white rounded-full"></div>
+                </div>
+                <span className="text-sm text-gray-700 font-medium">Fertiggestellt</span>
               </div>
             </div>
           </CardContent>
