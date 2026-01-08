@@ -351,14 +351,14 @@ export default function BaustellenKartePage() {
                       <MapController center={mapCenter} zoom={mapZoom} />
                       
                       {filteredBaustellen.map((baustelle) => {
-                        const allPhotos = getAllPhotos(baustelle);
-                        
-                        return (
-                          <Marker
-                            key={baustelle.id}
-                            position={[baustelle.latitude, baustelle.longitude]}
-                            icon={createCustomIcon(baustelle.projectStatus)}
-                          >
+                      const allPhotos = getAllPhotos(baustelle);
+
+                      return (
+                        <Marker
+                          key={baustelle.id}
+                          position={[baustelle.latitude, baustelle.longitude]}
+                          icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
+                        >
                             <Popup maxWidth={400} minWidth={350}>
                               {/* Header mit Gradient */}
                               <div style={{ 
