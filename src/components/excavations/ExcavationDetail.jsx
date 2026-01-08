@@ -231,6 +231,20 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
   };
 
   const isGrube = safePriceItem.type === 'Grube';
+  
+  // Positionen die zu "Andere" gehören
+  const anderePositionNumbers = [
+    '10021010', '10010413', '10037473', '10037352',
+    '10037463', '10037372', '10021040', '10037342', '10037363'
+  ];
+  
+  // Grube-Positionen
+  const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+  
+  // Ist es eine Graben-Position?
+  const isGrabenPosition = safePriceItem.unit === 'M' && 
+    !detailDimensionPositions.includes(safePriceItem.item_number) &&
+    !anderePositionNumbers.includes(safePriceItem.item_number);
 
   // Handle image click to open preview modal
   const handleImageClick = (images, index, title) => {
@@ -320,7 +334,12 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
                   €{safeExcavation.calculated_price.toLocaleString('de-DE')}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {isGrube ? `${safeExcavation.quantity.toFixed(2)} m³` : `${safeExcavation.quantity} ${safePriceItem.unit}`}
+                  {detailDimensionPositions.includes(safePriceItem.item_number) 
+                    ? `Faktor: ${safeExcavation.excavation_factor}`
+                    : isGrabenPosition 
+                    ? `${safeExcavation.excavation_length.toFixed(2)} m`
+                    : `${safeExcavation.quantity} ${safePriceItem.unit}`
+                  }
                 </p>
               </div>
             </div>
@@ -406,9 +425,21 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
                   <p className="text-sm font-medium text-gray-700">Menge und Preis</p>
                   <div className="grid grid-cols-2 gap-3 mt-2">
                     <div className="text-center p-2 bg-white rounded border">
-                      <p className="text-xs text-gray-500">Menge</p>
+                      <p className="text-xs text-gray-500">
+                        {detailDimensionPositions.includes(safePriceItem.item_number) 
+                          ? 'Faktor'
+                          : isGrabenPosition 
+                          ? 'Länge'
+                          : 'Menge'
+                        }
+                      </p>
                       <p className="font-semibold">
-                        {isGrube ? `${safeExcavation.quantity.toFixed(2)} m³` : `${safeExcavation.quantity} ${safePriceItem.unit}`}
+                        {detailDimensionPositions.includes(safePriceItem.item_number) 
+                          ? safeExcavation.excavation_factor
+                          : isGrabenPosition 
+                          ? `${safeExcavation.excavation_length.toFixed(2)} m`
+                          : `${safeExcavation.quantity} ${safePriceItem.unit}`
+                        }
                       </p>
                     </div>
                     <div className="text-center p-2 bg-white rounded border">
@@ -545,7 +576,7 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
                 {renderImageGallery(safeExcavation.photos_environment, "Umfeld-Bilder")}
                 {renderImageGallery(safeExcavation.photos_backfill, "Verfüllung-Bilder")}
                 {renderImageGallery(safeExcavation.photos_surface, "Oberfläche-Bilder")}
-                {renderImageGallery(safeExcavation.photos_after, "Nachher-Bilder")}
+                {renderImageGallery(safeExcavation.photos_after, "Aufmaß Bilder")}
               </div>
 
               {/* Fallback wenn keine Bilder vorhanden */}
