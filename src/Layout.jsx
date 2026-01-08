@@ -115,6 +115,7 @@ export default function Layout({ children, currentPageName }) {
   const [dispositionOpen, setDispositionOpen] = React.useState(false);
   const [dispositionMontageOpen, setDispositionMontageOpen] = React.useState(false);
   const [verwaltungOpen, setVerwaltungOpen] = React.useState(false);
+  const [auswertungenOpen, setAuswertungenOpen] = React.useState(false);
 
   React.useEffect(() => {
     const loadUser = async () => {
