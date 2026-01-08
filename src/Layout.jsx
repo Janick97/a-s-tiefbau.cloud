@@ -8,7 +8,7 @@ import {
   Shovel,
   BarChart3,
   Settings,
-  Users,
+  Users as UsersIcon,
   Construction,
   ListRestart,
   AlertTriangle,
