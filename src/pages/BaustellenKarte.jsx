@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Project, Excavation } from "@/entities/all";
@@ -33,31 +32,41 @@ function MapController({ center, zoom }) {
   return null;
 }
 
-// Custom Marker Icons basierend auf Status
-const createCustomIcon = (status) => {
-  const colors = {
-    planning: '#3b82f6',
-    active: '#22c55e',
-    completed: '#6b7280',
-    on_hold: '#f97316'
-  };
+// Custom Marker Icons - IMMER Orange für bessere Sichtbarkeit
+const createCustomIcon = (isBackfilled, isClosed) => {
+  // Verschiedene Orange-Töne je nach Status
+  let color = '#f97316'; // Standard Orange
   
-  const color = colors[status] || '#f97316';
+  if (isClosed) {
+    color = '#16a34a'; // Grün wenn komplett fertig
+  } else if (isBackfilled) {
+    color = '#eab308'; // Gelb wenn nur verfüllt
+  }
   
   return L.divIcon({
     className: 'custom-marker',
     html: `<div style="
       background-color: ${color};
-      width: 24px;
-      height: 24px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    "></div>`,
-    iconSize: [24, 24],
-    iconAnchor: [12, 24],
-    popupAnchor: [0, -24]
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 4px solid white;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <div style="
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.9;
+      "></div>
+    </div>`,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14]
   });
 };
 
