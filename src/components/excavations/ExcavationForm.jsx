@@ -626,26 +626,15 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="postal_code">PLZ</Label>
-                    <Input
-                      id="postal_code"
-                      value={formData.postal_code}
-                      onChange={(e) => handleInputChange('postal_code', e.target.value)}
-                      placeholder="Automatisch"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Stadt *</Label>
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      placeholder="Wird automatisch erfasst..."
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Stadt *</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    placeholder="Wird automatisch erfasst..."
+                    required
+                  />
                 </div>
               </div>
 
@@ -990,33 +979,12 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
               </div>
             </div>
 
-            {/* Status & Zuordnung (Bauleiter) - now read-only */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Status & Zuordnung</h3>
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <UserIcon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <Label className="text-sm font-medium text-blue-900">Erfasst von</Label>
-                    <p className="text-lg font-semibold text-blue-800">
-                      {currentUser?.full_name || formData.foreman || 'Lädt...'}
-                    </p>
-                    <p className="text-xs text-blue-600 mt-1">
-                      Die Leistung wird automatisch Ihrem Benutzerkonto zugeordnet
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Sektion Tiefbaubegründung */}
             <Card className="bg-gray-50/50">
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-red-500" />
-                        Tiefbaubegründung *
+                        <AlertTriangle className="w-5 h-5 text-orange-500" />
+                        Tiefbaubegründung
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1026,7 +994,6 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                         onChange={(e) => handleInputChange('construction_justification', e.target.value)}
                         placeholder="Begründung für die Tiefbaumaßnahme (z.B. Kabelverlegung, Störungsbeseitigung, Hausanschluss, etc.)"
                         className="min-h-20"
-                        required
                     />
                 </CardContent>
               </Card>
@@ -1058,8 +1025,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   onImagesChange={(urls) => handleImagesChange('photos_surface', urls)}
                 />
                 <ImageUploadSection 
-                  title="Nachher-Bilder"
-                  description="Bilder nach Abschluss der Arbeiten."
+                  title="Aufmaß Bilder"
+                  description="Bilder für das Aufmaß."
                   images={formData.photos_after}
                   onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
                 />
