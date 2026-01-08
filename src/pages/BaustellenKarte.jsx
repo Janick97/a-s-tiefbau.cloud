@@ -190,6 +190,16 @@ export default function BaustellenKartePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-4 md:p-8">
       <style>{`
+        .custom-marker-icon {
+          background: transparent !important;
+          border: none !important;
+        }
+        .leaflet-marker-icon {
+          transition: transform 0.2s ease;
+        }
+        .leaflet-marker-icon:hover {
+          transform: scale(1.2);
+        }
         .leaflet-popup-content-wrapper {
           background: white !important;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
