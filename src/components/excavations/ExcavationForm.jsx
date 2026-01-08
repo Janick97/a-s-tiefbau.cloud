@@ -108,17 +108,19 @@ function ImageUploadSection({ title, description, images = [], onImagesChange, m
 }
 
 // Helper function to get initial form data, now accepting projects and defaultProjectId, and currentUser
-const getInitialData = (excavation, projects = [], defaultProjectId = null, currentUser = null) => ({
+const getInitialData = (excavation, projects = [], defaultProjectId = null, currentUser = null) => {
+  // Find the project to prefill address
+  const project = projects.find(p => p.id === (excavation?.project_id || defaultProjectId)) || projects[0];
+  
+  return {
     project_id: excavation?.project_id || defaultProjectId || (projects.length === 1 ? projects[0].id : ''),
     price_item_id: excavation?.price_item_id || '',
-    // For Grube/Graben, quantity is now the user input (e.g., length in meters, or number of pits)
-    // For ST, it's pieces. It's no longer the derived volume for Grube from initial data.
     quantity: parseFloat(excavation?.quantity) || 1, 
     location_name: excavation?.location_name || '',
-    street: excavation?.street || '',
+    street: excavation?.street || project?.street || '',
     house_number: excavation?.house_number || '',
     postal_code: excavation?.postal_code || '',
-    city: excavation?.city || '',
+    city: excavation?.city || project?.city || '',
     latitude: excavation?.latitude || null,
     longitude: excavation?.longitude || null,
     excavation_length: parseFloat(excavation?.excavation_length) || 1.2,
@@ -127,6 +129,8 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     excavation_factor: parseFloat(excavation?.excavation_factor) || 1,
     surface_type: excavation?.surface_type || '',
     surface_type_2: excavation?.surface_type_2 || null,
+    surface_1_sqm: excavation?.surface_1_sqm !== undefined && excavation?.surface_1_sqm !== null ? parseFloat(excavation.surface_1_sqm) : '',
+    surface_2_sqm: excavation?.surface_2_sqm !== undefined && excavation?.surface_2_sqm !== null ? parseFloat(excavation.surface_2_sqm) : '',
     asphalt_thickness: excavation?.asphalt_thickness !== undefined && excavation?.asphalt_thickness !== null ? parseFloat(excavation.asphalt_thickness) : '',
     concrete_base_used: excavation?.concrete_base_used || false,
     mortar_used: excavation?.mortar_used || false,
@@ -149,7 +153,8 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     foreman_user_id: excavation?.foreman_user_id || null,
     notes: excavation?.notes || '',
     construction_justification: excavation?.construction_justification || '',
-});
+  };
+};
 
 export default function ExcavationForm({ excavation, projects = [], defaultProjectId, onSubmit, onCancel }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -375,13 +380,41 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
       const { latitude, longitude } = position.coords;
       
-      setFormData(prev => ({
-        ...prev,
-        latitude, 
-        longitude,
-      }));
-      
-      alert("GPS-Standort erfolgreich erfasst! Sie können jetzt die Adresse manuell eingeben.");
+      // Reverse Geocoding mit Nominatim
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`,
+          { headers: { 'Accept-Language': 'de' } }
+        );
+        const data = await response.json();
+        
+        if (data.address) {
+          setFormData(prev => ({
+            ...prev,
+            latitude,
+            longitude,
+            street: data.address.road || prev.street,
+            house_number: data.address.house_number || '',
+            postal_code: data.address.postcode || prev.postal_code,
+            city: data.address.city || data.address.town || data.address.village || prev.city,
+          }));
+          alert("Standort und Adresse erfolgreich erfasst! Sie können die Daten noch anpassen.");
+        } else {
+          throw new Error("Adresse konnte nicht ermittelt werden");
+        }
+      } catch (geocodeError) {
+        console.error("Reverse Geocoding fehlgeschlagen:", geocodeError);
+        // Fallback: Projektdaten verwenden
+        const project = projects.find(p => p.id === formData.project_id);
+        setFormData(prev => ({
+          ...prev,
+          latitude,
+          longitude,
+          street: project?.street || prev.street,
+          city: project?.city || prev.city,
+        }));
+        alert("GPS erfasst! Adresse wurde mit Projektdaten vorausgefüllt. Bitte prüfen und anpassen.");
+      }
 
     } catch (error) {
       console.error("Fehler beim Abrufen des Standorts:", error);
@@ -389,16 +422,16 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
       
       switch(error.code) {
         case error.PERMISSION_DENIED:
-          errorMessage += "GPS-Berechtigung wurde verweigert. Bitte erlauben Sie den Zugriff auf Ihren Standort in den Browsereinstellungen.";
+          errorMessage += "GPS-Berechtigung wurde verweigert.";
           break;
         case error.POSITION_UNAVAILABLE:
-          errorMessage += "Standortinformationen sind nicht verfügbar. Bitte stellen Sie sicher, dass GPS aktiviert ist.";
+          errorMessage += "Standortinformationen sind nicht verfügbar.";
           break;
         case error.TIMEOUT:
-          errorMessage += "Zeitüberschreitung beim Abrufen des Standorts. Versuchen Sie es erneut.";
+          errorMessage += "Zeitüberschreitung. Versuchen Sie es erneut.";
           break;
         default:
-          errorMessage += `Unbekannter Fehler beim GPS-Zugriff: ${error.message || error}.`;
+          errorMessage += error.message || "Unbekannter Fehler.";
       }
       
       alert(errorMessage);
@@ -411,18 +444,27 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     e.preventDefault();
     setIsSubmitting(true);
     try {
-        const calculatedPrice = calculatePrice(); // Ensure the latest price is used
+        const calculatedPrice = calculatePrice();
 
         // Provisionen berechnen
         const totalPrice = calculatedPrice || 0;
-        const foremanCommission = totalPrice * 0.5;  // 50% für Bauleiter
-        const backfillCommission = totalPrice * 0.2; // 20% für Verfüllung
-        const surfaceCommission = totalPrice * 0.3;  // 30% für Oberfläche
+        const foremanCommission = totalPrice * 0.5;
+        const backfillCommission = totalPrice * 0.2;
+        const surfaceCommission = totalPrice * 0.3;
+
+        // Automatische Standortbezeichnung: Stadt Straße Hausnummer
+        const autoLocationName = [
+          formData.city,
+          formData.street,
+          formData.house_number
+        ].filter(Boolean).join(' ');
 
         const dataToSubmit = { 
           ...formData,
-          // Convert empty strings to null for numeric fields
+          location_name: autoLocationName || formData.location_name,
           asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+          surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
+          surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
           curb_length: formData.curb_length === '' ? null : formData.curb_length,
           edge_stone_length: formData.edge_stone_length === '' ? null : formData.edge_stone_length,
           gutter_length: formData.gutter_length === '' ? null : formData.gutter_length,
@@ -525,15 +567,41 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Standortinformationen</h3>
                 
+                {/* GPS Button zuerst */}
                 <div className="space-y-2">
-                  <Label htmlFor="location_name">Standortbezeichnung *</Label>
-                  <Input
-                    id="location_name"
-                    value={formData.location_name}
-                    onChange={(e) => handleInputChange('location_name', e.target.value)}
-                    placeholder="z.B. Hausanschluss, Schrankstandort..."
-                    required
-                  />
+                    <Label>GPS-Standort erfassen</Label>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleFetchLocation}
+                            disabled={isFetchingLocation}
+                            className="flex-1 sm:flex-none"
+                        >
+                            {isFetchingLocation ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <MapPin className="w-4 h-4 mr-2" />
+                            )}
+                            Standort erfassen
+                        </Button>
+                        {formData.latitude && formData.longitude && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => window.open(googleMapsLink, '_blank')}
+                                className="flex-1 sm:flex-none"
+                            >
+                                <Navigation className="w-4 h-4 mr-2" />
+                                Karte öffnen
+                            </Button>
+                        )}
+                    </div>
+                    {formData.latitude && formData.longitude && (
+                      <p className="text-xs text-green-600">
+                        ✓ GPS erfasst: {formData.latitude.toFixed(6)}, {formData.longitude.toFixed(6)}
+                      </p>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -543,6 +611,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       id="street"
                       value={formData.street}
                       onChange={(e) => handleInputChange('street', e.target.value)}
+                      placeholder="Wird automatisch erfasst..."
                       required
                     />
                   </div>
@@ -552,6 +621,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       id="house_number"
                       value={formData.house_number}
                       onChange={(e) => handleInputChange('house_number', e.target.value)}
+                      placeholder="Nr."
                     />
                   </div>
                 </div>
@@ -563,6 +633,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       id="postal_code"
                       value={formData.postal_code}
                       onChange={(e) => handleInputChange('postal_code', e.target.value)}
+                      placeholder="Automatisch"
                     />
                   </div>
                   <div className="space-y-2">
@@ -571,69 +642,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       id="city"
                       value={formData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="Wird automatisch erfasst..."
                       required
-                    />
-                  </div>
-                </div>
-                
-                {/* GPS section */}
-                <div className="space-y-2">
-                    <Label>GPS-Standort</Label>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleFetchLocation}
-                            disabled={isFetchingLocation}
-                        >
-                            {isFetchingLocation ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            ) : (
-                                <MapPin className="w-4 h-4 mr-2" />
-                            )}
-                            Standort erfassen
-                        </Button>
-                        {formData.latitude && formData.longitude && (
-                          <>
-                            <Input
-                                value={`${formData.latitude.toFixed(6)}, ${formData.longitude.toFixed(6)}`}
-                                readOnly
-                                className="bg-gray-100 text-sm flex-grow min-w-[150px]"
-                            />
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => window.open(googleMapsLink, '_blank')}
-                            >
-                                <Navigation className="w-4 h-4 mr-2" />
-                                In Google Maps öffnen
-                            </Button>
-                          </>
-                        )}
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="latitude">GPS Breitengrad</Label>
-                    <Input
-                      id="latitude"
-                      type="number"
-                      step="any"
-                      value={formData.latitude || ''}
-                      onChange={(e) => handleInputChange('latitude', parseFloat(e.target.value))}
-                      placeholder="z.B. 51.1657"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="longitude">GPS Längengrad</Label>
-                    <Input
-                      id="longitude"
-                      type="number"
-                      step="any"
-                      value={formData.longitude || ''}
-                      onChange={(e) => handleInputChange('longitude', parseFloat(e.target.value))}
-                      placeholder="z.B. 10.4515"
                     />
                   </div>
                 </div>
@@ -653,27 +663,31 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       <SelectValue placeholder={isLoadingData ? "Lade..." : "Position auswählen..."} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[60vh]">
-                      <SelectItem value="grube-header" disabled className="font-bold bg-orange-50 text-xs sm:text-sm">
+                      <SelectItem value="grube-header" disabled className="font-bold bg-orange-50 text-[10px] sm:text-xs">
                         === GRUBEN ===
                       </SelectItem>
                       {grubenItems.map(item => (
-                        <SelectItem key={item.id} value={item.id} className="py-3 text-xs sm:text-sm leading-tight">
-                          <div className="flex flex-col gap-1">
-                            <div className="font-medium">{item.item_number}</div>
-                            <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
-                            <div className="text-green-700 font-semibold">{item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</div>
+                        <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="font-semibold">{item.item_number}</div>
+                            <div className="text-gray-600 line-clamp-2">{item.description}</div>
+                            <div className="text-green-700 font-semibold text-[9px] sm:text-[10px]">
+                              {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
-                      <SelectItem value="graben-header" disabled className="font-bold bg-blue-50 mt-2 text-xs sm:text-sm">
+                      <SelectItem value="graben-header" disabled className="font-bold bg-blue-50 mt-1 text-[10px] sm:text-xs">
                         === GRÄBEN & ANDERE ===
                       </SelectItem>
                       {grabenItems.map(item => (
-                        <SelectItem key={item.id} value={item.id} className="py-3 text-xs sm:text-sm leading-tight">
-                          <div className="flex flex-col gap-1">
-                            <div className="font-medium">{item.item_number}</div>
-                            <div className="text-gray-600 whitespace-normal break-words">{item.description}</div>
-                            <div className="text-green-700 font-semibold">{item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</div>
+                        <SelectItem key={item.id} value={item.id} className="py-2 text-[10px] sm:text-xs leading-tight">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="font-semibold">{item.item_number}</div>
+                            <div className="text-gray-600 line-clamp-2">{item.description}</div>
+                            <div className="text-green-700 font-semibold text-[9px] sm:text-[10px]">
+                              {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
@@ -799,6 +813,21 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="surface_1_sqm">Oberfläche 1 Quadratmeter</Label>
+                  <Input
+                    id="surface_1_sqm"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={formData.surface_1_sqm}
+                    onChange={(e) => handleInputChange('surface_1_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                    placeholder="m²"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="surface_type_2">Oberfläche 2 (optional)</Label>
                   <Select 
                     value={formData.surface_type_2 === null || formData.surface_type_2 === '' ? "none" : formData.surface_type_2} 
@@ -817,12 +846,22 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       <SelectItem value="Asphalt">Asphalt</SelectItem>
                     </SelectContent>
                   </Select>
-                  {formData.surface_type_2 && formData.surface_type_2 !== "" && (
-                    <p className="text-xs text-blue-600">
-                      Es wurde eine zweite Oberfläche ausgewählt
-                    </p>
-                  )}
                 </div>
+
+                {formData.surface_type_2 && formData.surface_type_2 !== "none" && formData.surface_type_2 !== "" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="surface_2_sqm">Oberfläche 2 Quadratmeter</Label>
+                    <Input
+                      id="surface_2_sqm"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={formData.surface_2_sqm}
+                      onChange={(e) => handleInputChange('surface_2_sqm', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                      placeholder="m²"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Asphaltdicke - nur wenn Asphalt gewählt */}
