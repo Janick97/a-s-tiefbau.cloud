@@ -894,45 +894,47 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   </Card>
                 )}
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="excavation_length">Länge (m)</Label>
-                    <Input
-                      id="excavation_length"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      value={formData.excavation_length}
-                      onChange={(e) => handleInputChange('excavation_length', parseFloat(e.target.value))}
-                    />
+                <div className="space-y-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="excavation_length">L (m)</Label>
+                      <Input
+                        id="excavation_length"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={formData.excavation_length}
+                        onChange={(e) => handleInputChange('excavation_length', parseFloat(e.target.value))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="excavation_width">B (m)</Label>
+                      <Input
+                        id="excavation_width"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={formData.excavation_width}
+                        onChange={(e) => handleInputChange('excavation_width', parseFloat(e.target.value))}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="excavation_depth">T (m)</Label>
+                      <Input
+                        id="excavation_depth"
+                        type="number"
+                        step="0.1"
+                        min="0"
+                        value={formData.excavation_depth}
+                        onChange={(e) => handleInputChange('excavation_depth', parseFloat(e.target.value))}
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="excavation_width">Breite (m)</Label>
-                    <Input
-                      id="excavation_width"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      value={formData.excavation_width}
-                      onChange={(e) => handleInputChange('excavation_width', parseFloat(e.target.value))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="excavation_depth">Tiefe (m)</Label>
-                    <Input
-                      id="excavation_depth"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      value={formData.excavation_depth}
-                      onChange={(e) => handleInputChange('excavation_depth', parseFloat(e.target.value))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="excavation_factor" className="flex items-center gap-1">
+                    <Label htmlFor="excavation_factor" className="flex items-center gap-1 text-sm text-gray-600">
                       Faktor
                       {selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) && (
-                        <span className="text-xs text-blue-600">(auto)</span>
+                        <span className="text-xs text-blue-600">(automatisch berechnet)</span>
                       )}
                     </Label>
                     <Input
