@@ -397,26 +397,28 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
                 {isGrube && (safeExcavation.excavation_length || safeExcavation.excavation_width || safeExcavation.excavation_depth) && (
                   <div>
                     <p className="text-sm font-medium text-gray-700">Grubenabmessungen</p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-2">
-                      <div className="text-center p-2 bg-white rounded border">
-                        <p className="text-xs text-gray-500">Länge</p>
-                        <p className="font-semibold">{(safeExcavation.excavation_length || 0).toFixed(2)} m</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <div className="flex items-center gap-1 p-2 bg-white rounded border">
+                        <span className="text-xs text-gray-500">L:</span>
+                        <span className="font-semibold">{(safeExcavation.excavation_length || 0).toFixed(2)}</span>
                       </div>
-                      <div className="text-center p-2 bg-white rounded border">
-                        <p className="text-xs text-gray-500">Breite</p>
-                        <p className="font-semibold">{(safeExcavation.excavation_width || 0).toFixed(2)} m</p>
+                      <span className="text-gray-400">×</span>
+                      <div className="flex items-center gap-1 p-2 bg-white rounded border">
+                        <span className="text-xs text-gray-500">B:</span>
+                        <span className="font-semibold">{(safeExcavation.excavation_width || 0).toFixed(2)}</span>
                       </div>
-                      <div className="text-center p-2 bg-white rounded border">
-                        <p className="text-xs text-gray-500">Tiefe</p>
-                        <p className="font-semibold">{(safeExcavation.excavation_depth || 0).toFixed(2)} m</p>
+                      <span className="text-gray-400">×</span>
+                      <div className="flex items-center gap-1 p-2 bg-white rounded border">
+                        <span className="text-xs text-gray-500">T:</span>
+                        <span className="font-semibold">{(safeExcavation.excavation_depth || 0).toFixed(2)}</span>
                       </div>
-                      <div className="text-center p-2 bg-white rounded border">
-                        <p className="text-xs text-gray-500">Faktor</p>
-                        <p className="font-semibold">{safeExcavation.excavation_factor}</p>
-                      </div>
+                      <span className="text-gray-400 ml-2">m</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-2">
                       Volumen: {(safeExcavation.excavation_length * safeExcavation.excavation_width * safeExcavation.excavation_depth * safeExcavation.excavation_factor).toFixed(2)} m³
+                      {safeExcavation.excavation_factor !== 1 && (
+                        <span className="ml-2 text-gray-400">(Faktor: {safeExcavation.excavation_factor})</span>
+                      )}
                     </p>
                   </div>
                 )}
