@@ -489,20 +489,31 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         } else {
           // Create new - direkt mit Excavation.create
           createdExcavation = await Excavation.create(dataToSubmit);
+          console.log('Created excavation:', createdExcavation);
         }
         
         // Wenn Graben und Kabel ausgewählt: automatisch Kabelverlegung anlegen
         if (!excavation && isGrabenPosition && selectedCable && createdExcavation?.id) {
+          console.log('Creating cable position for cable:', selectedCable);
+          
           // Position für Kabelverlegung finden
           const cableItemNumber = cableLayingMethod === 'auslegen' ? '10010413' : '10037463';
           const cablePriceItem = priceItems.find(p => p.item_number === cableItemNumber);
           
+          console.log('Cable price item:', cablePriceItem);
+          
           if (cablePriceItem) {
+            const cablePrice = (formData.excavation_length || 0) * cablePriceItem.price;
+            
             // Kabelverlegung als separate Position anlegen
             const cableExcavationData = {
               project_id: formData.project_id,
               price_item_id: cablePriceItem.id,
               quantity: formData.excavation_length, // Länge des Grabens
+              excavation_length: formData.excavation_length,
+              excavation_width: 0.3,
+              excavation_depth: 0.3,
+              excavation_factor: 1,
               location_name: autoLocationName || formData.location_name,
               street: formData.street,
               house_number: formData.house_number,
@@ -511,18 +522,21 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
               longitude: formData.longitude,
               foreman: formData.foreman,
               foreman_user_id: currentUser?.id || null,
-              calculated_price: (formData.excavation_length || 0) * cablePriceItem.price,
-              foreman_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.5,
-              backfill_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.2,
-              surface_commission: ((formData.excavation_length || 0) * cablePriceItem.price) * 0.3,
+              calculated_price: cablePrice,
+              foreman_commission: cablePrice * 0.5,
+              backfill_commission: cablePrice * 0.2,
+              surface_commission: cablePrice * 0.3,
               notes: `Automatisch angelegt bei Graben - Kabel: ${selectedCable.name}`,
+              surface_type: formData.surface_type || 'unbefestigt',
             };
             
+            console.log('Creating cable excavation with data:', cableExcavationData);
             const cableExcavation = await Excavation.create(cableExcavationData);
+            console.log('Created cable excavation:', cableExcavation);
             
             // Material buchen
             if (cableExcavation?.id) {
-              await ExcavationMaterial.create({
+              const materialData = {
                 excavation_id: cableExcavation.id,
                 material_id: selectedCable.id,
                 quantity_used: formData.excavation_length,
@@ -530,7 +544,11 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 used_by_user_id: currentUser?.id,
                 usage_date: new Date().toISOString().split('T')[0],
                 notes: 'Automatisch gebucht bei Grabenerstellung',
-              });
+              };
+              
+              console.log('Creating material booking with data:', materialData);
+              const materialBooking = await ExcavationMaterial.create(materialData);
+              console.log('Created material booking:', materialBooking);
             }
           }
         }
@@ -539,7 +557,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         onCancel();
     } catch (error) {
         console.error("Submission failed:", error);
-        alert("Fehler beim Speichern der Leistung.");
+        alert("Fehler beim Speichern der Leistung: " + error.message);
     } finally {
         setIsSubmitting(false);
     }
