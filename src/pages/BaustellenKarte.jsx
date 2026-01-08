@@ -818,26 +818,51 @@ export default function BaustellenKartePage() {
                         key={baustelle.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="border rounded-lg p-3 hover:bg-orange-50 transition-colors cursor-pointer"
+                        className={`border-2 rounded-lg p-3 hover:bg-orange-50 transition-colors cursor-pointer ${
+                          baustelle.isClosed ? 'border-green-400 bg-green-50/50' : 
+                          baustelle.isBackfilled ? 'border-yellow-400 bg-yellow-50/50' : 
+                          'border-orange-400 bg-orange-50/50'
+                        }`}
                         onClick={() => handleBaustelleClick(baustelle)}
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-semibold text-sm text-gray-900 truncate">
-                              {baustelle.projectNumber}
-                            </h4>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                                baustelle.isClosed ? 'bg-green-500' : 
+                                baustelle.isBackfilled ? 'bg-yellow-500' : 
+                                'bg-orange-500'
+                              }`}></span>
+                              <h4 className="font-semibold text-sm text-gray-900 truncate">
+                                {baustelle.projectNumber}
+                              </h4>
+                            </div>
                             <p className="text-xs text-gray-600 truncate">
                               {baustelle.locationName}
                             </p>
                           </div>
-                          <Badge variant="outline" className="text-xs ml-2 flex-shrink-0">
-                            {statusLabels[baustelle.projectStatus]}
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs ml-2 flex-shrink-0 ${
+                              baustelle.isClosed ? 'bg-green-100 text-green-800 border-green-300' : 
+                              baustelle.isBackfilled ? 'bg-yellow-100 text-yellow-800 border-yellow-300' : 
+                              'bg-orange-100 text-orange-800 border-orange-300'
+                            }`}
+                          >
+                            {baustelle.isClosed ? 'Fertig' : baustelle.isBackfilled ? 'Verfüllt' : 'Offen'}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
                           <MapPin className="w-3 h-3" />
                           <span className="truncate">{baustelle.city}</span>
+                          {baustelle.street && <span className="truncate">• {baustelle.street}</span>}
                         </div>
+                        {baustelle.surfaceType && (
+                          <div className="text-xs text-gray-600 mb-2">
+                            <span className="font-medium">Oberfläche:</span> {baustelle.surfaceType}
+                            {baustelle.surfaceType2 && `, ${baustelle.surfaceType2}`}
+                          </div>
+                        )}
                         <div className="flex justify-between items-center">
                           <Button
                             variant="ghost"
