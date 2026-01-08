@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Project, User, Excavation } from "@/entities/all";
+import { Project, User, Excavation, PriceItem } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FolderOpen,
@@ -20,7 +23,10 @@ import {
   AlertTriangle,
   Euro,
   Loader2,
-  BarChart3
+  BarChart3,
+  ChevronDown,
+  ChevronUp,
+  Shovel
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -51,18 +57,22 @@ export default function MyProjectsPage() {
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
   const [excavations, setExcavations] = useState([]);
+  const [priceItems, setPriceItems] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [projectStatusFilter, setProjectStatusFilter] = useState('all');
   const [showCompletedProjects, setShowCompletedProjects] = useState(false);
+  const [expandedProjects, setExpandedProjects] = useState({});
   const [confirmDialog, setConfirmDialog] = useState({
     show: false,
     projectId: null,
     projectTitle: null
   });
   const [completing, setCompleting] = useState(null);
+  const [closureDialog, setClosureDialog] = useState({ show: false, excavation: null });
+  const [backfillDialog, setBackfillDialog] = useState({ show: false, excavation: null });
 
   const filterProjects = useCallback(() => {
     let filtered = [...projects];
@@ -109,14 +119,16 @@ export default function MyProjectsPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [userData, projectsData, excavationsData] = await Promise.all([
+      const [userData, projectsData, excavationsData, priceItemsData] = await Promise.all([
         User.me().catch(() => null),
         Project.list("-created_date").catch(() => []),
-        Excavation.list("-created_date").catch(() => [])
+        Excavation.list("-created_date").catch(() => []),
+        PriceItem.list("item_number").catch(() => [])
       ]);
 
       setUser(userData);
       setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
+      setPriceItems(Array.isArray(priceItemsData) ? priceItemsData : []);
 
       if (userData && userData.position === 'Bauleiter') {
         const userAssignedProjects = (Array.isArray(projectsData) ? projectsData : []).filter(project =>
@@ -132,6 +144,7 @@ export default function MyProjectsPage() {
       console.error("Fehler beim Laden der Projekte:", error);
       setProjects([]);
       setExcavations([]);
+      setPriceItems([]);
     }
     setIsLoading(false);
   };
@@ -188,6 +201,76 @@ export default function MyProjectsPage() {
 
   const cancelMarkAsCompleted = () => {
     setConfirmDialog({ show: false, projectId: null, projectTitle: null });
+  };
+
+  const toggleProjectExpanded = (projectId) => {
+    setExpandedProjects(prev => ({
+      ...prev,
+      [projectId]: !prev[projectId]
+    }));
+  };
+
+  const handleClosureToggle = (excavation, checked) => {
+    if (checked) {
+      setClosureDialog({ show: true, excavation });
+    } else {
+      updateExcavationClosure(excavation.id, false, null, null);
+    }
+  };
+
+  const handleBackfillToggle = (excavation, checked) => {
+    if (checked) {
+      setBackfillDialog({ show: true, excavation });
+    } else {
+      updateExcavationBackfill(excavation.id, false, null, null);
+    }
+  };
+
+  const updateExcavationClosure = async (excavationId, is_closed, closed_date, closed_by) => {
+    try {
+      await Excavation.update(excavationId, { is_closed, closed_date, closed_by, closed_by_user_id: user?.id });
+      await loadData();
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren:", error);
+    }
+  };
+
+  const updateExcavationBackfill = async (excavationId, is_backfilled, backfilled_date, backfilled_by) => {
+    try {
+      await Excavation.update(excavationId, { is_backfilled, backfilled_date, backfilled_by, backfilled_by_user_id: user?.id });
+      await loadData();
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren:", error);
+    }
+  };
+
+  const confirmClosure = async () => {
+    if (!closureDialog.excavation) return;
+    const { excavation } = closureDialog;
+    await updateExcavationClosure(
+      excavation.id,
+      true,
+      new Date().toISOString().split('T')[0],
+      user?.full_name || 'Nicht angegeben'
+    );
+    setClosureDialog({ show: false, excavation: null });
+  };
+
+  const confirmBackfill = async () => {
+    if (!backfillDialog.excavation) return;
+    const { excavation } = backfillDialog;
+    await updateExcavationBackfill(
+      excavation.id,
+      true,
+      new Date().toISOString().split('T')[0],
+      user?.full_name || 'Nicht angegeben'
+    );
+    setBackfillDialog({ show: false, excavation: null });
+  };
+
+  const getPriceItemDescription = (priceItemId) => {
+    const item = priceItems.find(p => p.id === priceItemId);
+    return item ? `${item.item_number} - ${item.description}` : 'Position unbekannt';
   };
 
   const activeProjectsCount = projects.filter(p => !p.foreman_completed).length;
@@ -490,6 +573,85 @@ export default function MyProjectsPage() {
                           )}
                         </div>
 
+                        {/* Leistungsübersicht */}
+                        {(() => {
+                          const projectExcs = getProjectExcavations(project.id);
+                          const isExpanded = expandedProjects[project.id];
+                          
+                          return (
+                            <>
+                              {projectExcs.length > 0 && (
+                                <div className="border-t pt-3">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      toggleProjectExpanded(project.id);
+                                    }}
+                                    className="w-full justify-between text-xs"
+                                  >
+                                    <span className="flex items-center gap-2">
+                                      <Shovel className="w-4 h-4" />
+                                      {projectExcs.length} Leistung{projectExcs.length !== 1 ? 'en' : ''}
+                                    </span>
+                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                  </Button>
+
+                                  {isExpanded && (
+                                    <div className="mt-3 space-y-2 max-h-96 overflow-y-auto">
+                                      {projectExcs.map(exc => (
+                                        <div
+                                          key={exc.id}
+                                          className="bg-white rounded-lg p-3 border text-xs space-y-2"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <div className="font-medium text-gray-900">
+                                            {exc.location_name}
+                                          </div>
+                                          <div className="text-gray-600">
+                                            {getPriceItemDescription(exc.price_item_id)}
+                                          </div>
+                                          
+                                          <div className="flex gap-4 pt-2 border-t">
+                                            <div className="flex items-center gap-2">
+                                              <Checkbox
+                                                checked={exc.is_backfilled || false}
+                                                onCheckedChange={(checked) => handleBackfillToggle(exc, checked)}
+                                                className="data-[state=checked]:bg-green-600"
+                                              />
+                                              <span className="text-gray-700">Verfüllt</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Checkbox
+                                                checked={exc.is_closed || false}
+                                                onCheckedChange={(checked) => handleClosureToggle(exc, checked)}
+                                                className="data-[state=checked]:bg-green-600"
+                                              />
+                                              <span className="text-gray-700">Geschlossen</span>
+                                            </div>
+                                          </div>
+                                          
+                                          {(exc.is_backfilled || exc.is_closed) && (
+                                            <div className="text-[10px] text-green-600 space-y-0.5">
+                                              {exc.is_backfilled && (
+                                                <div>✓ Verfüllt {exc.backfilled_date && `am ${new Date(exc.backfilled_date).toLocaleDateString('de-DE')}`} {exc.backfilled_by && `von ${exc.backfilled_by}`}</div>
+                                              )}
+                                              {exc.is_closed && (
+                                                <div>✓ Geschlossen {exc.closed_date && `am ${new Date(exc.closed_date).toLocaleDateString('de-DE')}`} {exc.closed_by && `von ${exc.closed_by}`}</div>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+
                         {/* Action Buttons */}
                         <div className="space-y-2">
                           <Link to={createPageUrl(`ProjectDetail?id=${project.id}`)}>
@@ -597,6 +759,64 @@ export default function MyProjectsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Closure Dialog */}
+      {closureDialog.show && (
+        <Dialog open={closureDialog.show} onOpenChange={() => setClosureDialog({ show: false, excavation: null })}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Leistung als geschlossen markieren</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <p className="text-sm text-gray-600">
+                Möchten Sie die Leistung "{closureDialog.excavation?.location_name}" als geschlossen markieren?
+              </p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                ✓ Datum: {new Date().toLocaleDateString('de-DE')}<br/>
+                ✓ Von: {user?.full_name}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setClosureDialog({ show: false, excavation: null })}>
+                Abbrechen
+              </Button>
+              <Button onClick={confirmClosure} className="bg-green-600 hover:bg-green-700">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Bestätigen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Backfill Dialog */}
+      {backfillDialog.show && (
+        <Dialog open={backfillDialog.show} onOpenChange={() => setBackfillDialog({ show: false, excavation: null })}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Leistung als verfüllt markieren</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <p className="text-sm text-gray-600">
+                Möchten Sie die Leistung "{backfillDialog.excavation?.location_name}" als verfüllt markieren?
+              </p>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
+                ✓ Datum: {new Date().toLocaleDateString('de-DE')}<br/>
+                ✓ Von: {user?.full_name}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setBackfillDialog({ show: false, excavation: null })}>
+                Abbrechen
+              </Button>
+              <Button onClick={confirmBackfill} className="bg-green-600 hover:bg-green-700">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Bestätigen
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

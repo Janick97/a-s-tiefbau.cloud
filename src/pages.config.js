@@ -9,6 +9,7 @@ import ExcavationDetail from './pages/ExcavationDetail';
 import Excavations from './pages/Excavations';
 import Home from './pages/Home';
 import ImportProjects from './pages/ImportProjects';
+import KolonnenUebersicht from './pages/KolonnenUebersicht';
 import MaterialInventory from './pages/MaterialInventory';
 import MeineMontageAuftraege from './pages/MeineMontageAuftraege';
 import MitarbeiterDetail from './pages/MitarbeiterDetail';
@@ -31,7 +32,6 @@ import Projects from './pages/Projects';
 import Surface from './pages/Surface';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
-import KolonnenUebersicht from './pages/KolonnenUebersicht';
 import __Layout from './Layout.jsx';
 
 
@@ -47,6 +47,7 @@ export const PAGES = {
     "Excavations": Excavations,
     "Home": Home,
     "ImportProjects": ImportProjects,
+    "KolonnenUebersicht": KolonnenUebersicht,
     "MaterialInventory": MaterialInventory,
     "MeineMontageAuftraege": MeineMontageAuftraege,
     "MitarbeiterDetail": MitarbeiterDetail,
@@ -69,7 +70,6 @@ export const PAGES = {
     "Surface": Surface,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
-    "KolonnenUebersicht": KolonnenUebersicht,
 }
 
 export const pagesConfig = {
