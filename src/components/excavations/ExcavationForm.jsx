@@ -618,7 +618,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[60] overflow-y-auto"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] overflow-y-auto"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <motion.div
@@ -626,6 +626,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         animate={{ scale: 1, y: 0 }}
         exit={{ scale: 0.9, y: 20 }}
         className="w-full max-w-4xl my-8"
+        onClick={(e) => e.stopPropagation()}
       >
         <Card className="card-elevation border-none">
           <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg py-3 px-6">
