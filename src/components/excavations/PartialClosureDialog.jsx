@@ -12,9 +12,6 @@ import { UploadFile } from "@/integrations/Core";
 export default function PartialClosureDialog({ excavation, user, remainingMeters, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     meters_closed: '',
-    closure_type: '',
-    surface_type: excavation?.surface_type || '',
-    notes: '',
     photos: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
