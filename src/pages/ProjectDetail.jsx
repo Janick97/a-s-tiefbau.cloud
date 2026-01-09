@@ -13,7 +13,6 @@ from "framer-motion";
 import {
   ArrowLeft,
   Edit,
-  Printer,
   MapPin,
   Calendar,
   Euro,
@@ -775,8 +774,6 @@ export default function ProjectDetailPage() {
     setShowProjectForm(true);
   };
 
-  const handlePrint = () => window.print();
-
   const generateEmailContent = () => {
     if (!project) return { subject: '', body: '' };
 
@@ -1311,10 +1308,7 @@ export default function ProjectDetailPage() {
                 <Mail className="w-3 h-3 mr-1" />
                 Kann zu
               </Button>
-              <Button variant="ghost" size="sm" onClick={handlePrint} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0">
-                <Printer className="w-3 h-3 mr-1" />
-                Druck
-              </Button>
+
               <Button variant="ghost" size="sm" onClick={handleExportCoverSheetPdf} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0">
                 <FileText className="w-3 h-3 mr-1" />
                 PDF
@@ -1376,10 +1370,7 @@ export default function ProjectDetailPage() {
                   <Mail className="w-4 h-4 mr-2" />
                   Kann zu verschicken
                 </Button>
-                <Button variant="outline" onClick={handlePrint}>
-                  <Printer className="w-4 h-4 mr-2" />
-                  Drucken
-                </Button>
+
                 <Button variant="outline" onClick={handleExportServicesOverviewPdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
                   <FileText className="w-4 h-4 mr-2" />
                   Leistungsübersicht Export
