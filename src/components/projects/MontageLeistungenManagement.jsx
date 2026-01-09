@@ -7,24 +7,29 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Camera, X, Wrench } from "lucide-react";
+import { Plus, Edit, Trash2, Camera, X, Wrench, Check, ChevronsUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
 import { Badge } from "@/components/ui/badge";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel }) {
-  const [formData, setFormData] = useState(leistung || {
-    montage_auftrag_id: montageAuftragId,
-    preis_item_id: "",
-    quantity: 1,
-    location_name: "",
-    work_description: "",
-    photos: [],
-    notes: ""
+  const [selectedItems, setSelectedItems] = useState(leistung ? [{ 
+    preis_item_id: leistung.preis_item_id,
+    quantity: leistung.quantity
+  }] : []);
+  const [sharedData, setSharedData] = useState({
+    location_name: leistung?.location_name || "",
+    work_description: leistung?.work_description || "",
+    photos: leistung?.photos || [],
+    notes: leistung?.notes || ""
   });
   const [priceItems, setPriceItems] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [comboOpen, setComboOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -47,7 +52,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
       const uploadPromises = files.map(file => UploadFile({ file }));
       const results = await Promise.all(uploadPromises);
       const urls = results.map(res => res.file_url);
-      setFormData(prev => ({
+      setSharedData(prev => ({
         ...prev,
         photos: [...(prev.photos || []), ...urls]
       }));
@@ -59,35 +64,85 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
   };
 
   const removePhoto = (urlToRemove) => {
-    setFormData(prev => ({
+    setSharedData(prev => ({
       ...prev,
       photos: prev.photos.filter(url => url !== urlToRemove)
     }));
   };
 
+  const addItem = () => {
+    setSelectedItems([...selectedItems, { preis_item_id: "", quantity: 1 }]);
+  };
+
+  const removeItem = (index) => {
+    setSelectedItems(selectedItems.filter((_, i) => i !== index));
+  };
+
+  const updateItem = (index, field, value) => {
+    const updated = [...selectedItems];
+    updated[index] = { ...updated[index], [field]: value };
+    setSelectedItems(updated);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const selectedItem = priceItems.find(p => p.id === formData.preis_item_id);
-    if (!selectedItem) {
-      alert("Bitte wählen Sie eine Position aus");
+    if (selectedItems.length === 0 || selectedItems.some(item => !item.preis_item_id)) {
+      alert("Bitte wählen Sie mindestens eine Position aus");
       return;
     }
 
-    const calculated_price = selectedItem.price * formData.quantity;
-    
-    const submitData = {
-      ...formData,
-      calculated_price,
-      monteur_name: currentUser?.full_name || "",
-      monteur_user_id: currentUser?.id || "",
-      completion_date: new Date().toISOString().split('T')[0]
-    };
+    // Wenn wir im Edit-Modus sind, nur eine Position bearbeiten
+    if (leistung) {
+      const selectedItem = priceItems.find(p => p.id === selectedItems[0].preis_item_id);
+      if (!selectedItem) {
+        alert("Position nicht gefunden");
+        return;
+      }
 
-    onSubmit(submitData);
+      const calculated_price = selectedItem.price * selectedItems[0].quantity;
+      
+      const submitData = {
+        montage_auftrag_id: montageAuftragId,
+        preis_item_id: selectedItems[0].preis_item_id,
+        quantity: selectedItems[0].quantity,
+        calculated_price,
+        ...sharedData,
+        monteur_name: currentUser?.full_name || "",
+        monteur_user_id: currentUser?.id || "",
+        completion_date: new Date().toISOString().split('T')[0]
+      };
+
+      onSubmit(submitData);
+      return;
+    }
+
+    // Für neue Leistungen: Mehrere Positionen erstellen
+    try {
+      for (const item of selectedItems) {
+        const selectedItem = priceItems.find(p => p.id === item.preis_item_id);
+        if (!selectedItem) continue;
+
+        const calculated_price = selectedItem.price * item.quantity;
+        
+        const submitData = {
+          montage_auftrag_id: montageAuftragId,
+          preis_item_id: item.preis_item_id,
+          quantity: item.quantity,
+          calculated_price,
+          ...sharedData,
+          monteur_name: currentUser?.full_name || "",
+          monteur_user_id: currentUser?.id || "",
+          completion_date: new Date().toISOString().split('T')[0]
+        };
+
+        await onSubmit(submitData);
+      }
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern der Leistungen");
+    }
   };
-
-  const selectedItem = priceItems.find(p => p.id === formData.preis_item_id);
 
   return (
     <Dialog open onOpenChange={onCancel}>
@@ -96,65 +151,160 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
           <DialogTitle className="text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Positionen - mehrere auswählbar, wenn nicht im Edit-Modus */}
           <div>
-            <Label className="text-sm">Position *</Label>
-            <Select value={formData.preis_item_id} onValueChange={(val) => setFormData({...formData, preis_item_id: val})} required>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Position wählen..." />
-              </SelectTrigger>
-              <SelectContent className="max-h-[300px]">
-                {priceItems.map(item => (
-                  <SelectItem key={item.id} value={item.id} className="text-xs">
-                    {item.item_number} - {item.description} (€{item.price.toFixed(2)})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label className="text-sm flex items-center justify-between">
+              <span>Positionen *</span>
+              {!leistung && (
+                <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-7 text-xs">
+                  <Plus className="w-3 h-3 mr-1" />
+                  Position hinzufügen
+                </Button>
+              )}
+            </Label>
+            
+            <div className="space-y-2 mt-2">
+              {selectedItems.map((item, index) => {
+                const selectedPriceItem = priceItems.find(p => p.id === item.preis_item_id);
+                return (
+                  <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                    <div className="flex items-start gap-2 mb-2">
+                      <div className="flex-1">
+                        <Label className="text-xs mb-1">Position</Label>
+                        <Popover open={comboOpen === index} onOpenChange={(open) => setComboOpen(open ? index : false)}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-full justify-between h-9 text-xs"
+                            >
+                              {selectedPriceItem ? (
+                                <span className="truncate">{selectedPriceItem.item_number} - {selectedPriceItem.description}</span>
+                              ) : (
+                                "Position suchen..."
+                              )}
+                              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-[400px] p-0" align="start">
+                            <Command>
+                              <CommandInput placeholder="Position suchen..." className="h-9" />
+                              <CommandEmpty>Keine Position gefunden.</CommandEmpty>
+                              <CommandGroup className="max-h-[300px] overflow-auto">
+                                {priceItems.map((priceItem) => (
+                                  <CommandItem
+                                    key={priceItem.id}
+                                    value={`${priceItem.item_number} ${priceItem.description}`}
+                                    onSelect={() => {
+                                      updateItem(index, 'preis_item_id', priceItem.id);
+                                      setComboOpen(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        item.preis_item_id === priceItem.id ? "opacity-100" : "opacity-0"
+                                      )}
+                                    />
+                                    <div className="flex-1">
+                                      <div className="font-medium text-xs">{priceItem.item_number}</div>
+                                      <div className="text-xs text-gray-600">{priceItem.description}</div>
+                                      <div className="text-xs text-green-600 font-semibold">€{priceItem.price.toFixed(2)}</div>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      {!leistung && selectedItems.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(index)}
+                          className="h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs">Menge *</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                          required
+                          className="h-9 text-sm"
+                        />
+                      </div>
+                      {selectedPriceItem && (
+                        <div>
+                          <Label className="text-xs">Preis</Label>
+                          <Input
+                            value={`€${(selectedPriceItem.price * item.quantity).toFixed(2)}`}
+                            disabled
+                            className="h-9 text-sm font-bold bg-green-50"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-sm">Menge *</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={formData.quantity}
-                onChange={(e) => setFormData({...formData, quantity: parseFloat(e.target.value) || 0})}
-                required
-                className="h-9 text-sm"
-              />
+          {/* Gesamtpreis anzeigen wenn mehrere Positionen */}
+          {selectedItems.length > 1 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-green-800">Gesamtsumme:</span>
+                <span className="text-lg font-bold text-green-700">
+                  €{selectedItems.reduce((sum, item) => {
+                    const priceItem = priceItems.find(p => p.id === item.preis_item_id);
+                    return sum + (priceItem ? priceItem.price * item.quantity : 0);
+                  }, 0).toFixed(2)}
+                </span>
+              </div>
             </div>
-            {selectedItem && (
+          )}
+
+          {/* Gemeinsame Daten für alle Positionen */}
+          <div className="border-t pt-3">
+            <p className="text-xs text-gray-600 mb-2">
+              {!leistung && selectedItems.length > 1 ? 
+                "Die folgenden Daten gelten für alle ausgewählten Positionen:" : 
+                "Weitere Angaben:"}
+            </p>
+            
+            <div className="space-y-3">
               <div>
-                <Label className="text-sm">Preis</Label>
+                <Label className="text-sm">Standort</Label>
                 <Input
-                  value={`€${(selectedItem.price * formData.quantity).toFixed(2)}`}
-                  disabled
-                  className="h-9 text-sm font-bold bg-green-50"
+                  value={sharedData.location_name}
+                  onChange={(e) => setSharedData({...sharedData, location_name: e.target.value})}
+                  placeholder="z.B. Schrank 12, KVz 456"
+                  className="h-9 text-sm"
                 />
               </div>
-            )}
-          </div>
 
-          <div>
-            <Label className="text-sm">Standort</Label>
-            <Input
-              value={formData.location_name}
-              onChange={(e) => setFormData({...formData, location_name: e.target.value})}
-              placeholder="z.B. Schrank 12, KVz 456"
-              className="h-9 text-sm"
-            />
-          </div>
-
-          <div>
-            <Label className="text-sm">Beschreibung</Label>
-            <Textarea
-              value={formData.work_description}
-              onChange={(e) => setFormData({...formData, work_description: e.target.value})}
-              placeholder="Durchgeführte Arbeiten..."
-              rows={2}
-              className="text-sm"
-            />
+              <div>
+                <Label className="text-sm">Beschreibung</Label>
+                <Textarea
+                  value={sharedData.work_description}
+                  onChange={(e) => setSharedData({...sharedData, work_description: e.target.value})}
+                  placeholder="Durchgeführte Arbeiten..."
+                  rows={2}
+                  className="text-sm"
+                />
+              </div>
+            </div>
           </div>
 
           <div>
@@ -171,13 +321,13 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
               <Button type="button" variant="outline" size="sm" className="w-full" asChild>
                 <span>
                   <Camera className="w-4 h-4 mr-2" />
-                  {uploading ? "Lädt..." : `Fotos (${formData.photos?.length || 0})`}
+                  {uploading ? "Lädt..." : `Fotos (${sharedData.photos?.length || 0})`}
                 </span>
               </Button>
             </label>
-            {formData.photos && formData.photos.length > 0 && (
+            {sharedData.photos && sharedData.photos.length > 0 && (
               <div className="mt-2 grid grid-cols-4 gap-1">
-                {formData.photos.map((url, idx) => (
+                {sharedData.photos.map((url, idx) => (
                   <div key={idx} className="relative">
                     <img src={url} alt={`${idx + 1}`} className="w-full h-16 object-cover rounded" />
                     <Button
@@ -187,7 +337,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
                       onClick={() => removePhoto(url)}
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3 h-3" />
                     </Button>
                   </div>
                 ))}
