@@ -373,20 +373,21 @@ export default function MontageAuftraegePage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 sm:p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
         
-        <div className="mb-3 md:mb-8">
+        <div className="mb-4 md:mb-8">
           {/* Mobile Header - kompakt */}
-          <div className="md:hidden flex items-center justify-between gap-2 mb-3">
+          <div className="flex items-center justify-between gap-2 mb-3 md:hidden">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                 <Wrench className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Montageaufträge</h1>
+                <h1 className="text-xl font-bold text-gray-900">Montage</h1>
                 <p className="text-xs text-gray-600">{auftraege.length} Aufträge</p>
               </div>
             </div>
-            <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="sm" className="h-8 px-2">
-              <Plus className="w-4 h-4" />
+            <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="sm" className="h-8 px-3">
+              <Plus className="w-4 h-4 mr-1" />
+              Neu
             </Button>
           </div>
 
@@ -415,11 +416,11 @@ export default function MontageAuftraegePage() {
                   placeholder="Suche..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-9 md:h-10 text-sm"
+                  className="pl-9 h-9 md:h-10 text-sm"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="h-9 md:h-10 text-sm">
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
                   <SelectValue placeholder="Status..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,7 +435,7 @@ export default function MontageAuftraegePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-3 md:mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card className="card-elevation border-none">
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
@@ -463,7 +464,7 @@ export default function MontageAuftraegePage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Aktiv</p>
+                  <p className="text-[10px] md:text-sm text-gray-600 truncate">Aktiv</p>
                   <p className="text-lg md:text-2xl font-bold text-yellow-600">
                     {stats.inProgress}
                   </p>
@@ -513,7 +514,7 @@ export default function MontageAuftraegePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-2 md:gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <AnimatePresence>
               {filteredAuftraege.map((auftrag, index) => {
                 const relatedProject = getProjectForAuftrag(auftrag);
@@ -531,33 +532,71 @@ export default function MontageAuftraegePage() {
                       <CardContent className="p-3 md:p-6">
                         <div className="flex flex-col md:flex-row justify-between gap-3 md:gap-4">
                           <div className="flex-1">
-                            <div className="flex items-start gap-2 mb-2 md:mb-3 flex-wrap">
-                              <h3 className="text-base md:text-xl font-bold text-gray-900">{auftrag.sm_number}</h3>
-                              <div className="flex gap-1 md:gap-2 flex-wrap">
-                                {auftrag.project_number && (
-                                  <span className="text-[10px] md:text-sm text-gray-600 bg-gray-100 px-1.5 py-0.5 md:px-2 md:py-1 rounded">
-                                    Prj: {auftrag.project_number}
-                                  </span>
-                                )}
-                                <Badge className={`text-[10px] md:text-xs ${statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'}`}>
-                                  {auftrag.status}
-                                </Badge>
-                                {auftrag.tiefbau_offen && (
-                                  <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-[10px] md:text-xs">
-                                    <Construction className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
-                                    TB offen
-                                  </Badge>
-                                )}
-                                {auftrag.notes && (
-                                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] md:text-xs">
-                                    <FileText className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
-                                    Notizen
-                                  </Badge>
-                                )}
+                            {/* Mobile: Kompakte Header */}
+                            <div className="flex items-start justify-between gap-2 mb-2 md:hidden">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="text-sm font-bold text-gray-900 truncate">{auftrag.sm_number}</h3>
+                                <p className="text-xs text-gray-600 truncate">{auftrag.title}</p>
                               </div>
+                              <Badge className={`${statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'} text-[10px] h-5 flex-shrink-0`}>
+                                {auftrag.status}
+                              </Badge>
+                            </div>
+
+                            {/* Desktop: Normale Header */}
+                            <div className="hidden md:flex items-center gap-3 mb-3 flex-wrap">
+                              <h3 className="text-xl font-bold text-gray-900">{auftrag.sm_number}</h3>
+                              {auftrag.project_number && (
+                                <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                                  Projekt: {auftrag.project_number}
+                                </span>
+                              )}
+                              <Badge className={statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'}>
+                                {auftrag.status}
+                              </Badge>
+                              {auftrag.tiefbau_offen && (
+                                <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                                  <Construction className="w-3 h-3 mr-1" />
+                                  Tiefbau offen
+                                </Badge>
+                              )}
+                              {auftrag.notes && (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                                  <FileText className="w-3 h-3 mr-1" />
+                                  Notizen
+                                </Badge>
+                              )}
+                              {relatedProject && (
+                                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                                  <Link className="w-3 h-3 mr-1" />
+                                  Projekt
+                                </Badge>
+                              )}
+                            </div>
+
+                            {/* Mobile: Badges */}
+                            <div className="flex gap-1 mb-2 flex-wrap md:hidden">
+                              {auftrag.tiefbau_offen && (
+                                <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-[9px] h-4">
+                                  <Construction className="w-2.5 h-2.5 mr-0.5" />
+                                  Offen
+                                </Badge>
+                              )}
+                              {auftrag.notes && (
+                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[9px] h-4">
+                                  <FileText className="w-2.5 h-2.5 mr-0.5" />
+                                  Notizen
+                                </Badge>
+                              )}
+                              {relatedProject && (
+                                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-[9px] h-4">
+                                  <Link className="w-2.5 h-2.5 mr-0.5" />
+                                  {relatedProject.project_number}
+                                </Badge>
+                              )}
                             </div>
                             
-                            <h4 className="text-sm md:text-lg font-semibold text-gray-800 mb-1.5 md:mb-2 line-clamp-2">{auftrag.title}</h4>
+                            <h4 className="hidden md:block text-lg font-semibold text-gray-800 mb-2">{auftrag.title}</h4>
                             
                             <div className="grid grid-cols-1 gap-1.5 md:gap-2 text-xs md:text-sm">
                               <div className="flex items-center gap-1.5 md:gap-2 text-gray-600">
@@ -583,10 +622,10 @@ export default function MontageAuftraegePage() {
 
                             {auftrag.tiefbau_offen && auftrag.tiefbau_offen_date && (
                               <div className="mt-2 md:mt-3 p-2 md:p-3 bg-blue-100 border border-blue-300 rounded-lg">
-                                <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-blue-800">
+                                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-blue-800">
                                   <Construction className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                                  <span className="font-medium">
-                                    TB offen: {new Date(auftrag.tiefbau_offen_date).toLocaleDateString('de-DE')} {new Date(auftrag.tiefbau_offen_date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+                                  <span className="font-medium truncate">
+                                    Offen: {new Date(auftrag.tiefbau_offen_date).toLocaleDateString('de-DE')}
                                   </span>
                                 </div>
                               </div>
@@ -594,9 +633,9 @@ export default function MontageAuftraegePage() {
 
                             {relatedProject && (
                               <div className="mt-2 md:mt-3 p-2 md:p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-orange-800">
-                                  <Link className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                                  <span className="font-medium truncate">
+                                <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm">
+                                  <Link className="w-3 h-3 md:w-4 md:h-4 text-orange-600 flex-shrink-0" />
+                                  <span className="font-medium text-orange-800 truncate">
                                     Projekt: {relatedProject.project_number}
                                   </span>
                                 </div>
@@ -607,41 +646,28 @@ export default function MontageAuftraegePage() {
                               <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 rounded-lg border border-gray-200">
                                 <div className="flex items-start gap-1.5 md:gap-2">
                                   <FileText className="w-3 h-3 md:w-4 md:h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                                  <p className="text-[10px] md:text-sm text-gray-600 whitespace-pre-wrap line-clamp-2">
-                                    {auftrag.notes}
-                                  </p>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs md:text-sm font-medium text-gray-700 mb-0.5">Notizen:</p>
+                                    <p className="text-xs md:text-sm text-gray-600 whitespace-pre-wrap line-clamp-2">
+                                      {auftrag.notes}
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                            )}
-
-                            {(auftrag.start_date || auftrag.completion_date) && (
-                              <div className="mt-2 md:mt-3 flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-sm text-gray-600">
-                                {auftrag.start_date && (
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-                                    <span>Start: {new Date(auftrag.start_date).toLocaleDateString('de-DE')}</span>
-                                  </div>
-                                )}
-                                {auftrag.completion_date && (
-                                  <div className="flex items-center gap-1">
-                                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-                                    <span>Fertig: {new Date(auftrag.completion_date).toLocaleDateString('de-DE')}</span>
-                                  </div>
-                                )}
                               </div>
                             )}
                           </div>
 
-                          <div className="flex md:flex-col gap-1 md:gap-2 justify-end flex-wrap">
+                          {/* Desktop: Vertical Buttons */}
+                          <div className="hidden md:flex md:flex-col gap-2 justify-start">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleMonteurClick(auftrag)}
-                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 h-7 md:h-9 px-2 md:px-3 text-[10px] md:text-sm"
+                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
                               title="Monteure zuweisen"
                             >
-                              <Users className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1" />
-                              <span className="hidden sm:inline">Monteure</span>
+                              <Users className="w-4 h-4 mr-1" />
+                              Monteure
                             </Button>
                             {!auftrag.tiefbau_offen && (
                               <Button
@@ -649,26 +675,83 @@ export default function MontageAuftraegePage() {
                                 size="sm"
                                 onClick={() => handleTiefbauOffen(auftrag)}
                                 disabled={updatingAuftrag === auftrag.id}
-                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-7 md:h-9 px-2 md:px-3 text-[10px] md:text-sm"
+                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                                 title="Als Tiefbau offen melden"
                               >
-                                <Construction className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1" />
-                                <span className="hidden sm:inline">TB offen</span>
+                                <Construction className="w-4 h-4 mr-1" />
+                                Tiefbau offen
+                              </Button>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleNotesClick(auftrag)}
+                              title="Notizen bearbeiten"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </Button>
+                            {relatedProject && (
+                              <a href={createPageUrl(`ProjectDetail?id=${relatedProject.id}`)} target="_blank" rel="noopener noreferrer">
+                                <Button variant="outline" size="icon" title="Projekt anzeigen">
+                                  <ExternalLink className="w-4 h-4" />
+                                </Button>
+                              </a>
+                            )}
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => {
+                                setEditingAuftrag(auftrag);
+                                setShowForm(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleDelete(auftrag.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          {/* Mobile: Horizontal Buttons */}
+                          <div className="flex md:hidden gap-1 justify-between overflow-x-auto pb-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleMonteurClick(auftrag)}
+                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 h-7 px-2 text-[10px] flex-shrink-0"
+                            >
+                              <Users className="w-3 h-3 mr-0.5" />
+                              Monteure
+                            </Button>
+                            {!auftrag.tiefbau_offen && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleTiefbauOffen(auftrag)}
+                                disabled={updatingAuftrag === auftrag.id}
+                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-7 px-2 text-[10px] flex-shrink-0"
+                              >
+                                <Construction className="w-3 h-3 mr-0.5" />
+                                Offen
                               </Button>
                             )}
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleNotesClick(auftrag)}
-                              title="Notizen bearbeiten"
-                              className="h-7 w-7 md:h-9 md:w-9 p-0"
+                              className="h-7 w-7 p-0 flex-shrink-0"
                             >
-                              <Edit3 className="w-3 h-3 md:w-4 md:h-4" />
+                              <Edit3 className="w-3 h-3" />
                             </Button>
                             {relatedProject && (
                               <a href={createPageUrl(`ProjectDetail?id=${relatedProject.id}`)} target="_blank" rel="noopener noreferrer">
-                                <Button variant="outline" size="sm" title="Projekt anzeigen" className="h-7 w-7 md:h-9 md:w-9 p-0">
-                                  <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
+                                <Button variant="outline" size="sm" className="h-7 w-7 p-0 flex-shrink-0">
+                                  <ExternalLink className="w-3 h-3" />
                                 </Button>
                               </a>
                             )}
@@ -679,17 +762,17 @@ export default function MontageAuftraegePage() {
                                 setEditingAuftrag(auftrag);
                                 setShowForm(true);
                               }}
-                              className="h-7 w-7 md:h-9 md:w-9 p-0"
+                              className="h-7 w-7 p-0 flex-shrink-0"
                             >
-                              <Edit className="w-3 h-3 md:w-4 md:h-4" />
+                              <Edit className="w-3 h-3" />
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleDelete(auftrag.id)}
-                              className="text-red-600 hover:text-red-700 h-7 w-7 md:h-9 md:w-9 p-0"
+                              className="text-red-600 hover:text-red-700 h-7 w-7 p-0 flex-shrink-0"
                             >
-                              <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                              <Trash2 className="w-3 h-3" />
                             </Button>
                           </div>
                         </div>
