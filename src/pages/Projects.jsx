@@ -1730,7 +1730,11 @@ export default function ProjectsPage() {
               </div>
               <Button
                 variant="outline"
-                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+                }}
                 className="w-full h-10"
               >
                 {sortOrder === 'asc' ? (
