@@ -26,7 +26,9 @@ import {
   Eye,
   Upload,
   Trash2,
-  Camera
+  Camera,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
@@ -57,6 +59,12 @@ export default function ProjectDetailOberflaechePage() {
     show: false,
     excavation: null,
     priceItem: null
+  });
+  const [imagePreview, setImagePreview] = useState({
+    isOpen: false,
+    images: [],
+    currentIndex: 0,
+    title: ''
   });
   const [partialClosureDialog, setPartialClosureDialog] = useState({
     show: false,
@@ -778,22 +786,25 @@ export default function ProjectDetailOberflaechePage() {
                     <div className="space-y-4">
                       {/* Vorher-Fotos */}
                       {detailDialog.excavation.photos_before?.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-700 mb-2">Vorher ({detailDialog.excavation.photos_before.length})</p>
-                          <div className="grid grid-cols-3 gap-2">
-                            {detailDialog.excavation.photos_before.map((url, index) => (
-                              <a
-                                key={index}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
-                              >
-                                <img src={url} alt={`Vorher ${index + 1}`} className="w-full h-full object-cover" />
-                              </a>
-                            ))}
-                          </div>
-                        </div>
+                       <div>
+                         <p className="text-sm font-medium text-gray-700 mb-2">Vorher ({detailDialog.excavation.photos_before.length})</p>
+                         <div className="grid grid-cols-3 gap-2">
+                           {detailDialog.excavation.photos_before.map((url, index) => (
+                             <div
+                               key={index}
+                               onClick={() => setImagePreview({
+                                 isOpen: true,
+                                 images: detailDialog.excavation.photos_before,
+                                 currentIndex: index,
+                                 title: 'Vorher-Fotos'
+                               })}
+                               className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
+                             >
+                               <img src={url} alt={`Vorher ${index + 1}`} className="w-full h-full object-cover" />
+                             </div>
+                           ))}
+                         </div>
+                       </div>
                       )}
 
                       {/* Umfeld-Fotos */}
@@ -802,15 +813,18 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Umfeld ({detailDialog.excavation.photos_environment.length})</p>
                           <div className="grid grid-cols-3 gap-2">
                             {detailDialog.excavation.photos_environment.map((url, index) => (
-                              <a
+                              <div
                                 key={index}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+                                onClick={() => setImagePreview({
+                                  isOpen: true,
+                                  images: detailDialog.excavation.photos_environment,
+                                  currentIndex: index,
+                                  title: 'Umfeld-Fotos'
+                                })}
+                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
                               >
                                 <img src={url} alt={`Umfeld ${index + 1}`} className="w-full h-full object-cover" />
-                              </a>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -822,15 +836,18 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Verfüllung ({detailDialog.excavation.photos_backfill.length})</p>
                           <div className="grid grid-cols-3 gap-2">
                             {detailDialog.excavation.photos_backfill.map((url, index) => (
-                              <a
+                              <div
                                 key={index}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+                                onClick={() => setImagePreview({
+                                  isOpen: true,
+                                  images: detailDialog.excavation.photos_backfill,
+                                  currentIndex: index,
+                                  title: 'Verfüllungs-Fotos'
+                                })}
+                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
                               >
                                 <img src={url} alt={`Verfüllung ${index + 1}`} className="w-full h-full object-cover" />
-                              </a>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -842,15 +859,18 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Oberfläche ({detailDialog.excavation.photos_surface.length})</p>
                           <div className="grid grid-cols-3 gap-2">
                             {detailDialog.excavation.photos_surface.map((url, index) => (
-                              <a
+                              <div
                                 key={index}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+                                onClick={() => setImagePreview({
+                                  isOpen: true,
+                                  images: detailDialog.excavation.photos_surface,
+                                  currentIndex: index,
+                                  title: 'Oberflächen-Fotos'
+                                })}
+                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
                               >
                                 <img src={url} alt={`Oberfläche ${index + 1}`} className="w-full h-full object-cover" />
-                              </a>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -862,15 +882,18 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm font-medium text-gray-700 mb-2">Nachher ({detailDialog.excavation.photos_after.length})</p>
                           <div className="grid grid-cols-3 gap-2">
                             {detailDialog.excavation.photos_after.map((url, index) => (
-                              <a
+                              <div
                                 key={index}
-                                href={url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity"
+                                onClick={() => setImagePreview({
+                                  isOpen: true,
+                                  images: detailDialog.excavation.photos_after,
+                                  currentIndex: index,
+                                  title: 'Nachher-Fotos'
+                                })}
+                                className="aspect-square rounded-lg overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
                               >
                                 <img src={url} alt={`Nachher ${index + 1}`} className="w-full h-full object-cover" />
-                              </a>
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -1174,6 +1197,105 @@ export default function ProjectDetailOberflaechePage() {
                   </div>
                 </CardContent>
               </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bildvorschau-Modal */}
+      <AnimatePresence>
+        {imagePreview.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setImagePreview({ isOpen: false, images: [], currentIndex: 0, title: '' })}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="relative max-w-[90vw] max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4 text-white">
+                <div>
+                  <h3 className="text-lg font-semibold">{imagePreview.title}</h3>
+                  <p className="text-sm text-gray-300">
+                    Bild {imagePreview.currentIndex + 1} von {imagePreview.images.length}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setImagePreview({ isOpen: false, images: [], currentIndex: 0, title: '' })}
+                  className="text-white hover:bg-white/20"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+
+              {/* Bild */}
+              <div className="relative flex-1 flex items-center justify-center">
+                <img
+                  src={imagePreview.images[imagePreview.currentIndex]}
+                  alt={`${imagePreview.title} ${imagePreview.currentIndex + 1}`}
+                  className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl"
+                />
+
+                {/* Navigation Pfeile */}
+                {imagePreview.images.length > 1 && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setImagePreview(prev => ({
+                        ...prev,
+                        currentIndex: prev.currentIndex > 0 ? prev.currentIndex - 1 : prev.images.length - 1
+                      }))}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 bg-black/50 rounded-full p-2"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setImagePreview(prev => ({
+                        ...prev,
+                        currentIndex: prev.currentIndex < prev.images.length - 1 ? prev.currentIndex + 1 : 0
+                      }))}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 bg-black/50 rounded-full p-2"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Thumbnails */}
+              {imagePreview.images.length > 1 && (
+                <div className="flex justify-center mt-4 space-x-2 max-w-full overflow-x-auto pb-2 px-4 scrollbar-hide">
+                  {imagePreview.images.map((url, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setImagePreview(prev => ({ ...prev, currentIndex: index }))}
+                      className={`flex-shrink-0 w-12 h-12 rounded-md overflow-hidden border-2 transition-all ${
+                        index === imagePreview.currentIndex 
+                          ? 'border-white shadow-lg' 
+                          : 'border-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                      <img
+                        src={url}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
