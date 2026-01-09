@@ -354,24 +354,6 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Statistiken */}
-          {personalStats && (
-            <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
-              <StatsCard
-                title="Meine Projekte"
-                value={personalStats.assignedProjects}
-                icon={FolderOpen}
-                color="from-blue-500 to-blue-600"
-              />
-              <StatsCard
-                title="Mein Umsatz"
-                value={`€${Math.round(personalStats.myRevenue).toLocaleString('de-DE')}`}
-                icon={TrendingUp}
-                color="from-purple-500 to-purple-600"
-              />
-            </div>
-          )}
-
           {/* Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <NavigationCard
