@@ -39,24 +39,31 @@ export default function ExcavationsManagement({
   currentUser
 }) {
   const [internalUser, setInternalUser] = useState(currentUser || null);
+  const [bauleiterList, setBauleiterList] = useState([]);
 
-  // Load user if not provided
+  // Load user and bauleiter list if not provided
   useEffect(() => {
-    if (!currentUser) {
-      const loadUser = async () => {
-        try {
-          const userData = await User.me();
-          setInternalUser(userData);
-        } catch (error) {
-          console.log("Benutzer nicht angemeldet:", error);
-          setInternalUser(null);
+    const loadUserData = async () => {
+      try {
+        const userData = currentUser || await User.me();
+        setInternalUser(userData);
+        
+        // Lade alle Bauleiter und Oberfläche-User für die Auswahl
+        if (userData?.role === 'admin') {
+          const allUsers = await User.list();
+          const bauleiterUsers = allUsers.filter(u => 
+            u.position === 'Bauleiter' || u.position === 'Oberfläche'
+          );
+          setBauleiterList(bauleiterUsers);
         }
-      };
-      loadUser();
-    } else {
-      setInternalUser(currentUser);
-    }
+      } catch (error) {
+        console.log("Fehler beim Laden:", error);
+        setInternalUser(null);
+      }
+    };
+    loadUserData();
   }, [currentUser]);
+
   const [showForm, setShowForm] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
@@ -106,7 +113,7 @@ export default function ExcavationsManagement({
       setClosureDialogData({
         excavation,
         closedDate: new Date().toISOString().split('T')[0],
-        closedBy: 'Nicht angegeben'
+        selectedUserId: null
       });
       setShowClosureDialog(true);
     } else {
@@ -114,7 +121,9 @@ export default function ExcavationsManagement({
         await Excavation.update(excavation.id, {
           is_closed: false,
           closed_date: null,
-          closed_by: null
+          closed_by: null,
+          closed_by_user_id: null,
+          surface_commission: null
         });
         loadData();
       } catch (error) {
@@ -124,11 +133,21 @@ export default function ExcavationsManagement({
   };
 
   const handleClosureSubmit = async () => {
+    const selectedUser = bauleiterList.find(u => u.id === closureDialogData.selectedUserId);
+    if (!selectedUser) {
+      alert("Bitte wählen Sie einen Bauleiter aus.");
+      return;
+    }
+
+    const surfaceCommission = (closureDialogData.excavation.calculated_price || 0) * 0.3;
+
     try {
       await Excavation.update(closureDialogData.excavation.id, {
         is_closed: true,
         closed_date: closureDialogData.closedDate,
-        closed_by: closureDialogData.closedBy
+        closed_by: selectedUser.full_name,
+        closed_by_user_id: selectedUser.id,
+        surface_commission: surfaceCommission
       });
       setShowClosureDialog(false);
       setClosureDialogData(null);
@@ -143,7 +162,7 @@ export default function ExcavationsManagement({
       setBackfillDialogData({
         excavation,
         backfilledDate: new Date().toISOString().split('T')[0],
-        backfilledBy: 'Nicht angegeben'
+        selectedUserId: null
       });
       setShowBackfillDialog(true);
     } else {
@@ -151,7 +170,9 @@ export default function ExcavationsManagement({
         await Excavation.update(excavation.id, {
           is_backfilled: false,
           backfilled_date: null,
-          backfilled_by: null
+          backfilled_by: null,
+          backfilled_by_user_id: null,
+          backfill_commission: null
         });
         loadData();
       } catch (error) {
@@ -161,11 +182,21 @@ export default function ExcavationsManagement({
   };
 
   const handleBackfillSubmit = async () => {
+    const selectedUser = bauleiterList.find(u => u.id === backfillDialogData.selectedUserId);
+    if (!selectedUser) {
+      alert("Bitte wählen Sie einen Bauleiter aus.");
+      return;
+    }
+
+    const backfillCommission = (backfillDialogData.excavation.calculated_price || 0) * 0.2;
+
     try {
       await Excavation.update(backfillDialogData.excavation.id, {
         is_backfilled: true,
         backfilled_date: backfillDialogData.backfilledDate,
-        backfilled_by: backfillDialogData.backfilledBy
+        backfilled_by: selectedUser.full_name,
+        backfilled_by_user_id: selectedUser.id,
+        backfill_commission: backfillCommission
       });
       setShowBackfillDialog(false);
       setBackfillDialogData(null);
@@ -541,24 +572,35 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="closed_by">Geschlossen durch</Label>
                   <Select
-                    value={closureDialogData.closedBy}
+                    value={closureDialogData.selectedUserId || ''}
                     onValueChange={(value) => setClosureDialogData(prev => ({
                       ...prev,
-                      closedBy: value
+                      selectedUserId: value
                     }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Person auswählen..." />
+                      <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Sabri">Sabri</SelectItem>
-                      <SelectItem value="Dogan">Dogan</SelectItem>
-                      <SelectItem value="Ahmet">Ahmet</SelectItem>
-                      <SelectItem value="Externe Firma">Externe Firma</SelectItem>
-                      <SelectItem value="Nicht angegeben">Nicht angegeben</SelectItem>
+                      {bauleiterList.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {closureDialogData.selectedUserId && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                    <p className="text-sm text-green-800">
+                      <strong>Provision:</strong> 30% = €{((closureDialogData.excavation.calculated_price || 0) * 0.3).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-green-700 mt-1">
+                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === closureDialogData.selectedUserId)?.full_name} gebucht.
+                    </p>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowClosureDialog(false)}>
@@ -622,24 +664,35 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="backfilled_by">Verfüllt durch</Label>
                   <Select
-                    value={backfillDialogData.backfilledBy}
+                    value={backfillDialogData.selectedUserId || ''}
                     onValueChange={(value) => setBackfillDialogData(prev => ({
                       ...prev,
-                      backfilledBy: value
+                      selectedUserId: value
                     }))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Person auswählen..." />
+                      <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Sabri">Sabri</SelectItem>
-                      <SelectItem value="Dogan">Dogan</SelectItem>
-                      <SelectItem value="Ahmet">Ahmet</SelectItem>
-                      <SelectItem value="Externe Firma">Externe Firma</SelectItem>
-                      <SelectItem value="Nicht angegeben">Nicht angegeben</SelectItem>
+                      {bauleiterList.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+                
+                {backfillDialogData.selectedUserId && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <p className="text-sm text-orange-800">
+                      <strong>Provision:</strong> 20% = €{((backfillDialogData.excavation.calculated_price || 0) * 0.2).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-orange-700 mt-1">
+                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === backfillDialogData.selectedUserId)?.full_name} gebucht.
+                    </p>
+                  </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowBackfillDialog(false)}>
