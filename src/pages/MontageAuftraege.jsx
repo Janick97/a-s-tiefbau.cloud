@@ -250,7 +250,8 @@ export default function MontageAuftraegePage() {
     try {
       await MontageAuftrag.update(tiefbauConfirmAuftrag.id, {
         tiefbau_offen: true,
-        tiefbau_offen_date: new Date().toISOString()
+        tiefbau_offen_date: new Date().toISOString(),
+        status: 'Bereit zur Montage'
       });
       setShowTiefbauConfirm(false);
       setTiefbauConfirmAuftrag(null);
@@ -368,6 +369,13 @@ export default function MontageAuftraegePage() {
     if (artFilter !== 'alle') {
       filtered = filtered.filter(auftrag => auftrag.art === artFilter);
     }
+
+    // Sortierung: "Bereit zur Montage" immer oben
+    filtered = filtered.sort((a, b) => {
+      if (a.status === 'Bereit zur Montage' && b.status !== 'Bereit zur Montage') return -1;
+      if (a.status !== 'Bereit zur Montage' && b.status === 'Bereit zur Montage') return 1;
+      return 0;
+    });
 
     setFilteredAuftraege(filtered);
   }, [auftraege, searchTerm, statusFilter, artFilter]);
