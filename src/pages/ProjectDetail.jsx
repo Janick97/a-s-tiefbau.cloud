@@ -61,6 +61,7 @@ import PullingWorkForm from "../components/projects/PullingWorkForm";
 import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
+import ProjectHistory from "../components/projects/ProjectHistory";
 
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -1245,6 +1246,7 @@ export default function ProjectDetailPage() {
     { id: 'timesheets', name: 'Stunden' },
     { id: 'montage', name: 'Montageleistungen' },
     { id: 'documents', name: 'Dokumente' },
+    { id: 'history', name: 'Historie' },
   ];
 
   const isMainProject = !project.parent_project_id;
@@ -1736,8 +1738,14 @@ export default function ProjectDetailPage() {
                   />
                 </div>
               )}
-            </div>
-          </div>
+
+              {activeTab === 'history' && (
+                <div className="p-2 sm:p-4 lg:p-6">
+                  <ProjectHistory projectId={project.id} />
+                </div>
+              )}
+              </div>
+              </div>
 
           {/* Bauakten - Mobile optimiert */}
           {bauakten.length > 0 && (
