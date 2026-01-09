@@ -128,9 +128,10 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
-                    <SelectItem value="In Bearbeitung">In Bearbeitung</SelectItem>
-                    <SelectItem value="Montage fertig">Montage fertig</SelectItem>
-                    <SelectItem value="Abgeschlossen">Abgeschlossen</SelectItem>
+                    <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                    <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                    <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                    <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -357,16 +358,17 @@ export default function MontageAuftraegePage() {
 
   const statusColors = {
     'Auftrag neu': 'bg-blue-100 text-blue-800 border-blue-200',
-    'In Bearbeitung': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'Montage fertig': 'bg-green-100 text-green-800 border-green-200',
-    'Abgeschlossen': 'bg-gray-100 text-gray-800 border-gray-200'
+    'Tiefbau ausstehend': 'bg-orange-100 text-orange-800 border-orange-200',
+    'Bereit zur Montage': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'Montage abgeschlossen': 'bg-green-100 text-green-800 border-green-200',
+    'Rotberichtigung abgeschlossen': 'bg-purple-100 text-purple-800 border-purple-200'
   };
 
   const stats = {
     total: auftraege.length,
     neu: auftraege.filter(a => a.status === 'Auftrag neu').length,
-    inProgress: auftraege.filter(a => a.status === 'In Bearbeitung').length,
-    fertig: auftraege.filter(a => a.status === 'Montage fertig' || a.status === 'Abgeschlossen').length,
+    inProgress: auftraege.filter(a => a.status === 'Tiefbau ausstehend' || a.status === 'Bereit zur Montage').length,
+    fertig: auftraege.filter(a => a.status === 'Montage abgeschlossen' || a.status === 'Rotberichtigung abgeschlossen').length,
   };
 
   return (
@@ -426,9 +428,10 @@ export default function MontageAuftraegePage() {
                 <SelectContent>
                   <SelectItem value="alle">Alle Status</SelectItem>
                   <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
-                  <SelectItem value="In Bearbeitung">In Bearbeitung</SelectItem>
-                  <SelectItem value="Montage fertig">Montage fertig</SelectItem>
-                  <SelectItem value="Abgeschlossen">Abgeschlossen</SelectItem>
+                  <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                  <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                  <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                  <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
                 </SelectContent>
               </Select>
             </div>
