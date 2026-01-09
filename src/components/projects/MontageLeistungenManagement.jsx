@@ -24,6 +24,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
     location_name: leistung?.location_name || "",
     work_description: leistung?.work_description || "",
     photos: leistung?.photos || [],
+    einmass_skizze: leistung?.einmass_skizze || [],
     notes: leistung?.notes || ""
   });
   const [priceItems, setPriceItems] = useState([]);
@@ -67,6 +68,33 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
     setSharedData(prev => ({
       ...prev,
       photos: prev.photos.filter(url => url !== urlToRemove)
+    }));
+  };
+
+  const handleSkizzeUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    setUploading(true);
+    try {
+      const uploadPromises = files.map(file => UploadFile({ file }));
+      const results = await Promise.all(uploadPromises);
+      const urls = results.map(res => res.file_url);
+      setSharedData(prev => ({
+        ...prev,
+        einmass_skizze: [...(prev.einmass_skizze || []), ...urls]
+      }));
+    } catch (error) {
+      console.error("Upload-Fehler:", error);
+      alert("Fehler beim Hochladen der Skizze");
+    }
+    setUploading(false);
+  };
+
+  const removeSkizze = (urlToRemove) => {
+    setSharedData(prev => ({
+      ...prev,
+      einmass_skizze: prev.einmass_skizze.filter(url => url !== urlToRemove)
     }));
   };
 
@@ -336,6 +364,44 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
                       size="icon"
                       className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
                       onClick={() => removePhoto(url)}
+                    >
+                      <X className="h-3 h-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <Label className="text-sm">Einmaß-Skizze</Label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleSkizzeUpload}
+              className="hidden"
+              id="skizze-upload"
+            />
+            <label htmlFor="skizze-upload">
+              <Button type="button" variant="outline" size="sm" className="w-full bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100" asChild>
+                <span>
+                  <Camera className="w-4 h-4 mr-2" />
+                  {uploading ? "Lädt..." : `Einmaß-Skizze (${sharedData.einmass_skizze?.length || 0})`}
+                </span>
+              </Button>
+            </label>
+            {sharedData.einmass_skizze && sharedData.einmass_skizze.length > 0 && (
+              <div className="mt-2 grid grid-cols-4 gap-1">
+                {sharedData.einmass_skizze.map((url, idx) => (
+                  <div key={idx} className="relative">
+                    <img src={url} alt={`Skizze ${idx + 1}`} className="w-full h-16 object-cover rounded border-2 border-amber-300" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
+                      onClick={() => removeSkizze(url)}
                     >
                       <X className="h-3 h-3" />
                     </Button>
