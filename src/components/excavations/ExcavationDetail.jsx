@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label"; // Added Label import
+import { Label } from "@/components/ui/label";
 import { 
   MapPin, 
   Ruler, 
@@ -19,10 +19,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Navigation,
-  Info, // Added Info icon
-  CheckCircle // Added CheckCircle icon
+  Info,
+  CheckCircle,
+  Plus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ExcavationClosure } from "@/entities/all";
+import PartialClosureDialog from "./PartialClosureDialog";
 
 const statusColors = {
   planned: "bg-blue-100 text-blue-800 border-blue-200",
@@ -180,14 +183,34 @@ function ImagePreviewModal({ images, currentIndex, isOpen, onClose, title }) {
   );
 }
 
-export default function ExcavationDetail({ excavation, priceItem, onEdit, onClose }) {
-  // State to manage the image preview modal
+export default function ExcavationDetail({ excavation, priceItem, onEdit, onClose, currentUser }) {
   const [previewImage, setPreviewImage] = useState({
     isOpen: false,
     images: [],
     currentIndex: 0,
     title: ''
   });
+  const [closures, setClosures] = useState([]);
+  const [showClosureDialog, setShowClosureDialog] = useState(false);
+  const [isLoadingClosures, setIsLoadingClosures] = useState(true);
+
+  useEffect(() => {
+    if (excavation?.id) {
+      loadClosures();
+    }
+  }, [excavation?.id]);
+
+  const loadClosures = async () => {
+    setIsLoadingClosures(true);
+    try {
+      const data = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
+      setClosures(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Fehler beim Laden der Teilabschlüsse:", error);
+      setClosures([]);
+    }
+    setIsLoadingClosures(false);
+  };
 
   if (!excavation) return null;
 
@@ -245,6 +268,10 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
   const isGrabenPosition = safePriceItem.unit === 'M' && 
     !detailDimensionPositions.includes(safePriceItem.item_number) &&
     !anderePositionNumbers.includes(safePriceItem.item_number);
+
+  // Berechne geschlossene und verbleibende Meter
+  const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
+  const remainingMeters = Math.max(0, safeExcavation.excavation_length - totalClosedMeters);
 
   // Handle image click to open preview modal
   const handleImageClick = (images, index, title) => {
@@ -541,6 +568,93 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
               </div>
             )}
 
+            {/* Teilabschlüsse für Gräben */}
+            {isGrabenPosition && (
+              <Card className="card-elevation border-none bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <CheckCircle className="w-5 h-5 text-blue-600" />
+                      Teilabschlüsse
+                    </CardTitle>
+                    {currentUser?.position === 'Oberfläche' && remainingMeters > 0 && (
+                      <Button
+                        size="sm"
+                        onClick={() => setShowClosureDialog(true)}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Teilabschluss
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="bg-white rounded-lg p-3 border">
+                      <p className="text-xs text-gray-600">Gesamt</p>
+                      <p className="text-xl font-bold text-gray-900">{safeExcavation.excavation_length.toFixed(2)}m</p>
+                    </div>
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-200">
+                      <p className="text-xs text-green-600">Geschlossen</p>
+                      <p className="text-xl font-bold text-green-700">{totalClosedMeters.toFixed(2)}m</p>
+                    </div>
+                    <div className="bg-orange-50 rounded-lg p-3 border border-orange-200">
+                      <p className="text-xs text-orange-600">Offen</p>
+                      <p className="text-xl font-bold text-orange-700">{remainingMeters.toFixed(2)}m</p>
+                    </div>
+                  </div>
+
+                  {closures.length > 0 ? (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm text-gray-900">Abschlüsse:</h4>
+                      {closures.map((closure) => (
+                        <div key={closure.id} className="bg-white rounded-lg p-3 border space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-semibold text-gray-900">{closure.closed_by}</p>
+                              <p className="text-xs text-gray-600">
+                                {new Date(closure.closure_date).toLocaleDateString('de-DE')}
+                              </p>
+                            </div>
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {closure.meters_closed.toFixed(2)}m
+                            </Badge>
+                          </div>
+                          <div className="flex gap-2 flex-wrap text-xs">
+                            <Badge variant="outline">{closure.closure_type}</Badge>
+                            {closure.surface_type && (
+                              <Badge variant="outline">{closure.surface_type}</Badge>
+                            )}
+                          </div>
+                          {closure.notes && (
+                            <p className="text-xs text-gray-600 pt-2 border-t">{closure.notes}</p>
+                          )}
+                          {closure.photos?.length > 0 && (
+                            <div className="grid grid-cols-4 gap-1 pt-2">
+                              {closure.photos.map((url, idx) => (
+                                <img
+                                  key={idx}
+                                  src={url}
+                                  alt={`Foto ${idx + 1}`}
+                                  className="w-full aspect-square object-cover rounded cursor-pointer hover:opacity-80"
+                                  onClick={() => handleImageClick(closure.photos, idx, `${closure.closure_type} - ${closure.closed_by}`)}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 py-4">
+                      <p className="text-sm">Noch keine Teilabschlüsse verbucht</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Bauleiter */}
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -605,6 +719,20 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
         onClose={closeImagePreview}
         title={previewImage.title}
       />
+
+      {/* Partial Closure Dialog */}
+      {showClosureDialog && (
+        <PartialClosureDialog
+          excavation={excavation}
+          user={currentUser}
+          remainingMeters={remainingMeters}
+          onClose={() => setShowClosureDialog(false)}
+          onSuccess={() => {
+            setShowClosureDialog(false);
+            loadClosures();
+          }}
+        />
+      )}
     </>
   );
 }
