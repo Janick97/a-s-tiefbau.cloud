@@ -28,7 +28,8 @@ import {
   CloudSnow,
   Wind,
   Droplets,
-  Thermometer
+  Thermometer,
+  RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -336,10 +337,21 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 lg:mb-8"
           >
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Willkommen, {user.full_name}
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre wichtigsten Bereiche</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                  Willkommen, {user.full_name}
+                </h1>
+                <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre wichtigsten Bereiche</p>
+              </div>
+              <button
+                onClick={loadData}
+                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                title="Aktualisieren"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+              </button>
+            </div>
           </motion.div>
 
           {/* Datum, Uhrzeit & Wetter Widget */}
@@ -447,10 +459,21 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 lg:mb-8"
           >
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Willkommen, {user.full_name}
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre Montageaufträge</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                  Willkommen, {user.full_name}
+                </h1>
+                <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre Montageaufträge</p>
+              </div>
+              <button
+                onClick={loadData}
+                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                title="Aktualisieren"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+              </button>
+            </div>
           </motion.div>
 
           {/* Datum, Uhrzeit & Wetter Widget */}
@@ -489,10 +512,21 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 lg:mb-8"
           >
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Willkommen, {user.full_name}
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre Oberflächen-Arbeiten</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                  Willkommen, {user.full_name}
+                </h1>
+                <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre Oberflächen-Arbeiten</p>
+              </div>
+              <button
+                onClick={loadData}
+                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                title="Aktualisieren"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+              </button>
+            </div>
           </motion.div>
 
           {/* Datum, Uhrzeit & Wetter Widget */}
@@ -538,8 +572,19 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6 lg:mb-8"
         >
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf alle Bereiche der Anwendung</p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
+              <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf alle Bereiche der Anwendung</p>
+            </div>
+            <button
+              onClick={loadData}
+              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+              title="Aktualisieren"
+            >
+              <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+            </button>
+          </div>
         </motion.div>
 
         {/* Datum, Uhrzeit & Wetter Widget */}
