@@ -132,12 +132,22 @@ export default function ProjectDetailOberflaechePage() {
       !detailDimensionPositions.includes(priceItem?.item_number) &&
       !anderePositionNumbers.includes(priceItem?.item_number);
     
+    console.log('Prüfe Graben-Position:', {
+      priceItem,
+      unit: priceItem?.unit,
+      itemNumber: priceItem?.item_number,
+      isGrabenPosition,
+      excavation_length: excavation.excavation_length
+    });
+    
     if (isGrabenPosition) {
       // Für Gräben: Teilabschluss-Dialog
       // Lade bestehende closures
       const closures = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
       const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
       const remainingMeters = Math.max(0, excavation.excavation_length - totalClosedMeters);
+      
+      console.log('Öffne Teilabschluss-Dialog:', { remainingMeters, totalClosedMeters });
       
       setPartialClosureDialog({
         show: true,
@@ -146,6 +156,7 @@ export default function ProjectDetailOberflaechePage() {
       });
     } else {
       // Für Gruben: Normaler Bestätigungsdialog
+      console.log('Öffne normalen Bestätigungsdialog für Grube');
       setConfirmDialog({
         show: true,
         type: 'surface',
