@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Clock, FileDown, Signature, Construction, X } from "lucide-react";
 import html2canvas from 'html2canvas';
@@ -14,7 +15,7 @@ import { jsPDF } from 'jspdf';
 
 // Dialog-Komponente für das Hinzufügen/Bearbeiten von Einträgen
 function TimesheetDialog({ isOpen, setIsOpen, editingEntry, onSubmit }) {
-    const [formData, setFormData] = useState({ employee_name: '', hours: '', work_description: '' });
+    const [formData, setFormData] = useState({ employee_name: '', hours: '', work_description: '', hours_type: 'normal' });
 
     useEffect(() => {
         if (isOpen) {
@@ -22,10 +23,11 @@ function TimesheetDialog({ isOpen, setIsOpen, editingEntry, onSubmit }) {
                 setFormData({
                     employee_name: editingEntry.employee_name || '',
                     hours: editingEntry.hours || '',
-                    work_description: editingEntry.work_description || ''
+                    work_description: editingEntry.work_description || '',
+                    hours_type: editingEntry.hours_type || 'normal'
                 });
             } else {
-                setFormData({ employee_name: '', hours: '', work_description: '' });
+                setFormData({ employee_name: '', hours: '', work_description: '', hours_type: 'normal' });
             }
         }
     }, [isOpen, editingEntry]);
@@ -49,6 +51,19 @@ function TimesheetDialog({ isOpen, setIsOpen, editingEntry, onSubmit }) {
                     <div>
                         <Label htmlFor="hours">Stunden</Label>
                         <Input id="hours" type="number" step="0.25" min="0" value={formData.hours} onChange={(e) => setFormData({...formData, hours: e.target.value})} required />
+                    </div>
+                    <div>
+                        <Label htmlFor="hours_type">Stundenart</Label>
+                        <Select value={formData.hours_type} onValueChange={(value) => setFormData({...formData, hours_type: value})}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Stundenart wählen" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="normal">Normalstunden</SelectItem>
+                                <SelectItem value="overtime">Überstunden</SelectItem>
+                                <SelectItem value="night_shift">Nachtzulage</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div>
                         <Label htmlFor="work_description">Durchgeführte Arbeiten</Label>
@@ -321,6 +336,7 @@ export default function TimesheetManagement({ projectId, project }) {
                             <tr className="bg-gray-100">
                                 <th className="border p-2 text-left">Mitarbeiter</th>
                                 <th className="border p-2 text-left">Tätigkeit</th>
+                                <th className="border p-2 text-left">Art</th>
                                 <th className="border p-2 text-right">Stunden</th>
                             </tr>
                         </thead>
@@ -329,6 +345,11 @@ export default function TimesheetManagement({ projectId, project }) {
                                 <tr key={entry.id}>
                                     <td className="border p-2">{entry.employee_name}</td>
                                     <td className="border p-2">{entry.work_description}</td>
+                                    <td className="border p-2">
+                                        {entry.hours_type === 'overtime' && 'Überstunden'}
+                                        {entry.hours_type === 'night_shift' && 'Nachtzulage'}
+                                        {(!entry.hours_type || entry.hours_type === 'normal') && 'Normal'}
+                                    </td>
                                     <td className="border p-2 text-right">{entry.hours.toFixed(2)}</td>
                                 </tr>
                             ))}
@@ -395,6 +416,7 @@ export default function TimesheetManagement({ projectId, project }) {
                                 <TableRow>
                                     <TableHead>Mitarbeiter</TableHead>
                                     <TableHead>Tätigkeit</TableHead>
+                                    <TableHead>Art</TableHead>
                                     <TableHead className="text-right">Stunden</TableHead>
                                     <TableHead className="text-right">Aktionen</TableHead>
                                 </TableRow>
@@ -411,6 +433,11 @@ export default function TimesheetManagement({ projectId, project }) {
                                         >
                                             <TableCell className="font-medium">{entry.employee_name}</TableCell>
                                             <TableCell className="text-gray-600">{entry.work_description}</TableCell>
+                                            <TableCell>
+                                                {entry.hours_type === 'overtime' && <span className="text-orange-600 font-medium">Überstunden</span>}
+                                                {entry.hours_type === 'night_shift' && <span className="text-purple-600 font-medium">Nachtzulage</span>}
+                                                {(!entry.hours_type || entry.hours_type === 'normal') && <span className="text-gray-600">Normal</span>}
+                                            </TableCell>
                                             <TableCell className="text-right font-semibold">{entry.hours.toFixed(2)}</TableCell>
                                             <TableCell className="text-right">
                                                 <div className="flex justify-end gap-1">
