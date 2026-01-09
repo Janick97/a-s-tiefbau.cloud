@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { TimesheetEntry } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit, Trash2, Clock, FileDown, Signature, Construction } from "lucide-react";
+import { Plus, Edit, Trash2, Clock, FileDown, Signature, Construction, X } from "lucide-react";
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 // Dialog-Komponente für das Hinzufügen/Bearbeiten von Einträgen
 function TimesheetDialog({ isOpen, setIsOpen, editingEntry, onSubmit }) {
@@ -63,12 +64,104 @@ function TimesheetDialog({ isOpen, setIsOpen, editingEntry, onSubmit }) {
     );
 }
 
+// Signature Pad Component
+function SignaturePad({ label, onSave }) {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+  }, []);
+
+  const startDrawing = (e) => {
+    setIsDrawing(true);
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  };
+
+  const draw = (e) => {
+    if (!isDrawing) return;
+    e.preventDefault();
+    
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+    
+    const ctx = canvas.getContext('2d');
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const clearSignature = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  const saveSignature = () => {
+    const canvas = canvasRef.current;
+    const dataUrl = canvas.toDataURL();
+    onSave(dataUrl);
+  };
+
+  return (
+    <div className="space-y-3">
+      <Label className="text-sm font-medium">{label}</Label>
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-2 bg-white">
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={150}
+          className="w-full border border-gray-200 rounded cursor-crosshair touch-none"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+        />
+      </div>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={clearSignature} className="flex-1">
+          Löschen
+        </Button>
+        <Button type="button" size="sm" onClick={saveSignature} className="flex-1">
+          Übernehmen
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // Haupt-Komponente für das Stundenzettel-Management
 export default function TimesheetManagement({ projectId, project }) {
     const [entries, setEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showDialog, setShowDialog] = useState(false);
     const [editingEntry, setEditingEntry] = useState(null);
+    const [showSignatureDialog, setShowSignatureDialog] = useState(false);
+    const [signatureAuftraggeber, setSignatureAuftraggeber] = useState(null);
+    const [signatureAuftragnehmer, setSignatureAuftragnehmer] = useState(null);
+    const [isExportingPdf, setIsExportingPdf] = useState(false);
+    const pdfRef = useRef(null);
 
     useEffect(() => {
         loadEntries();
@@ -121,8 +214,68 @@ export default function TimesheetManagement({ projectId, project }) {
         }
     };
     
-    const handlePrint = () => {
-        window.print();
+    const handleExportPdf = () => {
+        setShowSignatureDialog(true);
+    };
+
+    const generatePdf = async () => {
+        if (!signatureAuftraggeber || !signatureAuftragnehmer) {
+            alert("Bitte fügen Sie beide Unterschriften hinzu.");
+            return;
+        }
+
+        setIsExportingPdf(true);
+        setShowSignatureDialog(false);
+
+        try {
+            const element = pdfRef.current;
+            
+            // Canvas-Signaturen in img-Elemente einfügen
+            const sigAuftraggeberImg = element.querySelector('#sig-auftraggeber-img');
+            const sigAuftragnehmerImg = element.querySelector('#sig-auftragnehmer-img');
+            
+            if (sigAuftraggeberImg) sigAuftraggeberImg.src = signatureAuftraggeber;
+            if (sigAuftragnehmerImg) sigAuftragnehmerImg.src = signatureAuftragnehmer;
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false
+            });
+
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const imgWidth = 210;
+            const pageHeight = 297;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+
+            pdf.save(`Stundenzettel_${project.project_number}.pdf`);
+
+            // Reset signatures
+            setSignatureAuftraggeber(null);
+            setSignatureAuftragnehmer(null);
+        } catch (error) {
+            console.error("Fehler beim PDF-Export:", error);
+            alert("Fehler beim Erstellen des PDFs.");
+        } finally {
+            setIsExportingPdf(false);
+        }
     };
 
     const totalHours = useMemo(() => {
@@ -131,7 +284,9 @@ export default function TimesheetManagement({ projectId, project }) {
 
     return (
         <>
-            <div className="printable-area hidden print:block p-8 bg-white text-black">
+            {/* PDF Export Template */}
+            <div ref={pdfRef} style={{ position: 'absolute', left: '-9999px', width: '210mm', backgroundColor: 'white' }}>
+                <div className="p-8 bg-white text-black">
                 <header className="mb-8 pb-4 border-b-2 border-black">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center gap-4">
@@ -187,18 +342,25 @@ export default function TimesheetManagement({ projectId, project }) {
                     </table>
                 </section>
                 
-                <footer className="mt-24">
+                <footer className="mt-16">
                     <div className="grid grid-cols-2 gap-16">
-                        <div className="pt-8 border-t border-black">
-                             <Signature className="w-5 h-5 mb-1" />
-                            Unterschrift Auftraggeber
+                        <div>
+                            <p className="font-medium mb-2">Unterschrift Auftraggeber</p>
+                            <div className="h-24 flex items-end">
+                                <img id="sig-auftraggeber-img" alt="" className="max-h-20 max-w-full" />
+                            </div>
+                            <div className="pt-2 border-t border-black mt-2"></div>
                         </div>
-                        <div className="pt-8 border-t border-black">
-                             <Signature className="w-5 h-5 mb-1" />
-                            Unterschrift Auftragnehmer
+                        <div>
+                            <p className="font-medium mb-2">Unterschrift Auftragnehmer</p>
+                            <div className="h-24 flex items-end">
+                                <img id="sig-auftragnehmer-img" alt="" className="max-h-20 max-w-full" />
+                            </div>
+                            <div className="pt-2 border-t border-black mt-2"></div>
                         </div>
                     </div>
                 </footer>
+            </div>
             </div>
             
             <Card className="card-elevation border-none no-print">
@@ -208,8 +370,8 @@ export default function TimesheetManagement({ projectId, project }) {
                         Stundenzettel ({entries.length} Einträge)
                     </CardTitle>
                     <div className="flex gap-2">
-                         <Button onClick={handlePrint} variant="outline">
-                             <FileDown className="w-4 h-4 mr-2" /> PDF Exportieren
+                         <Button onClick={handleExportPdf} variant="outline">
+                             <FileDown className="w-4 h-4 mr-2" /> PDF Export
                          </Button>
                         <Button onClick={handleAdd}>
                             <Plus className="w-4 h-4 mr-2" />
@@ -279,6 +441,116 @@ export default function TimesheetManagement({ projectId, project }) {
                 editingEntry={editingEntry}
                 onSubmit={handleSubmit}
             />
+
+            {/* Signature Dialog */}
+            <AnimatePresence>
+                {showSignatureDialog && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+                        onClick={(e) => { if (e.target === e.currentTarget) setShowSignatureDialog(false); }}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="w-full max-w-2xl my-8"
+                        >
+                            <Card className="card-elevation border-none">
+                                <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <CardTitle className="text-xl flex items-center gap-2">
+                                                <Signature className="w-6 h-6" />
+                                                Unterschriften hinzufügen
+                                            </CardTitle>
+                                            <p className="text-sm text-white/80 mt-1">
+                                                Bitte beide Unterschriften eintragen
+                                            </p>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setShowSignatureDialog(false)}
+                                            className="text-white hover:bg-white/20"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+
+                                <CardContent className="p-6 space-y-6">
+                                    <SignaturePad
+                                        label="Unterschrift Auftraggeber"
+                                        onSave={setSignatureAuftraggeber}
+                                    />
+
+                                    {signatureAuftraggeber && (
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Signature className="w-4 h-4 text-green-600" />
+                                                <span className="text-sm text-green-800">Auftraggeber-Unterschrift gespeichert</span>
+                                            </div>
+                                            <Button variant="ghost" size="sm" onClick={() => setSignatureAuftraggeber(null)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <SignaturePad
+                                        label="Unterschrift Auftragnehmer"
+                                        onSave={setSignatureAuftragnehmer}
+                                    />
+
+                                    {signatureAuftragnehmer && (
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Signature className="w-4 h-4 text-green-600" />
+                                                <span className="text-sm text-green-800">Auftragnehmer-Unterschrift gespeichert</span>
+                                            </div>
+                                            <Button variant="ghost" size="sm" onClick={() => setSignatureAuftragnehmer(null)}>
+                                                <X className="w-4 h-4" />
+                                            </Button>
+                                        </div>
+                                    )}
+                                </CardContent>
+
+                                <CardFooter className="flex justify-end gap-3 bg-gray-50">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            setShowSignatureDialog(false);
+                                            setSignatureAuftraggeber(null);
+                                            setSignatureAuftragnehmer(null);
+                                        }}
+                                    >
+                                        Abbrechen
+                                    </Button>
+                                    <Button
+                                        onClick={generatePdf}
+                                        disabled={!signatureAuftraggeber || !signatureAuftragnehmer || isExportingPdf}
+                                        className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                                    >
+                                        {isExportingPdf ? (
+                                            <>
+                                                <Clock className="w-4 h-4 mr-2 animate-spin" />
+                                                Erstelle PDF...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FileDown className="w-4 h-4 mr-2" />
+                                                PDF erstellen
+                                            </>
+                                        )}
+                                    </Button>
+                                </CardFooter>
+                            </Card>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 }
