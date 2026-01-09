@@ -22,7 +22,8 @@ import {
   FileText,
   Edit3,
   Save,
-  Eye
+  Eye,
+  RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -225,15 +226,13 @@ export default function MyMontageAuftraegePage() {
               {filteredAuftraege.length} von {showCompletedAuftraege ? completedAuftraegeCount : activeAuftraegeCount} Montageaufträgen
             </p>
           </div>
-          <Button
+          <button
             onClick={loadData}
-            variant="outline"
-            className="gap-2"
-            disabled={isLoading}
+            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            title="Aktualisieren"
           >
-            <Loader2 className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-            Aktualisieren
-          </Button>
+            <RefreshCw className="w-5 h-5 text-gray-600 hover:text-blue-600" />
+          </button>
         </motion.div>
 
         {/* Toggle zwischen aktiven und abgeschlossenen Aufträgen */}
