@@ -139,23 +139,26 @@ export default function MyProjectsOberflaechePage() {
     const needsBackfill = projectExcavations.filter(exc => !exc.is_backfilled).length;
     const needsSurface = projectExcavations.filter(exc => exc.is_backfilled && !exc.is_closed).length;
     const completed = projectExcavations.filter(exc => exc.is_closed).length;
-    const myCommission = projectExcavations.reduce((sum, exc) => {
-      let commission = 0;
-      if (exc.backfilled_by_user_id === user?.id) {
-        commission += exc.backfill_commission || 0;
+    
+    let hasBackfillCommission = false;
+    let hasSurfaceCommission = false;
+    
+    projectExcavations.forEach(exc => {
+      if (exc.backfilled_by_user_id === user?.id && exc.backfill_commission) {
+        hasBackfillCommission = true;
       }
-      if (exc.closed_by_user_id === user?.id) {
-        commission += exc.surface_commission || 0;
+      if (exc.closed_by_user_id === user?.id && exc.surface_commission) {
+        hasSurfaceCommission = true;
       }
-      return sum + commission;
-    }, 0);
+    });
 
     return {
       total: projectExcavations.length,
       needsBackfill,
       needsSurface,
       completed,
-      myCommission
+      hasBackfillCommission,
+      hasSurfaceCommission
     };
   };
 
@@ -401,14 +404,23 @@ export default function MyProjectsOberflaechePage() {
                             </div>
                           </div>
 
-                          {/* Meine Provision */}
-                          {stats.myCommission > 0 && (
+                          {/* Meine Provision - nur Prozente */}
+                          {(stats.hasBackfillCommission || stats.hasSurfaceCommission) && (
                             <div className="mt-3 pt-3 border-t border-gray-200">
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs text-gray-600">Meine Provision:</span>
-                                <span className="text-sm font-bold text-green-600">
-                                  €{Math.round(stats.myCommission).toLocaleString('de-DE')}
-                                </span>
+                              <div className="flex flex-col gap-1">
+                                <span className="text-xs text-gray-600 mb-1">Meine Provision:</span>
+                                <div className="flex gap-2">
+                                  {stats.hasBackfillCommission && (
+                                    <Badge className="bg-orange-100 text-orange-700 text-xs">
+                                      Verfüllung 20%
+                                    </Badge>
+                                  )}
+                                  {stats.hasSurfaceCommission && (
+                                    <Badge className="bg-green-100 text-green-700 text-xs">
+                                      Oberfläche 30%
+                                    </Badge>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           )}
