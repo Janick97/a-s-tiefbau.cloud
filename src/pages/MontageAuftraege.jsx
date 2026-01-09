@@ -370,11 +370,28 @@ export default function MontageAuftraegePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 sm:p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
         
-        <div className="mb-8">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="mb-3 md:mb-8">
+          {/* Mobile Header - kompakt */}
+          <div className="md:hidden flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                <Wrench className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Montageaufträge</h1>
+                <p className="text-xs text-gray-600">{auftraege.length} Aufträge</p>
+              </div>
+            </div>
+            <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="sm" className="h-8 px-2">
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
                 <Wrench className="w-8 h-8 text-blue-600" />
@@ -389,21 +406,21 @@ export default function MontageAuftraegePage() {
           </div>
         </div>
 
-        <Card className="card-elevation border-none mb-6">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className="card-elevation border-none mb-3 md:mb-6">
+          <CardContent className="p-2 md:p-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Suche nach SM-Nummer, Projektnummer, Titel, Kunde..."
+                  placeholder="Suche..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9 md:h-10 text-sm"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Status filtern..." />
+                <SelectTrigger className="h-9 md:h-10 text-sm">
+                  <SelectValue placeholder="Status..." />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alle">Alle Status</SelectItem>
@@ -417,54 +434,54 @@ export default function MontageAuftraegePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-3 md:mb-6">
           <Card className="card-elevation border-none">
-            <CardContent className="p-4">
+            <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Gesamt</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-[10px] md:text-sm text-gray-600">Gesamt</p>
+                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.total}</p>
                 </div>
-                <Wrench className="w-8 h-8 text-blue-500" />
+                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
           <Card className="card-elevation border-none">
-            <CardContent className="p-4">
+            <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Neu</p>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-[10px] md:text-sm text-gray-600">Neu</p>
+                  <p className="text-lg md:text-2xl font-bold text-orange-600">
                     {stats.neu}
                   </p>
                 </div>
-                <Clock className="w-8 h-8 text-orange-500" />
+                <Clock className="w-5 h-5 md:w-8 md:h-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
           <Card className="card-elevation border-none">
-            <CardContent className="p-4">
+            <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">In Bearbeitung</p>
-                  <p className="text-2xl font-bold text-yellow-600">
+                  <p className="text-[10px] md:text-sm text-gray-600">Aktiv</p>
+                  <p className="text-lg md:text-2xl font-bold text-yellow-600">
                     {stats.inProgress}
                   </p>
                 </div>
-                <AlertCircle className="w-8 h-8 text-yellow-500" />
+                <AlertCircle className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
               </div>
             </CardContent>
           </Card>
           <Card className="card-elevation border-none">
-            <CardContent className="p-4">
+            <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Fertig</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-[10px] md:text-sm text-gray-600">Fertig</p>
+                  <p className="text-lg md:text-2xl font-bold text-green-600">
                     {stats.fertig}
                   </p>
                 </div>
-                <Wrench className="w-8 h-8 text-green-500" />
+                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -496,7 +513,7 @@ export default function MontageAuftraegePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-2 md:gap-4">
             <AnimatePresence>
               {filteredAuftraege.map((auftrag, index) => {
                 const relatedProject = getProjectForAuftrag(auftrag);
@@ -511,54 +528,50 @@ export default function MontageAuftraegePage() {
                     <Card className={`card-elevation border-none hover:shadow-xl transition-shadow ${
                       auftrag.tiefbau_offen ? 'bg-blue-50 border-2 border-blue-200' : ''
                     }`}>
-                      <CardContent className="p-6">
-                        <div className="flex flex-col md:flex-row justify-between gap-4">
+                      <CardContent className="p-3 md:p-6">
+                        <div className="flex flex-col md:flex-row justify-between gap-3 md:gap-4">
                           <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3 flex-wrap">
-                              <h3 className="text-xl font-bold text-gray-900">{auftrag.sm_number}</h3>
-                              {auftrag.project_number && (
-                                <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded">
-                                  Projekt: {auftrag.project_number}
-                                </span>
-                              )}
-                              <Badge className={statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'}>
-                                {auftrag.status}
-                              </Badge>
-                              {auftrag.tiefbau_offen && (
-                                <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                                  <Construction className="w-3 h-3 mr-1" />
-                                  Tiefbau offen
+                            <div className="flex items-start gap-2 mb-2 md:mb-3 flex-wrap">
+                              <h3 className="text-base md:text-xl font-bold text-gray-900">{auftrag.sm_number}</h3>
+                              <div className="flex gap-1 md:gap-2 flex-wrap">
+                                {auftrag.project_number && (
+                                  <span className="text-[10px] md:text-sm text-gray-600 bg-gray-100 px-1.5 py-0.5 md:px-2 md:py-1 rounded">
+                                    Prj: {auftrag.project_number}
+                                  </span>
+                                )}
+                                <Badge className={`text-[10px] md:text-xs ${statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'}`}>
+                                  {auftrag.status}
                                 </Badge>
-                              )}
-                              {auftrag.notes && (
-                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                                  <FileText className="w-3 h-3 mr-1" />
-                                  Notizen
-                                </Badge>
-                              )}
-                              {relatedProject && (
-                                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                                  <Link className="w-3 h-3 mr-1" />
-                                  Projekt
-                                </Badge>
-                              )}
+                                {auftrag.tiefbau_offen && (
+                                  <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-[10px] md:text-xs">
+                                    <Construction className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                                    TB offen
+                                  </Badge>
+                                )}
+                                {auftrag.notes && (
+                                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-[10px] md:text-xs">
+                                    <FileText className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                                    Notizen
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                             
-                            <h4 className="text-lg font-semibold text-gray-800 mb-2">{auftrag.title}</h4>
+                            <h4 className="text-sm md:text-lg font-semibold text-gray-800 mb-1.5 md:mb-2 line-clamp-2">{auftrag.title}</h4>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                              <div className="flex items-center gap-2 text-gray-600">
-                                <Building className="w-4 h-4" />
-                                <span>{auftrag.client}</span>
+                            <div className="grid grid-cols-1 gap-1.5 md:gap-2 text-xs md:text-sm">
+                              <div className="flex items-center gap-1.5 md:gap-2 text-gray-600">
+                                <Building className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                                <span className="truncate">{auftrag.client}</span>
                               </div>
-                              <div className="flex items-center gap-2 text-gray-600">
-                                <MapPin className="w-4 h-4" />
-                                <span>{auftrag.street ? `${auftrag.street}, ` : ''}{auftrag.city || 'Kein Ort'}</span>
+                              <div className="flex items-center gap-1.5 md:gap-2 text-gray-600">
+                                <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                                <span className="truncate">{auftrag.street ? `${auftrag.street}, ` : ''}{auftrag.city || 'Kein Ort'}</span>
                               </div>
                               {(auftrag.assigned_monteure?.length > 0 || auftrag.assigned_to) && (
-                                <div className="flex items-center gap-2 text-gray-600">
-                                  <Users className="w-4 h-4" />
-                                  <span>
+                                <div className="flex items-center gap-1.5 md:gap-2 text-gray-600">
+                                  <Users className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                                  <span className="truncate">
                                     {auftrag.assigned_monteure?.length > 0 
                                       ? auftrag.assigned_monteure.map(m => m.name).join(', ')
                                       : auftrag.assigned_to
@@ -569,57 +582,49 @@ export default function MontageAuftraegePage() {
                             </div>
 
                             {auftrag.tiefbau_offen && auftrag.tiefbau_offen_date && (
-                              <div className="mt-3 p-3 bg-blue-100 border border-blue-300 rounded-lg">
-                                <div className="flex items-center gap-2 text-sm text-blue-800">
-                                  <Construction className="w-4 h-4" />
+                              <div className="mt-2 md:mt-3 p-2 md:p-3 bg-blue-100 border border-blue-300 rounded-lg">
+                                <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-blue-800">
+                                  <Construction className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
                                   <span className="font-medium">
-                                    Tiefbau offen gemeldet am: {new Date(auftrag.tiefbau_offen_date).toLocaleDateString('de-DE')} um {new Date(auftrag.tiefbau_offen_date).toLocaleTimeString('de-DE')}
+                                    TB offen: {new Date(auftrag.tiefbau_offen_date).toLocaleDateString('de-DE')} {new Date(auftrag.tiefbau_offen_date).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
                                   </span>
                                 </div>
                               </div>
                             )}
 
                             {relatedProject && (
-                              <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-                                <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm">
-                                  <div className="flex items-center gap-2">
-                                    <Link className="w-4 h-4 text-orange-600" />
-                                    <span className="font-medium text-orange-800">
-                                      Verknüpft mit Projekt: {relatedProject.project_number}
-                                    </span>
-                                  </div>
-                                  <span className="text-orange-600 ml-0 sm:ml-auto">
-                                    • Status: {relatedProject.project_status}
+                              <div className="mt-2 md:mt-3 p-2 md:p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <div className="flex items-center gap-1.5 md:gap-2 text-[10px] md:text-sm text-orange-800">
+                                  <Link className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
+                                  <span className="font-medium truncate">
+                                    Projekt: {relatedProject.project_number}
                                   </span>
                                 </div>
                               </div>
                             )}
 
                             {auftrag.notes && (
-                              <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div className="flex items-start gap-2">
-                                  <FileText className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium text-gray-700 mb-1">Notizen:</p>
-                                    <p className="text-sm text-gray-600 whitespace-pre-wrap line-clamp-2">
-                                      {auftrag.notes}
-                                    </p>
-                                  </div>
+                              <div className="mt-2 md:mt-3 p-2 md:p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <div className="flex items-start gap-1.5 md:gap-2">
+                                  <FileText className="w-3 h-3 md:w-4 md:h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                                  <p className="text-[10px] md:text-sm text-gray-600 whitespace-pre-wrap line-clamp-2">
+                                    {auftrag.notes}
+                                  </p>
                                 </div>
                               </div>
                             )}
 
                             {(auftrag.start_date || auftrag.completion_date) && (
-                              <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                              <div className="mt-2 md:mt-3 flex flex-wrap items-center gap-2 md:gap-4 text-[10px] md:text-sm text-gray-600">
                                 {auftrag.start_date && (
                                   <div className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
+                                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                                     <span>Start: {new Date(auftrag.start_date).toLocaleDateString('de-DE')}</span>
                                   </div>
                                 )}
                                 {auftrag.completion_date && (
                                   <div className="flex items-center gap-1">
-                                    <Calendar className="w-4 h-4" />
+                                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                                     <span>Fertig: {new Date(auftrag.completion_date).toLocaleDateString('de-DE')}</span>
                                   </div>
                                 )}
@@ -627,15 +632,15 @@ export default function MontageAuftraegePage() {
                             )}
                           </div>
 
-                          <div className="flex md:flex-col gap-2 justify-end">
+                          <div className="flex md:flex-col gap-1 md:gap-2 justify-end flex-wrap">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleMonteurClick(auftrag)}
-                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 h-7 md:h-9 px-2 md:px-3 text-[10px] md:text-sm"
                               title="Monteure zuweisen"
                             >
-                              <Users className="w-4 h-4 mr-1" />
+                              <Users className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1" />
                               <span className="hidden sm:inline">Monteure</span>
                             </Button>
                             {!auftrag.tiefbau_offen && (
@@ -644,45 +649,47 @@ export default function MontageAuftraegePage() {
                                 size="sm"
                                 onClick={() => handleTiefbauOffen(auftrag)}
                                 disabled={updatingAuftrag === auftrag.id}
-                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-7 md:h-9 px-2 md:px-3 text-[10px] md:text-sm"
                                 title="Als Tiefbau offen melden"
                               >
-                                <Construction className="w-4 h-4 mr-1" />
-                                <span className="hidden sm:inline">Tiefbau offen</span>
+                                <Construction className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1" />
+                                <span className="hidden sm:inline">TB offen</span>
                               </Button>
                             )}
                             <Button
                               variant="outline"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleNotesClick(auftrag)}
                               title="Notizen bearbeiten"
+                              className="h-7 w-7 md:h-9 md:w-9 p-0"
                             >
-                              <Edit3 className="w-4 h-4" />
+                              <Edit3 className="w-3 h-3 md:w-4 md:h-4" />
                             </Button>
                             {relatedProject && (
                               <a href={createPageUrl(`ProjectDetail?id=${relatedProject.id}`)} target="_blank" rel="noopener noreferrer">
-                                <Button variant="outline" size="icon" title="Projekt anzeigen">
-                                  <ExternalLink className="w-4 h-4" />
+                                <Button variant="outline" size="sm" title="Projekt anzeigen" className="h-7 w-7 md:h-9 md:w-9 p-0">
+                                  <ExternalLink className="w-3 h-3 md:w-4 md:h-4" />
                                 </Button>
                               </a>
                             )}
                             <Button
                               variant="outline"
-                              size="icon"
+                              size="sm"
                               onClick={() => {
                                 setEditingAuftrag(auftrag);
                                 setShowForm(true);
                               }}
+                              className="h-7 w-7 md:h-9 md:w-9 p-0"
                             >
-                              <Edit className="w-4 h-4" />
+                              <Edit className="w-3 h-3 md:w-4 md:h-4" />
                             </Button>
                             <Button
                               variant="outline"
-                              size="icon"
+                              size="sm"
                               onClick={() => handleDelete(auftrag.id)}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-600 hover:text-red-700 h-7 w-7 md:h-9 md:w-9 p-0"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                             </Button>
                           </div>
                         </div>
