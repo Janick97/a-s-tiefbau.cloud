@@ -354,9 +354,6 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Datum, Uhrzeit & Wetter Widget */}
-          <DateTimeWeatherWidget />
-
           {/* Statistiken */}
           {personalStats && (
             <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
@@ -528,9 +525,6 @@ export default function DashboardPage() {
               </button>
             </div>
           </motion.div>
-
-          {/* Datum, Uhrzeit & Wetter Widget */}
-          <DateTimeWeatherWidget />
 
           {/* Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
