@@ -35,7 +35,8 @@ export default function ExcavationsManagement({
   onExcavationDelete,
   loadData,
   project,
-  showAddButton = true
+  showAddButton = true,
+  currentUser
 }) {
   const [showForm, setShowForm] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
@@ -645,6 +646,7 @@ export default function ExcavationsManagement({
         onEdit={handleEditFromDetail}
         projectTitle={project?.title}
         priceItem={getSelectedPriceItem(selectedExcavation?.price_item_id)}
+        currentUser={currentUser}
       />
     </div>
   );
