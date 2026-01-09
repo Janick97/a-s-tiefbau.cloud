@@ -1654,7 +1654,8 @@ export default function ProjectsPage() {
 
         <Card className="card-elevation border-none mb-6">
           <CardContent className="p-4">
-            <div className="flex gap-3">
+            {/* Desktop Layout */}
+            <div className="hidden md:flex gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <Input
@@ -1713,6 +1714,36 @@ export default function ProjectsPage() {
               >
                 <Download className="w-4 h-4 mr-2" />
                 PDF
+              </Button>
+            </div>
+
+            {/* Mobile Layout */}
+            <div className="md:hidden space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Input
+                  placeholder="Projektnummer, SM, Stadt, Kunde..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 h-12 text-base"
+                />
+              </div>
+              <Button
+                variant="outline"
+                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="w-full h-10"
+              >
+                {sortOrder === 'asc' ? (
+                  <>
+                    <ArrowUp className="w-4 h-4 mr-2" />
+                    Aufsteigend
+                  </>
+                ) : (
+                  <>
+                    <ArrowDown className="w-4 h-4 mr-2" />
+                    Absteigend
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
