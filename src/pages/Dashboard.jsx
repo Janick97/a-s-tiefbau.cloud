@@ -373,48 +373,6 @@ export default function DashboardPage() {
               link={createPageUrl("Profile")}
             />
           </div>
-
-          {/* Letzte Projekte */}
-          <div className="mt-8">
-            <Card className="card-elevation border-none">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-orange-600" />
-                  Zuletzt bearbeitet
-                </CardTitle>
-                <Link to={createPageUrl("MyProjects")}>
-                  <Badge variant="outline" className="cursor-pointer hover:bg-gray-100">
-                    Alle anzeigen
-                  </Badge>
-                </Link>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {assignedProjects.slice(0, 5).map((project) => (
-                    <Link
-                      key={project.id}
-                      to={createPageUrl(`ProjectDetail?id=${project.id}`)}
-                      className="block p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 truncate">{project.project_number}</p>
-                          <p className="text-sm text-gray-600 truncate">{project.title}</p>
-                        </div>
-                        <Eye className="w-4 h-4 text-gray-400 ml-2 flex-shrink-0" />
-                      </div>
-                    </Link>
-                  ))}
-                  
-                  {assignedProjects.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      Keine Projekte zugewiesen
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     );
