@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Shovel, MapPin, Euro, CheckSquare, Package } from "lucide-react";
-import { Excavation } from "@/entities/all";
+import { Excavation, User } from "@/entities/all";
 import ExcavationForm from "../excavations/ExcavationForm";
 import ExcavationDetail from "../excavations/ExcavationDetail";
 
@@ -38,6 +38,25 @@ export default function ExcavationsManagement({
   showAddButton = true,
   currentUser
 }) {
+  const [internalUser, setInternalUser] = useState(currentUser || null);
+
+  // Load user if not provided
+  useEffect(() => {
+    if (!currentUser) {
+      const loadUser = async () => {
+        try {
+          const userData = await User.me();
+          setInternalUser(userData);
+        } catch (error) {
+          console.log("Benutzer nicht angemeldet:", error);
+          setInternalUser(null);
+        }
+      };
+      loadUser();
+    } else {
+      setInternalUser(currentUser);
+    }
+  }, [currentUser]);
   const [showForm, setShowForm] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
@@ -646,7 +665,7 @@ export default function ExcavationsManagement({
         onEdit={handleEditFromDetail}
         projectTitle={project?.title}
         priceItem={getSelectedPriceItem(selectedExcavation?.price_item_id)}
-        currentUser={currentUser}
+        currentUser={internalUser}
       />
     </div>
   );
