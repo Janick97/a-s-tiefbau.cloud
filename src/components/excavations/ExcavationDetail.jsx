@@ -324,7 +324,7 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
 
   return (
     <>
-      <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <CardHeader className="flex flex-row items-center justify-between bg-orange-500 text-white">
             <CardTitle className="flex items-center gap-2">
