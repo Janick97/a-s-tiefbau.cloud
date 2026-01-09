@@ -3,9 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, Upload, Loader2, X, Camera } from "lucide-react";
+import { CheckCircle, Loader2, X, Camera, AlertTriangle } from "lucide-react";
 import { ExcavationClosure } from "@/entities/all";
 import { UploadFile } from "@/integrations/Core";
 
@@ -16,6 +14,14 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+
+  const getClosureTypeFromSurface = (surfaceType) => {
+    if (!surfaceType) return 'Platten/Pflaster';
+    if (surfaceType === 'Asphalt') return 'Asphalt Trag';
+    if (surfaceType === 'Beton' || surfaceType === 'Naturstein') return 'Beton/Naturstein';
+    if (surfaceType === 'Platten' || surfaceType === 'Pflaster') return 'Platten/Pflaster';
+    return 'Platten/Pflaster';
+  };
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -61,8 +67,8 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
       return;
     }
 
-    if (!formData.closure_type) {
-      alert("Bitte Abschlusstyp auswählen");
+    if (formData.photos.length < 2) {
+      alert("Bitte mindestens 2 Fotos hochladen");
       return;
     }
 
@@ -74,10 +80,9 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
         closed_by_user_id: user?.id,
         meters_closed: metersToClose,
         closure_date: new Date().toISOString().split('T')[0],
-        closure_type: formData.closure_type,
-        surface_type: formData.surface_type || excavation?.surface_type,
-        photos: formData.photos,
-        notes: formData.notes
+        closure_type: getClosureTypeFromSurface(excavation?.surface_type),
+        surface_type: excavation?.surface_type,
+        photos: formData.photos
       });
 
       onSuccess();
@@ -97,130 +102,125 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-            <p className="font-semibold text-blue-900">Graben: {excavation?.location_name}</p>
-            <p className="text-blue-800">Gesamtlänge: {excavation?.excavation_length?.toFixed(2)}m</p>
-            <p className="text-blue-800">Noch offen: {remainingMeters.toFixed(2)}m</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Standort:</span>
+                <span className="font-semibold">{excavation?.location_name}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Oberfläche:</span>
+                <span className="font-semibold">{excavation?.surface_type || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Gesamtlänge:</span>
+                <span className="font-semibold">{excavation?.excavation_length?.toFixed(1)} m</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Noch offen:</span>
+                <span className="font-semibold text-orange-600">{remainingMeters.toFixed(1)} m</span>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="meters_closed">Geschlossene Meter *</Label>
+            <Label htmlFor="meters_closed">
+              Geschlossene Meter * (max. {remainingMeters.toFixed(1)} m)
+            </Label>
             <Input
               id="meters_closed"
               type="number"
-              step="0.01"
+              step="0.1"
               min="0"
               max={remainingMeters}
               value={formData.meters_closed}
               onChange={(e) => handleInputChange('meters_closed', e.target.value)}
-              placeholder={`Max. ${remainingMeters.toFixed(2)}m`}
+              placeholder={`z.B. ${Math.min(10, remainingMeters).toFixed(1)}`}
+              className="text-lg font-semibold"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="closure_type">Abschlusstyp *</Label>
-            <Select 
-              value={formData.closure_type} 
-              onValueChange={(value) => handleInputChange('closure_type', value)}
-              required
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Typ auswählen..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Asphalt Trag">Asphalt Trag</SelectItem>
-                <SelectItem value="Asphalt Fein">Asphalt Fein</SelectItem>
-                <SelectItem value="Beton/Naturstein">Beton/Naturstein</SelectItem>
-                <SelectItem value="Platten/Pflaster">Platten/Pflaster</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="surface_type">Oberflächenart</Label>
-            <Select 
-              value={formData.surface_type} 
-              onValueChange={(value) => handleInputChange('surface_type', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Oberfläche..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Naturstein">Naturstein</SelectItem>
-                <SelectItem value="Beton">Beton</SelectItem>
-                <SelectItem value="Platten">Platten</SelectItem>
-                <SelectItem value="Pflaster">Pflaster</SelectItem>
-                <SelectItem value="unbefestigt">Unbefestigt</SelectItem>
-                <SelectItem value="Asphalt">Asphalt</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Fotos hochladen</Label>
-            {formData.photos.length > 0 && (
-              <div className="grid grid-cols-4 gap-2 mb-2">
-                {formData.photos.map((url, index) => (
-                  <div key={index} className="relative group aspect-square rounded overflow-hidden border">
-                    <img src={url} alt={`${index + 1}`} className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(url)}
-                      className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            <Input
-              id="file-upload"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              disabled={isUploading || formData.photos.length >= 10}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => document.getElementById('file-upload').click()}
-              disabled={isUploading || formData.photos.length >= 10}
-              className="w-full"
-            >
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Lädt hoch...
-                </>
-              ) : (
-                <>
-                  <Camera className="w-4 h-4 mr-2" />
-                  Bilder hinzufügen ({formData.photos.length}/10)
-                </>
+            <Label>Fotos hochladen * (mind. 2 Fotos)</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              {formData.photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  {formData.photos.map((url, index) => (
+                    <div key={index} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                      <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteImage(url)}
+                        disabled={isUploading}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                      <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </Button>
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notizen</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => handleInputChange('notes', e.target.value)}
-              placeholder="Optionale Notizen..."
-              className="min-h-20"
-            />
+              <Input
+                id="file-upload"
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
+                disabled={isUploading || formData.photos.length >= 10}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById('file-upload').click()}
+                disabled={isUploading || formData.photos.length >= 10}
+                className="w-full"
+              >
+                {isUploading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Lädt hoch...
+                  </>
+                ) : (
+                  <>
+                    <Camera className="w-4 h-4 mr-2" />
+                    {formData.photos.length === 0 
+                      ? 'Fotos auswählen (mind. 2)' 
+                      : `${formData.photos.length}/10 Fotos`}
+                  </>
+                )}
+              </Button>
+              
+              {formData.photos.length > 0 && formData.photos.length < 2 && (
+                <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
+                  <AlertTriangle className="w-4 h-4" />
+                  Bitte laden Sie noch mindestens {2 - formData.photos.length} Foto(s) hoch.
+                </p>
+              )}
+              
+              {formData.photos.length >= 2 && (
+                <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4" />
+                  Mindestanzahl erreicht!
+                </p>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="gap-2">
             <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
               Abbrechen
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="bg-green-600 hover:bg-green-700">
+            <Button 
+              type="submit" 
+              disabled={isSubmitting || formData.photos.length < 2 || !formData.meters_closed}
+              className="bg-green-600 hover:bg-green-700"
+            >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
