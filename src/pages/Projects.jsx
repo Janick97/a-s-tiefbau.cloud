@@ -1549,76 +1549,7 @@ export default function ProjectsPage() {
                             <span className="text-gray-500">Status</span>
                             <span className={`font-medium text-gray-800 rounded px-2 py-1 text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100'}`}>{project.project_status || 'Nicht angegeben'}</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-500">Material gebucht</span>
-                            <input
-                              type="checkbox"
-                              checked={project.material_booking_completed || false}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleCheckboxChange(project.id, 'material_booking_completed', e.target.checked);
-                              }}
-                              disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'material_booking_completed')}
-                              className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-                            />
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-gray-500">Dokumentation</span>
-                            <input
-                              type="checkbox"
-                              checked={project.documentation_completed || false}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleCheckboxChange(project.id, 'documentation_completed', e.target.checked);
-                              }}
-                              disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'documentation_completed')}
-                              className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
-                            />
-                          </div>
-                          <div className="border-t pt-2 mt-2">
-                            <p className="text-gray-500 text-sm mb-2 font-medium">EV</p>
-                            <div className="flex gap-4">
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={project.ev_ta || false}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleCheckboxChange(project.id, 'ev_ta', e.target.checked);
-                                  }}
-                                  disabled={updatingProject === project.id}
-                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-700">TA</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={project.ev_sa || false}
-                                  onChange={(e) => {
-                                    e.stopPropagation();
-                                    handleCheckboxChange(project.id, 'ev_sa', e.target.checked);
-                                  }}
-                                  disabled={updatingProject === project.id}
-                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-700">SA</span>
-                              </div>
-                            </div>
-                          </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full mt-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(e, project);
-                          }}
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Bearbeiten
-                        </Button>
                       </CardContent>
                     </Card>
                   </motion.div>
