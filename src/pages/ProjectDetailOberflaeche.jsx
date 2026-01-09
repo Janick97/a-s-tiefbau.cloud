@@ -1,13 +1,12 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Project, Excavation, PriceItem, User } from "@/entities/all";
+import { Project, Excavation, PriceItem, User, ExcavationClosure } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input"; // Added Input component
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -25,11 +24,12 @@ import {
   Layers,
   Navigation,
   Eye,
-  Upload, // Added Upload icon
-  Trash2, // Added Trash2 icon
-  Camera // Added Camera icon
+  Upload,
+  Trash2,
+  Camera
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
 
 export default function ProjectDetailOberflaechePage() {
   const location = useLocation();
@@ -57,6 +57,11 @@ export default function ProjectDetailOberflaechePage() {
     show: false,
     excavation: null,
     priceItem: null
+  });
+  const [partialClosureDialog, setPartialClosureDialog] = useState({
+    show: false,
+    excavation: null,
+    remainingMeters: 0
   });
 
   const projectId = new URLSearchParams(location.search).get("id");
@@ -113,13 +118,40 @@ export default function ProjectDetailOberflaechePage() {
     });
   };
 
-  const handleMarkClosedClick = (excavation, event) => {
+  const handleMarkClosedClick = async (excavation, event) => {
     event?.stopPropagation();
-    setConfirmDialog({
-      show: true,
-      type: 'surface',
-      excavation: excavation
-    });
+    
+    // Prüfe ob es ein Graben ist
+    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+    const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+    const anderePositionNumbers = [
+      '10021010', '10010413', '10037473', '10037352',
+      '10037463', '10037372', '10021040', '10037342', '10037363'
+    ];
+    const isGrabenPosition = priceItem?.unit === 'M' && 
+      !detailDimensionPositions.includes(priceItem?.item_number) &&
+      !anderePositionNumbers.includes(priceItem?.item_number);
+    
+    if (isGrabenPosition) {
+      // Für Gräben: Teilabschluss-Dialog
+      // Lade bestehende closures
+      const closures = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
+      const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
+      const remainingMeters = Math.max(0, excavation.excavation_length - totalClosedMeters);
+      
+      setPartialClosureDialog({
+        show: true,
+        excavation,
+        remainingMeters
+      });
+    } else {
+      // Für Gruben: Normaler Bestätigungsdialog
+      setConfirmDialog({
+        show: true,
+        type: 'surface',
+        excavation: excavation
+      });
+    }
   };
 
   const handleConfirmAction = () => { // Modified to open photo upload dialog
@@ -1022,6 +1054,22 @@ export default function ProjectDetailOberflaechePage() {
               </Card>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Teilabschluss-Dialog für Gräben */}
+      <AnimatePresence>
+        {partialClosureDialog.show && (
+          <PartialClosureDialog
+            excavation={partialClosureDialog.excavation}
+            user={user}
+            remainingMeters={partialClosureDialog.remainingMeters}
+            onClose={() => setPartialClosureDialog({ show: false, excavation: null, remainingMeters: 0 })}
+            onSuccess={() => {
+              setPartialClosureDialog({ show: false, excavation: null, remainingMeters: 0 });
+              loadData();
+            }}
+          />
         )}
       </AnimatePresence>
 
