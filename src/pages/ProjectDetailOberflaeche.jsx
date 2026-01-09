@@ -492,36 +492,11 @@ export default function ProjectDetailOberflaechePage() {
                             <p className="text-gray-500">Position</p>
                             <p className="font-medium truncate">{priceItem?.description || 'N/A'}</p>
                           </div>
-                          <div>
-                            <p className="text-gray-500">Preis</p>
-                            <p className="font-medium text-green-600">
-                              €{Math.round(excavation.calculated_price || 0).toLocaleString('de-DE')}
-                            </p>
-                          </div>
+
                         </div>
                       </div>
 
-                      {/* Provisionen Anzeige */}
-                      {(excavation.backfill_commission || excavation.surface_commission) && (
-                        <div className="bg-blue-50 rounded-lg p-2 mb-2 text-xs">
-                          {excavation.backfill_commission && excavation.backfilled_by_user_id === user.id && (
-                            <div className="flex justify-between mb-1">
-                              <span className="text-gray-600">Meine Verfüll-Provision (20%):</span>
-                              <span className="font-semibold text-blue-700">
-                                €{Math.round(excavation.backfill_commission).toLocaleString('de-DE')}
-                              </span>
-                            </div>
-                          )}
-                          {excavation.surface_commission && excavation.closed_by_user_id === user.id && (
-                            <div className="flex justify-between">
-                              <span className="text-gray-600">Meine Oberflächen-Provision (30%):</span>
-                              <span className="font-semibold text-blue-700">
-                                €{Math.round(excavation.surface_commission).toLocaleString('de-DE')}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      )}
+
 
                       {/* Fotos Anzeige */}
                       {(excavation.photos_backfill?.length > 0 || excavation.photos_surface?.length > 0) && (
@@ -911,29 +886,7 @@ export default function ProjectDetailOberflaechePage() {
                     </div>
                   </div>
 
-                  {/* Preis Info */}
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium text-green-800">Leistungswert:</span>
-                      <span className="text-xl font-bold text-green-700">
-                        €{Math.round(detailDialog.excavation.calculated_price || 0).toLocaleString('de-DE')}
-                      </span>
-                    </div>
-                    <div className="mt-2 pt-2 border-t border-green-200 text-xs text-green-700 space-y-1">
-                      <div className="flex justify-between">
-                        <span>Bauleiter (50%):</span>
-                        <span>€{Math.round((detailDialog.excavation.calculated_price || 0) * 0.5).toLocaleString('de-DE')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Verfüllung (20%):</span>
-                        <span>€{Math.round((detailDialog.excavation.calculated_price || 0) * 0.2).toLocaleString('de-DE')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Oberfläche (30%):</span>
-                        <span>€{Math.round((detailDialog.excavation.calculated_price || 0) * 0.3).toLocaleString('de-DE')}</span>
-                      </div>
-                    </div>
-                  </div>
+
                 </CardContent>
               </Card>
             </motion.div>
@@ -988,12 +941,7 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm text-gray-600">
                             {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
                           </p>
-                          <div className="mt-2 pt-2 border-t border-orange-200">
-                            <p className="text-sm text-gray-600">Ihre Verfüll-Provision (20%):</p>
-                            <p className="text-lg font-bold text-orange-700">
-                              €{Math.round((confirmDialog.excavation?.calculated_price || 0) * 0.2).toLocaleString('de-DE')}
-                            </p>
-                          </div>
+
                         </div>
                         <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                           <p className="text-sm text-blue-800">
@@ -1012,12 +960,7 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm text-gray-600">
                             {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
                           </p>
-                          <div className="mt-2 pt-2 border-t border-green-200">
-                            <p className="text-sm text-gray-600">Ihre Oberflächen-Provision (30%):</p>
-                            <p className="text-lg font-bold text-green-700">
-                              €{Math.round((confirmDialog.excavation?.calculated_price || 0) * 0.3).toLocaleString('de-DE')}
-                            </p>
-                          </div>
+
                         </div>
                         <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                           <p className="text-sm text-blue-800">
