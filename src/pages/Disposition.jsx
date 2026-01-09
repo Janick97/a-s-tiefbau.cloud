@@ -292,14 +292,26 @@ export default function DispositionPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-2 sm:p-4 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-4 md:mb-8"
         >
-          <div className="flex items-center gap-4 mb-6">
+          {/* Mobile Header - kompakt */}
+          <div className="flex items-center gap-2 mb-3 md:hidden">
+            <div className="p-2 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg">
+              <ClipboardList className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Disposition</h1>
+              <p className="text-xs text-gray-600">Bauleiter zuweisen</p>
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center gap-4 mb-6">
             <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl">
               <ClipboardList className="w-8 h-8 text-white" />
             </div>
@@ -309,76 +321,76 @@ export default function DispositionPage() {
             </div>
           </div>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                <span className="font-medium">Nicht zugewiesen: {unassignedProjects.length}</span>
+          {/* Statistics - Mobile optimiert */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-orange-500 rounded-full flex-shrink-0"></div>
+                <span className="text-xs md:text-sm font-medium truncate">Nicht: {unassignedProjects.length}</span>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span className="font-medium">Zugewiesen: {assignedProjects.length}</span>
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-blue-500 rounded-full flex-shrink-0"></div>
+                <span className="text-xs md:text-sm font-medium truncate">Zugewiesen: {assignedProjects.length}</span>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span className="font-medium">Erledigt: {assignedProjects.filter(p => p.foreman_completed).length}</span>
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-green-500 rounded-full flex-shrink-0"></div>
+                <span className="text-xs md:text-sm font-medium truncate">Erledigt: {assignedProjects.filter(p => p.foreman_completed).length}</span>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
-                <span className="font-medium">Bauleiter verfügbar: {users.length}</span>
+            <div className="bg-white p-2 md:p-4 rounded-lg shadow">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-2 h-2 md:w-3 md:h-3 bg-gray-500 rounded-full flex-shrink-0"></div>
+                <span className="text-xs md:text-sm font-medium truncate">Bauleiter: {users.length}</span>
               </div>
             </div>
           </div>
         </motion.div>
 
-        {/* View Mode Toggle */}
-        <div className="flex justify-end mb-4">
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-1">
+        {/* View Mode Toggle - Mobile optimiert */}
+        <div className="flex justify-end mb-3 md:mb-4">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 md:p-1">
             <Button
               variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('kanban')}
-              className="gap-2"
+              className="gap-1 md:gap-2 text-xs md:text-sm h-7 md:h-9 px-2 md:px-3"
             >
-              <Columns className="w-4 h-4" />
-              Kanban
+              <Columns className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Kanban</span>
             </Button>
             <Button
               variant={viewMode === 'list' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setViewMode('list')}
-              className="gap-2"
+              className="gap-1 md:gap-2 text-xs md:text-sm h-7 md:h-9 px-2 md:px-3"
             >
-              <List className="w-4 h-4" />
-              Liste
+              <List className="w-3 h-3 md:w-4 md:h-4" />
+              <span className="hidden sm:inline">Liste</span>
             </Button>
           </div>
         </div>
 
-        {/* Filters */}
-        <Card className="card-elevation border-none mb-8">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="relative">
+        {/* Filters - Mobile optimiert */}
+        <Card className="card-elevation border-none mb-4 md:mb-8">
+          <CardContent className="p-3 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-4">
+              <div className="relative md:col-span-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Suche nach Projekt, Nummer oder Kunde..."
+                  placeholder="Suche..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-9 md:h-10 text-sm"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Status filtern" />
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <Filter className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Status</SelectItem>
@@ -389,9 +401,9 @@ export default function DispositionPage() {
                 </SelectContent>
               </Select>
               <Select value={assignmentFilter} onValueChange={setAssignmentFilter}>
-                <SelectTrigger>
-                  <UserIcon className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Zuweisung filtern" />
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <UserIcon className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <SelectValue placeholder="Zuweisung" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Projekte</SelectItem>
@@ -400,9 +412,9 @@ export default function DispositionPage() {
                 </SelectContent>
               </Select>
               <Select value={foremanFilter} onValueChange={setForemanFilter}>
-                <SelectTrigger>
-                  <UserIcon className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Bauleiter filtern" />
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <UserIcon className="w-3 h-3 md:w-4 md:h-4 mr-1 md:mr-2" />
+                  <SelectValue placeholder="Bauleiter" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Alle Bauleiter</SelectItem>
@@ -421,7 +433,8 @@ export default function DispositionPage() {
           <>
             {viewMode === 'kanban' ? (
               <DragDropContext onDragEnd={onDragEnd}>
-                <div className="flex gap-4 overflow-x-auto pb-4">
+                {/* Desktop: Horizontale Spalten */}
+                <div className="hidden md:flex gap-4 overflow-x-auto pb-4">
                   {kanbanColumns.map((column) => (
                     <div key={column.id} className="flex-shrink-0 w-80">
                       <Card className="card-elevation border-none h-full">
@@ -508,9 +521,89 @@ export default function DispositionPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Mobile: Vertikale Abschnitte mit kompakten Karten */}
+                <div className="md:hidden space-y-3">
+                  {kanbanColumns.map((column) => (
+                    column.projects.length > 0 && (
+                      <Card key={column.id} className="card-elevation border-none">
+                        <CardHeader className={`py-2 px-3 ${
+                          column.color === 'orange' ? 'bg-orange-50' :
+                          column.color === 'green' ? 'bg-green-50' :
+                          'bg-blue-50'
+                        }`}>
+                          <CardTitle className="text-sm font-semibold flex items-center justify-between">
+                            <span className="truncate">{column.title}</span>
+                            <Badge variant="outline" className="ml-2 text-xs">
+                              {column.projects.length}
+                            </Badge>
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-2 space-y-2">
+                          {column.projects.map((project) => (
+                            <Card key={project.id} className={`border ${
+                              project.foreman_completed ? 'border-green-200 bg-green-50' :
+                              project.assigned_foreman_id ? 'border-blue-200 bg-blue-50' :
+                              'border-orange-200 bg-orange-50'
+                            }`}>
+                              <CardContent className="p-2">
+                                <div className="space-y-1.5">
+                                  <Link 
+                                    to={createPageUrl(`ProjectDetail?id=${project.id}`)}
+                                    className="font-semibold text-xs text-gray-900 hover:text-orange-600 line-clamp-2 block"
+                                  >
+                                    {project.title}
+                                  </Link>
+                                  <div className="text-[10px] text-gray-600 space-y-0.5">
+                                    <div className="font-mono bg-white px-1.5 py-0.5 rounded border inline-block">
+                                      {project.project_number}
+                                    </div>
+                                    <div className="flex gap-2 flex-wrap">
+                                      <span>SM: {project.sm_number}</span>
+                                      <span>•</span>
+                                      <span className="font-medium">{project.client}</span>
+                                    </div>
+                                    {project.city && <div>📍 {project.city}</div>}
+                                  </div>
+                                  {project.foreman_completed && project.foreman_completed_date && (
+                                    <div className="text-[10px] text-green-700 bg-green-100 px-1.5 py-0.5 rounded">
+                                      ✓ {new Date(project.foreman_completed_date).toLocaleDateString('de-DE')}
+                                    </div>
+                                  )}
+                                  {column.id !== 'unassigned' && column.id !== 'completed' && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleOpenAssignModal(project)}
+                                      className="w-full h-7 text-[10px] mt-1"
+                                    >
+                                      <Users className="w-3 h-3 mr-1" />
+                                      Bearbeiten
+                                    </Button>
+                                  )}
+                                  {column.id === 'unassigned' && (
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleOpenAssignModal(project)}
+                                      className="w-full h-7 text-[10px] mt-1 bg-orange-50 border-orange-200 text-orange-700"
+                                    >
+                                      <Users className="w-3 h-3 mr-1" />
+                                      Zuweisen
+                                    </Button>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )
+                  ))}
+                </div>
               </DragDropContext>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2 md:space-y-4">
                 {filteredProjects.map((project, index) => (
                   <motion.div
                     key={project.id}
@@ -523,73 +616,73 @@ export default function DispositionPage() {
                       project.assigned_foreman_id ? 'border-l-4 border-l-blue-500' : 
                       'border-l-4 border-l-orange-500'
                     }`}>
-                      <CardContent className="p-4">
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                          <div className="flex-1 space-y-1">
-                            <div className="flex items-center gap-3">
+                      <CardContent className="p-2 md:p-4">
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4">
+                          <div className="flex-1 space-y-1 w-full">
+                            <div className="flex items-start gap-2 flex-wrap">
                               <Link 
                                 to={createPageUrl(`ProjectDetail?id=${project.id}`)}
-                                className="font-semibold text-gray-900 hover:text-orange-600"
+                                className="font-semibold text-sm md:text-base text-gray-900 hover:text-orange-600 line-clamp-2 flex-1"
                               >
                                 {project.title}
                               </Link>
-                              <div className="flex gap-2">
+                              <div className="flex gap-1 flex-wrap flex-shrink-0">
                                 {project.foreman_completed && (
-                                  <Badge className="bg-green-100 text-green-800">
-                                    <CheckCircle className="w-3 h-3 mr-1" />
+                                  <Badge className="bg-green-100 text-green-800 text-[10px] md:text-xs h-5">
+                                    <CheckCircle className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
                                     Erledigt
                                   </Badge>
                                 )}
                                 {project.assigned_foreman_id && !project.foreman_completed && (
-                                  <Badge className="bg-blue-100 text-blue-800">
-                                    <Clock className="w-3 h-3 mr-1" />
-                                    In Bearbeitung
+                                  <Badge className="bg-blue-100 text-blue-800 text-[10px] md:text-xs h-5">
+                                    <Clock className="w-2.5 h-2.5 md:w-3 md:h-3 mr-0.5" />
+                                    Aktiv
                                   </Badge>
                                 )}
                                 {!project.assigned_foreman_id && (
-                                  <Badge className="bg-orange-100 text-orange-800">
-                                    Nicht zugewiesen
+                                  <Badge className="bg-orange-100 text-orange-800 text-[10px] md:text-xs h-5">
+                                    Offen
                                   </Badge>
                                 )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 text-sm text-gray-500">
-                              <span className="font-mono bg-orange-50 text-orange-700 px-2 py-1 rounded">
+                            <div className="flex items-center gap-1.5 text-[11px] md:text-sm text-gray-500 flex-wrap">
+                              <span className="font-mono bg-orange-50 text-orange-700 px-1.5 py-0.5 md:px-2 md:py-1 rounded text-[10px] md:text-xs">
                                 {project.project_number}
                               </span>
-                              <span>•</span>
-                              <span>SM: {project.sm_number}</span>
-                              <span>•</span>
-                              <span>{project.client}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span className="text-[10px] md:text-xs">SM: {project.sm_number}</span>
+                              <span className="hidden sm:inline">•</span>
+                              <span className="text-[10px] md:text-xs font-medium">{project.client}</span>
                             </div>
                             {((project.assigned_bauleiter && project.assigned_bauleiter.length > 0) || project.assigned_foreman_name) && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <Users className="w-4 h-4 text-blue-500" />
-                                <span className="text-blue-600 font-medium">
-                                  Zugewiesen an: {
+                              <div className="flex items-center gap-1.5 text-xs md:text-sm flex-wrap">
+                                <Users className="w-3 h-3 md:w-4 md:h-4 text-blue-500 flex-shrink-0" />
+                                <span className="text-blue-600 font-medium text-[10px] md:text-xs">
+                                  {
                                     project.assigned_bauleiter && project.assigned_bauleiter.length > 0
                                       ? project.assigned_bauleiter.map(b => b.name).join(', ')
                                       : project.assigned_foreman_name
                                   }
                                 </span>
                                 {project.foreman_completed && project.foreman_completed_date && (
-                                  <span className="text-green-600 text-xs">
-                                    (Erledigt am {new Date(project.foreman_completed_date).toLocaleDateString('de-DE')})
+                                  <span className="text-green-600 text-[9px] md:text-xs">
+                                    ({new Date(project.foreman_completed_date).toLocaleDateString('de-DE')})
                                   </span>
                                 )}
                               </div>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-2 w-full md:w-auto">
+                          <div className="flex items-center gap-1.5 md:gap-2 w-full md:w-auto">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => handleOpenAssignModal(project)}
-                              className="flex-1 md:flex-initial"
+                              className="flex-1 md:flex-initial h-7 md:h-9 text-[10px] md:text-sm"
                             >
-                              <Users className="w-4 h-4 mr-2" />
-                              Bauleiter zuweisen
+                              <Users className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                              <span className="hidden sm:inline">Bauleiter</span>
                             </Button>
                             {project.montage_auftrag_id && (() => {
                               const montageAuftrag = montageAuftraege.find(m => m.id === project.montage_auftrag_id);
@@ -600,27 +693,27 @@ export default function DispositionPage() {
                                   variant="outline"
                                   size="sm"
                                   onClick={() => handleMarkTiefbauOffen(project)}
-                                  className={isTiefbauOffen 
+                                  className={`h-7 md:h-9 text-[10px] md:text-sm ${isTiefbauOffen 
                                     ? "bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                                     : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                                  }
+                                  }`}
                                 >
                                   {isTiefbauOffen ? (
                                     <>
-                                      <CheckCircle className="w-4 h-4 mr-2" />
-                                      Tiefbau offen
+                                      <CheckCircle className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                                      <span className="hidden sm:inline">Offen</span>
                                     </>
                                   ) : (
                                     <>
-                                      <Construction className="w-4 h-4 mr-2" />
-                                      Tiefbau nicht offen
+                                      <Construction className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                                      <span className="hidden sm:inline">Nicht offen</span>
                                     </>
                                   )}
                                 </Button>
                               );
                             })()}
                             {assigning === project.id && (
-                              <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                              <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-orange-500" />
                             )}
                           </div>
                         </div>
@@ -633,13 +726,13 @@ export default function DispositionPage() {
                   <motion.div 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-center py-16"
+                    className="text-center py-12 md:py-16"
                   >
-                    <ClipboardList className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <h3 className="text-xl font-medium text-gray-500 mb-2">
+                    <ClipboardList className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 text-gray-300" />
+                    <h3 className="text-lg md:text-xl font-medium text-gray-500 mb-2">
                       Keine Projekte gefunden
                     </h3>
-                    <p className="text-gray-400">
+                    <p className="text-sm md:text-base text-gray-400">
                       Versuchen Sie andere Filter oder Suchbegriffe
                     </p>
                   </motion.div>
