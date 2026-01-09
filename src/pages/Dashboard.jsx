@@ -366,14 +366,6 @@ export default function DashboardPage() {
             />
 
             <NavigationCard
-              title="Auswertungen"
-              description="Ihre persönliche Leistungsstatistik und Team-Vergleich"
-              icon={BarChart3}
-              color="from-purple-500 to-purple-600"
-              link={createPageUrl("Analytics")}
-            />
-
-            <NavigationCard
               title="Mein Profil"
               description="Persönliche Einstellungen und Informationen bearbeiten"
               icon={UserIcon}
