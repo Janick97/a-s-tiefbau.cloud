@@ -33,6 +33,7 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
     project_id: '',
     order_type: '',
     project_number: '',
+    art: '',
     tiefbau_offen: false, // Initialize new field
     tiefbau_offen_date: null // Initialize new field
   });
@@ -99,6 +100,21 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
               <div className="space-y-2">
                 <Label htmlFor="order_type">Auftragsart</Label>
                 <Input id="order_type" value={formData.order_type} onChange={handleChange} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="art">Art</Label>
+                <Select value={formData.art || ''} onValueChange={(val) => handleSelectChange('art', val)}>
+                  <SelectTrigger id="art">
+                    <SelectValue placeholder="Art auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>Keine Auswahl</SelectItem>
+                    <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
+                    <SelectItem value="APL-Straße">APL-Straße</SelectItem>
+                    <SelectItem value="Störung">Störung</SelectItem>
+                    <SelectItem value="FTTH">FTTH</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="street">Straße</Label>
@@ -180,6 +196,7 @@ export default function MontageAuftraegePage() {
   const [editingAuftrag, setEditingAuftrag] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('alle');
+  const [artFilter, setArtFilter] = useState('alle');
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [currentNotesAuftrag, setCurrentNotesAuftrag] = useState(null);
   const [notesText, setNotesText] = useState('');
@@ -348,8 +365,12 @@ export default function MontageAuftraegePage() {
       filtered = filtered.filter(auftrag => auftrag.status === statusFilter);
     }
 
+    if (artFilter !== 'alle') {
+      filtered = filtered.filter(auftrag => auftrag.art === artFilter);
+    }
+
     setFilteredAuftraege(filtered);
-  }, [auftraege, searchTerm, statusFilter]);
+  }, [auftraege, searchTerm, statusFilter, artFilter]);
 
   const getProjectForAuftrag = (auftrag) => {
     if (!auftrag.project_id) return null;
@@ -411,7 +432,7 @@ export default function MontageAuftraegePage() {
 
         <Card className="card-elevation border-none mb-3 md:mb-6">
           <CardContent className="p-2 md:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -432,6 +453,18 @@ export default function MontageAuftraegePage() {
                   <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
                   <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
                   <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={artFilter} onValueChange={setArtFilter}>
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <SelectValue placeholder="Art..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alle">Alle Arten</SelectItem>
+                  <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
+                  <SelectItem value="APL-Straße">APL-Straße</SelectItem>
+                  <SelectItem value="Störung">Störung</SelectItem>
+                  <SelectItem value="FTTH">FTTH</SelectItem>
                 </SelectContent>
               </Select>
             </div>
