@@ -5,6 +5,8 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, Wrench, MapPin, FileText, Upload, X, Eye, Download, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UploadFile } from "@/integrations/Core";
@@ -160,6 +162,28 @@ export default function MontageAuftragDetailPage() {
     }
   };
 
+  // Update Status
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await MontageAuftrag.update(montageAuftrag.id, { status: newStatus });
+      setMontageAuftrag({ ...montageAuftrag, status: newStatus });
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Status:", error);
+      alert("Fehler beim Aktualisieren des Status");
+    }
+  };
+
+  // Update Art
+  const handleArtChange = async (newArt) => {
+    try {
+      await MontageAuftrag.update(montageAuftrag.id, { art: newArt });
+      setMontageAuftrag({ ...montageAuftrag, art: newArt });
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren der Auftragsart:", error);
+      alert("Fehler beim Aktualisieren der Auftragsart");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-2 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -203,6 +227,42 @@ export default function MontageAuftragDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Status und Art - bearbeitbar */}
+            {!readOnly && (
+              <div className="mt-3 pt-3 border-t space-y-3">
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
+                  <Select value={montageAuftrag.status} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
+                      <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                      <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                      <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                      <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-xs text-gray-500 mb-1 block">Auftragsart</Label>
+                  <Select value={montageAuftrag.art || ""} onValueChange={handleArtChange}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Wählen Sie eine Art" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
+                      <SelectItem value="APL-Straße">APL-Straße</SelectItem>
+                      <SelectItem value="Störung">Störung</SelectItem>
+                      <SelectItem value="FTTH">FTTH</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             {montageAuftrag.notes && (
               <div className="mt-3 pt-3 border-t">
