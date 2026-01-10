@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Wrench, MapPin, Calendar, User, Plus, Edit, Trash2, Clock, AlertCircle, Building, Save, FileText, Construction, ExternalLink, Link, Edit3, Users, X } from "lucide-react";
+import { Search, Wrench, MapPin, Calendar, User, Plus, Edit, Trash2, Clock, AlertCircle, Building, Save, FileText, Construction, ExternalLink, Link, Edit3, Users, X, CheckCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createPageUrl } from "@/utils";
 
