@@ -5,11 +5,13 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Wrench, MapPin, FileText } from "lucide-react";
+import { ArrowLeft, Wrench, MapPin, FileText, Upload, X, Eye, Download, Image as ImageIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { UploadFile } from "@/integrations/Core";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import SchaedigerManagement from "../components/projects/SchaedigerManagement";
 import DocumentManagement from "../components/projects/DocumentManagement";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
   const location = useLocation();
@@ -17,6 +19,9 @@ export default function MontageAuftragDetailPage() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [einmassSkizzen, setEinmassSkizzen] = useState([]);
+  const [isUploadingSkizze, setIsUploadingSkizze] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
@@ -36,6 +41,11 @@ export default function MontageAuftragDetailPage() {
 
         setMontageAuftrag(auftragData);
         setUser(userData);
+        
+        // Load existing Einmaß-Skizzen
+        if (auftragData.einmass_skizzen && Array.isArray(auftragData.einmass_skizzen)) {
+          setEinmassSkizzen(auftragData.einmass_skizzen);
+        }
       } catch (err) {
         console.error("Fehler beim Laden:", err);
         setError(err.message || "Ein Fehler ist aufgetreten.");
@@ -104,6 +114,52 @@ export default function MontageAuftragDetailPage() {
   // Mobile-optimierte Ansicht für Monteure
   const isMonteur = user?.position === 'Monteur';
 
+  // Upload Einmaß-Skizze
+  const handleSkizzeUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    setIsUploadingSkizze(true);
+    try {
+      const uploadedUrls = [];
+      
+      for (const file of files) {
+        const { file_url } = await UploadFile({ file });
+        uploadedUrls.push(file_url);
+      }
+
+      const updatedSkizzen = [...einmassSkizzen, ...uploadedUrls];
+      setEinmassSkizzen(updatedSkizzen);
+      
+      // Save to database
+      await MontageAuftrag.update(montageAuftrag.id, {
+        einmass_skizzen: updatedSkizzen
+      });
+    } catch (error) {
+      console.error("Fehler beim Hochladen der Skizze:", error);
+      alert("Fehler beim Hochladen der Skizze");
+    }
+    setIsUploadingSkizze(false);
+    e.target.value = '';
+  };
+
+  // Delete Einmaß-Skizze
+  const handleDeleteSkizze = async (url) => {
+    if (!window.confirm("Möchten Sie diese Skizze wirklich löschen?")) return;
+
+    const updatedSkizzen = einmassSkizzen.filter(s => s !== url);
+    setEinmassSkizzen(updatedSkizzen);
+
+    try {
+      await MontageAuftrag.update(montageAuftrag.id, {
+        einmass_skizzen: updatedSkizzen
+      });
+    } catch (error) {
+      console.error("Fehler beim Löschen der Skizze:", error);
+      alert("Fehler beim Löschen der Skizze");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-2 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -162,6 +218,104 @@ export default function MontageAuftragDetailPage() {
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
         </div>
 
+        {/* Einmaß-Skizzen */}
+        <div className="mb-3">
+          <Card className="border-none">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <ImageIcon className="w-5 h-5 text-blue-600" />
+                Einmaß-Skizzen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!readOnly && (
+                <div className="mb-4">
+                  <label className="block">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,application/pdf"
+                      onChange={handleSkizzeUpload}
+                      disabled={isUploadingSkizze}
+                      className="hidden"
+                      id="skizze-upload"
+                    />
+                    <Button
+                      type="button"
+                      onClick={() => document.getElementById('skizze-upload').click()}
+                      disabled={isUploadingSkizze}
+                      className="w-full bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {isUploadingSkizze ? "Wird hochgeladen..." : "Skizze hochladen"}
+                    </Button>
+                  </label>
+                </div>
+              )}
+
+              {einmassSkizzen.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {einmassSkizzen.map((url, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="relative group"
+                    >
+                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
+                        <img
+                          src={url}
+                          alt={`Einmaß-Skizze ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="absolute top-2 right-2 flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setPreviewImage(url)}
+                        >
+                          <Eye className="w-3 h-3" />
+                        </Button>
+                        <a
+                          href={url}
+                          download
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Download className="w-3 h-3" />
+                          </Button>
+                        </a>
+                        {!readOnly && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDeleteSkizze(url)}
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500 text-sm">
+                  <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                  <p>Keine Einmaß-Skizzen vorhanden</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Schädiger */}
         <div className="mt-3">
           <SchaedigerManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} />
@@ -188,6 +342,41 @@ export default function MontageAuftragDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      <AnimatePresence>
+        {previewImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setPreviewImage(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-4xl max-h-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute top-2 right-2 z-10"
+                onClick={() => setPreviewImage(null)}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              <img
+                src={previewImage}
+                alt="Preview"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
