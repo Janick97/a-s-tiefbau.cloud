@@ -349,6 +349,28 @@ export default function MontageAuftraegePage() {
     }
   };
 
+  // Update Status inline
+  const handleStatusChange = async (auftrag, newStatus) => {
+    try {
+      await MontageAuftrag.update(auftrag.id, { status: newStatus });
+      loadData();
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren des Status:", error);
+      alert(`Fehler beim Aktualisieren: ${error.message}`);
+    }
+  };
+
+  // Update Art inline
+  const handleArtChange = async (auftrag, newArt) => {
+    try {
+      await MontageAuftrag.update(auftrag.id, { art: newArt });
+      loadData();
+    } catch (error) {
+      console.error("Fehler beim Aktualisieren der Art:", error);
+      alert(`Fehler beim Aktualisieren: ${error.message}`);
+    }
+  };
+
   useEffect(() => {
     let filtered = Array.isArray(auftraege) ? auftraege : [];
 
@@ -595,9 +617,6 @@ export default function MontageAuftraegePage() {
                                   Projekt: {auftrag.project_number}
                                 </span>
                               )}
-                              <Badge className={statusColors[auftrag.status] || 'bg-gray-100 text-gray-800'}>
-                                {auftrag.status}
-                              </Badge>
                               {auftrag.tiefbau_offen && (
                                 <Badge className="bg-blue-100 text-blue-800 border-blue-300">
                                   <Construction className="w-3 h-3 mr-1" />
@@ -616,6 +635,40 @@ export default function MontageAuftraegePage() {
                                   Projekt
                                 </Badge>
                               )}
+                            </div>
+                            
+                            {/* Status und Art - Inline bearbeitbar */}
+                            <div className="hidden md:flex items-center gap-2 mb-3">
+                              <Select 
+                                value={auftrag.status} 
+                                onValueChange={(val) => handleStatusChange(auftrag, val)}
+                              >
+                                <SelectTrigger className="w-[200px] h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
+                                  <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                                  <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                                  <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                                  <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              
+                              <Select 
+                                value={auftrag.art || ""} 
+                                onValueChange={(val) => handleArtChange(auftrag, val)}
+                              >
+                                <SelectTrigger className="w-[150px] h-8 text-xs">
+                                  <SelectValue placeholder="Art wählen" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
+                                  <SelectItem value="APL-Straße">APL-Straße</SelectItem>
+                                  <SelectItem value="Störung">Störung</SelectItem>
+                                  <SelectItem value="FTTH">FTTH</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
 
                             {/* Mobile: Badges */}
@@ -638,6 +691,40 @@ export default function MontageAuftraegePage() {
                                   {relatedProject.project_number}
                                 </Badge>
                               )}
+                            </div>
+                            
+                            {/* Mobile: Status und Art Dropdowns */}
+                            <div className="flex md:hidden gap-1 mb-2">
+                              <Select 
+                                value={auftrag.status} 
+                                onValueChange={(val) => handleStatusChange(auftrag, val)}
+                              >
+                                <SelectTrigger className="flex-1 h-7 text-[10px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
+                                  <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                                  <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                                  <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                                  <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              
+                              <Select 
+                                value={auftrag.art || ""} 
+                                onValueChange={(val) => handleArtChange(auftrag, val)}
+                              >
+                                <SelectTrigger className="w-20 h-7 text-[10px]">
+                                  <SelectValue placeholder="Art" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
+                                  <SelectItem value="APL-Straße">APL-Straße</SelectItem>
+                                  <SelectItem value="Störung">Störung</SelectItem>
+                                  <SelectItem value="FTTH">FTTH</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </div>
                             
                             <h4 className="hidden md:block text-lg font-semibold text-gray-800 mb-2">{auftrag.title}</h4>
