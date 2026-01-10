@@ -222,7 +222,21 @@ export default function MontageAuftraegePage() {
       ]);
       console.log("Geladene Montageaufträge:", auftraegeData);
       console.log("Geladene Projekte:", projectsData);
-      setAuftraege(Array.isArray(auftraegeData) ? auftraegeData : []);
+      
+      // Automatisch Status auf "Montage abgeschlossen" setzen, wenn Monteur fertig gemeldet hat
+      const updatedAuftraege = Array.isArray(auftraegeData) ? auftraegeData : [];
+      for (const auftrag of updatedAuftraege) {
+        if (auftrag.monteur_completed && auftrag.status !== 'Montage abgeschlossen') {
+          try {
+            await MontageAuftrag.update(auftrag.id, { status: 'Montage abgeschlossen' });
+            auftrag.status = 'Montage abgeschlossen';
+          } catch (error) {
+            console.error("Fehler beim automatischen Status-Update:", error);
+          }
+        }
+      }
+      
+      setAuftraege(updatedAuftraege);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setMonteure(Array.isArray(usersData) ? usersData.filter(u => u.position === 'Monteur') : []);
     } catch (error) {
@@ -650,6 +664,16 @@ export default function MontageAuftraegePage() {
                               </div>
                             )}
 
+                            {/* Monteur fertig gemeldet */}
+                            {auftrag.monteur_completed && auftrag.monteur_completed_date && (
+                              <div className="flex items-center gap-2 text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+                                <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                <span className="font-medium">
+                                  Fertig gemeldet: {new Date(auftrag.monteur_completed_date).toLocaleDateString('de-DE')}
+                                </span>
+                              </div>
+                            )}
+
                             {/* Notizen */}
                             {auftrag.notes && (
                               <div className="bg-gray-50 rounded p-2 border border-gray-200">
@@ -678,6 +702,18 @@ export default function MontageAuftraegePage() {
                               <Users className="w-3 h-3 md:mr-1" />
                               <span className="hidden md:inline">Monteure</span>
                             </Button>
+                            {!auftrag.tiefbau_offen && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleTiefbauOffen(auftrag)}
+                                disabled={updatingAuftrag === auftrag.id}
+                                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-8 w-full"
+                              >
+                                <Construction className="w-3 h-3 md:mr-1" />
+                                <span className="hidden md:inline">Tiefbau offen</span>
+                              </Button>
+                            )}
                             <Button
                               variant="outline"
                               size="sm"
