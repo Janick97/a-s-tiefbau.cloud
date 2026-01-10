@@ -678,6 +678,24 @@ export default function MontageAuftraegePage() {
                               <Users className="w-3 h-3 md:mr-1" />
                               <span className="hidden md:inline">Monteure</span>
                             </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleNotesClick(auftrag)}
+                              className="h-8 w-full"
+                            >
+                              <Edit3 className="w-3 h-3 md:mr-1" />
+                              <span className="hidden md:inline">Notizen</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(auftrag.id)}
+                              className="text-red-600 hover:text-red-700 h-8 w-full"
+                            >
+                              <Trash2 className="w-3 h-3 md:mr-1" />
+                              <span className="hidden md:inline">Löschen</span>
+                            </Button>
                           </div>
                         </div>
                       </CardContent>
