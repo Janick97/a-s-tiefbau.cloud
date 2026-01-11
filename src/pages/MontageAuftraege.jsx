@@ -113,6 +113,7 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
                     <SelectItem value="APL-Straße">APL-Straße</SelectItem>
                     <SelectItem value="Störung">Störung</SelectItem>
                     <SelectItem value="FTTH">FTTH</SelectItem>
+                    <SelectItem value="Messauftrag">Messauftrag</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -509,6 +510,7 @@ export default function MontageAuftraegePage() {
                   <SelectItem value="APL-Straße">APL-Straße</SelectItem>
                   <SelectItem value="Störung">Störung</SelectItem>
                   <SelectItem value="FTTH">FTTH</SelectItem>
+                  <SelectItem value="Messauftrag">Messauftrag</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -649,6 +651,7 @@ export default function MontageAuftraegePage() {
                                   <SelectItem value="APL-Straße">APL-Straße</SelectItem>
                                   <SelectItem value="Störung">Störung</SelectItem>
                                   <SelectItem value="FTTH">FTTH</SelectItem>
+                                  <SelectItem value="Messauftrag">Messauftrag</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
