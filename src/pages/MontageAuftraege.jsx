@@ -216,7 +216,7 @@ export default function MontageAuftraegePage() {
     try {
       console.log("Lade Montageaufträge, Projekte und Monteure...");
       const [auftraegeData, projectsData, usersData] = await Promise.all([
-        MontageAuftrag.list('-created_date'),
+        MontageAuftrag.filter({ archived: { $ne: true } }, '-created_date'),
         Project.list(),
         UserEntity.list()
       ]);
@@ -366,7 +366,15 @@ export default function MontageAuftraegePage() {
   // Update Status inline
   const handleStatusChange = async (auftrag, newStatus) => {
     try {
-      await MontageAuftrag.update(auftrag.id, { status: newStatus });
+      const updateData = { status: newStatus };
+
+      // Automatisch archivieren wenn Status auf "Rotberichtigung abgeschlossen" gesetzt wird
+      if (newStatus === 'Rotberichtigung abgeschlossen') {
+        updateData.archived = true;
+        updateData.archived_date = new Date().toISOString();
+      }
+
+      await MontageAuftrag.update(auftrag.id, updateData);
       loadData();
     } catch (error) {
       console.error("Fehler beim Aktualisieren des Status:", error);
@@ -450,10 +458,17 @@ export default function MontageAuftraegePage() {
                 <p className="text-xs text-gray-600">{auftraege.length} Aufträge</p>
               </div>
             </div>
-            <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="sm" className="h-8 px-3">
-              <Plus className="w-4 h-4 mr-1" />
-              Neu
-            </Button>
+            <div className="flex gap-2">
+              <a href={createPageUrl("MontageAuftraegeArchiv")}>
+                <Button variant="outline" size="sm" className="h-8 px-3">
+                  Archiv
+                </Button>
+              </a>
+              <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="sm" className="h-8 px-3">
+                <Plus className="w-4 h-4 mr-1" />
+                Neu
+              </Button>
+            </div>
           </div>
 
           {/* Desktop Header */}
