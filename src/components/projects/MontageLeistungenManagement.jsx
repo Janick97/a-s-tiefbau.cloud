@@ -644,7 +644,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
         </Card>
       ) : (
         <div className="space-y-2">
-          {leistungen.map((leistung) => {
+          {leistungen.map((leistung, index) => {
             const priceItem = priceItems.find(p => p.id === leistung.preis_item_id);
             return (
               <motion.div
@@ -656,6 +656,11 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                   <CardContent className="p-3">
                     <div className="flex justify-between items-start gap-2 mb-2">
                       <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge variant="outline" className="font-mono text-xs">
+                            #{index + 1}
+                          </Badge>
+                        </div>
                         <h4 className="font-semibold text-sm text-gray-900 line-clamp-2">{priceItem?.description || "Unbekannt"}</h4>
                         <p className="text-xs text-gray-500 font-mono">{priceItem?.item_number}</p>
                       </div>

@@ -245,6 +245,7 @@ export default function ExcavationsManagement({
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">#</TableHead>
                 <TableHead className="w-20">Geschlossen</TableHead>
                 <TableHead className="w-20">Verfüllt</TableHead>
                 <TableHead>Standort</TableHead>
@@ -270,6 +271,11 @@ export default function ExcavationsManagement({
                     }`}
                     onClick={() => handleViewDetail(excavation)}
                   >
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        #{index + 1}
+                      </Badge>
+                    </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-center gap-1">
                         <Checkbox
@@ -392,6 +398,11 @@ export default function ExcavationsManagement({
                       {/* Header */}
                       <div className="flex justify-between items-start">
                         <div className="flex-1 min-w-0 pr-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              #{index + 1}
+                            </Badge>
+                          </div>
                           <h3 className="font-semibold text-gray-900 truncate text-sm">
                             {excavation.location_name}
                           </h3>
