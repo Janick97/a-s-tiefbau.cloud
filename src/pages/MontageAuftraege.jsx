@@ -430,10 +430,10 @@ export default function MontageAuftraegePage() {
   };
 
   const stats = {
-    total: auftraege.length,
-    neu: auftraege.filter(a => a.status === 'Auftrag neu').length,
-    inProgress: auftraege.filter(a => a.status === 'Tiefbau ausstehend' || a.status === 'Bereit zur Montage').length,
-    fertig: auftraege.filter(a => a.status === 'Montage abgeschlossen' || a.status === 'Rotberichtigung abgeschlossen').length,
+    bereitZurMontage: auftraege.filter(a => a.status === 'Bereit zur Montage').length,
+    auftragNeu: auftraege.filter(a => a.status === 'Auftrag neu').length,
+    tiefbauAusstehend: auftraege.filter(a => a.status === 'Tiefbau ausstehend').length,
+    montageAbgeschlossen: auftraege.filter(a => a.status === 'Montage abgeschlossen').length,
   };
 
   return (
@@ -520,10 +520,10 @@ export default function MontageAuftraegePage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Gesamt</p>
-                  <p className="text-lg md:text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-[10px] md:text-sm text-gray-600">Bereit zur Montage</p>
+                  <p className="text-lg md:text-2xl font-bold text-yellow-600">{stats.bereitZurMontage}</p>
                 </div>
-                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-blue-500" />
+                <Clock className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
               </div>
             </CardContent>
           </Card>
@@ -531,9 +531,9 @@ export default function MontageAuftraegePage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Neu</p>
+                  <p className="text-[10px] md:text-sm text-gray-600">Auftrag neu</p>
                   <p className="text-lg md:text-2xl font-bold text-orange-600">
-                    {stats.neu}
+                    {stats.auftragNeu}
                   </p>
                 </div>
                 <Clock className="w-5 h-5 md:w-8 md:h-8 text-orange-500" />
@@ -544,12 +544,12 @@ export default function MontageAuftraegePage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-gray-600 truncate">Aktiv</p>
-                  <p className="text-lg md:text-2xl font-bold text-yellow-600">
-                    {stats.inProgress}
+                  <p className="text-[10px] md:text-sm text-gray-600 truncate">Tiefbau ausstehend</p>
+                  <p className="text-lg md:text-2xl font-bold text-blue-600">
+                    {stats.tiefbauAusstehend}
                   </p>
                 </div>
-                <AlertCircle className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
+                <AlertCircle className="w-5 h-5 md:w-8 md:h-8 text-blue-500" />
               </div>
             </CardContent>
           </Card>
@@ -557,12 +557,12 @@ export default function MontageAuftraegePage() {
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Fertig</p>
+                  <p className="text-[10px] md:text-sm text-gray-600">Montage abgeschlossen</p>
                   <p className="text-lg md:text-2xl font-bold text-green-600">
-                    {stats.fertig}
+                    {stats.montageAbgeschlossen}
                   </p>
                 </div>
-                <Wrench className="w-5 h-5 md:w-8 md:h-8 text-green-500" />
+                <CheckCircle className="w-5 h-5 md:w-8 md:h-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
