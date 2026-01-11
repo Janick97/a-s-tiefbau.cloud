@@ -617,7 +617,6 @@ export default function MontageAuftraegePage() {
                               <h3 className="text-base md:text-lg font-bold text-gray-900 truncate">
                                 {auftrag.project_number} • {auftrag.city} • {auftrag.sm_number}
                               </h3>
-                              <p className="text-xs md:text-sm text-gray-600 truncate">{auftrag.title}</p>
                             </div>
 
                             {/* Status und Art Dropdowns */}
