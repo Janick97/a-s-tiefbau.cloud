@@ -28,7 +28,7 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
     assigned_to: '',
     start_date: new Date().toISOString().split('T')[0],
     completion_date: '',
-    status: 'Auftrag neu',
+    status: 'Tiefbau ausstehend',
     notes: '',
     project_id: '',
     order_type: '',
@@ -36,7 +36,7 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
     art: '',
     tiefbau_offen: false, // Initialize new field
     tiefbau_offen_date: null // Initialize new field
-  });
+    });
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -144,7 +144,6 @@ function MontageAuftragForm({ auftrag, onSubmit, onCancel, projects }) {
                     <SelectValue placeholder="Status wählen" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
                     <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
                     <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
                     <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
@@ -423,7 +422,6 @@ export default function MontageAuftraegePage() {
   };
 
   const statusColors = {
-    'Auftrag neu': 'bg-blue-100 text-blue-800 border-blue-200',
     'Tiefbau ausstehend': 'bg-orange-100 text-orange-800 border-orange-200',
     'Bereit zur Montage': 'bg-yellow-100 text-yellow-800 border-yellow-200',
     'Montage abgeschlossen': 'bg-green-100 text-green-800 border-green-200',
@@ -432,7 +430,6 @@ export default function MontageAuftraegePage() {
 
   const stats = {
     bereitZurMontage: auftraege.filter(a => a.status === 'Bereit zur Montage').length,
-    auftragNeu: auftraege.filter(a => a.status === 'Auftrag neu').length,
     tiefbauAusstehend: auftraege.filter(a => a.status === 'Tiefbau ausstehend').length,
     montageAbgeschlossen: auftraege.filter(a => a.status === 'Montage abgeschlossen').length,
   };
@@ -493,7 +490,6 @@ export default function MontageAuftraegePage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="alle">Alle Status</SelectItem>
-                  <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
                   <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
                   <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
                   <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
@@ -517,7 +513,7 @@ export default function MontageAuftraegePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card className="card-elevation border-none">
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
@@ -526,19 +522,6 @@ export default function MontageAuftraegePage() {
                   <p className="text-lg md:text-2xl font-bold text-yellow-600">{stats.bereitZurMontage}</p>
                 </div>
                 <Clock className="w-5 h-5 md:w-8 md:h-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="card-elevation border-none">
-            <CardContent className="p-2 md:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Auftrag neu</p>
-                  <p className="text-lg md:text-2xl font-bold text-orange-600">
-                    {stats.auftragNeu}
-                  </p>
-                </div>
-                <Clock className="w-5 h-5 md:w-8 md:h-8 text-orange-500" />
               </div>
             </CardContent>
           </Card>
@@ -631,7 +614,6 @@ export default function MontageAuftraegePage() {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
                                   <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
                                   <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
                                   <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>

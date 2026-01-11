@@ -29,10 +29,10 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
 const statusColors = {
-  'Auftrag neu': 'bg-blue-100 text-blue-800 border-blue-200',
-  'In Bearbeitung': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'Montage fertig': 'bg-green-100 text-green-800 border-green-200',
-  'Abgeschlossen': 'bg-gray-100 text-gray-800 border-gray-200'
+  'Tiefbau ausstehend': 'bg-orange-100 text-orange-800 border-orange-200',
+  'Bereit zur Montage': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+  'Montage abgeschlossen': 'bg-green-100 text-green-800 border-green-200',
+  'Rotberichtigung abgeschlossen': 'bg-purple-100 text-purple-800 border-purple-200'
 };
 
 export default function MyMontageAuftraegePage() {
@@ -293,10 +293,10 @@ export default function MyMontageAuftraegePage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Alle Status</SelectItem>
-                      <SelectItem value="Auftrag neu">Neu</SelectItem>
-                      <SelectItem value="In Bearbeitung">In Bearbeitung</SelectItem>
-                      <SelectItem value="Montage fertig">Fertig</SelectItem>
-                      <SelectItem value="Abgeschlossen">Abgeschlossen</SelectItem>
+                      <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
+                      <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
+                      <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
+                      <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
