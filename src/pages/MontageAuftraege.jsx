@@ -615,7 +615,7 @@ export default function MontageAuftraegePage() {
                             {/* Titel */}
                             <div>
                               <h3 className="text-base md:text-lg font-bold text-gray-900 truncate">
-                                {auftrag.project_number} • {auftrag.city} • {auftrag.sm_number}
+                                {auftrag.title}
                               </h3>
                             </div>
 
