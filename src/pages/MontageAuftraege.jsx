@@ -614,7 +614,7 @@ export default function MontageAuftraegePage() {
                           <div className="flex-1 min-w-0 space-y-2">
                             {/* Titel */}
                             <div>
-                              <h3 className="text-base md:text-lg font-bold text-gray-900">
+                              <h3 className="text-sm md:text-base font-bold text-gray-900">
                                 {auftrag.title}
                               </h3>
                             </div>
