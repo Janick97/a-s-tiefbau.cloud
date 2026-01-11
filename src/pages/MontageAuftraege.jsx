@@ -480,10 +480,17 @@ export default function MontageAuftraegePage() {
               </h1>
               <p className="text-gray-600 mt-1">Verwaltung aller Montageaufträge</p>
             </div>
-            <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="lg">
-              <Plus className="w-5 h-5 mr-2" />
-              Neuer Montageauftrag
-            </Button>
+            <div className="flex gap-3">
+              <a href={createPageUrl("MontageAuftraegeArchiv")}>
+                <Button variant="outline" size="lg">
+                  Archiv
+                </Button>
+              </a>
+              <Button onClick={() => { setEditingAuftrag(null); setShowForm(true); }} size="lg">
+                <Plus className="w-5 h-5 mr-2" />
+                Neuer Montageauftrag
+              </Button>
+            </div>
           </div>
         </div>
 
