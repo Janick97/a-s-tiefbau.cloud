@@ -513,7 +513,7 @@ export default function MontageAuftraegePage() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
+        <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6">
           <Card className="card-elevation border-none">
             <CardContent className="p-2 md:p-4">
               <div className="flex items-center justify-between">
@@ -535,19 +535,6 @@ export default function MontageAuftraegePage() {
                   </p>
                 </div>
                 <AlertCircle className="w-5 h-5 md:w-8 md:h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="card-elevation border-none">
-            <CardContent className="p-2 md:p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[10px] md:text-sm text-gray-600">Montage abgeschlossen</p>
-                  <p className="text-lg md:text-2xl font-bold text-green-600">
-                    {stats.montageAbgeschlossen}
-                  </p>
-                </div>
-                <CheckCircle className="w-5 h-5 md:w-8 md:h-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
