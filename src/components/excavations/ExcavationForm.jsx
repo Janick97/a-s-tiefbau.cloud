@@ -1329,24 +1329,34 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
             </CardContent>
 
-            <CardFooter className="flex justify-between gap-3 bg-gray-50 rounded-b-lg sticky bottom-0 py-4 backdrop-blur-sm">
-              <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+            <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 bg-gray-50 rounded-b-lg sticky bottom-0 py-4 backdrop-blur-sm">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onCancel} 
+                disabled={isSubmitting}
+                className="w-full sm:w-auto order-1 sm:order-none"
+              >
                 Abbrechen
               </Button>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto order-2 sm:order-none">
                 {!excavation && (
                   <Button 
                     type="button" 
                     variant="outline" 
                     onClick={handleAddService}
                     disabled={isSubmitting || !formData.price_item_id}
-                    className="border-green-500 text-green-600 hover:bg-green-50"
+                    className="border-green-500 text-green-600 hover:bg-green-50 w-full sm:w-auto"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Weitere hinzufügen
                   </Button>
                 )}
-                <Button type="submit" disabled={isSubmitting || (!excavation && !formData.price_item_id)}>
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || (!excavation && !formData.price_item_id)}
+                  className="w-full sm:w-auto"
+                >
                   {isSubmitting ? (
                       <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
