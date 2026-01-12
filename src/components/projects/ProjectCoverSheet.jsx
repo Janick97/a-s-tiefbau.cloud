@@ -547,8 +547,13 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                                   }>
                                       {excavationType}
                                     </Badge>
-                                    <div className="font-medium text-xs text-center">{exc.excavation_length || 0}×{exc.excavation_width || 0}×{exc.excavation_depth || 0}</div>
-                                    {exc.excavation_factor && exc.excavation_factor !== 1 &&
+                                    <div className="font-medium text-xs text-center">
+                                      {excavationType === 'Graben' ? 
+                                        `${exc.excavation_length || 0}×${exc.excavation_width || 0}` :
+                                        `${exc.excavation_length || 0}×${exc.excavation_width || 0}×${exc.excavation_depth || 0}`
+                                      }
+                                    </div>
+                                    {excavationType === 'Grube' && exc.excavation_factor && exc.excavation_factor !== 1 &&
                                   <div className="text-gray-600 text-xs text-center">F:{exc.excavation_factor}</div>
                                   }
                                   </div>
