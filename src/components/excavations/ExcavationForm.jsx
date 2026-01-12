@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Save, Shovel, Upload, Camera, AlertTriangle, Trash2, Loader2, MapPin, Navigation, Info, User as UserIcon } from "lucide-react";
+import { X, Save, Shovel, Upload, Camera, AlertTriangle, Trash2, Loader2, MapPin, Navigation, Info, User as UserIcon, Plus } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 import { PriceItem, City, Project, User, Material, Excavation, ExcavationMaterial } from "@/entities/all";
 
@@ -159,6 +159,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const [serviceCategory, setServiceCategory] = useState('grube'); // 'grube', 'graben', 'andere'
   const [selectedCable, setSelectedCable] = useState(null); // For Graben: selected cable material
   const [cableLayingMethod, setCableLayingMethod] = useState('auslegen'); // 'auslegen' or 'einziehen'
+  const [multipleServices, setMultipleServices] = useState([]);  // Array of services to create
+  const [showAddAnother, setShowAddAnother] = useState(false);  // Show "add another" button after first service
 
   // Helper to calculate the final monetary price based on current form data and selected item
   const calculatePrice = useCallback(() => {
@@ -430,26 +432,95 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
     }
   };
 
+  const handleAddService = () => {
+    const calculatedPrice = calculatePrice();
+    const totalPrice = calculatedPrice || 0;
+    const foremanCommission = totalPrice * 0.5;
+    const backfillCommission = totalPrice * 0.2;
+    const surfaceCommission = totalPrice * 0.3;
+    const autoLocationName = [formData.city, formData.street, formData.house_number].filter(Boolean).join(' ');
+
+    const serviceData = {
+      ...formData,
+      location_name: autoLocationName || formData.location_name,
+      asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+      surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
+      surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
+      curb_length: formData.curb_length === '' ? null : formData.curb_length,
+      edge_stone_length: formData.edge_stone_length === '' ? null : formData.edge_stone_length,
+      gutter_length: formData.gutter_length === '' ? null : formData.gutter_length,
+      calculated_price: calculatedPrice,
+      foreman_commission: foremanCommission,
+      backfill_commission: backfillCommission,
+      surface_commission: surfaceCommission,
+      foreman_user_id: currentUser?.id || null,
+    };
+
+    setMultipleServices([...multipleServices, serviceData]);
+    
+    // Reset nur die Leistungsdetails, nicht die Adresse
+    const selectedItem = priceItems.find(p => p.id === formData.price_item_id);
+    setFormData(prev => ({
+      ...prev,
+      price_item_id: '',
+      quantity: 1,
+      excavation_length: 1.2,
+      excavation_width: 1.0,
+      excavation_depth: 1.0,
+      excavation_factor: 1,
+      surface_type: prev.surface_type,
+      notes: '',
+      construction_justification: '',
+      photos_before: [],
+      photos_after: [],
+      photos_environment: [],
+      photos_backfill: [],
+      photos_surface: [],
+    }));
+    
+    setShowAddAnother(true);
+    setSelectedCable(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+        // Wenn Bearbeiten-Modus
+        if (excavation) {
+          const calculatedPrice = calculatePrice();
+          const totalPrice = calculatedPrice || 0;
+          const autoLocationName = [formData.city, formData.street, formData.house_number].filter(Boolean).join(' ');
+          
+          const dataToSubmit = { 
+            ...formData,
+            location_name: autoLocationName || formData.location_name,
+            asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+            surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
+            surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
+            curb_length: formData.curb_length === '' ? null : formData.curb_length,
+            edge_stone_length: formData.edge_stone_length === '' ? null : formData.edge_stone_length,
+            gutter_length: formData.gutter_length === '' ? null : formData.gutter_length,
+            calculated_price: calculatedPrice,
+            foreman_commission: totalPrice * 0.5,
+            backfill_commission: totalPrice * 0.2,
+            surface_commission: totalPrice * 0.3,
+            foreman_user_id: currentUser?.id || null,
+          };
+          await onSubmit(dataToSubmit);
+          onCancel();
+          return;
+        }
+
+        // Neu-Modus: alle gesammelten Leistungen erstellen
+        const allServices = [...multipleServices];
+        
+        // Aktuelle Leistung hinzufügen
         const calculatedPrice = calculatePrice();
-
-        // Provisionen berechnen
         const totalPrice = calculatedPrice || 0;
-        const foremanCommission = totalPrice * 0.5;
-        const backfillCommission = totalPrice * 0.2;
-        const surfaceCommission = totalPrice * 0.3;
-
-        // Automatische Standortbezeichnung: Stadt Straße Hausnummer
-        const autoLocationName = [
-          formData.city,
-          formData.street,
-          formData.house_number
-        ].filter(Boolean).join(' ');
-
-        const dataToSubmit = { 
+        const autoLocationName = [formData.city, formData.street, formData.house_number].filter(Boolean).join(' ');
+        
+        allServices.push({
           ...formData,
           location_name: autoLocationName || formData.location_name,
           asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
@@ -459,96 +530,74 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           edge_stone_length: formData.edge_stone_length === '' ? null : formData.edge_stone_length,
           gutter_length: formData.gutter_length === '' ? null : formData.gutter_length,
           calculated_price: calculatedPrice,
-          foreman_commission: foremanCommission,
-          backfill_commission: backfillCommission,
-          surface_commission: surfaceCommission,
+          foreman_commission: totalPrice * 0.5,
+          backfill_commission: totalPrice * 0.2,
+          surface_commission: totalPrice * 0.3,
           foreman_user_id: currentUser?.id || null,
-        };
-        
-        console.log('Submitting data:', dataToSubmit);
-        
-        // Prüfen ob Graben mit Kabel
-        const selectedItem = priceItems.find(p => p.id === formData.price_item_id);
-        const isGrabenPosition = selectedItem?.unit === 'M' && !anderePositionNumbers.includes(selectedItem?.item_number);
-        
-        // Haupt-Excavation erstellen
-        let createdExcavation;
-        if (excavation) {
-          // Update existing
-          await onSubmit(dataToSubmit);
-        } else {
-          // Create new - direkt mit Excavation.create
-          createdExcavation = await Excavation.create(dataToSubmit);
+        });
+
+        // Alle Leistungen erstellen
+        for (const serviceData of allServices) {
+          const selectedItem = priceItems.find(p => p.id === serviceData.price_item_id);
+          const isGrabenPosition = selectedItem?.unit === 'M' && !anderePositionNumbers.includes(selectedItem?.item_number);
+          
+          const createdExcavation = await Excavation.create(serviceData);
           console.log('Created excavation:', createdExcavation);
-        }
-        
-        // Wenn Graben und Kabel ausgewählt: automatisch Kabelverlegung anlegen
-        if (!excavation && isGrabenPosition && selectedCable && createdExcavation?.id) {
-          console.log('Creating cable position for cable:', selectedCable);
           
-          // Position für Kabelverlegung finden - nach description suchen
-          const cablePriceItem = cableLayingMethod === 'auslegen' 
-            ? priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel bis 30 mm auslegen'))
-            : priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel in leerer rohr eingezogen'));
-          
-          console.log('Cable price item:', cablePriceItem);
-          
-          if (cablePriceItem) {
-            const cablePrice = (formData.excavation_length || 0) * cablePriceItem.price;
+          // Kabelverlegung für Graben (falls letzter Service und Kabel ausgewählt)
+          if (serviceData === allServices[allServices.length - 1] && isGrabenPosition && selectedCable && createdExcavation?.id) {
+            const cablePriceItem = cableLayingMethod === 'auslegen' 
+              ? priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel bis 30 mm auslegen'))
+              : priceItems.find(p => p.description && p.description.toLowerCase().includes('kabel in leerer rohr eingezogen'));
             
-            // Kabelverlegung als separate Position anlegen
-            const cableExcavationData = {
-              project_id: formData.project_id,
-              price_item_id: cablePriceItem.id,
-              quantity: formData.excavation_length, // Länge des Grabens
-              excavation_length: formData.excavation_length,
-              excavation_width: 0.3,
-              excavation_depth: 0.3,
-              excavation_factor: 1,
-              location_name: autoLocationName || formData.location_name,
-              street: formData.street,
-              house_number: formData.house_number,
-              city: formData.city,
-              latitude: formData.latitude,
-              longitude: formData.longitude,
-              foreman: formData.foreman,
-              foreman_user_id: currentUser?.id || null,
-              calculated_price: cablePrice,
-              foreman_commission: cablePrice * 0.5,
-              backfill_commission: cablePrice * 0.2,
-              surface_commission: cablePrice * 0.3,
-              notes: `Automatisch angelegt bei Graben - Kabel: ${selectedCable.name}`,
-              surface_type: formData.surface_type || 'unbefestigt',
-            };
-            
-            console.log('Creating cable excavation with data:', cableExcavationData);
-            const cableExcavation = await Excavation.create(cableExcavationData);
-            console.log('Created cable excavation:', cableExcavation);
-            
-            // Material buchen
-            if (cableExcavation?.id) {
-              const materialData = {
-                excavation_id: cableExcavation.id,
-                material_id: selectedCable.id,
-                quantity_used: formData.excavation_length,
-                used_by: currentUser?.full_name || formData.foreman,
-                used_by_user_id: currentUser?.id,
-                usage_date: new Date().toISOString().split('T')[0],
-                notes: 'Automatisch gebucht bei Grabenerstellung',
+            if (cablePriceItem) {
+              const cablePrice = (serviceData.excavation_length || 0) * cablePriceItem.price;
+              
+              const cableExcavationData = {
+                project_id: serviceData.project_id,
+                price_item_id: cablePriceItem.id,
+                quantity: serviceData.excavation_length,
+                excavation_length: serviceData.excavation_length,
+                excavation_width: 0.3,
+                excavation_depth: 0.3,
+                excavation_factor: 1,
+                location_name: serviceData.location_name,
+                street: serviceData.street,
+                house_number: serviceData.house_number,
+                city: serviceData.city,
+                latitude: serviceData.latitude,
+                longitude: serviceData.longitude,
+                foreman: serviceData.foreman,
+                foreman_user_id: currentUser?.id || null,
+                calculated_price: cablePrice,
+                foreman_commission: cablePrice * 0.5,
+                backfill_commission: cablePrice * 0.2,
+                surface_commission: cablePrice * 0.3,
+                notes: `Automatisch angelegt - Kabel: ${selectedCable.name}`,
+                surface_type: serviceData.surface_type || 'unbefestigt',
               };
               
-              console.log('Creating material booking with data:', materialData);
-              const materialBooking = await ExcavationMaterial.create(materialData);
-              console.log('Created material booking:', materialBooking);
+              const cableExcavation = await Excavation.create(cableExcavationData);
+              
+              if (cableExcavation?.id) {
+                await ExcavationMaterial.create({
+                  excavation_id: cableExcavation.id,
+                  material_id: selectedCable.id,
+                  quantity_used: serviceData.excavation_length,
+                  used_by: currentUser?.full_name || serviceData.foreman,
+                  used_by_user_id: currentUser?.id,
+                  usage_date: new Date().toISOString().split('T')[0],
+                  notes: 'Automatisch gebucht',
+                });
+              }
             }
           }
         }
         
-        // Call onCancel to close form after successful submission
         onCancel();
     } catch (error) {
         console.error("Submission failed:", error);
-        alert("Fehler beim Speichern der Leistung: " + error.message);
+        alert("Fehler beim Speichern: " + error.message);
     } finally {
         setIsSubmitting(false);
     }
@@ -650,6 +699,45 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
           <form onSubmit={handleSubmit}>
             <CardContent className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+
+              {/* Bereits hinzugefügte Leistungen */}
+              {multipleServices.length > 0 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <Label className="text-sm font-semibold text-green-800">
+                      {multipleServices.length} Leistung(en) hinzugefügt
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setMultipleServices([])}
+                      className="text-red-600 hover:text-red-700"
+                    >
+                      Alle entfernen
+                    </Button>
+                  </div>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {multipleServices.map((service, index) => {
+                      const item = priceItems.find(p => p.id === service.price_item_id);
+                      return (
+                        <div key={index} className="flex items-center justify-between text-xs bg-white p-2 rounded">
+                          <span className="font-medium">{item?.item_number} - {item?.description?.substring(0, 40)}...</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setMultipleServices(multipleServices.filter((_, i) => i !== index))}
+                            className="h-6 w-6 p-0 text-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Kategorie-Auswahl */}
               <div className="space-y-3">
@@ -1224,23 +1312,37 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
             </CardContent>
 
-            <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg sticky bottom-0 py-4 backdrop-blur-sm">
+            <CardFooter className="flex justify-between gap-3 bg-gray-50 rounded-b-lg sticky bottom-0 py-4 backdrop-blur-sm">
               <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
                 Abbrechen
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? (
-                    <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Speichere...
-                    </>
-                ) : (
-                    <>
-                        <Save className="w-4 h-4 mr-2" />
-                        {excavation ? 'Aktualisieren' : 'Erstellen'}
-                    </>
+              <div className="flex gap-2">
+                {!excavation && (
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={handleAddService}
+                    disabled={isSubmitting || !formData.price_item_id}
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Weitere hinzufügen
+                  </Button>
                 )}
-              </Button>
+                <Button type="submit" disabled={isSubmitting || (!excavation && !formData.price_item_id)}>
+                  {isSubmitting ? (
+                      <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Speichere...
+                      </>
+                  ) : (
+                      <>
+                          <Save className="w-4 h-4 mr-2" />
+                          {excavation ? 'Aktualisieren' : (multipleServices.length > 0 ? `${multipleServices.length + 1} Leistungen erstellen` : 'Erstellen')}
+                      </>
+                  )}
+                </Button>
+              </div>
             </CardFooter>
           </form>
         </Card>
