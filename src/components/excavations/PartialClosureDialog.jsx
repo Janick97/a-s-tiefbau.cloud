@@ -74,6 +74,14 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
 
     setIsSubmitting(true);
     try {
+      const { Excavation } = await import('@/entities/all');
+      
+      // Fotos zur Excavation hinzufügen (photos_surface)
+      const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
+      await Excavation.update(excavation.id, {
+        photos_surface: [...existingSurfacePhotos, ...formData.photos]
+      });
+
       // Teilabschluss erstellen
       await ExcavationClosure.create({
         excavation_id: excavation.id,
@@ -87,7 +95,6 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
       });
 
       // Wenn alle Meter geschlossen wurden, Graben komplett abschließen
-      const { Excavation } = await import('@/entities/all');
       if (metersToClose >= remainingMeters - 0.01) { // Toleranz für Rundungsfehler
         const surfaceCommission = (excavation.calculated_price || 0) * 0.3;
         await Excavation.update(excavation.id, {
