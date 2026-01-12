@@ -703,9 +703,9 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
               {/* Bereits hinzugefügte Leistungen */}
               {multipleServices.length > 0 && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-3">
                     <Label className="text-sm font-semibold text-green-800">
-                      {multipleServices.length} Leistung(en) hinzugefügt
+                      Hinzugefügte Leistungen ({multipleServices.length})
                     </Label>
                     <Button
                       type="button"
@@ -717,21 +717,38 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       Alle entfernen
                     </Button>
                   </div>
-                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
                     {multipleServices.map((service, index) => {
                       const item = priceItems.find(p => p.id === service.price_item_id);
                       return (
-                        <div key={index} className="flex items-center justify-between text-xs bg-white p-2 rounded">
-                          <span className="font-medium">{item?.item_number} - {item?.description?.substring(0, 40)}...</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setMultipleServices(multipleServices.filter((_, i) => i !== index))}
-                            className="h-6 w-6 p-0 text-red-600"
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
+                        <div key={index} className="bg-white p-3 rounded-lg border border-green-200 shadow-sm">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                  {index + 1}
+                                </span>
+                                <span className="font-semibold text-sm text-gray-900">
+                                  {item?.item_number}
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-600 ml-8 line-clamp-2">
+                                {item?.description}
+                              </p>
+                              <div className="text-xs text-gray-500 ml-8 mt-1">
+                                {service.street} {service.house_number}, {service.city}
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setMultipleServices(multipleServices.filter((_, i) => i !== index))}
+                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
                         </div>
                       );
                     })}
