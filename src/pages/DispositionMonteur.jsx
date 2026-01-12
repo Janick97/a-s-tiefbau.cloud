@@ -396,11 +396,8 @@ export default function DispositionMonteurPage() {
                                       </Badge>
                                     </div>
                                     <div className="text-xs text-gray-600 space-y-1">
-                                      <div className="flex items-center gap-1">
-                                        <span className="font-medium">SM:</span> {montage.sm_number}
-                                      </div>
+                                      <div>SM: {montage.sm_number}</div>
                                       <div className="font-medium text-gray-700">{montage.client}</div>
-                                      {montage.city && <div className="flex items-center gap-1">📍 {montage.city}</div>}
                                     </div>
                                     {(montage.assigned_monteure?.length > 0 || montage.assigned_monteur_name) && (
                                       <div className="pt-2 border-t">
@@ -483,8 +480,6 @@ export default function DispositionMonteurPage() {
                               <span className="font-mono bg-orange-50 text-orange-700 px-2 py-1 rounded">
                                 {montage.project_number}
                               </span>
-                              <span>•</span>
-                              <span>SM: {montage.sm_number}</span>
                               <span>•</span>
                               <span>{montage.client}</span>
                             </div>
