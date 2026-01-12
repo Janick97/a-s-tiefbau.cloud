@@ -389,13 +389,14 @@ export default function DispositionMonteurDetailPage() {
                                       </div>
                                     </div>
                                   </CardContent>
-                                </Card>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        {activeMontage.length === 0 && (
+                                  </Card>
+                                  </Link>
+                                  </div>
+                                  )}
+                                  </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                  {activeMontage.length === 0 && (
                           <div className="text-center py-8 text-gray-400 text-sm">
                             Keine Aufträge
                           </div>
@@ -451,14 +452,15 @@ export default function DispositionMonteurDetailPage() {
                                         </div>
                                       )}
                                     </div>
-                                  </CardContent>
-                                </Card>
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        {completedMontage.length === 0 && (
+                                    </CardContent>
+                                    </Card>
+                                    </Link>
+                                    </div>
+                                    )}
+                                    </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                    {completedMontage.length === 0 && (
                           <div className="text-center py-8 text-gray-400 text-sm">
                             Keine Aufträge
                           </div>
