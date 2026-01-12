@@ -717,11 +717,11 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       Alle entfernen
                     </Button>
                   </div>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                  <div className="space-y-2 max-h-64 overflow-y-auto flex flex-col">
                     {multipleServices.map((service, index) => {
                       const item = priceItems.find(p => p.id === service.price_item_id);
                       return (
-                        <div key={index} className="bg-white p-3 rounded-lg border border-green-200 shadow-sm">
+                        <div key={index} className="bg-white p-3 rounded-lg border border-green-200 shadow-sm flex-shrink-0">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">
