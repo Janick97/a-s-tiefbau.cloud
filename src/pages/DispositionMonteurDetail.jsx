@@ -379,19 +379,19 @@ export default function DispositionMonteurDetailPage() {
                                         <div className="font-semibold text-sm text-gray-900 line-clamp-2">
                                           {montage.title}
                                         </div>
-                                      <div className="text-xs text-gray-600 space-y-1">
-                                        <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
-                                          {montage.project_number}
+                                        <div className="text-xs text-gray-600 space-y-1">
+                                          <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
+                                            {montage.project_number}
+                                          </div>
+                                          <div>SM: {montage.sm_number}</div>
+                                          <div className="font-medium">{montage.client}</div>
+                                          {montage.city && <div>📍 {montage.city}</div>}
                                         </div>
-                                        <div>SM: {montage.sm_number}</div>
-                                        <div className="font-medium">{montage.client}</div>
-                                        {montage.city && <div>📍 {montage.city}</div>}
                                       </div>
-                                    </div>
-                                  </CardContent>
+                                    </CardContent>
                                   </Card>
-                                  </Link>
-                                  </div>
+                                </Link>
+                              </div>
                                   )}
                                   </Draggable>
                                   ))}
@@ -438,24 +438,24 @@ export default function DispositionMonteurDetailPage() {
                                         <div className="font-semibold text-sm text-gray-900 line-clamp-2">
                                           {montage.title}
                                         </div>
-                                      <div className="text-xs text-gray-600 space-y-1">
-                                        <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
-                                          {montage.project_number}
+                                        <div className="text-xs text-gray-600 space-y-1">
+                                          <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
+                                            {montage.project_number}
+                                          </div>
+                                          <div>SM: {montage.sm_number}</div>
+                                          <div className="font-medium">{montage.client}</div>
+                                          {montage.city && <div>📍 {montage.city}</div>}
                                         </div>
-                                        <div>SM: {montage.sm_number}</div>
-                                        <div className="font-medium">{montage.client}</div>
-                                        {montage.city && <div>📍 {montage.city}</div>}
+                                        {montage.monteur_completed_date && (
+                                          <div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
+                                            ✓ {new Date(montage.monteur_completed_date).toLocaleDateString('de-DE')}
+                                          </div>
+                                        )}
                                       </div>
-                                      {montage.monteur_completed_date && (
-                                        <div className="text-xs text-green-700 bg-green-100 px-2 py-1 rounded">
-                                          ✓ {new Date(montage.monteur_completed_date).toLocaleDateString('de-DE')}
-                                        </div>
-                                      )}
-                                    </div>
                                     </CardContent>
-                                    </Card>
-                                    </Link>
-                                    </div>
+                                  </Card>
+                                </Link>
+                              </div>
                                     )}
                                     </Draggable>
                                     ))}
