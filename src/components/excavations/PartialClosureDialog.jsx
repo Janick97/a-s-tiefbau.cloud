@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, Loader2, X, Camera, AlertTriangle } from "lucide-react";
+import { CheckCircle, Loader2, X, Camera, AlertTriangle, Ruler } from "lucide-react";
 import { ExcavationClosure } from "@/entities/all";
 import { UploadFile } from "@/integrations/Core";
 

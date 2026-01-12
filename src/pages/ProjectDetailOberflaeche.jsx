@@ -129,37 +129,27 @@ export default function ProjectDetailOberflaechePage() {
   const handleMarkClosedClick = async (excavation, event) => {
     event?.stopPropagation();
     
-    // Prüfe ob es ein Graben ist
-    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
-    const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
-    const anderePositionNumbers = [
-      '10021010', '10010413', '10037473', '10037352',
-      '10037463', '10037372', '10021040', '10037342', '10037363'
-    ];
-    const isGrabenPosition = priceItem?.unit === 'M' && 
-      !detailDimensionPositions.includes(priceItem?.item_number) &&
-      !anderePositionNumbers.includes(priceItem?.item_number);
+    // Für alle: Normaler Bestätigungsdialog für kompletten Abschluss
+    setConfirmDialog({
+      show: true,
+      type: 'surface',
+      excavation: excavation
+    });
+  };
+
+  const handlePartialClosureClick = async (excavation, event) => {
+    event?.stopPropagation();
     
-    if (isGrabenPosition) {
-      // Für Gräben: Teilabschluss-Dialog
-      // Lade bestehende closures
-      const closures = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
-      const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
-      const remainingMeters = Math.max(0, excavation.excavation_length - totalClosedMeters);
-      
-      setPartialClosureDialog({
-        show: true,
-        excavation,
-        remainingMeters
-      });
-    } else {
-      // Für Gruben: Normaler Bestätigungsdialog
-      setConfirmDialog({
-        show: true,
-        type: 'surface',
-        excavation: excavation
-      });
-    }
+    // Lade bestehende closures
+    const closures = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
+    const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
+    const remainingMeters = Math.max(0, excavation.excavation_length - totalClosedMeters);
+    
+    setPartialClosureDialog({
+      show: true,
+      excavation,
+      remainingMeters
+    });
   };
 
   const handleConfirmAction = () => { // Modified to open photo upload dialog
@@ -552,25 +542,58 @@ export default function ProjectDetailOberflaechePage() {
                           </Button>
                         )}
                         
-                        {excavation.is_backfilled && !excavation.is_closed && (
-                          <Button
-                            onClick={(e) => handleMarkClosedClick(excavation, e)}
-                            disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
-                            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
-                          >
-                            {isUpdating ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Wird gespeichert...
-                              </>
-                            ) : (
-                              <>
+                        {excavation.is_backfilled && !excavation.is_closed && (() => {
+                          const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                          const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                          const anderePositionNumbers = [
+                            '10021010', '10010413', '10037473', '10037352',
+                            '10037463', '10037372', '10021040', '10037342', '10037363'
+                          ];
+                          const isGrabenPosition = priceItem?.unit === 'M' && 
+                            !detailDimensionPositions.includes(priceItem?.item_number) &&
+                            !anderePositionNumbers.includes(priceItem?.item_number);
+                          
+                          return isGrabenPosition ? (
+                            // Graben: Zwei Buttons
+                            <div className="space-y-2">
+                              <Button
+                                onClick={(e) => handlePartialClosureClick(excavation, e)}
+                                disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-sm"
+                              >
+                                <Ruler className="w-4 h-4 mr-2" />
+                                Teilabschluss verbuchen
+                              </Button>
+                              <Button
+                                onClick={(e) => handleMarkClosedClick(excavation, e)}
+                                disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                              >
                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                Oberfläche fertigstellen
-                              </>
-                            )}
-                          </Button>
-                        )}
+                                Komplett abschließen
+                              </Button>
+                            </div>
+                          ) : (
+                            // Grube: Ein Button
+                            <Button
+                              onClick={(e) => handleMarkClosedClick(excavation, e)}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Oberfläche fertigstellen
+                                </>
+                              )}
+                            </Button>
+                          );
+                        })()}
                       </div>
                     </CardContent>
                   </Card>
