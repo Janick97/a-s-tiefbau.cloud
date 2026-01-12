@@ -372,12 +372,13 @@ export default function DispositionMonteurDetailPage() {
                                 {...provided.dragHandleProps}
                                 className={`${snapshot.isDragging ? 'opacity-50' : ''}`}
                               >
-                                <Card className="border border-blue-200 bg-blue-50 transition-shadow hover:shadow-md cursor-move">
-                                  <CardContent className="p-3">
-                                    <div className="space-y-2">
-                                      <div className="font-semibold text-sm text-gray-900 line-clamp-2">
-                                        {montage.title}
-                                      </div>
+                                <Link to={createPageUrl(`MontageAuftragDetail?id=${montage.id}`)}>
+                                  <Card className="border border-blue-200 bg-blue-50 transition-shadow hover:shadow-md cursor-pointer">
+                                    <CardContent className="p-3">
+                                      <div className="space-y-2">
+                                        <div className="font-semibold text-sm text-gray-900 line-clamp-2">
+                                          {montage.title}
+                                        </div>
                                       <div className="text-xs text-gray-600 space-y-1">
                                         <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
                                           {montage.project_number}
@@ -429,12 +430,13 @@ export default function DispositionMonteurDetailPage() {
                                 {...provided.dragHandleProps}
                                 className={`${snapshot.isDragging ? 'opacity-50' : ''}`}
                               >
-                                <Card className="border border-green-200 bg-green-50 transition-shadow hover:shadow-md cursor-move">
-                                  <CardContent className="p-3">
-                                    <div className="space-y-2">
-                                      <div className="font-semibold text-sm text-gray-900 line-clamp-2">
-                                        {montage.title}
-                                      </div>
+                                <Link to={createPageUrl(`MontageAuftragDetail?id=${montage.id}`)}>
+                                  <Card className="border border-green-200 bg-green-50 transition-shadow hover:shadow-md cursor-pointer">
+                                    <CardContent className="p-3">
+                                      <div className="space-y-2">
+                                        <div className="font-semibold text-sm text-gray-900 line-clamp-2">
+                                          {montage.title}
+                                        </div>
                                       <div className="text-xs text-gray-600 space-y-1">
                                         <div className="font-mono bg-white px-2 py-1 rounded border inline-block">
                                           {montage.project_number}
@@ -511,10 +513,19 @@ export default function DispositionMonteurDetailPage() {
                               )}
                             </div>
                             <div className="flex gap-2">
+                              <Link to={createPageUrl(`MontageAuftragDetail?id=${montage.id}`)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  Details
+                                </Button>
+                              </Link>
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setUnassigningMontage(montage);
                                   setShowUnassignDialog(true);
                                 }}
@@ -572,6 +583,11 @@ export default function DispositionMonteurDetailPage() {
                                 </div>
                               )}
                             </div>
+                            <Link to={createPageUrl(`MontageAuftragDetail?id=${montage.id}`)}>
+                              <Button variant="outline" size="sm">
+                                Details
+                              </Button>
+                            </Link>
                           </div>
                         </CardContent>
                       </Card>

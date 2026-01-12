@@ -380,16 +380,16 @@ export default function DispositionMonteurPage() {
                         <CardContent className="p-2">
                           <div className="space-y-2 max-h-[calc(100vh-400px)] overflow-y-auto">
                             {column.montageAuftraege.map((montage) => (
-                              <Card 
-                                key={montage.id} 
-                                className="border hover:shadow-md transition-all cursor-pointer group"
-                                onClick={() => handleMonteurClick(montage)}
-                              >
-                                <CardContent className="p-3">
-                                  <div className="space-y-2">
-                                    <div className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
-                                      {montage.title}
-                                    </div>
+                              <Link to={createPageUrl(`MontageAuftragDetail?id=${montage.id}`)}>
+                                <Card 
+                                  key={montage.id} 
+                                  className="border hover:shadow-md transition-all cursor-pointer group"
+                                >
+                                  <CardContent className="p-3">
+                                    <div className="space-y-2">
+                                      <div className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+                                        {montage.title}
+                                      </div>
                                     <div className="flex items-center gap-1">
                                       <Badge variant="outline" className="text-xs font-mono">
                                         {montage.project_number}
@@ -421,9 +421,10 @@ export default function DispositionMonteurPage() {
                                         {new Date(montage.monteur_completed_date).toLocaleDateString('de-DE')}
                                       </div>
                                     )}
-                                  </div>
-                                </CardContent>
-                              </Card>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </Link>
                             ))}
                             {column.montageAuftraege.length === 0 && (
                               <div className="text-center py-12 text-gray-400 text-sm">
