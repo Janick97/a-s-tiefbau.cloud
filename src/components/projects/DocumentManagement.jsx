@@ -31,6 +31,7 @@ const folderOptions = [
   "Baubeginn und Fertigstellung",
   "Besonderheiten",
   "Bilder",
+  "Leitungspläne",
   "Montage",
   "Statusmeldung",
   "VAOs",
@@ -54,6 +55,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [expandedFolders, setExpandedFolders] = useState(new Set());
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const [searchQuery, setSearchQuery] = useState("");
+  const [showNewMainFolderDialog, setShowNewMainFolderDialog] = useState(false);
+  const [newMainFolderName, setNewMainFolderName] = useState("");
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
@@ -248,6 +251,24 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     setSelectedParentFolder("");
   };
 
+  const handleCreateMainFolder = () => {
+    if (!newMainFolderName.trim()) {
+      alert("Bitte geben Sie einen Ordnernamen ein");
+      return;
+    }
+    
+    if (allFolders.includes(newMainFolderName.trim())) {
+      alert("Dieser Ordner existiert bereits");
+      return;
+    }
+    
+    const updatedFolders = [...customFolders, newMainFolderName.trim()];
+    saveCustomFolders(updatedFolders);
+    
+    setShowNewMainFolderDialog(false);
+    setNewMainFolderName("");
+  };
+
   const handleDrop = async (e, folder) => {
     e.preventDefault();
     e.stopPropagation();
@@ -348,6 +369,10 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               className="pl-9"
             />
           </div>
+          <Button onClick={() => setShowNewMainFolderDialog(true)} variant="outline" className="flex-shrink-0">
+            <FolderOpen className="w-4 h-4 sm:mr-2" />
+            <span className="hidden sm:inline">Neuer Ordner</span>
+          </Button>
           <Button onClick={() => setShowUploadForm(true)} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 flex-shrink-0">
             <Plus className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Datei hochladen</span>
@@ -869,6 +894,59 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     Abbrechen
                   </Button>
                   <Button onClick={handleCreateSubfolder}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Erstellen
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* New Main Folder Dialog */}
+      <AnimatePresence>
+        {showNewMainFolderDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setShowNewMainFolderDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold mb-4">Neuer Hauptordner</h3>
+              <div className="space-y-4">
+                <div>
+                  <Label>Name des Ordners</Label>
+                  <Input
+                    value={newMainFolderName}
+                    onChange={(e) => setNewMainFolderName(e.target.value)}
+                    placeholder="z.B. Sonderdokumente"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleCreateMainFolder();
+                      if (e.key === 'Escape') setShowNewMainFolderDialog(false);
+                    }}
+                    autoFocus
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowNewMainFolderDialog(false);
+                      setNewMainFolderName("");
+                    }}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleCreateMainFolder}>
                     <Plus className="w-4 h-4 mr-2" />
                     Erstellen
                   </Button>
