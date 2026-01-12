@@ -14,7 +14,6 @@ import MaterialInventory from './pages/MaterialInventory';
 import MeineMontageAuftraege from './pages/MeineMontageAuftraege';
 import MitarbeiterDetail from './pages/MitarbeiterDetail';
 import MontageAuftraege from './pages/MontageAuftraege';
-import MontageAuftraegeArchiv from './pages/MontageAuftraegeArchiv';
 import MontageAuftragDetail from './pages/MontageAuftragDetail';
 import MontageMaterialInventory from './pages/MontageMaterialInventory';
 import MontagePriceList from './pages/MontagePriceList';
@@ -33,6 +32,7 @@ import Projects from './pages/Projects';
 import Surface from './pages/Surface';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
+import MontageAuftraegeArchiv from './pages/MontageAuftraegeArchiv';
 import __Layout from './Layout.jsx';
 
 
@@ -53,7 +53,6 @@ export const PAGES = {
     "MeineMontageAuftraege": MeineMontageAuftraege,
     "MitarbeiterDetail": MitarbeiterDetail,
     "MontageAuftraege": MontageAuftraege,
-    "MontageAuftraegeArchiv": MontageAuftraegeArchiv,
     "MontageAuftragDetail": MontageAuftragDetail,
     "MontageMaterialInventory": MontageMaterialInventory,
     "MontagePriceList": MontagePriceList,
@@ -72,6 +71,7 @@ export const PAGES = {
     "Surface": Surface,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
+    "MontageAuftraegeArchiv": MontageAuftraegeArchiv,
 }
 
 export const pagesConfig = {
