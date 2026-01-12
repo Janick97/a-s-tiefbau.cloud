@@ -705,7 +705,12 @@ export default function ProjectDetailPage() {
         MontagePreisItem.list().catch(() => [])
       ]);
 
-      setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
+      // Sortiere Ausgrabungen nach Erstellungsdatum (älteste zuerst)
+      const sortedExcavations = Array.isArray(excavationsData) 
+        ? excavationsData.sort((a, b) => new Date(a.created_date) - new Date(b.created_date))
+        : [];
+      
+      setExcavations(sortedExcavations);
       setPriceItems(Array.isArray(priceItemsData) ? priceItemsData : []);
       setPullingWorks(Array.isArray(pullingWorksData) ? pullingWorksData : []);
       setProjectMaterials(Array.isArray(projectMaterialsData) ? projectMaterialsData : []);
