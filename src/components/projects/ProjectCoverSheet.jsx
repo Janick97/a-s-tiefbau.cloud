@@ -502,6 +502,7 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       <Table className="w-full border-collapse" style={{ border: '2px solid rgb(31, 41, 55)' }}>
                         <TableHeader className="bg-gradient-to-r from-gray-100 to-gray-50">
                           <TableRow className="border-b-2 border-gray-700" style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                            <TableHead className="font-bold text-sm p-3 w-[3%] border-r-2 border-gray-700 text-center">#</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[10%] border-r-2 border-gray-700">Standort</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[5%] border-r-2 border-gray-700 text-center">Typ</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[7%] border-r-2 border-gray-700">Oberfl.</TableHead>
@@ -520,9 +521,14 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                           const surfaceWork = getSurfaceWork(exc);
                           const excavationType = getExcavationType(exc);
                           const baustellenDetails = getBaustellenDetails(exc);
+                          // Berechne die globale Position über alle Chunks hinweg
+                          const globalIndex = chunkIndex * (chunkIndex === 0 ? 4 : 10) + index + (chunkIndex > 0 ? 4 : 0);
 
                           return (
                             <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                                <TableCell className="p-3 text-xs font-mono font-bold border-r-2 border-gray-700 text-center">
+                                  #{globalIndex + 1}
+                                </TableCell>
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="font-semibold leading-tight">{exc.location_name}</div>
                                   <div className="text-gray-600 leading-tight text-xs">
@@ -689,18 +695,24 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
                       <Table className="w-full border-collapse" style={{ border: '2px solid rgb(31, 41, 55)' }}>
                         <TableHeader className="bg-gradient-to-r from-purple-100 to-purple-50">
                           <TableRow className="border-b-2 border-gray-700" style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                            <TableHead className="font-bold text-sm p-3 w-[3%] border-r-2 border-gray-700 text-center">#</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[50%] border-r-2 border-gray-700">Leistungsbezeichnung</TableHead>
                             <TableHead className="font-bold text-sm p-3 w-[25%] border-r-2 border-gray-700 text-center">Menge</TableHead>
-                            <TableHead className="font-bold text-sm p-3 w-[25%]">Hinzugefügt von</TableHead>
+                            <TableHead className="font-bold text-sm p-3 w-[22%]">Hinzugefügt von</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {chunk.map((exc, index) => {
                           const priceItem = priceItems.find((p) => p.id === exc.price_item_id);
                           const leistungsName = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : exc.location_name;
+                          // Berechne die globale Position über alle Chunks hinweg
+                          const globalIndex = chunkIndex * (chunkIndex === 0 ? 4 : 10) + index + (chunkIndex > 0 ? 4 : 0);
 
                           return (
                             <TableRow key={exc.id} className={`border-b-2 border-gray-700 ${index % 2 === 0 ? 'bg-white' : 'bg-purple-50'}`} style={{ borderBottom: '2px solid rgb(31, 41, 55)' }}>
+                                <TableCell className="p-3 text-xs font-mono font-bold border-r-2 border-gray-700 text-center">
+                                  #{globalIndex + 1}
+                                </TableCell>
                                 <TableCell className="p-3 text-sm border-r-2 border-gray-700">
                                   <div className="font-semibold leading-tight">{leistungsName}</div>
                                 </TableCell>
