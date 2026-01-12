@@ -74,6 +74,7 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
 
     setIsSubmitting(true);
     try {
+      // Teilabschluss erstellen
       await ExcavationClosure.create({
         excavation_id: excavation.id,
         closed_by: user?.full_name || 'Unbekannt',
@@ -84,6 +85,19 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
         surface_type: excavation?.surface_type,
         photos: formData.photos
       });
+
+      // Wenn alle Meter geschlossen wurden, Graben komplett abschließen
+      const { Excavation } = await import('@/entities/all');
+      if (metersToClose >= remainingMeters - 0.01) { // Toleranz für Rundungsfehler
+        const surfaceCommission = (excavation.calculated_price || 0) * 0.3;
+        await Excavation.update(excavation.id, {
+          is_closed: true,
+          closed_date: new Date().toISOString().split('T')[0],
+          closed_by: user?.full_name || 'Unbekannt',
+          closed_by_user_id: user?.id,
+          surface_commission: surfaceCommission
+        });
+      }
 
       onSuccess();
     } catch (error) {
@@ -127,18 +141,31 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
             <Label htmlFor="meters_closed">
               Geschlossene Meter * (max. {remainingMeters.toFixed(1)} m)
             </Label>
-            <Input
-              id="meters_closed"
-              type="number"
-              step="0.1"
-              min="0"
-              max={remainingMeters}
-              value={formData.meters_closed}
-              onChange={(e) => handleInputChange('meters_closed', e.target.value)}
-              placeholder={`z.B. ${Math.min(10, remainingMeters).toFixed(1)}`}
-              className="text-lg font-semibold"
-              required
-            />
+            <div className="flex gap-2">
+              <Input
+                id="meters_closed"
+                type="number"
+                step="0.1"
+                min="0"
+                max={remainingMeters}
+                value={formData.meters_closed}
+                onChange={(e) => handleInputChange('meters_closed', e.target.value)}
+                placeholder={`z.B. ${Math.min(10, remainingMeters).toFixed(1)}`}
+                className="text-lg font-semibold flex-1"
+                required
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleInputChange('meters_closed', remainingMeters.toString())}
+                className="whitespace-nowrap"
+              >
+                Alle ({remainingMeters.toFixed(1)}m)
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">
+              Tipp: Klicken Sie auf "Alle", um den kompletten Graben abzuschließen
+            </p>
           </div>
 
           <div className="space-y-2">
