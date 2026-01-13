@@ -13,6 +13,7 @@ import { UploadFile } from "@/integrations/Core";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import SchaedigerManagement from "../components/projects/SchaedigerManagement";
 import DocumentManagement from "../components/projects/DocumentManagement";
+import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
@@ -399,6 +400,13 @@ export default function MontageAuftragDetailPage() {
                 />
               </CardContent>
             </Card>
+          </div>
+        )}
+
+        {/* Chat-Bereich */}
+        {montageAuftrag.project_id && (
+          <div className="h-[500px] mt-3">
+            <ProjectChat projectId={montageAuftrag.project_id} />
           </div>
         )}
       </div>

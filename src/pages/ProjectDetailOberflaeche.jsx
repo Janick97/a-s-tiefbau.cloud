@@ -4,6 +4,7 @@ import { Project, Excavation, PriceItem, User, ExcavationClosure } from "@/entit
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ProjectChat from "../components/projects/ProjectChat";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -618,6 +619,11 @@ export default function ProjectDetailOberflaechePage() {
               </CardContent>
             </Card>
           )}
+        </div>
+
+        {/* Chat-Bereich */}
+        <div className="h-[500px] mt-3">
+          <ProjectChat projectId={project.id} />
         </div>
       </div>
 
