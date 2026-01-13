@@ -34,6 +34,7 @@ import Surface from './pages/Surface';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
 import KolonnenKonfiguration from './pages/KolonnenKonfiguration';
+import KolonnenBildschirmView from './pages/KolonnenBildschirmView';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
     "KolonnenKonfiguration": KolonnenKonfiguration,
+    "KolonnenBildschirmView": KolonnenBildschirmView,
 }
 
 export const pagesConfig = {
