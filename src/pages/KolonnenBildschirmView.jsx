@@ -166,10 +166,10 @@ export default function KolonnenBildschirmViewPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-16 h-16 text-white animate-spin mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white">Kolonnen-Übersicht wird geladen...</h2>
+          <Loader2 className="w-16 h-16 text-blue-600 animate-spin mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900">Kolonnen-Übersicht wird geladen...</h2>
         </div>
       </div>
     );
@@ -177,36 +177,36 @@ export default function KolonnenBildschirmViewPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-900 via-pink-900 to-purple-900 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
-          <AlertCircle className="w-16 h-16 text-white mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Fehler beim Laden</h2>
-          <p className="text-white/80">{error}</p>
+          <AlertCircle className="w-16 h-16 text-red-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Fehler beim Laden</h2>
+          <p className="text-gray-600">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 p-8">
+    <div className="min-h-screen bg-white p-8">
       <div className="max-w-[2000px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <h1 className="text-5xl font-bold text-white mb-2">
+          <h1 className="text-5xl font-bold text-gray-900 mb-2">
             Kolonnen-Übersicht
           </h1>
-          <p className="text-2xl text-white/80">
+          <p className="text-2xl text-gray-600">
             {selectedMonthName}
           </p>
         </motion.div>
 
         {kolonnenPerformance.length === 0 ? (
           <div className="text-center py-20">
-            <h3 className="text-2xl font-medium text-white/60 mb-2">Keine Kolonnen gefunden</h3>
-            <p className="text-white/40">
+            <h3 className="text-2xl font-medium text-gray-500 mb-2">Keine Kolonnen gefunden</h3>
+            <p className="text-gray-400">
               Für {selectedMonthName} sind keine Bauleiter-Daten verfügbar.
             </p>
           </div>
@@ -218,19 +218,19 @@ export default function KolonnenBildschirmViewPage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
-                className={`bg-white/10 backdrop-blur-md rounded-2xl p-6 border-4 ${
-                  index === 0 ? 'border-yellow-400' :
-                  index === 1 ? 'border-gray-300' :
-                  index === 2 ? 'border-orange-400' :
-                  'border-white/20'
+                className={`bg-white rounded-2xl p-6 border-4 shadow-xl ${
+                  index === 0 ? 'border-yellow-400 bg-gradient-to-br from-yellow-50 to-amber-50' :
+                  index === 1 ? 'border-gray-400 bg-gradient-to-br from-gray-50 to-slate-50' :
+                  index === 2 ? 'border-orange-400 bg-gradient-to-br from-orange-50 to-red-50' :
+                  'border-gray-200'
                 }`}
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-white mb-1">
+                    <h2 className="text-2xl font-bold text-gray-900 mb-1">
                       {kolonne.name}
                     </h2>
-                    <div className="text-sm text-white/60">
+                    <div className="text-sm text-gray-600">
                       {kolonne.totalJobs} Aufträge
                     </div>
                   </div>
@@ -246,23 +246,23 @@ export default function KolonnenBildschirmViewPage() {
                 </div>
 
                 {/* Performance Section */}
-                <div className="bg-white/20 rounded-xl p-4 mb-6">
+                <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-200">
                   <div className="flex justify-between items-center mb-4">
-                    <span className="text-lg font-semibold text-white/80">Performance</span>
+                    <span className="text-lg font-semibold text-gray-700">Performance</span>
                     <span className="text-3xl font-bold">
                       {kolonne.ausgabenPercentage > 100 ? (
-                        <span className="text-green-400">+{Math.round(kolonne.ausgabenPercentage - 100)}%</span>
+                        <span className="text-green-600">+{Math.round(kolonne.ausgabenPercentage - 100)}%</span>
                       ) : (
-                        <span className="text-red-400">-{Math.round(100 - kolonne.ausgabenPercentage)}%</span>
+                        <span className="text-red-600">-{Math.round(100 - kolonne.ausgabenPercentage)}%</span>
                       )}
                     </span>
                   </div>
                   
                   {/* Progress Bar */}
                   <div className="space-y-2">
-                    <div className="relative h-8 bg-white/30 rounded-full overflow-hidden">
+                    <div className="relative h-8 bg-gray-200 rounded-full overflow-hidden">
                       {/* Mittellinie */}
-                      <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-white z-20"></div>
+                      <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 z-20"></div>
                       
                       {/* Roter Bereich (Minus) */}
                       {kolonne.ausgabenPercentage < 100 && (
@@ -285,9 +285,9 @@ export default function KolonnenBildschirmViewPage() {
                       )}
                     </div>
                     
-                    <div className="flex justify-between items-center text-sm text-white/60">
+                    <div className="flex justify-between items-center text-sm text-gray-600">
                       <span>-100%</span>
-                      <span className="font-semibold text-white">0%</span>
+                      <span className="font-semibold text-gray-900">0%</span>
                       <span>+100%</span>
                     </div>
                   </div>
@@ -295,13 +295,13 @@ export default function KolonnenBildschirmViewPage() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-blue-500/30 rounded-xl p-4 text-center">
-                    <div className="text-4xl font-bold text-white">{kolonne.grubenCount}</div>
-                    <div className="text-sm text-white/70">Gruben</div>
+                  <div className="bg-blue-50 rounded-xl p-4 text-center border border-blue-200">
+                    <div className="text-4xl font-bold text-blue-600">{kolonne.grubenCount}</div>
+                    <div className="text-sm text-gray-600">Gruben</div>
                   </div>
-                  <div className="bg-green-500/30 rounded-xl p-4 text-center">
-                    <div className="text-4xl font-bold text-white">{kolonne.grabenMeter}m</div>
-                    <div className="text-sm text-white/70">Graben</div>
+                  <div className="bg-green-50 rounded-xl p-4 text-center border border-green-200">
+                    <div className="text-4xl font-bold text-green-600">{kolonne.grabenMeter}m</div>
+                    <div className="text-sm text-gray-600">Graben</div>
                   </div>
                 </div>
 
