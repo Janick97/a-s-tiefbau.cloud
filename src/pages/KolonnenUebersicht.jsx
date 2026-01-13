@@ -330,13 +330,9 @@ export default function KolonnenUebersichtPage() {
                           {/* Roter Bereich (Minus) - von links bis zur aktuellen Position */}
                           {kolonne.ausgabenPercentage < 100 && (
                             <div 
-                              className="absolute left-0 top-0 bottom-0"
+                              className="absolute left-0 top-0 bottom-0 bg-red-500"
                               style={{ 
-                                width: `${50 - (kolonne.ausgabenPercentage / 2)}%`,
-                                background: `linear-gradient(to right, 
-                                  rgb(220, 38, 38), 
-                                  rgb(${Math.round(239 - ((100 - kolonne.ausgabenPercentage) * 0.5))}, ${Math.round(68 + ((100 - kolonne.ausgabenPercentage) * 1.5))}, ${Math.round(68 + ((100 - kolonne.ausgabenPercentage) * 1.5))})
-                                )`
+                                width: `${50 - (kolonne.ausgabenPercentage / 2)}%`
                               }}
                             ></div>
                           )}
@@ -344,13 +340,9 @@ export default function KolonnenUebersichtPage() {
                           {/* Grüner Bereich (Plus) - von der Mitte nach rechts */}
                           {kolonne.ausgabenPercentage > 100 && (
                             <div 
-                              className="absolute left-1/2 top-0 bottom-0"
+                              className="absolute left-1/2 top-0 bottom-0 bg-green-500"
                               style={{ 
-                                width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%`,
-                                background: `linear-gradient(to right, 
-                                  rgb(${Math.round(134 + ((kolonne.ausgabenPercentage - 100) * 0.5))}, ${Math.round(239 - ((kolonne.ausgabenPercentage - 100) * 0.5))}, ${Math.round(172 - ((kolonne.ausgabenPercentage - 100) * 0.8))}),
-                                  rgb(34, 197, 94)
-                                )`
+                                width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%`
                               }}
                             ></div>
                           )}
