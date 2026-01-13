@@ -327,30 +327,29 @@ export default function KolonnenUebersichtPage() {
                           {/* Mittellinie (Nullpunkt) */}
                           <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 z-20"></div>
                           
-                          {/* Minus-Bereich (links von Mitte) */}
-                          {kolonne.ausgabenPercentage <= 100 && (
+                          {/* Roter Bereich (Minus) - von links bis zur aktuellen Position */}
+                          {kolonne.ausgabenPercentage < 100 && (
                             <div 
-                              className="absolute top-0 bottom-0"
+                              className="absolute left-0 top-0 bottom-0"
                               style={{ 
-                                left: `${50 - (kolonne.ausgabenPercentage / 2)}%`,
-                                width: `${kolonne.ausgabenPercentage / 2}%`,
+                                width: `${50 - (kolonne.ausgabenPercentage / 2)}%`,
                                 background: `linear-gradient(to right, 
-                                  rgb(${Math.round(220 - (kolonne.ausgabenPercentage * 0.8))}, 38, 38), 
-                                  rgb(${Math.round(254 - (kolonne.ausgabenPercentage * 1.0))}, ${Math.round(202 - (kolonne.ausgabenPercentage * 2.0))}, ${Math.round(202 - (kolonne.ausgabenPercentage * 2.0))})
+                                  rgb(220, 38, 38), 
+                                  rgb(${Math.round(239 - ((100 - kolonne.ausgabenPercentage) * 0.5))}, ${Math.round(68 + ((100 - kolonne.ausgabenPercentage) * 1.5))}, ${Math.round(68 + ((100 - kolonne.ausgabenPercentage) * 1.5))})
                                 )`
                               }}
                             ></div>
                           )}
                           
-                          {/* Plus-Bereich (rechts von Mitte) */}
+                          {/* Grüner Bereich (Plus) - von der Mitte nach rechts */}
                           {kolonne.ausgabenPercentage > 100 && (
                             <div 
                               className="absolute left-1/2 top-0 bottom-0"
                               style={{ 
                                 width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%`,
                                 background: `linear-gradient(to right, 
-                                  rgb(${Math.round(187 - ((kolonne.ausgabenPercentage - 100) * 0.65))}, ${Math.round(247 - ((kolonne.ausgabenPercentage - 100) * 0.30))}, ${Math.round(208 - ((kolonne.ausgabenPercentage - 100) * 1.08))}),
-                                  rgb(${Math.round(34 + ((kolonne.ausgabenPercentage - 100) * 0.20))}, ${Math.round(197 - ((kolonne.ausgabenPercentage - 100) * 0.80))}, ${Math.round(94 - ((kolonne.ausgabenPercentage - 100) * 0.40))})
+                                  rgb(${Math.round(134 + ((kolonne.ausgabenPercentage - 100) * 0.5))}, ${Math.round(239 - ((kolonne.ausgabenPercentage - 100) * 0.5))}, ${Math.round(172 - ((kolonne.ausgabenPercentage - 100) * 0.8))}),
+                                  rgb(34, 197, 94)
                                 )`
                               }}
                             ></div>
