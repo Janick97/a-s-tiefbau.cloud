@@ -2,7 +2,6 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from '@/entities/all';
-
 import {
   LayoutDashboard,
   FolderOpen,
@@ -108,7 +107,7 @@ const navigationItems = [
   },
 ];
 
-function LayoutContent({ children, currentPageName }) {
+export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
   const [bauleiter, setBauleiter] = React.useState([]);
@@ -139,8 +138,6 @@ function LayoutContent({ children, currentPageName }) {
     };
     loadUser();
   }, []);
-
-
 
   // Filtern der Navigationselemente basierend auf der Benutzerrolle/Position
   const filteredNavigationItems = React.useMemo(() => {
@@ -696,13 +693,9 @@ function LayoutContent({ children, currentPageName }) {
 
           <div className="flex-1 overflow-auto">
             {children}
-            </div>
-            </main>
-            </div>
-            </SidebarProvider>
-            );
-            }
-
-            export default function Layout({ children, currentPageName }) {
-            return <LayoutContent children={children} currentPageName={currentPageName} />;
-            }
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
+  );
+}
