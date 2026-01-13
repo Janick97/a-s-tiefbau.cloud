@@ -2,8 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from '@/entities/all';
-import { ChatNotificationProvider } from '@/components/contexts/ChatNotificationContext';
-import ChatNotificationWindow from '@/components/notifications/ChatNotificationWindow';
+
 import {
   LayoutDashboard,
   FolderOpen,
@@ -697,18 +696,13 @@ function LayoutContent({ children, currentPageName }) {
 
           <div className="flex-1 overflow-auto">
             {children}
-          </div>
-        </main>
-        <ChatNotificationWindow />
-      </div>
-    </SidebarProvider>
-    );
-    }
+            </div>
+            </main>
+            </div>
+            </SidebarProvider>
+            );
+            }
 
-    export default function Layout({ children, currentPageName }) {
-    return (
-    <ChatNotificationProvider>
-    <LayoutContent children={children} currentPageName={currentPageName} />
-    </ChatNotificationProvider>
-    );
-    }
+            export default function Layout({ children, currentPageName }) {
+            return <LayoutContent children={children} currentPageName={currentPageName} />;
+            }
