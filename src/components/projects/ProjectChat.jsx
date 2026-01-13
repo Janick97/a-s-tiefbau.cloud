@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
-import { useNotifications } from '@/components/contexts/NotificationContext';
+import { useChatNotifications } from '@/components/contexts/ChatNotificationContext';
 
 const getInitials = (name) => {
     if (!name) return '';
@@ -97,7 +97,7 @@ export default function ProjectChat({ projectId }) {
     const [projectData, setProjectData] = useState(null);
     const commentsEndRef = useRef(null);
     const fileInputRef = useRef(null);
-    const { setMontageNotification, setTiefbauNotification } = useNotifications();
+    const { addNotification } = useChatNotifications();
 
     const loadData = async () => {
         setIsLoading(true);
@@ -122,34 +122,44 @@ export default function ProjectChat({ projectId }) {
             loadData();
 
             // Subscribe to new comments
-            const unsubscribe = ProjectComment.subscribe((event) => {
+            const unsubscribe = ProjectComment.subscribe(async (event) => {
                 if (event.type === 'create' && event.data.project_id === projectId) {
                     // Add the new comment to the list
                     setComments(prev => [...prev, event.data]);
                     
-                    // Check if this is a montage or tiefbau project
-                    const checkProjectType = async () => {
-                        try {
-                            // Check if there's a MontageAuftrag for this project
-                            const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
-                            if (montageAuftraege && montageAuftraege.length > 0) {
-                                console.log('Setting Montage notification to true');
-                                setMontageNotification(true);
-                            } else {
-                                console.log('Setting Tiefbau notification to true');
-                                setTiefbauNotification(true);
-                            }
-                        } catch (error) {
-                            console.error('Fehler beim Prüfen des Projekttyps:', error);
+                    // Skip notification if this is the current user's own comment
+                    if (currentUser && event.data.created_by === currentUser.email) {
+                        return;
+                    }
+                    
+                    // Get project details for notification
+                    try {
+                        const project = await Project.get(projectId);
+                        const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
+                        
+                        let link = createPageUrl('ProjectDetail') + `?id=${projectId}`;
+                        if (montageAuftraege && montageAuftraege.length > 0) {
+                            link = createPageUrl('MontageAuftragDetail') + `?id=${montageAuftraege[0].id}`;
                         }
-                    };
-                    checkProjectType();
+                        
+                        addNotification({
+                            comment_id: event.data.id,
+                            project_id: projectId,
+                            project_title: project?.title || 'Projekt',
+                            project_number: project?.project_number || '',
+                            user_name: event.data.user_full_name || 'Unbekannt',
+                            message: event.data.comment || '',
+                            link: link
+                        });
+                    } catch (error) {
+                        console.error('Fehler beim Erstellen der Benachrichtigung:', error);
+                    }
                 }
             });
 
             return () => unsubscribe();
         }
-    }, [projectId, setMontageNotification, setTiefbauNotification]);
+    }, [projectId, currentUser, addNotification]);
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
