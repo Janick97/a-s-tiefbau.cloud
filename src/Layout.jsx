@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { User } from '@/entities/all';
+import { NotificationProvider, useNotifications } from '@/components/contexts/NotificationContext';
 import {
   LayoutDashboard,
   FolderOpen,
@@ -107,7 +108,7 @@ const navigationItems = [
   },
 ];
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const location = useLocation();
   const [user, setUser] = React.useState(null);
   const [bauleiter, setBauleiter] = React.useState([]);
@@ -116,6 +117,7 @@ export default function Layout({ children, currentPageName }) {
   const [dispositionMontageOpen, setDispositionMontageOpen] = React.useState(false);
   const [verwaltungOpen, setVerwaltungOpen] = React.useState(false);
   const [auswertungenOpen, setAuswertungenOpen] = React.useState(false);
+  const { notifications, clearMontageNotification, clearTiefbauNotification } = useNotifications();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -138,6 +140,16 @@ export default function Layout({ children, currentPageName }) {
     };
     loadUser();
   }, []);
+
+  // Clear notifications when navigating to relevant pages
+  React.useEffect(() => {
+    if (location.pathname.includes('DispositionMonteur') || location.pathname.includes('MontageAuftrag')) {
+      clearMontageNotification();
+    }
+    if (location.pathname.includes('Disposition') && !location.pathname.includes('DispositionMonteur')) {
+      clearTiefbauNotification();
+    }
+  }, [location.pathname]);
 
   // Filtern der Navigationselemente basierend auf der Benutzerrolle/Position
   const filteredNavigationItems = React.useMemo(() => {
@@ -346,6 +358,11 @@ export default function Layout({ children, currentPageName }) {
                                 >
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
+                                  {notifications.dispositionTiefbau && (
+                                    <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+                                      1
+                                    </span>
+                                  )}
                                   {dispositionOpen ? (
                                     <ChevronDown className="w-4 h-4 ml-auto" />
                                   ) : (
@@ -405,6 +422,11 @@ export default function Layout({ children, currentPageName }) {
                                 >
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
+                                  {notifications.dispositionMontage && (
+                                    <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+                                      1
+                                    </span>
+                                  )}
                                   {dispositionMontageOpen ? (
                                     <ChevronDown className="w-4 h-4 ml-auto" />
                                   ) : (
@@ -697,5 +719,13 @@ export default function Layout({ children, currentPageName }) {
         </main>
       </div>
     </SidebarProvider>
-  );
-}
+    );
+    }
+
+    export default function Layout({ children, currentPageName }) {
+    return (
+    <NotificationProvider>
+    <LayoutContent children={children} currentPageName={currentPageName} />
+    </NotificationProvider>
+    );
+    }

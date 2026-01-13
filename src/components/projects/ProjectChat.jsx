@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProjectComment, User, ProjectDocument } from '@/entities/all';
+import { ProjectComment, User, ProjectDocument, Project, MontageAuftrag } from '@/entities/all';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
+import { useNotifications } from '@/components/contexts/NotificationContext';
 
 const getInitials = (name) => {
     if (!name) return '';
@@ -93,20 +94,22 @@ export default function ProjectChat({ projectId }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const [projectData, setProjectData] = useState(null);
     const commentsEndRef = useRef(null);
     const fileInputRef = useRef(null);
-
-    // Auto-scroll removed to prevent page from scrolling down on load
+    const { setMontageNotification, setTiefbauNotification } = useNotifications();
 
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [user, projectComments] = await Promise.all([
+            const [user, projectComments, project] = await Promise.all([
                 User.me(),
-                ProjectComment.filter({ project_id: projectId }, 'created_date')
+                ProjectComment.filter({ project_id: projectId }, 'created_date'),
+                Project.get(projectId).catch(() => null)
             ]);
             setCurrentUser(user);
             setComments(Array.isArray(projectComments) ? projectComments : []);
+            setProjectData(project);
         } catch (error) {
             console.error("Fehler beim Laden der Kommentare:", error);
         } finally {
@@ -117,8 +120,31 @@ export default function ProjectChat({ projectId }) {
     useEffect(() => {
         if (projectId) {
             loadData();
+
+            // Subscribe to new comments
+            const unsubscribe = ProjectComment.subscribe((event) => {
+                if (event.type === 'create' && event.data.project_id === projectId) {
+                    // Check if this is a montage or tiefbau project
+                    const checkProjectType = async () => {
+                        try {
+                            // Check if there's a MontageAuftrag for this project
+                            const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
+                            if (montageAuftraege && montageAuftraege.length > 0) {
+                                setMontageNotification(true);
+                            } else if (projectData) {
+                                setTiefbauNotification(true);
+                            }
+                        } catch (error) {
+                            console.error('Fehler beim Prüfen des Projekttyps:', error);
+                        }
+                    };
+                    checkProjectType();
+                }
+            });
+
+            return () => unsubscribe();
         }
-    }, [projectId]);
+    }, [projectId, projectData, setMontageNotification, setTiefbauNotification]);
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
