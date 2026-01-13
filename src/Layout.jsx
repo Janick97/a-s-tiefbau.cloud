@@ -481,7 +481,7 @@ export default function Layout({ children, currentPageName }) {
                                         className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
 
                                         <BarChart3 className="w-4 h-4 mr-2" />
-                                        Standard-Auswertung
+                                        Standard
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
@@ -491,7 +491,7 @@ export default function Layout({ children, currentPageName }) {
                                         to={createPageUrl("KolonnenUebersicht")}
                                         className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
                                         <UsersIcon className="w-4 h-4 mr-2" />
-                                        Kolonnen-Übersicht
+                                        Kolonnen
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
@@ -501,7 +501,7 @@ export default function Layout({ children, currentPageName }) {
                                         to={createPageUrl("KolonnenKonfiguration")}
                                         className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
                                         <Settings className="w-4 h-4 mr-2" />
-                                        Kolonnen-Konfiguration
+                                        Konfiguration
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
