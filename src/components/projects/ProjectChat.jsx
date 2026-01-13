@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
-import { useChatNotifications } from '@/components/contexts/ChatNotificationContext';
+// import { useChatNotifications } from '@/components/contexts/ChatNotificationContext';
 
 const getInitials = (name) => {
     if (!name) return '';
@@ -97,7 +97,7 @@ export default function ProjectChat({ projectId }) {
     const [projectData, setProjectData] = useState(null);
     const commentsEndRef = useRef(null);
     const fileInputRef = useRef(null);
-    const { addNotification } = useChatNotifications();
+    // const { addNotification } = useChatNotifications();
 
     const loadData = async () => {
         setIsLoading(true);
@@ -127,39 +127,40 @@ export default function ProjectChat({ projectId }) {
                     // Add the new comment to the list
                     setComments(prev => [...prev, event.data]);
                     
+                    // Notification system temporarily disabled
                     // Skip notification if this is the current user's own comment
-                    if (currentUser && event.data.created_by === currentUser.email) {
-                        return;
-                    }
-                    
-                    // Get project details for notification
-                    try {
-                        const project = await Project.get(projectId);
-                        const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
-                        
-                        let link = createPageUrl('ProjectDetail') + `?id=${projectId}`;
-                        if (montageAuftraege && montageAuftraege.length > 0) {
-                            link = createPageUrl('MontageAuftragDetail') + `?id=${montageAuftraege[0].id}`;
-                        }
-                        
-                        addNotification({
-                            comment_id: event.data.id,
-                            project_id: projectId,
-                            project_title: project?.title || 'Projekt',
-                            project_number: project?.project_number || '',
-                            user_name: event.data.user_full_name || 'Unbekannt',
-                            message: event.data.comment || '',
-                            link: link
-                        });
-                    } catch (error) {
-                        console.error('Fehler beim Erstellen der Benachrichtigung:', error);
-                    }
+                    // if (currentUser && event.data.created_by === currentUser.email) {
+                    //     return;
+                    // }
+                    // 
+                    // // Get project details for notification
+                    // try {
+                    //     const project = await Project.get(projectId);
+                    //     const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
+                    //     
+                    //     let link = createPageUrl('ProjectDetail') + `?id=${projectId}`;
+                    //     if (montageAuftraege && montageAuftraege.length > 0) {
+                    //         link = createPageUrl('MontageAuftragDetail') + `?id=${montageAuftraege[0].id}`;
+                    //     }
+                    //     
+                    //     addNotification({
+                    //         comment_id: event.data.id,
+                    //         project_id: projectId,
+                    //         project_title: project?.title || 'Projekt',
+                    //         project_number: project?.project_number || '',
+                    //         user_name: event.data.user_full_name || 'Unbekannt',
+                    //         message: event.data.comment || '',
+                    //         link: link
+                    //     });
+                    // } catch (error) {
+                    //     console.error('Fehler beim Erstellen der Benachrichtigung:', error);
+                    // }
                 }
             });
 
             return () => unsubscribe();
         }
-    }, [projectId, currentUser, addNotification]);
+    }, [projectId, currentUser]);
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
