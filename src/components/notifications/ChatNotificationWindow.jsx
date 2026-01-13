@@ -82,50 +82,52 @@ export default function ChatNotificationWindow() {
                                     <div className="p-4 text-center text-gray-500 text-sm">
                                         Keine neuen Chat-Nachrichten
                                     </div>
-                                ) : notifications.map((notification) => (
-                                    <motion.div
-                                        key={notification.comment_id}
-                                        initial={{ opacity: 0, x: 20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        className="border-b last:border-b-0 p-4 hover:bg-gray-50 transition-colors"
-                                    >
-                                        <div className="flex justify-between items-start gap-2">
-                                            <div className="flex-1 min-w-0">
-                                                <Link
-                                                    to={notification.link}
+                                ) : (
+                                    notifications.map((notification) => (
+                                        <motion.div
+                                            key={notification.comment_id}
+                                            initial={{ opacity: 0, x: 20 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -20 }}
+                                            className="border-b last:border-b-0 p-4 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <div className="flex justify-between items-start gap-2">
+                                                <div className="flex-1 min-w-0">
+                                                    <Link
+                                                        to={notification.link}
+                                                        onClick={() => removeNotification(notification.comment_id)}
+                                                        className="block group"
+                                                    >
+                                                        <p className="font-semibold text-sm text-gray-900 group-hover:text-orange-600 transition-colors">
+                                                            {notification.project_title}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 mt-0.5">
+                                                            {notification.project_number}
+                                                        </p>
+                                                        <p className="text-sm text-gray-700 mt-2 line-clamp-2">
+                                                            <span className="font-medium">{notification.user_name}:</span>{' '}
+                                                            {notification.message || '(Anhang)'}
+                                                        </p>
+                                                        <p className="text-xs text-gray-400 mt-1">
+                                                            {formatDistanceToNow(new Date(notification.timestamp), { 
+                                                                addSuffix: true, 
+                                                                locale: de 
+                                                            })}
+                                                        </p>
+                                                    </Link>
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
                                                     onClick={() => removeNotification(notification.comment_id)}
-                                                    className="block group"
+                                                    className="h-6 w-6 flex-shrink-0"
                                                 >
-                                                    <p className="font-semibold text-sm text-gray-900 group-hover:text-orange-600 transition-colors">
-                                                        {notification.project_title}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 mt-0.5">
-                                                        {notification.project_number}
-                                                    </p>
-                                                    <p className="text-sm text-gray-700 mt-2 line-clamp-2">
-                                                        <span className="font-medium">{notification.user_name}:</span>{' '}
-                                                        {notification.message || '(Anhang)'}
-                                                    </p>
-                                                    <p className="text-xs text-gray-400 mt-1">
-                                                        {formatDistanceToNow(new Date(notification.timestamp), { 
-                                                            addSuffix: true, 
-                                                            locale: de 
-                                                        })}
-                                                    </p>
-                                                </Link>
+                                                    <X className="w-3 h-3" />
+                                                </Button>
                                             </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => removeNotification(notification.comment_id)}
-                                                className="h-6 w-6 flex-shrink-0"
-                                            >
-                                                <X className="w-3 h-3" />
-                                            </Button>
-                                        </div>
-                                    </motion.div>
-                                )))}
+                                        </motion.div>
+                                    ))
+                                )}
                             </CardContent>
                         </motion.div>
                     )}
