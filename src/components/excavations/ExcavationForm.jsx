@@ -154,6 +154,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
+  const [isAddressLocked, setIsAddressLocked] = useState(false); // Lock address after GPS fetch
   const [selectedPriceItemUnit, setSelectedPriceItemUnit] = useState(null); // State to hold the effective unit for display
   const [displayCalculatedQuantity, setDisplayCalculatedQuantity] = useState(0); // State to store the effective quantity for display
   const [serviceCategory, setServiceCategory] = useState('grube'); // 'grube', 'graben', 'andere'
@@ -343,12 +344,14 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const handlePriceItemChange = (itemId) => {
     setFormData(prev => {
       const updatedFormData = { ...prev, price_item_id: itemId };
-      // Auto-fill address if a project is selected (using current project_id from updatedFormData)
-      const project = projects.find(p => p.id === updatedFormData.project_id);
-      if(project){
-        updatedFormData.street = project.street || '';
-        updatedFormData.city = project.city || '';
-        updatedFormData.location_name = (project.street || '') + ' ' + (project.house_number || '');
+      // Auto-fill address only if not locked by GPS
+      if (!isAddressLocked) {
+        const project = projects.find(p => p.id === updatedFormData.project_id);
+        if(project){
+          updatedFormData.street = project.street || '';
+          updatedFormData.city = project.city || '';
+          updatedFormData.location_name = (project.street || '') + ' ' + (project.house_number || '');
+        }
       }
       return updatedFormData;
     });
@@ -390,6 +393,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
             postal_code: data.address.postcode || prev.postal_code,
             city: data.address.city || data.address.town || data.address.village || prev.city,
           }));
+          setIsAddressLocked(true); // Lock address after successful GPS fetch
           alert("Standort und Adresse erfolgreich erfasst! Sie können die Daten noch anpassen.");
         } else {
           throw new Error("Adresse konnte nicht ermittelt werden");
@@ -840,6 +844,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       onChange={(e) => handleInputChange('street', e.target.value)}
                       placeholder="Wird automatisch erfasst..."
                       required
+                      readOnly={isAddressLocked}
+                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
                     />
                   </div>
                   <div className="space-y-2">
@@ -849,6 +855,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       value={formData.house_number}
                       onChange={(e) => handleInputChange('house_number', e.target.value)}
                       placeholder="Nr."
+                      readOnly={isAddressLocked}
+                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
                     />
                   </div>
                 </div>
@@ -861,6 +869,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                     onChange={(e) => handleInputChange('city', e.target.value)}
                     placeholder="Wird automatisch erfasst..."
                     required
+                    readOnly={isAddressLocked}
+                    className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
                   />
                 </div>
               </div>
