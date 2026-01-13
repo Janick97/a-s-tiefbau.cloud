@@ -22,8 +22,8 @@ import {
   ChevronDown,
   ChevronRight,
   Package,
-  Wrench
-} from "lucide-react";
+  Wrench } from
+"lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -38,74 +38,74 @@ import {
   SidebarMenuSubButton,
   SidebarHeader,
   SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+  SidebarTrigger } from
+"@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Navigationselemente - mit Verwaltungs-Untermenü
 const navigationItems = [
-  {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Auftragsübersicht",
-    url: createPageUrl("Projects"),
-    icon: FolderOpen,
-  },
-  // Removed "Baustellenkarte" as per the request
-  {
-    title: "Dispo Tiefbau",
-    url: createPageUrl("Disposition"),
-    icon: ClipboardList,
-    hasSubmenu: true,
-  },
-  {
-    title: "Dispo Montage",
-    url: createPageUrl("DispositionMonteur"),
-    icon: Construction,
-    hasSubmenu: true,
-  },
-  {
-    title: "Meine Aufträge",
-    url: createPageUrl("MyProjects"),
-    icon: FolderOpen,
-  },
-  {
-    title: "Meine Montageaufträge",
-    url: createPageUrl("MyMontageAuftraege"),
-    icon: Construction,
-  },
-  {
-    title: "Oberfläche",
-    url: createPageUrl("Surface"),
-    icon: Layers,
-  },
-  {
-    title: "Montageaufträge",
-    url: createPageUrl("MontageAuftraege"),
-    icon: Construction,
-  },
-  {
-    title: "Verwaltung",
-    url: createPageUrl("Excavations"),
-    icon: Settings,
-    hasSubmenu: true,
-  },
-  {
-    title: "Auswertungen",
-    url: createPageUrl("Analytics"),
-    icon: BarChart3,
-    hasSubmenu: true,
-  },
-  {
-    title: "Projekt-Explorer",
-    url: createPageUrl("ProjectExplorer"),
-    icon: FolderOpen,
-  },
-];
+{
+  title: "Dashboard",
+  url: createPageUrl("Dashboard"),
+  icon: LayoutDashboard
+},
+{
+  title: "Auftragsübersicht",
+  url: createPageUrl("Projects"),
+  icon: FolderOpen
+},
+// Removed "Baustellenkarte" as per the request
+{
+  title: "Dispo Tiefbau",
+  url: createPageUrl("Disposition"),
+  icon: ClipboardList,
+  hasSubmenu: true
+},
+{
+  title: "Dispo Montage",
+  url: createPageUrl("DispositionMonteur"),
+  icon: Construction,
+  hasSubmenu: true
+},
+{
+  title: "Meine Aufträge",
+  url: createPageUrl("MyProjects"),
+  icon: FolderOpen
+},
+{
+  title: "Meine Montageaufträge",
+  url: createPageUrl("MyMontageAuftraege"),
+  icon: Construction
+},
+{
+  title: "Oberfläche",
+  url: createPageUrl("Surface"),
+  icon: Layers
+},
+{
+  title: "Montageaufträge",
+  url: createPageUrl("MontageAuftraege"),
+  icon: Construction
+},
+{
+  title: "Verwaltung",
+  url: createPageUrl("Excavations"),
+  icon: Settings,
+  hasSubmenu: true
+},
+{
+  title: "Auswertungen",
+  url: createPageUrl("Analytics"),
+  icon: BarChart3,
+  hasSubmenu: true
+},
+{
+  title: "Projekt-Explorer",
+  url: createPageUrl("ProjectExplorer"),
+  icon: FolderOpen
+}];
+
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
@@ -122,12 +122,12 @@ export default function Layout({ children, currentPageName }) {
       try {
         const userData = await User.me();
         setUser(userData);
-        
+
         // Bauleiter, Oberfläche und Monteure laden
         if (userData && userData.role === 'admin') {
           const users = await User.list();
-          const bauLeiterUsers = users.filter(u => u.position === 'Bauleiter' || u.position === 'Oberfläche');
-          const monteurUsers = users.filter(u => u.position === 'Monteur');
+          const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+          const monteurUsers = users.filter((u) => u.position === 'Monteur');
           setBauleiter(bauLeiterUsers);
           setMonteure(monteurUsers);
         }
@@ -142,10 +142,10 @@ export default function Layout({ children, currentPageName }) {
   // Filtern der Navigationselemente basierend auf der Benutzerrolle/Position
   const filteredNavigationItems = React.useMemo(() => {
     if (!user) {
-      return navigationItems.filter(item => item.title === 'Dashboard');
+      return navigationItems.filter((item) => item.title === 'Dashboard');
     }
 
-    return navigationItems.filter(item => {
+    return navigationItems.filter((item) => {
       // "Meine Montageaufträge" nur für Monteure, nicht für Admins
       if (item.title === 'Meine Montageaufträge') {
         return user.position === 'Monteur';
@@ -155,19 +155,19 @@ export default function Layout({ children, currentPageName }) {
 
       if (user.position === 'Bauleiter') {
         return item.title === 'Dashboard' ||
-               item.title === 'Meine Aufträge' ||
-               item.title === 'Auswertungen';
+        item.title === 'Meine Aufträge' ||
+        item.title === 'Auswertungen';
       }
 
       if (user.position === 'Monteur') {
         return item.title === 'Dashboard' ||
-               item.title === 'Meine Montageaufträge';
+        item.title === 'Meine Montageaufträge';
       }
 
       if (user.position === 'Oberfläche') {
         return item.title === 'Dashboard' ||
-               item.title === 'Meine Aufträge' ||
-               item.title === 'Auswertungen';
+        item.title === 'Meine Aufträge' ||
+        item.title === 'Auswertungen';
       }
 
       if (item.title === 'Dispo Tiefbau' || item.title === 'Dispo Montage') {
@@ -185,9 +185,9 @@ export default function Layout({ children, currentPageName }) {
       if (item.title === 'Meine Montageaufträge') {
         return user.position === 'Monteur';
       }
-      
+
       if (item.title === 'Auftragsübersicht') {
-        return user.role === 'admin' || (user.position !== 'Bauleiter' && user.position !== 'Monteur' && user.position !== 'Oberfläche');
+        return user.role === 'admin' || user.position !== 'Bauleiter' && user.position !== 'Monteur' && user.position !== 'Oberfläche';
       }
 
       // "Baustellenkarte" logic is removed here as the item itself is removed from navigationItems
@@ -196,7 +196,7 @@ export default function Layout({ children, currentPageName }) {
       // }
 
       return user.position !== 'Bauleiter' && user.position !== 'Monteur' && user.position !== 'Oberfläche';
-    }).map(item => {
+    }).map((item) => {
       // Anpassen der URL für "Meine Aufträge" basierend auf der Position
       if (item.title === 'Meine Aufträge' && user.position === 'Oberfläche') {
         return { ...item, url: createPageUrl("MyProjectsOberflaeche") };
@@ -333,57 +333,57 @@ export default function Layout({ children, currentPageName }) {
                           <Collapsible
                             key={item.title}
                             open={dispositionOpen}
-                            onOpenChange={setDispositionOpen}
-                          >
+                            onOpenChange={setDispositionOpen}>
+
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
                                   className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
-                                    location.pathname.includes('Disposition')
-                                      ? 'bg-white/15 text-white shadow-lg'
-                                      : 'text-white/80'
-                                  }`}
-                                >
+                                  location.pathname.includes('Disposition') ?
+                                  'bg-white/15 text-white shadow-lg' :
+                                  'text-white/80'}`
+                                  }>
+
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
-                                  {dispositionOpen ? (
-                                    <ChevronDown className="w-4 h-4 ml-auto" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 ml-auto" />
-                                  )}
+                                  {dispositionOpen ?
+                                  <ChevronDown className="w-4 h-4 ml-auto" /> :
+
+                                  <ChevronRight className="w-4 h-4 ml-auto" />
+                                  }
                                 </SidebarMenuButton>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 <SidebarMenuSub className="ml-4 mt-2 space-y-1">
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+
                                         <ClipboardList className="w-4 h-4 mr-2" />
                                         Übersicht
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
-                                  {bauleiter.map((bl) => (
-                                    <SidebarMenuSubItem key={bl.id}>
+                                  {bauleiter.map((bl) =>
+                                  <SidebarMenuSubItem key={bl.id}>
                                       <SidebarMenuSubButton asChild>
-                                        <Link 
-                                          to={createPageUrl(`DispositionBauleiter?id=${bl.id}`)}
-                                          className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                        >
+                                        <Link
+                                        to={createPageUrl(`DispositionBauleiter?id=${bl.id}`)}
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+
                                           <UserCircle className="w-4 h-4 mr-2" />
                                           {bl.full_name}
                                         </Link>
                                       </SidebarMenuSubButton>
                                     </SidebarMenuSubItem>
-                                  ))}
+                                  )}
                                 </SidebarMenuSub>
                               </CollapsibleContent>
                             </SidebarMenuItem>
-                          </Collapsible>
-                        );
+                          </Collapsible>);
+
                       }
 
                       // Dispo Montage mit Untermenü
@@ -392,57 +392,57 @@ export default function Layout({ children, currentPageName }) {
                           <Collapsible
                             key={item.title}
                             open={dispositionMontageOpen}
-                            onOpenChange={setDispositionMontageOpen}
-                          >
+                            onOpenChange={setDispositionMontageOpen}>
+
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
                                   className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
-                                    location.pathname.includes('DispositionMonteur')
-                                      ? 'bg-white/15 text-white shadow-lg'
-                                      : 'text-white/80'
-                                  }`}
-                                >
+                                  location.pathname.includes('DispositionMonteur') ?
+                                  'bg-white/15 text-white shadow-lg' :
+                                  'text-white/80'}`
+                                  }>
+
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
-                                  {dispositionMontageOpen ? (
-                                    <ChevronDown className="w-4 h-4 ml-auto" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 ml-auto" />
-                                  )}
+                                  {dispositionMontageOpen ?
+                                  <ChevronDown className="w-4 h-4 ml-auto" /> :
+
+                                  <ChevronRight className="w-4 h-4 ml-auto" />
+                                  }
                                 </SidebarMenuButton>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 <SidebarMenuSub className="ml-4 mt-2 space-y-1">
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+
                                         <Construction className="w-4 h-4 mr-2" />
                                         Übersicht
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
-                                  {monteure.map((monteur) => (
-                                    <SidebarMenuSubItem key={monteur.id}>
+                                  {monteure.map((monteur) =>
+                                  <SidebarMenuSubItem key={monteur.id}>
                                       <SidebarMenuSubButton asChild>
-                                        <Link 
-                                          to={createPageUrl(`DispositionMonteurDetail?id=${monteur.id}`)}
-                                          className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                        >
+                                        <Link
+                                        to={createPageUrl(`DispositionMonteurDetail?id=${monteur.id}`)}
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+
                                           <UserCircle className="w-4 h-4 mr-2" />
                                           {monteur.full_name}
                                         </Link>
                                       </SidebarMenuSubButton>
                                     </SidebarMenuSubItem>
-                                  ))}
+                                  )}
                                 </SidebarMenuSub>
                               </CollapsibleContent>
                             </SidebarMenuItem>
-                          </Collapsible>
-                        );
+                          </Collapsible>);
+
                       }
 
                       // Auswertungen mit Untermenü
@@ -451,35 +451,35 @@ export default function Layout({ children, currentPageName }) {
                           <Collapsible
                             key={item.title}
                             open={auswertungenOpen}
-                            onOpenChange={setAuswertungenOpen}
-                          >
+                            onOpenChange={setAuswertungenOpen}>
+
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
                                   className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
-                                    location.pathname.includes('Analytics') ||
-                                    location.pathname.includes('KolonnenUebersicht')
-                                      ? 'bg-white/15 text-white shadow-lg'
-                                      : 'text-white/80'
-                                  }`}
-                                >
+                                  location.pathname.includes('Analytics') ||
+                                  location.pathname.includes('KolonnenUebersicht') ?
+                                  'bg-white/15 text-white shadow-lg' :
+                                  'text-white/80'}`
+                                  }>
+
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
-                                  {auswertungenOpen ? (
-                                    <ChevronDown className="w-4 h-4 ml-auto" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 ml-auto" />
-                                  )}
+                                  {auswertungenOpen ?
+                                  <ChevronDown className="w-4 h-4 ml-auto" /> :
+
+                                  <ChevronRight className="w-4 h-4 ml-auto" />
+                                  }
                                 </SidebarMenuButton>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 <SidebarMenuSub className="ml-4 mt-2 space-y-1">
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+
                                         <BarChart3 className="w-4 h-4 mr-2" />
                                         Standard-Auswertung
                                       </Link>
@@ -487,20 +487,20 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
-                                        to={createPageUrl("KolonnenUebersicht")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
-                                      >
-                                        <UsersIcon className="w-4 h-4 mr-2" />
-                                        Kolonnen-Übersicht
+                                      <Link
+                                        to={createPageUrl("KolonnenUebersicht")} className="flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0 [&>svg]:text-sidebar-accent-foreground data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground text-sm group-data-[collapsible=icon]:hidden text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">Kolonnen
+
+
+
+
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
                                 </SidebarMenuSub>
                               </CollapsibleContent>
                             </SidebarMenuItem>
-                          </Collapsible>
-                        );
+                          </Collapsible>);
+
                       }
 
                       // Verwaltung mit Untermenü
@@ -509,39 +509,39 @@ export default function Layout({ children, currentPageName }) {
                           <Collapsible
                             key={item.title}
                             open={verwaltungOpen}
-                            onOpenChange={setVerwaltungOpen}
-                          >
+                            onOpenChange={setVerwaltungOpen}>
+
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
                                   className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
-                                    location.pathname.includes('Excavations') ||
-                                    location.pathname.includes('PriceList') ||
-                                    location.pathname.includes('VAOMonitoring') ||
-                                    location.pathname.includes('OpenMaterialBookings') ||
-                                    location.pathname.includes('OpenDocumentations') ||
-                                    location.pathname.includes('MaterialInventory')
-                                      ? 'bg-white/15 text-white shadow-lg'
-                                      : 'text-white/80'
-                                  }`}
-                                >
+                                  location.pathname.includes('Excavations') ||
+                                  location.pathname.includes('PriceList') ||
+                                  location.pathname.includes('VAOMonitoring') ||
+                                  location.pathname.includes('OpenMaterialBookings') ||
+                                  location.pathname.includes('OpenDocumentations') ||
+                                  location.pathname.includes('MaterialInventory') ?
+                                  'bg-white/15 text-white shadow-lg' :
+                                  'text-white/80'}`
+                                  }>
+
                                   <item.icon className="w-5 h-5" />
                                   <span className="font-medium">{item.title}</span>
-                                  {verwaltungOpen ? (
-                                    <ChevronDown className="w-4 h-4 ml-auto" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4 ml-auto" />
-                                  )}
+                                  {verwaltungOpen ?
+                                  <ChevronDown className="w-4 h-4 ml-auto" /> :
+
+                                  <ChevronRight className="w-4 h-4 ml-auto" />
+                                  }
                                 </SidebarMenuButton>
                               </CollapsibleTrigger>
                               <CollapsibleContent>
                                 <SidebarMenuSub className="ml-4 mt-2 space-y-1">
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("Excavations")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Shovel className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Ausgrabungen</span>
                                       </Link>
@@ -549,10 +549,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("PriceList")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Preisliste</span>
                                       </Link>
@@ -560,10 +560,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("VAOMonitoring")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>VAO-Überwachung</span>
                                       </Link>
@@ -571,10 +571,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("OpenMaterialBookings")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Construction className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Offene Materialbuchungen</span>
                                       </Link>
@@ -582,10 +582,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("OpenDocumentations")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Offene Dokumentationen</span>
                                       </Link>
@@ -593,10 +593,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("MaterialInventory")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Materiallager</span>
                                       </Link>
@@ -604,10 +604,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("MontagePriceList")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                        >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Wrench className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Montage-Preisliste</span>
                                       </Link>
@@ -615,10 +615,10 @@ export default function Layout({ children, currentPageName }) {
                                   </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
-                                      <Link 
+                                      <Link
                                         to={createPageUrl("MontageMaterialInventory")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                      >
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Montage-Materiallager</span>
                                       </Link>
@@ -627,8 +627,8 @@ export default function Layout({ children, currentPageName }) {
                                 </SidebarMenuSub>
                               </CollapsibleContent>
                             </SidebarMenuItem>
-                          </Collapsible>
-                        );
+                          </Collapsible>);
+
                       }
 
                       // Normale Menüpunkte
@@ -637,18 +637,18 @@ export default function Layout({ children, currentPageName }) {
                           <SidebarMenuButton
                             asChild
                             className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
-                              location.pathname === item.url
-                                ? 'bg-white/15 text-white shadow-lg'
-                                : 'text-white/80'
-                            }`}
-                          >
+                            location.pathname === item.url ?
+                            'bg-white/15 text-white shadow-lg' :
+                            'text-white/80'}`
+                            }>
+
                             <Link to={item.url} className="flex items-center gap-3">
                               <item.icon className="w-5 h-5" />
                               <span className="font-medium">{item.title}</span>
                             </Link>
                           </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
+                        </SidebarMenuItem>);
+
                     })}
                   </SidebarMenu>
                 </SidebarGroupContent>
@@ -656,8 +656,8 @@ export default function Layout({ children, currentPageName }) {
             </SidebarContent>
 
             <div className="p-4 mt-auto border-t border-white/20 flex-shrink-0">
-              {user ? (
-                <div className="flex items-center justify-between">
+              {user ?
+              <div className="flex items-center justify-between">
                   <Link to={createPageUrl("Profile")} className="flex items-center gap-3 text-white/90 hover:text-white">
                     <UserCircle className="w-8 h-8" />
                     <div className="text-sm">
@@ -668,10 +668,10 @@ export default function Layout({ children, currentPageName }) {
                   <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white/70 hover:text-white hover:bg-white/10">
                     <LogOut className="w-5 h-5" />
                   </Button>
-                </div>
-              ) : (
-                <div className="h-10"></div>
-              )}
+                </div> :
+
+              <div className="h-10"></div>
+              }
             </div>
           </div>
         </Sidebar>
@@ -696,6 +696,6 @@ export default function Layout({ children, currentPageName }) {
           </div>
         </main>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>);
+
 }
