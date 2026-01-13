@@ -863,15 +863,27 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
 
                 <div className="space-y-2">
                   <Label htmlFor="city">Stadt *</Label>
-                  <Input
-                    id="city"
-                    value={formData.city}
-                    onChange={(e) => handleInputChange('city', e.target.value)}
-                    placeholder="Wird automatisch erfasst..."
-                    required
-                    readOnly={isAddressLocked}
-                    className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      id="city"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      placeholder="Wird automatisch erfasst..."
+                      required
+                      readOnly={isAddressLocked}
+                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed flex-1' : 'flex-1'}
+                    />
+                    {isAddressLocked && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddressLocked(false)}
+                        className="flex-shrink-0"
+                      >
+                        Adresse bearbeiten
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
 
