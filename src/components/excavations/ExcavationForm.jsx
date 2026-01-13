@@ -154,7 +154,6 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for submission loading
-  const [isAddressLocked, setIsAddressLocked] = useState(false); // Lock address after GPS fetch
   const [selectedPriceItemUnit, setSelectedPriceItemUnit] = useState(null); // State to hold the effective unit for display
   const [displayCalculatedQuantity, setDisplayCalculatedQuantity] = useState(0); // State to store the effective quantity for display
   const [serviceCategory, setServiceCategory] = useState('grube'); // 'grube', 'graben', 'andere'
@@ -342,19 +341,10 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   };
 
   const handlePriceItemChange = (itemId) => {
-    setFormData(prev => {
-      const updatedFormData = { ...prev, price_item_id: itemId };
-      // Auto-fill address only if not locked by GPS
-      if (!isAddressLocked) {
-        const project = projects.find(p => p.id === updatedFormData.project_id);
-        if(project){
-          updatedFormData.street = project.street || '';
-          updatedFormData.city = project.city || '';
-          updatedFormData.location_name = (project.street || '') + ' ' + (project.house_number || '');
-        }
-      }
-      return updatedFormData;
-    });
+    setFormData(prev => ({
+      ...prev,
+      price_item_id: itemId
+    }));
   };
 
   const handleFetchLocation = async () => {
@@ -393,7 +383,6 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
             postal_code: data.address.postcode || prev.postal_code,
             city: data.address.city || data.address.town || data.address.village || prev.city,
           }));
-          setIsAddressLocked(true); // Lock address after successful GPS fetch
           alert("Standort und Adresse erfolgreich erfasst! Sie können die Daten noch anpassen.");
         } else {
           throw new Error("Adresse konnte nicht ermittelt werden");
@@ -842,10 +831,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       id="street"
                       value={formData.street}
                       onChange={(e) => handleInputChange('street', e.target.value)}
-                      placeholder="Wird automatisch erfasst..."
+                      placeholder="Per GPS erfassen..."
                       required
-                      readOnly={isAddressLocked}
-                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
                     />
                   </div>
                   <div className="space-y-2">
@@ -855,35 +842,19 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                       value={formData.house_number}
                       onChange={(e) => handleInputChange('house_number', e.target.value)}
                       placeholder="Nr."
-                      readOnly={isAddressLocked}
-                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed' : ''}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="city">Stadt *</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="city"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange('city', e.target.value)}
-                      placeholder="Wird automatisch erfasst..."
-                      required
-                      readOnly={isAddressLocked}
-                      className={isAddressLocked ? 'bg-gray-100 cursor-not-allowed flex-1' : 'flex-1'}
-                    />
-                    {isAddressLocked && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setIsAddressLocked(false)}
-                        className="flex-shrink-0"
-                      >
-                        Adresse bearbeiten
-                      </Button>
-                    )}
-                  </div>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    placeholder="Per GPS erfassen..."
+                    required
+                  />
                 </div>
               </div>
 
