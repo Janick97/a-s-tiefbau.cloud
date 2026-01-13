@@ -124,14 +124,19 @@ export default function ProjectChat({ projectId }) {
             // Subscribe to new comments
             const unsubscribe = ProjectComment.subscribe((event) => {
                 if (event.type === 'create' && event.data.project_id === projectId) {
+                    // Add the new comment to the list
+                    setComments(prev => [...prev, event.data]);
+                    
                     // Check if this is a montage or tiefbau project
                     const checkProjectType = async () => {
                         try {
                             // Check if there's a MontageAuftrag for this project
                             const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
                             if (montageAuftraege && montageAuftraege.length > 0) {
+                                console.log('Setting Montage notification to true');
                                 setMontageNotification(true);
-                            } else if (projectData) {
+                            } else {
+                                console.log('Setting Tiefbau notification to true');
                                 setTiefbauNotification(true);
                             }
                         } catch (error) {
@@ -144,7 +149,7 @@ export default function ProjectChat({ projectId }) {
 
             return () => unsubscribe();
         }
-    }, [projectId, projectData, setMontageNotification, setTiefbauNotification]);
+    }, [projectId, setMontageNotification, setTiefbauNotification]);
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
@@ -200,7 +205,6 @@ export default function ProjectChat({ projectId }) {
 
             setNewComment("");
             setAttachments([]);
-            await loadData();
         } catch (error) {
             console.error("Fehler beim Senden des Kommentars:", error);
         } finally {
