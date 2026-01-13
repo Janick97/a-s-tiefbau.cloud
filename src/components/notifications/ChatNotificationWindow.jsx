@@ -18,7 +18,8 @@ export default function ChatNotificationWindow() {
         toggleMinimize 
     } = useChatNotifications();
 
-    if (notifications.length === 0) return null;
+    // Always show for testing - remove this line later if needed
+    // if (notifications.length === 0) return null;
 
     return (
         <motion.div
@@ -77,7 +78,11 @@ export default function ChatNotificationWindow() {
                             transition={{ duration: 0.2 }}
                         >
                             <CardContent className="p-0 max-h-96 overflow-y-auto">
-                                {notifications.map((notification) => (
+                                {notifications.length === 0 ? (
+                                    <div className="p-4 text-center text-gray-500 text-sm">
+                                        Keine neuen Chat-Nachrichten
+                                    </div>
+                                ) : notifications.map((notification) => (
                                     <motion.div
                                         key={notification.comment_id}
                                         initial={{ opacity: 0, x: 20 }}
@@ -120,7 +125,7 @@ export default function ChatNotificationWindow() {
                                             </Button>
                                         </div>
                                     </motion.div>
-                                ))}
+                                )))}
                             </CardContent>
                         </motion.div>
                     )}
