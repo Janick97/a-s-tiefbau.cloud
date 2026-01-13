@@ -216,6 +216,11 @@ function ForemanProjectView({
         </Button>
       </div>
 
+      {/* Chat-Bereich */}
+      <div className="h-[400px] mx-3 mb-3">
+        <ProjectChat projectId={project.id} />
+      </div>
+
       {/* Übersichten - Kompakt */}
       <div className="p-3 space-y-3">
         {/* Leistungen Übersicht */}
@@ -1526,7 +1531,7 @@ export default function ProjectDetailPage() {
                     
                     {/* Chat */}
                     <div className="h-[400px]">
-                      <ProjectChat projectId={projectId} />
+                      <ProjectChat projectId={project.id} />
                     </div>
                   </div>
 
@@ -1564,7 +1569,7 @@ export default function ProjectDetailPage() {
 
                       {/* Chat - volle Breite unten */}
                       <div className="h-[500px]">
-                        <ProjectChat projectId={projectId} />
+                        <ProjectChat projectId={project.id} />
                       </div>
                     </div>
                   </div>
