@@ -7,8 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { Calendar, Save, Loader2, AlertCircle, Settings, Plus, Trash2, Edit } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Calendar, Save, Loader2, AlertCircle, Users as UsersIcon, CheckCircle } from "lucide-react";
 
 export default function KolonnenKonfigurationPage() {
   const [users, setUsers] = useState([]);
@@ -16,20 +15,16 @@ export default function KolonnenKonfigurationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [showDialog, setShowDialog] = useState(false);
-  const [editingSollwert, setEditingSollwert] = useState(null);
-
-  const [formData, setFormData] = useState({
-    user_id: '',
-    user_name: '',
-    month: new Date().toISOString().substring(0, 7),
-    sollwert: -20000,
-    notes: ''
-  });
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
+  const [monthSollwerte, setMonthSollwerte] = useState({});
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    loadMonthSollwerte();
+  }, [selectedMonth, sollwerte, users]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -54,36 +49,59 @@ export default function KolonnenKonfigurationPage() {
     setIsLoading(false);
   };
 
-  const handleUserChange = (userId) => {
-    const selectedUser = users.find(u => u.id === userId);
-    setFormData({
-      ...formData,
-      user_id: userId,
-      user_name: selectedUser?.full_name || ''
+  const loadMonthSollwerte = () => {
+    const monthData = {};
+    
+    users.forEach(user => {
+      const existingSollwert = sollwerte.find(
+        s => s.user_id === user.id && s.month === selectedMonth
+      );
+      
+      monthData[user.id] = {
+        id: existingSollwert?.id || null,
+        sollwert: existingSollwert?.sollwert || -20000,
+        notes: existingSollwert?.notes || ''
+      };
+    });
+    
+    setMonthSollwerte(monthData);
+  };
+
+  const handleSollwertChange = (userId, field, value) => {
+    setMonthSollwerte({
+      ...monthSollwerte,
+      [userId]: {
+        ...monthSollwerte[userId],
+        [field]: value
+      }
     });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSaveAll = async () => {
     setIsSaving(true);
     
     try {
-      if (editingSollwert) {
-        await KolonnenSollwert.update(editingSollwert.id, formData);
-      } else {
-        await KolonnenSollwert.create(formData);
+      for (const user of users) {
+        const data = monthSollwerte[user.id];
+        if (!data) continue;
+        
+        const sollwertData = {
+          user_id: user.id,
+          user_name: user.full_name,
+          month: selectedMonth,
+          sollwert: parseFloat(data.sollwert),
+          notes: data.notes
+        };
+        
+        if (data.id) {
+          await KolonnenSollwert.update(data.id, sollwertData);
+        } else {
+          await KolonnenSollwert.create(sollwertData);
+        }
       }
       
       await loadData();
-      setShowDialog(false);
-      setEditingSollwert(null);
-      setFormData({
-        user_id: '',
-        user_name: '',
-        month: new Date().toISOString().substring(0, 7),
-        sollwert: -20000,
-        notes: ''
-      });
+      alert('Alle Soll-Werte erfolgreich gespeichert!');
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
       alert("Fehler beim Speichern: " + error.message);
@@ -92,41 +110,19 @@ export default function KolonnenKonfigurationPage() {
     setIsSaving(false);
   };
 
-  const handleEdit = (sollwert) => {
-    setEditingSollwert(sollwert);
-    setFormData({
-      user_id: sollwert.user_id,
-      user_name: sollwert.user_name,
-      month: sollwert.month,
-      sollwert: sollwert.sollwert,
-      notes: sollwert.notes || ''
-    });
-    setShowDialog(true);
-  };
-
-  const handleDelete = async (sollwertId) => {
-    if (!confirm('Möchten Sie diesen Soll-Wert wirklich löschen?')) return;
-    
-    try {
-      await KolonnenSollwert.delete(sollwertId);
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Löschen:", error);
-      alert("Fehler beim Löschen: " + error.message);
+  const getMonthOptions = () => {
+    const options = [];
+    for (let i = 0; i < 12; i++) {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const monthString = date.toISOString().substring(0, 7);
+      const displayName = date.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      options.push({ value: monthString, label: displayName });
     }
+    return options;
   };
 
-  const getMonthName = (monthString) => {
-    return new Date(monthString + '-01').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-  };
-
-  const groupedSollwerte = sollwerte.reduce((acc, sollwert) => {
-    if (!acc[sollwert.month]) {
-      acc[sollwert.month] = [];
-    }
-    acc[sollwert.month].push(sollwert);
-    return acc;
-  }, {});
+  const selectedMonthName = new Date(selectedMonth + '-01').toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
 
   if (isLoading) {
     return (
@@ -154,26 +150,41 @@ export default function KolonnenKonfigurationPage() {
               Kolonnen-Konfiguration
             </h1>
             <p className="text-sm md:text-base text-gray-600">
-              Monatliche Soll-Werte für Bauleiter verwalten
+              Monatliche Soll-Werte für {selectedMonthName}
             </p>
           </div>
-          <Button 
-            onClick={() => {
-              setEditingSollwert(null);
-              setFormData({
-                user_id: '',
-                user_name: '',
-                month: new Date().toISOString().substring(0, 7),
-                sollwert: -20000,
-                notes: ''
-              });
-              setShowDialog(true);
-            }}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Neuer Soll-Wert
-          </Button>
+          <div className="flex items-center gap-4">
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="w-full sm:w-48">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {getMonthOptions().map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button 
+              onClick={handleSaveAll}
+              disabled={isSaving}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Speichere...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Alle speichern
+                </>
+              )}
+            </Button>
+          </div>
         </motion.div>
 
         {error && (
@@ -185,185 +196,88 @@ export default function KolonnenKonfigurationPage() {
           </Card>
         )}
 
-        <div className="space-y-6">
-          {Object.keys(groupedSollwerte).length === 0 ? (
-            <Card className="card-elevation border-none">
-              <CardContent className="p-12 text-center">
-                <Settings className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                <h3 className="text-lg font-medium text-gray-500 mb-2">Keine Konfiguration vorhanden</h3>
-                <p className="text-gray-400 mb-6">
-                  Erstellen Sie monatliche Soll-Werte für Ihre Bauleiter
+        <Card className="card-elevation border-none mb-6">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <UsersIcon className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">Hinweis</h3>
+                <p className="text-sm text-gray-600">
+                  Tragen Sie für jeden Bauleiter den Soll-Wert ein. <strong>Negative Werte</strong> (z.B. -20000) bedeuten, 
+                  dass die Kolonne mit diesem Betrag im Minus startet. Nach dem Bearbeiten auf <strong>"Alle speichern"</strong> klicken.
                 </p>
-                <Button 
-                  onClick={() => setShowDialog(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Ersten Soll-Wert anlegen
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            Object.keys(groupedSollwerte).sort().reverse().map(month => (
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {users.length === 0 ? (
+          <Card className="card-elevation border-none">
+            <CardContent className="p-12 text-center">
+              <UsersIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-medium text-gray-500 mb-2">Keine Bauleiter gefunden</h3>
+              <p className="text-gray-400">
+                Es wurden keine Benutzer mit der Position "Bauleiter" gefunden.
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {users.map((user) => (
               <motion.div
-                key={month}
+                key={user.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <Card className="card-elevation border-none">
-                  <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Calendar className="w-5 h-5 text-blue-600" />
-                      {getMonthName(month)}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="divide-y">
-                      {groupedSollwerte[month].map((sollwert) => (
-                        <div key={sollwert.id} className="p-4 hover:bg-gray-50 transition-colors">
-                          <div className="flex items-center justify-between gap-4">
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-gray-900 mb-1">
-                                {sollwert.user_name}
-                              </h3>
-                              <div className="flex items-center gap-4 text-sm">
-                                <span className={`font-bold ${
-                                  sollwert.sollwert < 0 ? 'text-red-600' : 
-                                  sollwert.sollwert > 0 ? 'text-green-600' : 
-                                  'text-gray-600'
-                                }`}>
-                                  {sollwert.sollwert < 0 ? '-' : '+'}{Math.abs(sollwert.sollwert).toLocaleString('de-DE')}€
-                                </span>
-                                {sollwert.notes && (
-                                  <span className="text-gray-600">
-                                    {sollwert.notes}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleEdit(sollwert)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDelete(sollwert.id)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                <Card className="card-elevation border-none hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          {user.full_name}
+                        </h3>
+                        <p className="text-sm text-gray-600">{user.email}</p>
+                      </div>
+                      
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:w-auto w-full">
+                        <div className="flex-1 sm:w-48">
+                          <Label className="text-xs text-gray-600 mb-1 block">Soll-Wert (€)</Label>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={monthSollwerte[user.id]?.sollwert || -20000}
+                            onChange={(e) => handleSollwertChange(user.id, 'sollwert', e.target.value)}
+                            className="text-right font-semibold"
+                          />
+                        </div>
+                        
+                        <div className="flex-1 sm:w-64">
+                          <Label className="text-xs text-gray-600 mb-1 block">Notizen (optional)</Label>
+                          <Input
+                            type="text"
+                            value={monthSollwerte[user.id]?.notes || ''}
+                            onChange={(e) => handleSollwertChange(user.id, 'notes', e.target.value)}
+                            placeholder="Z.B. Urlaubsmonat..."
+                          />
+                        </div>
+                        
+                        {monthSollwerte[user.id]?.id && (
+                          <div className="flex items-end">
+                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                              <CheckCircle className="w-4 h-4 text-green-600" />
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))
-          )}
-        </div>
-
-        {/* Dialog für neuen/bearbeiteten Soll-Wert */}
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>
-                {editingSollwert ? 'Soll-Wert bearbeiten' : 'Neuer Soll-Wert'}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="user_id">Bauleiter *</Label>
-                <Select 
-                  value={formData.user_id} 
-                  onValueChange={handleUserChange}
-                  required
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Bauleiter auswählen..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="month">Monat *</Label>
-                <Input
-                  id="month"
-                  type="month"
-                  value={formData.month}
-                  onChange={(e) => setFormData({ ...formData, month: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sollwert">
-                  Soll-Wert (€) *
-                  <span className="text-xs text-gray-500 ml-2">
-                    Negativ für Start im Minus, z.B. -20000
-                  </span>
-                </Label>
-                <Input
-                  id="sollwert"
-                  type="number"
-                  step="0.01"
-                  value={formData.sollwert}
-                  onChange={(e) => setFormData({ ...formData, sollwert: parseFloat(e.target.value) })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Notizen (optional)</Label>
-                <Textarea
-                  id="notes"
-                  value={formData.notes}
-                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  placeholder="Z.B. Urlaubsmonat, Krankheit, etc."
-                  rows={3}
-                />
-              </div>
-
-              <DialogFooter>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setShowDialog(false)}
-                  disabled={isSaving}
-                >
-                  Abbrechen
-                </Button>
-                <Button type="submit" disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Speichere...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-4 h-4 mr-2" />
-                      Speichern
-                    </>
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
