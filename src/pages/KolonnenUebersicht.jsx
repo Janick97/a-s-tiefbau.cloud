@@ -324,27 +324,35 @@ export default function KolonnenUebersichtPage() {
                       {/* Skala von -100% bis +100% */}
                       <div className="space-y-2">
                         <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden">
-                          {/* Mittellinie */}
-                          <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-400 z-10"></div>
+                          {/* Mittellinie (Nullpunkt) */}
+                          <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 z-20"></div>
                           
-                          {/* Roter Bereich (links = Minus) */}
+                          {/* Minus-Bereich (links von Mitte) */}
                           {kolonne.ausgabenPercentage <= 100 && (
                             <div 
-                              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-400"
-                              style={{ width: '50%' }}
-                            >
-                              <div 
-                                className="absolute right-0 top-0 bottom-0 bg-red-800"
-                                style={{ width: `${kolonne.ausgabenPercentage}%` }}
-                              ></div>
-                            </div>
+                              className="absolute top-0 bottom-0"
+                              style={{ 
+                                left: `${50 - (kolonne.ausgabenPercentage / 2)}%`,
+                                width: `${kolonne.ausgabenPercentage / 2}%`,
+                                background: `linear-gradient(to right, 
+                                  rgb(${Math.round(220 - (kolonne.ausgabenPercentage * 0.8))}, 38, 38), 
+                                  rgb(${Math.round(254 - (kolonne.ausgabenPercentage * 1.0))}, ${Math.round(202 - (kolonne.ausgabenPercentage * 2.0))}, ${Math.round(202 - (kolonne.ausgabenPercentage * 2.0))})
+                                )`
+                              }}
+                            ></div>
                           )}
                           
-                          {/* Grüner Bereich (rechts = Plus) */}
+                          {/* Plus-Bereich (rechts von Mitte) */}
                           {kolonne.ausgabenPercentage > 100 && (
                             <div 
-                              className="absolute left-1/2 top-0 bottom-0 bg-gradient-to-r from-green-400 to-green-600"
-                              style={{ width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%` }}
+                              className="absolute left-1/2 top-0 bottom-0"
+                              style={{ 
+                                width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%`,
+                                background: `linear-gradient(to right, 
+                                  rgb(${Math.round(187 - ((kolonne.ausgabenPercentage - 100) * 0.65))}, ${Math.round(247 - ((kolonne.ausgabenPercentage - 100) * 0.30))}, ${Math.round(208 - ((kolonne.ausgabenPercentage - 100) * 1.08))}),
+                                  rgb(${Math.round(34 + ((kolonne.ausgabenPercentage - 100) * 0.20))}, ${Math.round(197 - ((kolonne.ausgabenPercentage - 100) * 0.80))}, ${Math.round(94 - ((kolonne.ausgabenPercentage - 100) * 0.40))})
+                                )`
+                              }}
                             ></div>
                           )}
                         </div>
