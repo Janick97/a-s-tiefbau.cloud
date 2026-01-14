@@ -1538,15 +1538,8 @@ export default function ProjectDetailPage() {
                   {/* Desktop: Original Layout */}
                   <div className="hidden xl:block">
                     <div className="space-y-6">
-                      {/* Oberer Bereich - Wichtige Informationen */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
-                          <ProjectDetails project={project} />
-                        </div>
-                        <div>
-                          <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
-                        </div>
-                      </div>
+                      {/* Oberer Bereich - Projektdetails */}
+                      <ProjectDetails project={project} />
 
                       {/* Zweite Reihe - VAO, Status, Montage */}
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
