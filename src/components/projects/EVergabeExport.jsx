@@ -242,7 +242,19 @@ export default function EVergabeExport({ project, excavations, priceItems, monta
               {/* Oberfläche */}
               <div className="evergabe-section">
                 <div className="evergabe-section-title">Oberfläche</div>
-                <div className="evergabe-section-content">{getSurfaceDescription(excavation)}</div>
+                <div className="evergabe-section-content">
+                  {getSurfaceDescription(excavation)}
+                  {excavation.asphalt_thickness && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#b45309' }}>
+                      Asphaltdicke: {excavation.asphalt_thickness} cm
+                    </div>
+                  )}
+                  {excavation.concrete_thickness && (
+                    <div style={{ marginTop: '8px', fontSize: '12px', color: '#374151' }}>
+                      Betondicke: {excavation.concrete_thickness} cm
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Material */}

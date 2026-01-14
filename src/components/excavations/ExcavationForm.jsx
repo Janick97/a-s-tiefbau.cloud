@@ -122,6 +122,7 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     surface_1_sqm: excavation?.surface_1_sqm !== undefined && excavation?.surface_1_sqm !== null ? parseFloat(excavation.surface_1_sqm) : '',
     surface_2_sqm: excavation?.surface_2_sqm !== undefined && excavation?.surface_2_sqm !== null ? parseFloat(excavation.surface_2_sqm) : '',
     asphalt_thickness: excavation?.asphalt_thickness !== undefined && excavation?.asphalt_thickness !== null ? parseFloat(excavation.asphalt_thickness) : '',
+    concrete_thickness: excavation?.concrete_thickness !== undefined && excavation?.concrete_thickness !== null ? parseFloat(excavation.concrete_thickness) : '',
     concrete_base_used: excavation?.concrete_base_used || false,
     mortar_used: excavation?.mortar_used || false,
     gravel_used: excavation?.gravel_used || false,
@@ -511,6 +512,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
             ...formData,
             location_name: autoLocationName || formData.location_name,
             asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+            concrete_thickness: formData.concrete_thickness === '' ? null : formData.concrete_thickness,
             surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
             surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
             curb_length: formData.curb_length === '' ? null : formData.curb_length,
@@ -539,6 +541,7 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           ...formData,
           location_name: autoLocationName || formData.location_name,
           asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
+          concrete_thickness: formData.concrete_thickness === '' ? null : formData.concrete_thickness,
           surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
           surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
           curb_length: formData.curb_length === '' ? null : formData.curb_length,
@@ -1179,6 +1182,29 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                   />
                   <p className="text-xs text-yellow-700">
                     Bitte geben Sie die Dicke der Asphaltschicht in Zentimetern an
+                  </p>
+                </div>
+              )}
+
+              {/* Betondicke - nur wenn Beton gewählt */}
+              {(formData.surface_type === 'Beton' || formData.surface_type_2 === 'Beton') && (
+                <div className="space-y-2 bg-gray-100 border border-gray-300 rounded-lg p-4">
+                  <Label htmlFor="concrete_thickness" className="flex items-center gap-2 font-medium text-gray-900">
+                    <Info className="w-4 h-4" />
+                    Betondicke (cm) *
+                  </Label>
+                  <Input
+                    id="concrete_thickness"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={formData.concrete_thickness}
+                    onChange={(e) => handleInputChange('concrete_thickness', e.target.value === '' ? '' : parseFloat(e.target.value))}
+                    placeholder="z.B. 10.0"
+                    required
+                  />
+                  <p className="text-xs text-gray-700">
+                    Bitte geben Sie die Dicke der Betonschicht in Zentimetern an
                   </p>
                 </div>
               )}
