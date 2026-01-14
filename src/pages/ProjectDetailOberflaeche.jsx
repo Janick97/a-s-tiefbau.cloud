@@ -486,12 +486,51 @@ export default function ProjectDetailOberflaechePage() {
 
                       {/* Info */}
                       <div className="bg-gray-50 rounded-lg p-2 mb-2">
-                        <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="text-xs space-y-2">
                           <div>
                             <p className="text-gray-500">Position</p>
                             <p className="font-medium truncate">{priceItem?.description || 'N/A'}</p>
                           </div>
-
+                          <div>
+                            <p className="text-gray-500">
+                              {(() => {
+                                const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                                const anderePositionNumbers = [
+                                  '10021010', '10010413', '10037473', '10037352',
+                                  '10037463', '10037372', '10021040', '10037342', '10037363'
+                                ];
+                                const isGrabenPosition = priceItem?.unit === 'M' && 
+                                  !detailDimensionPositions.includes(priceItem?.item_number) &&
+                                  !anderePositionNumbers.includes(priceItem?.item_number);
+                                
+                                return isGrabenPosition ? 'Abmessungen' : 'Menge';
+                              })()}
+                            </p>
+                            <p className="font-medium text-orange-600">
+                              {(() => {
+                                const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                                const anderePositionNumbers = [
+                                  '10021010', '10010413', '10037473', '10037352',
+                                  '10037463', '10037372', '10021040', '10037342', '10037363'
+                                ];
+                                const isGrabenPosition = priceItem?.unit === 'M' && 
+                                  !detailDimensionPositions.includes(priceItem?.item_number) &&
+                                  !anderePositionNumbers.includes(priceItem?.item_number);
+                                
+                                if (isGrabenPosition) {
+                                  return `${(excavation.excavation_length || 0).toFixed(2)}m × ${(excavation.excavation_depth || 0).toFixed(2)}m × ${(excavation.excavation_width || 0).toFixed(2)}m`;
+                                } else {
+                                  return `${excavation.quantity} ${priceItem?.unit || 'ST'}`;
+                                }
+                              })()}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-500">Preis</p>
+                            <p className="font-semibold text-green-600">
+                              €{(excavation.calculated_price || 0).toLocaleString('de-DE')}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
@@ -700,48 +739,91 @@ export default function ProjectDetailOberflaechePage() {
                       Größe & Abmessungen
                     </h3>
                     <div className="bg-gray-50 rounded-lg p-4">
-                      {detailDialog.priceItem?.type === 'Grube' ? (
-                        <div className="space-y-2">
-                          <div className="grid grid-cols-3 gap-3 text-sm">
+                      {(() => {
+                        const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                        const anderePositionNumbers = [
+                          '10021010', '10010413', '10037473', '10037352',
+                          '10037463', '10037372', '10021040', '10037342', '10037363'
+                        ];
+                        const isGrabenPosition = detailDialog.priceItem?.unit === 'M' && 
+                          !detailDimensionPositions.includes(detailDialog.priceItem?.item_number) &&
+                          !anderePositionNumbers.includes(detailDialog.priceItem?.item_number);
+                        
+                        if (isGrabenPosition) {
+                          // Graben-Position
+                          return (
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-3 gap-3 text-sm">
+                                <div>
+                                  <p className="text-gray-600">Länge</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_length || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-600">Tiefe</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_depth || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-600">Breite</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_width || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        } else if (detailDialog.priceItem?.type === 'Grube') {
+                          // Grube-Position
+                          return (
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-3 gap-3 text-sm">
+                                <div>
+                                  <p className="text-gray-600">Länge</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_length || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-600">Breite</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_width || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-gray-600">Tiefe</p>
+                                  <p className="font-semibold text-gray-900">
+                                    {(detailDialog.excavation.excavation_depth || 0).toFixed(2)} m
+                                  </p>
+                                </div>
+                              </div>
+                              {detailDialog.excavation.excavation_factor !== 1 && (
+                                <div className="pt-2 border-t border-gray-200">
+                                  <p className="text-sm text-gray-600">Faktor: {detailDialog.excavation.excavation_factor}</p>
+                                </div>
+                              )}
+                              <div className="pt-2 border-t border-gray-200">
+                                <p className="text-sm text-gray-600">Gesamtvolumen:</p>
+                                <p className="text-lg font-bold text-orange-600">
+                                  {detailDialog.excavation.quantity.toFixed(2)} m³
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        } else {
+                          // Andere Positionen
+                          return (
                             <div>
-                              <p className="text-gray-600">Länge</p>
-                              <p className="font-semibold text-gray-900">
-                                {(detailDialog.excavation.excavation_length || 0).toFixed(2)} m
+                              <p className="text-sm text-gray-600">Menge:</p>
+                              <p className="text-lg font-bold text-orange-600">
+                                {detailDialog.excavation.quantity.toFixed(2)} {detailDialog.priceItem?.unit}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-gray-600">Breite</p>
-                              <p className="font-semibold text-gray-900">
-                                {(detailDialog.excavation.excavation_width || 0).toFixed(2)} m
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-gray-600">Tiefe</p>
-                              <p className="font-semibold text-gray-900">
-                                {(detailDialog.excavation.excavation_depth || 0).toFixed(2)} m
-                              </p>
-                            </div>
-                          </div>
-                          {detailDialog.excavation.excavation_factor !== 1 && (
-                            <div className="pt-2 border-t border-gray-200">
-                              <p className="text-sm text-gray-600">Faktor: {detailDialog.excavation.excavation_factor}</p>
-                            </div>
-                          )}
-                          <div className="pt-2 border-t border-gray-200">
-                            <p className="text-sm text-gray-600">Gesamtvolumen:</p>
-                            <p className="text-lg font-bold text-orange-600">
-                              {detailDialog.excavation.quantity.toFixed(2)} m³
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-sm text-gray-600">Länge:</p>
-                          <p className="text-lg font-bold text-orange-600">
-                            {detailDialog.excavation.quantity.toFixed(2)} {detailDialog.priceItem?.unit}
-                          </p>
-                        </div>
-                      )}
+                          );
+                        }
+                      })()}
                     </div>
                   </div>
 
