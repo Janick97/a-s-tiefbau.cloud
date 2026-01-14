@@ -27,17 +27,6 @@ export default function ProjectDetails({ project }) {
               </p>
             </div>
 
-            {/* Auftragsart */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <Building className="w-4 h-4" />
-                Auftragsart
-              </div>
-              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-sm px-3 py-1">
-                {project.order_type || 'Nicht angegeben'}
-              </Badge>
-            </div>
-
             {/* Ansprechpartner */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
@@ -61,19 +50,32 @@ export default function ProjectDetails({ project }) {
             </div>
           </div>
 
-          {/* Mittlere Spalte - Standort */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <MapPin className="w-4 h-4" />
-              Standort
+          {/* Mittlere Spalte - Standort & Auftragsart */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <MapPin className="w-4 h-4" />
+                Standort
+              </div>
+              <div className="space-y-1">
+                <p className="font-semibold text-gray-900">
+                  {project.city || 'Nicht angegeben'}
+                </p>
+                <p className="text-gray-600">
+                  {project.street || 'Straße nicht angegeben'}
+                </p>
+              </div>
             </div>
-            <div className="space-y-1">
-              <p className="font-semibold text-gray-900">
-                {project.city || 'Nicht angegeben'}
-              </p>
-              <p className="text-gray-600">
-                {project.street || 'Straße nicht angegeben'}
-              </p>
+
+            {/* Auftragsart */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <Building className="w-4 h-4" />
+                Auftragsart
+              </div>
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-sm px-3 py-1">
+                {project.order_type || 'Nicht angegeben'}
+              </Badge>
             </div>
           </div>
 
