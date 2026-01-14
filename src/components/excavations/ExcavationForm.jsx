@@ -330,6 +330,28 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
   useEffect(() => {
     setFormData(getInitialData(excavation, projects, defaultProjectId, currentUser));
   }, [excavation, projects, defaultProjectId, currentUser]);
+
+  // Effect to update dimensions when service category changes
+  useEffect(() => {
+    // Only update dimensions if not editing and no price item selected
+    if (!excavation && !formData.price_item_id) {
+      if (serviceCategory === 'grube') {
+        setFormData(prev => ({
+          ...prev,
+          excavation_length: 1.2,
+          excavation_width: 1.0,
+          excavation_depth: 0.6,
+        }));
+      } else if (serviceCategory === 'graben') {
+        setFormData(prev => ({
+          ...prev,
+          excavation_length: 0,
+          excavation_width: 0.3,
+          excavation_depth: 0.6,
+        }));
+      }
+    }
+  }, [serviceCategory, excavation, formData.price_item_id]);
   
   // General input handler
   const handleInputChange = (field, value) => {
