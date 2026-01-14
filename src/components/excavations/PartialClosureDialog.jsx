@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, Loader2, X, Camera, AlertTriangle, Ruler } from "lucide-react";
-import { ExcavationClosure } from "@/entities/all";
+import { Excavation, ExcavationClosure } from "@/entities/all";
 import { UploadFile } from "@/integrations/Core";
 
 export default function PartialClosureDialog({ excavation, user, remainingMeters, onClose, onSuccess }) {
@@ -74,8 +74,6 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
 
     setIsSubmitting(true);
     try {
-      const { Excavation } = await import('@/entities/all');
-      
       // Fotos zur Excavation hinzufügen (photos_surface)
       const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
       await Excavation.update(excavation.id, {
