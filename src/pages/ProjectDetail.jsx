@@ -1537,15 +1537,15 @@ export default function ProjectDetailPage() {
                   {/* Desktop: Original Layout */}
                   <div className="hidden xl:block">
                     <div className="space-y-6">
-                      {/* Hauptbereich - Projektdetails mit VAO und Status */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
-                          <ProjectDetails project={project} />
-                        </div>
-                        <div className="space-y-6">
-                          <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
-                          <StatusInfo project={project} />
-                        </div>
+                      {/* Projektdetails - volle Breite */}
+                      <div>
+                        <ProjectDetails project={project} />
+                      </div>
+
+                      {/* VAO und Zusätzliche Informationen nebeneinander */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
+                        <StatusInfo project={project} />
                       </div>
 
                       {/* Montageauftrag */}
