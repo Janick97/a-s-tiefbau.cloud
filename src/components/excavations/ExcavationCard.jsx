@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -197,9 +196,21 @@ export default function ExcavationCard({ excavation, projectTitle, priceItem, on
                   <Ruler className="w-4 h-4" />
                 </div>
                 <p className="text-lg font-bold text-gray-900">
-                  {isGrube ? `${safeExcavation.quantity.toFixed(2)} m³` : `${safeExcavation.quantity} ${safePriceItem.unit}`}
+                  {safePriceItem.unit === 'M' && !isGrube 
+                    ? `${safeExcavation.excavation_length.toFixed(2)} m`
+                    : isGrube 
+                    ? `${safeExcavation.quantity.toFixed(2)} m³` 
+                    : `${safeExcavation.quantity} ${safePriceItem.unit}`
+                  }
                 </p>
-                <p className="text-xs text-gray-500">{isGrube ? 'Volumen' : safePriceItem.unit}</p>
+                <p className="text-xs text-gray-500">
+                  {safePriceItem.unit === 'M' && !isGrube 
+                    ? 'Länge'
+                    : isGrube 
+                    ? 'Volumen' 
+                    : safePriceItem.unit
+                  }
+                </p>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 text-green-500 mb-1">
