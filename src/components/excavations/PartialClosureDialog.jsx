@@ -109,7 +109,7 @@ export default function PartialClosureDialog({ excavation, user, remainingMeters
       onSuccess();
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
-      alert("Fehler beim Speichern des Teilabschlusses");
+      alert(`Fehler beim Speichern des Teilabschlusses: ${error.message || error}`);
     } finally {
       setIsSubmitting(false);
     }
