@@ -608,7 +608,18 @@ export default function MyProjectsPage() {
 
                                   {isExpanded && (
                                     <div className="mt-3 space-y-2 max-h-96 overflow-y-auto">
-                                      {projectExcs.map(exc => (
+                                      {projectExcs.map(exc => {
+                                        const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+                                        const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                                        const anderePositionNumbers = [
+                                          '10021010', '10010413', '10037473', '10037352',
+                                          '10037463', '10037372', '10021040', '10037342', '10037363'
+                                        ];
+                                        const isGrabenPosition = priceItem?.unit === 'M' && 
+                                          !detailDimensionPositions.includes(priceItem?.item_number) &&
+                                          !anderePositionNumbers.includes(priceItem?.item_number);
+                                        
+                                        return (
                                         <div
                                           key={exc.id}
                                           className="bg-white rounded-lg p-3 border text-xs space-y-2"
@@ -619,6 +630,23 @@ export default function MyProjectsPage() {
                                           </div>
                                           <div className="text-gray-600">
                                             {getPriceItemDescription(exc.price_item_id)}
+                                          </div>
+                                          <div className="text-gray-600 flex justify-between">
+                                            <span>
+                                              {isGrabenPosition ? 'Länge' : 'Menge'}
+                                            </span>
+                                            <span className="font-semibold">
+                                              {isGrabenPosition 
+                                                ? `${(exc.excavation_length || 0).toFixed(2)} m`
+                                                : `${exc.quantity || 0} ${priceItem?.unit || 'ST'}`
+                                              }
+                                            </span>
+                                          </div>
+                                          <div className="text-green-600 flex justify-between">
+                                            <span>Preis</span>
+                                            <span className="font-semibold">
+                                              €{(exc.calculated_price || 0).toLocaleString('de-DE')}
+                                            </span>
                                           </div>
                                           
                                           <div className="flex gap-4 pt-2 border-t">
@@ -651,7 +679,8 @@ export default function MyProjectsPage() {
                                             </div>
                                           )}
                                         </div>
-                                      ))}
+                                        );
+                                      })}
                                     </div>
                                   )}
                                 </div>
