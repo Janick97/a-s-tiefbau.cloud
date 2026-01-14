@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Package, Loader2, FileDown } from "lucide-react";
-import { ProjectMaterial, Material } from "@/entities/all";
+import { ProjectMaterial, Material, ExcavationMaterial, MontageMaterial, MontageLeistungMaterial, MontageLeistung, Excavation } from "@/entities/all";
 import { jsPDF } from 'jspdf';
 
 function MaterialForm({ open, setOpen, project, projectMaterial, allMaterials, onSubmit }) {
@@ -138,10 +138,52 @@ export default function MaterialManagement({ project, projectMaterials, allMater
     const [editingMaterial, setEditingMaterial] = useState(null);
     const [updatingMaterialId, setUpdatingMaterialId] = useState(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [excavationMaterials, setExcavationMaterials] = useState([]);
+    const [montageMaterials, setMontageMaterials] = useState([]);
+    const [montageLeistungen, setMontageLeistungen] = useState([]);
 
     const allMaterialsMap = useMemo(() => {
         return new Map(allMaterials.map(item => [item.id, item]));
     }, [allMaterials]);
+
+    const allMontageMaterialsMap = useMemo(() => {
+        return new Map(montageMaterials.map(item => [item.id, item]));
+    }, [montageMaterials]);
+
+    useEffect(() => {
+        loadMaterialsData();
+    }, [project.id]);
+
+    const loadMaterialsData = async () => {
+        try {
+            // Lade ExcavationMaterials für dieses Projekt
+            const excavations = await Excavation.filter({ project_id: project.id });
+            const excavationIds = excavations.map(e => e.id);
+            
+            let allExcMaterials = [];
+            if (excavationIds.length > 0) {
+                const results = await Promise.all(
+                    excavationIds.map(id => ExcavationMaterial.filter({ excavation_id: id }).catch(() => []))
+                );
+                allExcMaterials = results.flat();
+            }
+            setExcavationMaterials(allExcMaterials);
+
+            // Lade MontageLeistungMaterial für dieses Projekt
+            if (project.montage_auftrag_id) {
+                const [leistungenData, montageMaterialsData, montageMaterialUsageData] = await Promise.all([
+                    MontageLeistung.filter({ montage_auftrag_id: project.montage_auftrag_id }).catch(() => []),
+                    MontageMaterial.list().catch(() => []),
+                    MontageLeistungMaterial.filter({ montage_auftrag_id: project.montage_auftrag_id }).catch(() => [])
+                ]);
+                setMontageLeistungen(leistungenData);
+                setMontageMaterials(montageMaterialsData);
+                setExcavationMaterials(prev => [...prev, ...montageMaterialUsageData]);
+            }
+        } catch (error) {
+            console.error("Fehler beim Laden der Materialdaten:", error);
+        }
+    };
 
     const handleExportPDF = async () => {
         setIsExporting(true);
@@ -262,7 +304,51 @@ export default function MaterialManagement({ project, projectMaterials, allMater
         }
     };
 
-    if (!projectMaterials || projectMaterials.length === 0) {
+    // Gruppiere Montagematerialien nach Material-ID
+    const montageMaterialsGrouped = useMemo(() => {
+        const grouped = new Map();
+        excavationMaterials.forEach(em => {
+            if (em.montage_auftrag_id) {
+                const key = em.material_id;
+                if (!grouped.has(key)) {
+                    grouped.set(key, {
+                        material_id: em.material_id,
+                        total_quantity: 0,
+                        items: []
+                    });
+                }
+                const group = grouped.get(key);
+                group.total_quantity += em.quantity_used || 0;
+                group.items.push(em);
+            }
+        });
+        return Array.from(grouped.values());
+    }, [excavationMaterials]);
+
+    // Gruppiere Tiefbaumaterialien nach Material-ID
+    const tiefbauMaterialsGrouped = useMemo(() => {
+        const grouped = new Map();
+        excavationMaterials.forEach(em => {
+            if (!em.montage_auftrag_id && em.excavation_id) {
+                const key = em.material_id;
+                if (!grouped.has(key)) {
+                    grouped.set(key, {
+                        material_id: em.material_id,
+                        total_quantity: 0,
+                        items: []
+                    });
+                }
+                const group = grouped.get(key);
+                group.total_quantity += em.quantity_used || 0;
+                group.items.push(em);
+            }
+        });
+        return Array.from(grouped.values());
+    }, [excavationMaterials]);
+
+    const hasAnyMaterials = projectMaterials.length > 0 || tiefbauMaterialsGrouped.length > 0 || montageMaterialsGrouped.length > 0;
+
+    if (!hasAnyMaterials) {
         return (
             <div className="p-4 md:p-6 text-center">
                 <p className="text-gray-500 mb-4">Für dieses Projekt wurde noch kein Material hinzugefügt.</p>
@@ -276,9 +362,9 @@ export default function MaterialManagement({ project, projectMaterials, allMater
     }
     
     return (
-        <div className="p-4 md:p-6">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold">Materialien ({projectMaterials.length})</h3>
+        <div className="p-4 md:p-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">Materialien</h3>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={handleExportPDF} disabled={isExporting}>
                         <FileDown className="w-4 h-4 mr-2" />
@@ -290,48 +376,120 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                     </Button>
                 </div>
             </div>
-            
-            <div className="space-y-3">
-                {projectMaterials.map((pm) => {
-                    const material = allMaterialsMap.get(pm.material_id);
-                    if (!material) return null;
-                    return (
-                        <div
-                            key={pm.id}
-                            className={`p-4 border rounded-lg shadow-sm transition-colors duration-300 flex items-center gap-4 ${
-                                pm.is_booked_in_psl ? 'bg-green-50/70 border-green-200' : 'bg-white'
-                            }`}
-                        >
-                            {updatingMaterialId === pm.id ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                            ) : (
-                                <Checkbox
-                                    id={`psl-booked-${pm.id}`}
-                                    checked={pm.is_booked_in_psl || false}
-                                    onCheckedChange={(checked) => handleBookingToggle(pm.id, checked)}
-                                    aria-label="In PSL gebucht"
-                                />
-                            )}
-                            <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-gray-800">{material.name}</p>
-                                <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="font-medium text-gray-800">{pm.quantity} {material.unit}</p>
-                                <Badge variant="outline">{material.category}</Badge>
-                            </div>
-                            <div className="flex gap-1">
-                                <Button variant="ghost" size="icon" onClick={() => handleEdit(pm)}>
-                                    <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDelete(pm.id)} className="text-red-500 hover:text-red-600">
-                                    <Trash2 className="w-4 h-4" />
-                                </Button>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
+
+            {/* Tiefbaumaterial */}
+            {(tiefbauMaterialsGrouped.length > 0 || projectMaterials.length > 0) && (
+                <Card className="border-2 border-orange-200">
+                    <CardHeader className="bg-orange-50">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Package className="w-5 h-5 text-orange-600" />
+                            Tiefbaumaterial ({projectMaterials.length + tiefbauMaterialsGrouped.length})
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                        {/* Projekt-Materialien */}
+                        {projectMaterials.map((pm) => {
+                            const material = allMaterialsMap.get(pm.material_id);
+                            if (!material) return null;
+                            return (
+                                <div
+                                    key={pm.id}
+                                    className={`p-4 border rounded-lg shadow-sm transition-colors duration-300 flex items-center gap-4 ${
+                                        pm.is_booked_in_psl ? 'bg-green-50/70 border-green-200' : 'bg-white'
+                                    }`}
+                                >
+                                    {updatingMaterialId === pm.id ? (
+                                        <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                    ) : (
+                                        <Checkbox
+                                            id={`psl-booked-${pm.id}`}
+                                            checked={pm.is_booked_in_psl || false}
+                                            onCheckedChange={(checked) => handleBookingToggle(pm.id, checked)}
+                                            aria-label="In PSL gebucht"
+                                        />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-semibold text-gray-800">{material.name}</p>
+                                        <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-medium text-gray-800">{pm.quantity} {material.unit}</p>
+                                        <Badge variant="outline">{material.category}</Badge>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(pm)}>
+                                            <Edit className="w-4 h-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(pm.id)} className="text-red-500 hover:text-red-600">
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        
+                        {/* Materialien aus Ausgrabungen */}
+                        {tiefbauMaterialsGrouped.map((group) => {
+                            const material = allMaterialsMap.get(group.material_id);
+                            if (!material) return null;
+                            return (
+                                <div
+                                    key={`exc-${group.material_id}`}
+                                    className="p-4 border rounded-lg shadow-sm bg-blue-50/50 border-blue-200"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-800">{material.name}</p>
+                                            <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                            <p className="text-xs text-blue-600 mt-1">Aus Leistungen dokumentiert</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-medium text-gray-800">{group.total_quantity.toFixed(2)} {material.unit}</p>
+                                            <Badge variant="outline">{material.category}</Badge>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Montagematerial */}
+            {montageMaterialsGrouped.length > 0 && (
+                <Card className="border-2 border-blue-200">
+                    <CardHeader className="bg-blue-50">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <Package className="w-5 h-5 text-blue-600" />
+                            Montagematerial ({montageMaterialsGrouped.length})
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-4 space-y-3">
+                        {montageMaterialsGrouped.map((group) => {
+                            const material = allMontageMaterialsMap.get(group.material_id);
+                            if (!material) return null;
+                            return (
+                                <div
+                                    key={`montage-${group.material_id}`}
+                                    className="p-4 border rounded-lg shadow-sm bg-purple-50/50 border-purple-200"
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-800">{material.name}</p>
+                                            <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                            <p className="text-xs text-purple-600 mt-1">Aus Montageleistungen dokumentiert</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="font-medium text-gray-800">{group.total_quantity.toFixed(2)} {material.unit}</p>
+                                            <Badge variant="outline">{material.category}</Badge>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </CardContent>
+                </Card>
+            )}
             
             <MaterialForm open={showForm} setOpen={setShowForm} project={project} projectMaterial={editingMaterial} allMaterials={allMaterials} onSubmit={handleSubmit} />
         </div>
