@@ -753,74 +753,76 @@ export default function AnalyticsPage() {
                     </Card>
                   </div>
 
-                  <Card className="card-elevation border-none mb-6 lg:mb-8">
-                    <CardHeader className="pb-3 md:pb-4">
-                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                        <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                        Soll-Ist-Vergleich für {selectedMonthName}
-                        {(isBauleiter || selectedForeman !== 'all') && (
-                          <span className="ml-2 text-sm font-normal text-gray-500"> ({currentUserData.name})</span>
-                        )}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {!isBauleiter && (
-                        <>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm md:text-base text-gray-600">Monatssoll</span>
-                            <span className="text-sm md:text-base font-semibold">€50.000</span>
-                          </div>
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm md:text-base text-gray-600">Erreicht (Provision)</span>
-                            <span className="text-sm md:text-base font-semibold text-green-600">€{Math.round(currentUserData.revenue).toLocaleString('de-DE')}</span>
-                          </div>
-                        </>
-                      )}
-                      <Progress value={Math.min(currentUserData.achievementPercentage, 100)} className="h-3" />
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs md:text-sm">
-                        <span className={currentUserData.achievementPercentage >= 100 ? 'text-green-600' : 'text-orange-600'}>
-                          {Math.round(currentUserData.achievementPercentage)}% vom Soll erreicht
-                        </span>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                    <Card className="card-elevation border-none">
+                      <CardHeader className="pb-3 md:pb-4">
+                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                          <Target className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                          Soll-Ist-Vergleich für {selectedMonthName}
+                          {(isBauleiter || selectedForeman !== 'all') && (
+                            <span className="ml-2 text-sm font-normal text-gray-500"> ({currentUserData.name})</span>
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
                         {!isBauleiter && (
-                          <span className="text-gray-500">
-                            {currentUserData.achievementPercentage >= 100 ? 
-                              `+€${Math.round(currentUserData.revenue - 50000).toLocaleString('de-DE')} über Soll` :
-                              `€${Math.round(50000 - currentUserData.revenue).toLocaleString('de-DE')} bis Soll`
-                            }
-                          </span>
+                          <>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm md:text-base text-gray-600">Monatssoll</span>
+                              <span className="text-sm md:text-base font-semibold">€50.000</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm md:text-base text-gray-600">Erreicht (Provision)</span>
+                              <span className="text-sm md:text-base font-semibold text-green-600">€{Math.round(currentUserData.revenue).toLocaleString('de-DE')}</span>
+                            </div>
+                          </>
                         )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        <Progress value={Math.min(currentUserData.achievementPercentage, 100)} className="h-3" />
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs md:text-sm">
+                          <span className={currentUserData.achievementPercentage >= 100 ? 'text-green-600' : 'text-orange-600'}>
+                            {Math.round(currentUserData.achievementPercentage)}% vom Soll erreicht
+                          </span>
+                          {!isBauleiter && (
+                            <span className="text-gray-500">
+                              {currentUserData.achievementPercentage >= 100 ? 
+                                `+€${Math.round(currentUserData.revenue - 50000).toLocaleString('de-DE')} über Soll` :
+                                `€${Math.round(50000 - currentUserData.revenue).toLocaleString('de-DE')} bis Soll`
+                              }
+                            </span>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  <Card className="card-elevation border-none">
-                    <CardHeader className="pb-3 md:pb-4">
-                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                        <Activity className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                        Arbeitstypen Verteilung
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                        <div className="text-center p-3 md:p-4 bg-blue-50 rounded-lg">
-                          <div className="text-xl md:text-2xl font-bold text-blue-600">{currentUserData.grubenCount}</div>
-                          <div className="text-xs md:text-sm text-gray-600">Gruben</div>
+                    <Card className="card-elevation border-none">
+                      <CardHeader className="pb-3 md:pb-4">
+                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                          <Activity className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                          Projektdetails
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <span className="text-sm text-gray-600">Gruben</span>
+                            <span className="text-lg font-bold text-blue-600">{currentUserData.grubenCount}</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <span className="text-sm text-gray-600">Graben</span>
+                            <span className="text-lg font-bold text-green-600">{currentUserData.grabenMeter}m</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                            <span className="text-sm text-gray-600">Mauerdurchführungen</span>
+                            <span className="text-lg font-bold text-orange-600">{currentUserData.mauerdurchfuehrungen}</span>
+                          </div>
+                          <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                            <span className="text-sm text-gray-600">Sonstige Leistungen</span>
+                            <span className="text-lg font-bold text-purple-600">{currentUserData.sonstige}</span>
+                          </div>
                         </div>
-                        <div className="text-center p-3 md:p-4 bg-green-50 rounded-lg">
-                          <div className="text-xl md:text-2xl font-bold text-green-600">{currentUserData.grabenMeter}m</div>
-                          <div className="text-xs md:text-sm text-gray-600">Graben</div>
-                        </div>
-                        <div className="text-center p-3 md:p-4 bg-orange-50 rounded-lg">
-                          <div className="text-xl md:text-2xl font-bold text-orange-600">{currentUserData.mauerdurchfuehrungen}</div>
-                          <div className="text-xs md:text-sm text-gray-600">Mauer-DF</div>
-                        </div>
-                        <div className="text-center p-3 md:p-4 bg-purple-50 rounded-lg">
-                          <div className="text-xl md:text-2xl font-bold text-purple-600">{currentUserData.sonstige}</div>
-                          <div className="text-xs md:text-sm text-gray-600">Sonstige</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </>
               );
             })()}
