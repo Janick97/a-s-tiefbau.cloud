@@ -1279,27 +1279,27 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Fotodokumentation</h3>
                 <div className="space-y-4">
                   <ImageUploadSection 
-                    title="Vorher-Bilder"
+                    title="Vorher Bilder"
                     images={formData.photos_before}
                     onImagesChange={(urls) => handleImagesChange('photos_before', urls)}
                   />
                   <ImageUploadSection 
-                    title="Umfeld-Bilder"
-                    images={formData.photos_environment}
-                    onImagesChange={(urls) => handleImagesChange('photos_environment', urls)}
-                  />
-                  <ImageUploadSection 
-                    title="Aufmaß-Bilder"
+                    title="Bilder mit Zollstock"
                     images={formData.photos_after}
                     onImagesChange={(urls) => handleImagesChange('photos_after', urls)}
                   />
                   <ImageUploadSection 
-                    title="Verfüllung-Bilder"
+                    title="Bilder Umfeld/Absperrung"
+                    images={formData.photos_environment}
+                    onImagesChange={(urls) => handleImagesChange('photos_environment', urls)}
+                  />
+                  <ImageUploadSection 
+                    title="Bilder Verfüllung"
                     images={formData.photos_backfill}
                     onImagesChange={(urls) => handleImagesChange('photos_backfill', urls)}
                   />
                   <ImageUploadSection 
-                    title="Oberfläche-Bilder"
+                    title="Bilder Oberfläche"
                     images={formData.photos_surface}
                     onImagesChange={(urls) => handleImagesChange('photos_surface', urls)}
                   />
