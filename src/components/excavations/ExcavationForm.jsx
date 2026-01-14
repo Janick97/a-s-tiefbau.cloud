@@ -511,8 +511,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           const dataToSubmit = { 
             ...formData,
             location_name: autoLocationName || formData.location_name,
-            asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
-            concrete_thickness: formData.concrete_thickness === '' ? null : formData.concrete_thickness,
+            asphalt_thickness: (formData.asphalt_thickness === '' || formData.asphalt_thickness === null) ? null : parseFloat(formData.asphalt_thickness),
+            concrete_thickness: (formData.concrete_thickness === '' || formData.concrete_thickness === null) ? null : parseFloat(formData.concrete_thickness),
             surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
             surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
             curb_length: formData.curb_length === '' ? null : formData.curb_length,
@@ -540,8 +540,8 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
         allServices.push({
           ...formData,
           location_name: autoLocationName || formData.location_name,
-          asphalt_thickness: formData.asphalt_thickness === '' ? null : formData.asphalt_thickness,
-          concrete_thickness: formData.concrete_thickness === '' ? null : formData.concrete_thickness,
+          asphalt_thickness: (formData.asphalt_thickness === '' || formData.asphalt_thickness === null) ? null : parseFloat(formData.asphalt_thickness),
+          concrete_thickness: (formData.concrete_thickness === '' || formData.concrete_thickness === null) ? null : parseFloat(formData.concrete_thickness),
           surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
           surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
           curb_length: formData.curb_length === '' ? null : formData.curb_length,
