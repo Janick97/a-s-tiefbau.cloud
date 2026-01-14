@@ -1505,7 +1505,7 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6">
                   {/* Mobile: Gestacktes Layout */}
                   <div className="block xl:hidden space-y-3">
-                    <ProjectDetails project={project} />
+                    <ProjectDetails project={project} vaoSourceProject={vaoSourceProject} />
                     <MontageAuftragSection
                       project={project}
                       montageAuftrag={montageAuftrag}
@@ -1513,8 +1513,6 @@ export default function ProjectDetailPage() {
                       onCreateMontageAuftrag={handleCreateMontageAuftrag}
                       onAssignMonteur={handleAssignMonteur}
                     />
-                    <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
-                    <StatusInfo project={project} />
                     
                     {/* Beschreibung */}
                     <Card className="card-elevation border-none">
@@ -1539,13 +1537,7 @@ export default function ProjectDetailPage() {
                     <div className="space-y-6">
                       {/* Projektdetails - volle Breite */}
                       <div>
-                        <ProjectDetails project={project} />
-                      </div>
-
-                      {/* VAO und Zusätzliche Informationen nebeneinander */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
-                        <StatusInfo project={project} />
+                        <ProjectDetails project={project} vaoSourceProject={vaoSourceProject} />
                       </div>
 
                       {/* Montageauftrag */}
