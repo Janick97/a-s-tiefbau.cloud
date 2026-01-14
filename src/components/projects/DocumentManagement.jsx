@@ -578,17 +578,22 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
                   {docs.filter(doc => isImage(doc.file_type)).map((doc) => (
                     <motion.div
-                      key={doc.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-orange-400 transition-all"
+                     key={doc.id}
+                     initial={{ opacity: 0, scale: 0.9 }}
+                     animate={{ opacity: 1, scale: 1 }}
+                     className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-orange-400 transition-all"
+                     draggable="true"
+                     onDragStart={(e) => {
+                       e.dataTransfer.effectAllowed = "copy";
+                       e.dataTransfer.setData("DownloadURL", `${doc.file_type}:${doc.file_name}:${doc.file_url}`);
+                     }}
                     >
-                      <img 
-                        src={doc.file_url} 
-                        alt={doc.file_name}
-                        className="w-full h-full object-cover cursor-pointer"
-                        onClick={() => setPreviewDoc(doc)}
-                      />
+                     <img 
+                       src={doc.file_url} 
+                       alt={doc.file_name}
+                       className="w-full h-full object-cover cursor-pointer"
+                       onClick={() => setPreviewDoc(doc)}
+                     />
                       
                       {/* Overlay with actions */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
@@ -690,6 +695,11 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      draggable="true"
+                      onDragStart={(e) => {
+                        e.dataTransfer.effectAllowed = "copy";
+                        e.dataTransfer.setData("DownloadURL", `${doc.file_type}:${doc.file_name}:${doc.file_url}`);
+                      }}
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         <FileText className="w-5 h-5 text-gray-500 flex-shrink-0" />
