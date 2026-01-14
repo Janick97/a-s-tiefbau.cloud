@@ -79,50 +79,56 @@ export default function ProjectDetails({ project }) {
             </div>
           </div>
 
-          {/* Rechte Spalte - Datumsinformationen */}
-          <div className="space-y-4">
-            {/* Auftragseingang */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <Calendar className="w-4 h-4 text-blue-600" />
-                Auftragseingang
+          {/* Rechte Spalte - Datumsinformationen in 2 Spalten */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Linke Unterspalte */}
+            <div className="space-y-4">
+              {/* Auftragseingang */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <Calendar className="w-4 h-4 text-blue-600" />
+                  Auftragseingang
+                </div>
+                <p className="text-gray-900 font-semibold">
+                  {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
+                </p>
               </div>
-              <p className="text-gray-900 font-semibold">
-                {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
-              </p>
+
+              {/* Grube auf */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <Shovel className="w-4 h-4 text-orange-600" />
+                  Grube auf
+                </div>
+                <p className="text-gray-900 font-semibold">
+                  {project.grube_auf_datum ? new Date(project.grube_auf_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
+                </p>
+              </div>
             </div>
 
-            {/* Grube auf */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <Shovel className="w-4 h-4 text-orange-600" />
-                Grube auf
+            {/* Rechte Unterspalte */}
+            <div className="space-y-4">
+              {/* Baustelle fertig */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  Baustelle fertig
+                </div>
+                <p className="text-gray-900 font-semibold">
+                  {project.end_date ? new Date(project.end_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
+                </p>
               </div>
-              <p className="text-gray-900 font-semibold">
-                {project.grube_auf_datum ? new Date(project.grube_auf_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
-              </p>
-            </div>
 
-            {/* Baustelle fertig */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <CheckCircle className="w-4 h-4 text-green-600" />
-                Baustelle fertig
+              {/* Kann zu Meldung */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  "Kann zu" Meldung
+                </div>
+                <p className="text-gray-900 font-semibold">
+                  {project.kann_zu_meldung_datum ? new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
+                </p>
               </div>
-              <p className="text-gray-900 font-semibold">
-                {project.end_date ? new Date(project.end_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
-              </p>
-            </div>
-
-            {/* Kann zu Meldung */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <Calendar className="w-4 h-4 text-purple-600" />
-                "Kann zu" Meldung
-              </div>
-              <p className="text-gray-900 font-semibold">
-                {project.kann_zu_meldung_datum ? new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
-              </p>
             </div>
           </div>
         </div>
