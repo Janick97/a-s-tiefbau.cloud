@@ -27,14 +27,14 @@ export default function MontageAuftragSection({ project, montageAuftrag, monteur
   };
 
   return (
-    <Card className="card-elevation border-none">
+    <Card className="card-elevation border-none w-full h-full flex flex-col">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Wrench className="w-5 h-5 text-blue-600" />
           Montageauftrag
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         {!montageAuftrag ? (
           <div className="text-center py-6">
             <Wrench className="w-12 h-12 mx-auto mb-4 text-gray-300" />
