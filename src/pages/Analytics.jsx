@@ -793,74 +793,34 @@ export default function AnalyticsPage() {
                     </CardContent>
                   </Card>
 
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-                    <Card className="card-elevation border-none">
-                      <CardHeader className="pb-3 md:pb-4">
-                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                          <Activity className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
-                          Arbeitstypen Verteilung
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                          <div className="text-center p-3 md:p-4 bg-blue-50 rounded-lg">
-                            <div className="text-xl md:text-2xl font-bold text-blue-600">{currentUserData.grubenCount}</div>
-                            <div className="text-xs md:text-sm text-gray-600">Gruben</div>
-                          </div>
-                          <div className="text-center p-3 md:p-4 bg-green-50 rounded-lg">
-                            <div className="text-xl md:text-2xl font-bold text-green-600">{currentUserData.grabenMeter}m</div>
-                            <div className="text-xs md:text-sm text-gray-600">Graben</div>
-                          </div>
-                          <div className="text-center p-3 md:p-4 bg-orange-50 rounded-lg">
-                            <div className="text-xl md:text-2xl font-bold text-orange-600">{currentUserData.mauerdurchfuehrungen}</div>
-                            <div className="text-xs md:text-sm text-gray-600">Mauer-DF</div>
-                          </div>
-                          <div className="text-center p-3 md:p-4 bg-purple-50 rounded-lg">
-                            <div className="text-xl md:text-2xl font-bold text-purple-600">{currentUserData.sonstige}</div>
-                            <div className="text-xs md:text-sm text-gray-600">Sonstige</div>
-                          </div>
+                  <Card className="card-elevation border-none">
+                    <CardHeader className="pb-3 md:pb-4">
+                      <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                        <Activity className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                        Arbeitstypen Verteilung
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                        <div className="text-center p-3 md:p-4 bg-blue-50 rounded-lg">
+                          <div className="text-xl md:text-2xl font-bold text-blue-600">{currentUserData.grubenCount}</div>
+                          <div className="text-xs md:text-sm text-gray-600">Gruben</div>
                         </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="card-elevation border-none">
-                      <CardHeader className="pb-3 md:pb-4">
-                        <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                          <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                          Leistungsübersicht
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid grid-cols-2 gap-4">
-                          {/* Gruben */}
-                          <div className="text-center p-4 bg-blue-50 rounded-lg">
-                            <div className="text-3xl font-bold text-blue-600">{currentUserData.grubenCount}</div>
-                            <div className="text-sm text-gray-600 mb-3">Gruben geöffnet</div>
-                            <div className="text-xl font-semibold text-green-600">
-                              {currentUserData.matchedExcavations.filter(exc => {
-                                const item = priceItems.find(p => p.id === exc.price_item_id);
-                                return item && ['10001', '10002', '10003', '10004', '10005'].includes(item.item_number) && exc.is_closed;
-                              }).length}
-                            </div>
-                            <div className="text-xs text-gray-500">davon geschlossen</div>
-                          </div>
-
-                          {/* Graben */}
-                          <div className="text-center p-4 bg-green-50 rounded-lg">
-                            <div className="text-3xl font-bold text-green-600">{currentUserData.grabenMeter}m</div>
-                            <div className="text-sm text-gray-600 mb-3">Graben geöffnet</div>
-                            <div className="text-xl font-semibold text-blue-600">
-                              {Math.round(currentUserData.matchedExcavations.filter(exc => {
-                                const item = priceItems.find(p => p.id === exc.price_item_id);
-                                return item && item.unit === 'M' && exc.is_closed;
-                              }).reduce((sum, exc) => sum + parseFloat(exc.quantity || 0), 0))}m
-                            </div>
-                            <div className="text-xs text-gray-500">davon geschlossen</div>
-                          </div>
+                        <div className="text-center p-3 md:p-4 bg-green-50 rounded-lg">
+                          <div className="text-xl md:text-2xl font-bold text-green-600">{currentUserData.grabenMeter}m</div>
+                          <div className="text-xs md:text-sm text-gray-600">Graben</div>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        <div className="text-center p-3 md:p-4 bg-orange-50 rounded-lg">
+                          <div className="text-xl md:text-2xl font-bold text-orange-600">{currentUserData.mauerdurchfuehrungen}</div>
+                          <div className="text-xs md:text-sm text-gray-600">Mauer-DF</div>
+                        </div>
+                        <div className="text-center p-3 md:p-4 bg-purple-50 rounded-lg">
+                          <div className="text-xl md:text-2xl font-bold text-purple-600">{currentUserData.sonstige}</div>
+                          <div className="text-xs md:text-sm text-gray-600">Sonstige</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </>
               );
             })()}
