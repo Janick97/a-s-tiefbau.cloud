@@ -13,19 +13,55 @@ export default function ProjectDetails({ project }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* SM Nummer */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Hash className="w-4 h-4" />
-              SM Nummer
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Linke Spalte */}
+          <div className="space-y-4">
+            {/* SM Nummer */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <Hash className="w-4 h-4" />
+                SM Nummer
+              </div>
+              <p className="font-mono bg-gray-100 px-3 py-2 rounded text-lg font-bold">
+                {project.sm_number || 'Nicht angegeben'}
+              </p>
             </div>
-            <p className="font-mono bg-gray-100 px-3 py-2 rounded text-lg font-bold">
-              {project.sm_number || 'Nicht angegeben'}
-            </p>
+
+            {/* Auftragsart */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <Building className="w-4 h-4" />
+                Auftragsart
+              </div>
+              <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-sm px-3 py-1">
+                {project.order_type || 'Nicht angegeben'}
+              </Badge>
+            </div>
+
+            {/* Ansprechpartner */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <User className="w-4 h-4" />
+                Ansprechpartner
+              </div>
+              <p className="text-gray-900">
+                {project.contact_person || 'Nicht angegeben'}
+              </p>
+            </div>
+
+            {/* Projekt-Status */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <Calendar className="w-4 h-4" />
+                Projekt-Status
+              </div>
+              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-sm px-3 py-1">
+                {project.project_status || 'Nicht angegeben'}
+              </Badge>
+            </div>
           </div>
 
-          {/* Standort */}
+          {/* Mittlere Spalte - Standort */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
               <MapPin className="w-4 h-4" />
@@ -41,90 +77,52 @@ export default function ProjectDetails({ project }) {
             </div>
           </div>
 
-          {/* Auftragsart */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Building className="w-4 h-4" />
-              Auftragsart
-            </div>
-            <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 text-sm px-3 py-1">
-              {project.order_type || 'Nicht angegeben'}
-            </Badge>
-          </div>
-
-          {/* Ansprechpartner */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <User className="w-4 h-4" />
-              Ansprechpartner
-            </div>
-            <p className="text-gray-900">
-              {project.contact_person || 'Nicht angegeben'}
-            </p>
-          </div>
-
-          {/* Projekt-Status */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-              <Calendar className="w-4 h-4" />
-              Projekt-Status
-            </div>
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-sm px-3 py-1">
-              {project.project_status || 'Nicht angegeben'}
-            </Badge>
-          </div>
-
-          {/* Auftragseingang */}
-          {project.start_date && (
+          {/* Rechte Spalte - Datumsinformationen */}
+          <div className="space-y-4">
+            {/* Auftragseingang */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Calendar className="w-4 h-4 text-blue-600" />
                 Auftragseingang
               </div>
               <p className="text-gray-900 font-semibold">
-                {new Date(project.start_date).toLocaleDateString('de-DE')}
+                {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
               </p>
             </div>
-          )}
 
-          {/* Baustelle Fertig */}
-          {project.end_date && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <Calendar className="w-4 h-4 text-green-600" />
-                Baustelle Fertig
-              </div>
-              <p className="text-gray-900 font-semibold">
-                {new Date(project.end_date).toLocaleDateString('de-DE')}
-              </p>
-            </div>
-          )}
-
-          {/* Grube auf Datum */}
-          {project.grube_auf_datum && (
+            {/* Grube auf */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
                 <Shovel className="w-4 h-4 text-orange-600" />
                 Grube auf
               </div>
               <p className="text-gray-900 font-semibold">
-                {new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}
+                {project.grube_auf_datum ? new Date(project.grube_auf_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
               </p>
             </div>
-          )}
 
-          {/* Kann zu Meldung Datum */}
-          {project.kann_zu_meldung_datum && (
+            {/* Baustelle fertig */}
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                <CheckCircle className="w-4 h-4 text-purple-600" />
+                <CheckCircle className="w-4 h-4 text-green-600" />
+                Baustelle fertig
+              </div>
+              <p className="text-gray-900 font-semibold">
+                {project.end_date ? new Date(project.end_date).toLocaleDateString('de-DE') : 'Nicht angegeben'}
+              </p>
+            </div>
+
+            {/* Kann zu Meldung */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-gray-600">
+                <Calendar className="w-4 h-4 text-purple-600" />
                 "Kann zu" Meldung
               </div>
               <p className="text-gray-900 font-semibold">
-                {new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE')}
+                {project.kann_zu_meldung_datum ? new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE') : 'Nicht angegeben'}
               </p>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Beschreibung */}
