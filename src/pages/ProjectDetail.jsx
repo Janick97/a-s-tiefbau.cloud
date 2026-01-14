@@ -1505,7 +1505,8 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6">
                   {/* Mobile: Gestacktes Layout */}
                   <div className="block xl:hidden space-y-3">
-                    <ProjectDetails project={project} vaoSourceProject={vaoSourceProject} />
+                    <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
+                    <ProjectDetails project={project} />
                     <MontageAuftragSection
                       project={project}
                       montageAuftrag={montageAuftrag}
@@ -1513,6 +1514,8 @@ export default function ProjectDetailPage() {
                       onCreateMontageAuftrag={handleCreateMontageAuftrag}
                       onAssignMonteur={handleAssignMonteur}
                     />
+                    <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
+                    <StatusInfo project={project} />
                     
                     {/* Beschreibung */}
                     <Card className="card-elevation border-none">
@@ -1535,20 +1538,33 @@ export default function ProjectDetailPage() {
                   {/* Desktop: Original Layout */}
                   <div className="hidden xl:block">
                     <div className="space-y-6">
-                      {/* Projektdetails - volle Breite */}
-                      <div>
-                        <ProjectDetails project={project} vaoSourceProject={vaoSourceProject} />
+                      {/* Oberer Bereich - Wichtige Informationen */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div className="lg:col-span-2">
+                          <ProjectDetails project={project} />
+                        </div>
+                        <div>
+                          <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
+                        </div>
                       </div>
 
-                      {/* Montageauftrag */}
-                      <div>
-                        <MontageAuftragSection
-                          project={project}
-                          montageAuftrag={montageAuftrag}
-                          monteure={monteure}
-                          onCreateMontageAuftrag={handleCreateMontageAuftrag}
-                          onAssignMonteur={handleAssignMonteur}
-                        />
+                      {/* Zweite Reihe - VAO, Status, Montage */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div>
+                          <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
+                        </div>
+                        <div>
+                          <StatusInfo project={project} />
+                        </div>
+                        <div>
+                          <MontageAuftragSection
+                            project={project}
+                            montageAuftrag={montageAuftrag}
+                            monteure={monteure}
+                            onCreateMontageAuftrag={handleCreateMontageAuftrag}
+                            onAssignMonteur={handleAssignMonteur}
+                          />
+                        </div>
                       </div>
 
                       {/* Chat - volle Breite unten */}
