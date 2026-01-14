@@ -1,4 +1,3 @@
-import Analytics from './pages/Analytics';
 import BaustellenKarte from './pages/BaustellenKarte';
 import Dashboard from './pages/Dashboard';
 import Disposition from './pages/Disposition';
@@ -9,6 +8,8 @@ import ExcavationDetail from './pages/ExcavationDetail';
 import Excavations from './pages/Excavations';
 import Home from './pages/Home';
 import ImportProjects from './pages/ImportProjects';
+import KolonnenBildschirmView from './pages/KolonnenBildschirmView';
+import KolonnenKonfiguration from './pages/KolonnenKonfiguration';
 import KolonnenUebersicht from './pages/KolonnenUebersicht';
 import MaterialInventory from './pages/MaterialInventory';
 import MeineMontageAuftraege from './pages/MeineMontageAuftraege';
@@ -33,13 +34,11 @@ import Projects from './pages/Projects';
 import Surface from './pages/Surface';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
-import KolonnenKonfiguration from './pages/KolonnenKonfiguration';
-import KolonnenBildschirmView from './pages/KolonnenBildschirmView';
+import Analytics from './pages/Analytics';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Analytics": Analytics,
     "BaustellenKarte": BaustellenKarte,
     "Dashboard": Dashboard,
     "Disposition": Disposition,
@@ -50,6 +49,8 @@ export const PAGES = {
     "Excavations": Excavations,
     "Home": Home,
     "ImportProjects": ImportProjects,
+    "KolonnenBildschirmView": KolonnenBildschirmView,
+    "KolonnenKonfiguration": KolonnenKonfiguration,
     "KolonnenUebersicht": KolonnenUebersicht,
     "MaterialInventory": MaterialInventory,
     "MeineMontageAuftraege": MeineMontageAuftraege,
@@ -74,8 +75,7 @@ export const PAGES = {
     "Surface": Surface,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
-    "KolonnenKonfiguration": KolonnenKonfiguration,
-    "KolonnenBildschirmView": KolonnenBildschirmView,
+    "Analytics": Analytics,
 }
 
 export const pagesConfig = {

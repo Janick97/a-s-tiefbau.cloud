@@ -1505,7 +1505,6 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6">
                   {/* Mobile: Gestacktes Layout */}
                   <div className="block xl:hidden space-y-3">
-                    <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
                     <ProjectDetails project={project} />
                     <MontageAuftragSection
                       project={project}
@@ -1539,22 +1538,9 @@ export default function ProjectDetailPage() {
                   <div className="hidden xl:block">
                     <div className="space-y-6">
                       {/* Oberer Bereich - Wichtige Informationen */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
                           <ProjectDetails project={project} />
-                        </div>
-                        <div>
-                          <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
-                        </div>
-                      </div>
-
-                      {/* Zweite Reihe - VAO, Status, Montage */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div>
-                          <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
-                        </div>
-                        <div>
-                          <StatusInfo project={project} />
                         </div>
                         <div>
                           <MontageAuftragSection
@@ -1564,6 +1550,16 @@ export default function ProjectDetailPage() {
                             onCreateMontageAuftrag={handleCreateMontageAuftrag}
                             onAssignMonteur={handleAssignMonteur}
                           />
+                        </div>
+                      </div>
+
+                      {/* Zweite Reihe - VAO, Status */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
+                        </div>
+                        <div>
+                          <StatusInfo project={project} />
                         </div>
                       </div>
 
