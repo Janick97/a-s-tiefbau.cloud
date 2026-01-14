@@ -1571,44 +1571,6 @@ export default function ProjectDetailPage() {
               
               {activeTab === 'deckblatt' && (
                 <div className="p-2 sm:p-4 lg:p-6">
-                  {/* Auswahl des aktuellen Auftrags für Deckblatt */}
-                  {(followUpProjects.length > 0 || project.parent_project_id) && (
-                    <Card className="card-elevation border-none mb-4">
-                      <CardContent className="p-4">
-                        <Label className="text-sm font-medium mb-2 block">Welcher Auftrag soll als "Aktuell" markiert werden?</Label>
-                        <Select value={currentProjectForCoverSheet || project.id} onValueChange={setCurrentProjectForCoverSheet}>
-                          <SelectTrigger className="w-full md:w-96">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {/* Hauptauftrag - nur wenn wir den Hauptauftrag anzeigen oder es Folgeaufträge gibt */}
-                            {isMainProject ? (
-                              <SelectItem value={project.id}>
-                                {project.project_number} - Hauptauftrag
-                              </SelectItem>
-                            ) : project.parent_project_id ? (
-                              <SelectItem value={project.parent_project_id}>
-                                Hauptauftrag
-                              </SelectItem>
-                            ) : null}
-                            {/* Folgeaufträge */}
-                            {followUpProjects.map((followUp, idx) => (
-                              <SelectItem key={followUp.id} value={followUp.id}>
-                                {followUp.project_number} - Folgeauftrag {idx + 1}
-                              </SelectItem>
-                            ))}
-                            {/* Wenn dies ein Folgeauftrag ist, zeige auch sich selbst */}
-                            {project.parent_project_id && (
-                              <SelectItem value={project.id}>
-                                {project.project_number} - Aktueller Auftrag
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                      </CardContent>
-                    </Card>
-                  )}
-
                   <ProjectCoverSheet
                     project={project}
                     excavations={excavations}
@@ -1617,7 +1579,6 @@ export default function ProjectDetailPage() {
                     documents={documents}
                     priceItems={priceItems}
                     allProjects={[project, ...followUpProjects]}
-                    currentProjectId={currentProjectForCoverSheet || project.id}
                   />
                 </div>
               )}
@@ -2128,7 +2089,6 @@ export default function ProjectDetailPage() {
           documents={documents}
           priceItems={priceItems}
           allProjects={[project, ...followUpProjects]}
-          currentProjectId={currentProjectForCoverSheet || project.id}
         />
       </div>
 
