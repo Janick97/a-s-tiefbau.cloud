@@ -827,49 +827,35 @@ export default function AnalyticsPage() {
                       <CardHeader className="pb-3 md:pb-4">
                         <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                           <CheckCircle className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                          Abschluss-Status
+                          Leistungsübersicht
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                           {/* Gruben */}
-                          <div>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-700">Gruben</span>
-                              <span className="text-sm font-semibold text-blue-600">
-                                {currentUserData.matchedExcavations.filter(exc => {
-                                  const item = priceItems.find(p => p.id === exc.price_item_id);
-                                  return item && ['10001', '10002', '10003', '10004', '10005'].includes(item.item_number) && exc.is_closed;
-                                }).length} / {currentUserData.grubenCount} geschlossen
-                              </span>
-                            </div>
-                            <Progress 
-                              value={currentUserData.grubenCount > 0 ? (currentUserData.matchedExcavations.filter(exc => {
+                          <div className="text-center p-4 bg-blue-50 rounded-lg">
+                            <div className="text-3xl font-bold text-blue-600">{currentUserData.grubenCount}</div>
+                            <div className="text-sm text-gray-600 mb-3">Gruben geöffnet</div>
+                            <div className="text-xl font-semibold text-green-600">
+                              {currentUserData.matchedExcavations.filter(exc => {
                                 const item = priceItems.find(p => p.id === exc.price_item_id);
                                 return item && ['10001', '10002', '10003', '10004', '10005'].includes(item.item_number) && exc.is_closed;
-                              }).length / currentUserData.grubenCount) * 100 : 0} 
-                              className="h-2"
-                            />
+                              }).length}
+                            </div>
+                            <div className="text-xs text-gray-500">davon geschlossen</div>
                           </div>
 
                           {/* Graben */}
-                          <div>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="text-sm font-medium text-gray-700">Graben (Meter)</span>
-                              <span className="text-sm font-semibold text-green-600">
-                                {Math.round(currentUserData.matchedExcavations.filter(exc => {
-                                  const item = priceItems.find(p => p.id === exc.price_item_id);
-                                  return item && item.unit === 'M' && exc.is_closed;
-                                }).reduce((sum, exc) => sum + parseFloat(exc.quantity || 0), 0))}m / {currentUserData.grabenMeter}m geschlossen
-                              </span>
-                            </div>
-                            <Progress 
-                              value={currentUserData.grabenMeter > 0 ? (currentUserData.matchedExcavations.filter(exc => {
+                          <div className="text-center p-4 bg-green-50 rounded-lg">
+                            <div className="text-3xl font-bold text-green-600">{currentUserData.grabenMeter}m</div>
+                            <div className="text-sm text-gray-600 mb-3">Graben geöffnet</div>
+                            <div className="text-xl font-semibold text-blue-600">
+                              {Math.round(currentUserData.matchedExcavations.filter(exc => {
                                 const item = priceItems.find(p => p.id === exc.price_item_id);
                                 return item && item.unit === 'M' && exc.is_closed;
-                              }).reduce((sum, exc) => sum + parseFloat(exc.quantity || 0), 0) / currentUserData.grabenMeter) * 100 : 0}
-                              className="h-2"
-                            />
+                              }).reduce((sum, exc) => sum + parseFloat(exc.quantity || 0), 0))}m
+                            </div>
+                            <div className="text-xs text-gray-500">davon geschlossen</div>
                           </div>
                         </div>
                       </CardContent>
