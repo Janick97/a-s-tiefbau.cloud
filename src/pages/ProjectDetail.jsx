@@ -1542,14 +1542,14 @@ export default function ProjectDetailPage() {
                       <ProjectDetails project={project} />
 
                       {/* Zweite Reihe - VAO, Status, Montage */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div>
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-stretch">
+                        <div className="flex">
                           <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
                         </div>
-                        <div>
+                        <div className="flex">
                           <StatusInfo project={project} />
                         </div>
-                        <div>
+                        <div className="flex">
                           <MontageAuftragSection
                             project={project}
                             montageAuftrag={montageAuftrag}
