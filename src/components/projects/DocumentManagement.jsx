@@ -21,7 +21,8 @@ import {
   X,
   ChevronRight,
   ChevronDown,
-  Search
+  Search,
+  Edit2
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
@@ -267,6 +268,40 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     
     setShowNewMainFolderDialog(false);
     setNewMainFolderName("");
+  };
+
+  const handleRenameSubfolder = async (oldFolder, newName) => {
+    if (!newName.trim()) return;
+
+    const oldParts = oldFolder.split('/');
+    const parentPath = oldParts.slice(0, -1).join('/');
+    const newFolder = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
+
+    const docsToUpdate = documents.filter(doc => doc.folder === oldFolder);
+    
+    for (const doc of docsToUpdate) {
+      await ProjectDocument.update(doc.id, { folder: newFolder });
+    }
+
+    setEditingSubfolder(null);
+    await loadDocuments();
+  };
+
+  const handleDeleteSubfolder = async (folder) => {
+    const docsInFolder = documents.filter(doc => 
+      doc.folder === folder || doc.folder.startsWith(folder + '/')
+    );
+
+    for (const doc of docsInFolder) {
+      await ProjectDocument.delete(doc.id);
+    }
+
+    const updatedCustomFolders = customFolders.filter(f => f !== folder && !f.startsWith(folder + '/'));
+    saveCustomFolders(updatedCustomFolders);
+
+    setShowDeleteSubfolderDialog(false);
+    setFolderToDelete(null);
+    await loadDocuments();
   };
 
   const handleDrop = async (e, folder) => {
@@ -1116,6 +1151,56 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   <Button onClick={handleCreateMainFolder}>
                     <Plus className="w-4 h-4 mr-2" />
                     Erstellen
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Subfolder Dialog */}
+      <AnimatePresence>
+        {showDeleteSubfolderDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setShowDeleteSubfolderDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold mb-4">Ordner löschen</h3>
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  Möchten Sie den Ordner <strong>{folderToDelete && getFolderName(folderToDelete)}</strong> wirklich löschen?
+                </p>
+                <p className="text-sm text-red-600 font-medium">
+                  Alle Dateien und Unterordner in diesem Ordner werden ebenfalls gelöscht!
+                </p>
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowDeleteSubfolderDialog(false);
+                      setFolderToDelete(null);
+                    }}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => handleDeleteSubfolder(folderToDelete)}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Löschen
                   </Button>
                 </div>
               </div>
