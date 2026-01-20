@@ -338,6 +338,10 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return allFolders.some(f => f.startsWith(folder + '/') && f !== folder);
   };
 
+  const getSubfolderCount = (folder) => {
+    return allFolders.filter(f => isSubfolderOf(f, folder)).length;
+  };
+
   const isSubfolderOf = (folder, parentFolder) => {
     if (!folder.startsWith(parentFolder + '/')) return false;
     const remainingPath = folder.substring(parentFolder.length + 1);
@@ -537,7 +541,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     {hasSubs && (
                       <button
                         onClick={() => toggleFolder(folder)}
-                        className="hover:bg-gray-100 rounded p-1 -ml-1"
+                        className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors"
                       >
                         {isExpanded ? (
                           <ChevronDown className="w-4 h-4 text-gray-600" />
@@ -550,6 +554,11 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     <FolderOpen className="w-5 h-5 text-orange-600" />
                     {getFolderName(folder)}
                     <Badge variant="outline">{docs.length} Datei(en)</Badge>
+                    {hasSubs && (
+                      <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                        {getSubfolderCount(folder)} Unterordner
+                      </Badge>
+                    )}
                   </CardTitle>
                   <Button
                     variant="ghost"
