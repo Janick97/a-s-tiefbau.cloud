@@ -356,6 +356,18 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return allFolders.filter(folder => isSubfolderOf(folder, parentFolder));
   };
 
+  const toggleSubfolder = (folder) => {
+    setExpandedFolders(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(folder)) {
+        newSet.delete(folder);
+      } else {
+        newSet.add(folder);
+      }
+      return newSet;
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
@@ -520,30 +532,28 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
 
         {getTopLevelFolders().map((folder) => {
-          const renderFolder = (currentFolder, depth = 0) => {
-            const docs = groupedDocuments[currentFolder] || [];
-            const hasSubs = hasSubfolders(currentFolder);
-            const isExpanded = expandedFolders.has(currentFolder);
-            const subfolders = getDirectSubfolders(currentFolder);
-            
-            return (
-              <div key={currentFolder}>
-                <Card 
-                  className={`card-elevation border-none transition-all ${dragActive && dragTargetFolder === currentFolder ? 'border-2 border-orange-500 bg-orange-50' : ''}`}
-                  style={{ marginLeft: `${depth * 24}px` }}
-                  onDrop={(e) => handleDrop(e, currentFolder)}
-                  onDragOver={(e) => handleDragOver(e, currentFolder)}
-                  onDragLeave={handleDragLeave}
-                >
+          const docs = groupedDocuments[folder] || [];
+          const hasSubs = hasSubfolders(folder);
+          const isMainExpanded = expandedFolders.has(folder);
+          const subfolders = getDirectSubfolders(folder);
+          
+          return (
+            <Card 
+              key={folder} 
+              className={`card-elevation border-none transition-all ${dragActive && dragTargetFolder === folder ? 'border-2 border-orange-500 bg-orange-50' : ''}`}
+              onDrop={(e) => handleDrop(e, folder)}
+              onDragOver={(e) => handleDragOver(e, folder)}
+              onDragLeave={handleDragLeave}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {hasSubs && (
                       <button
-                        onClick={() => toggleFolder(currentFolder)}
+                        onClick={() => toggleFolder(folder)}
                         className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors"
                       >
-                        {isExpanded ? (
+                        {isMainExpanded ? (
                           <ChevronDown className="w-4 h-4 text-gray-600" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-600" />
@@ -552,11 +562,11 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     )}
                     {!hasSubs && <div className="w-6" />}
                     <FolderOpen className="w-5 h-5 text-orange-600" />
-                    {getFolderName(currentFolder)}
+                    {getFolderName(folder)}
                     <Badge variant="outline">{docs.length} Datei(en)</Badge>
                     {hasSubs && (
                       <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        {getSubfolderCount(currentFolder)} Unterordner
+                        {getSubfolderCount(folder)} Unterordner
                       </Badge>
                     )}
                   </CardTitle>
@@ -564,7 +574,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setSelectedParentFolder(currentFolder);
+                      setSelectedParentFolder(folder);
                       setShowSubfolderDialog(true);
                     }}
                     title="Unterordner erstellen"
@@ -574,6 +584,98 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   </Button>
                 </div>
               </CardHeader>
+              
+              {/* Unterordner Liste direkt unter dem Header */}
+              {isMainExpanded && subfolders.length > 0 && (
+                <div className="px-6 pb-3 border-b">
+                  <div className="space-y-2">
+                    {subfolders.map(subfolder => {
+                      const subDocs = groupedDocuments[subfolder] || [];
+                      const isSubExpanded = expandedFolders.has(subfolder);
+                      const hasSubSubs = hasSubfolders(subfolder);
+                      
+                      return (
+                        <div key={subfolder} className="bg-gray-50 rounded-lg p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 flex-1">
+                              <button
+                                onClick={() => toggleSubfolder(subfolder)}
+                                className="hover:bg-gray-200 rounded p-1 transition-colors"
+                              >
+                                {isSubExpanded ? (
+                                  <ChevronDown className="w-3.5 h-3.5 text-gray-600" />
+                                ) : (
+                                  <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
+                                )}
+                              </button>
+                              <FolderOpen className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm font-medium">{getFolderName(subfolder)}</span>
+                              <Badge variant="outline" className="text-xs">{subDocs.length}</Badge>
+                              {hasSubSubs && (
+                                <Badge className="bg-blue-50 text-blue-700 text-xs border-blue-200">
+                                  {getSubfolderCount(subfolder)} Sub
+                                </Badge>
+                              )}
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={() => {
+                                setSelectedParentFolder(subfolder);
+                                setShowSubfolderDialog(true);
+                              }}
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Sub
+                            </Button>
+                          </div>
+                          
+                          {/* Inhalt des Unterordners wenn aufgeklappt */}
+                          {isSubExpanded && (
+                            <div className="mt-3 pl-6 space-y-2">
+                              {subDocs.length === 0 ? (
+                                <p className="text-xs text-gray-400 italic">Keine Dateien</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  {subDocs.filter(doc => isImage(doc.file_type)).length > 0 && (
+                                    <div className="grid grid-cols-4 gap-2">
+                                      {subDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
+                                        <div
+                                          key={doc.id}
+                                          className="aspect-square bg-white rounded border hover:border-orange-400 overflow-hidden cursor-pointer"
+                                          onClick={() => setPreviewDoc(doc)}
+                                        >
+                                          <img 
+                                            src={doc.file_url} 
+                                            alt={doc.file_name}
+                                            className="w-full h-full object-cover"
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                  {subDocs.filter(doc => !isImage(doc.file_type)).map((doc) => (
+                                    <div key={doc.id} className="flex items-center gap-2 bg-white p-2 rounded text-xs">
+                                      <FileText className="w-3.5 h-3.5 text-gray-500" />
+                                      <span className="flex-1 truncate">{doc.file_name}</span>
+                                      <a href={doc.file_url} download={doc.file_name}>
+                                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                          <Download className="w-3 h-3" />
+                                        </Button>
+                                      </a>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             <CardContent>
               {docs.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
@@ -783,19 +885,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 </div>
               )}
             </CardContent>
-                </Card>
-                
-                {/* Render subfolders wenn expanded */}
-                {isExpanded && subfolders.length > 0 && (
-                  <div className="mt-4 space-y-4">
-                    {subfolders.map(subfolder => renderFolder(subfolder, depth + 1))}
-                  </div>
-                )}
-              </div>
-            );
-          };
-          
-          return renderFolder(folder, 0);
+            </Card>
+          );
         })}
       </div>
 
