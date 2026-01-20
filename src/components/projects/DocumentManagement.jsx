@@ -609,7 +609,30 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                 )}
                               </button>
                               <FolderOpen className="w-4 h-4 text-blue-600" />
-                              <span className="text-sm font-medium">{getFolderName(subfolder)}</span>
+                              {editingSubfolder === subfolder ? (
+                                <input
+                                  type="text"
+                                  defaultValue={getFolderName(subfolder)}
+                                  className="text-sm font-medium border rounded px-2 py-1"
+                                  autoFocus
+                                  onBlur={(e) => {
+                                    if (e.target.value !== getFolderName(subfolder)) {
+                                      handleRenameSubfolder(subfolder, e.target.value);
+                                    } else {
+                                      setEditingSubfolder(null);
+                                    }
+                                  }}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.target.blur();
+                                    } else if (e.key === 'Escape') {
+                                      setEditingSubfolder(null);
+                                    }
+                                  }}
+                                />
+                              ) : (
+                                <span className="text-sm font-medium">{getFolderName(subfolder)}</span>
+                              )}
                               <Badge variant="outline" className="text-xs">{subDocs.length}</Badge>
                               {hasSubSubs && (
                                 <Badge className="bg-blue-50 text-blue-700 text-xs border-blue-200">
@@ -617,18 +640,41 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                 </Badge>
                               )}
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-xs"
-                              onClick={() => {
-                                setSelectedParentFolder(subfolder);
-                                setShowSubfolderDialog(true);
-                              }}
-                            >
-                              <Plus className="w-3 h-3 mr-1" />
-                              Sub
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                onClick={() => setEditingSubfolder(subfolder)}
+                                title="Umbenennen"
+                              >
+                                <Edit2 className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+                                onClick={() => {
+                                  setFolderToDelete(subfolder);
+                                  setShowDeleteSubfolderDialog(true);
+                                }}
+                                title="Löschen"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={() => {
+                                  setSelectedParentFolder(subfolder);
+                                  setShowSubfolderDialog(true);
+                                }}
+                              >
+                                <Plus className="w-3 h-3 mr-1" />
+                                Sub
+                              </Button>
+                            </div>
                           </div>
                           
                           {/* Inhalt des Unterordners wenn aufgeklappt */}
