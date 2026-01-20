@@ -585,8 +585,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 </div>
               </CardHeader>
               
-              {/* Unterordner Liste direkt unter dem Header */}
-              {isMainExpanded && subfolders.length > 0 && (
+              {/* Unterordner Liste - immer sichtbar wenn vorhanden */}
+              {subfolders.length > 0 && (
                 <div className="px-6 pb-3 border-b">
                   <div className="space-y-2">
                     {subfolders.map(subfolder => {
@@ -676,7 +676,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   </div>
                 </div>
               )}
-            <CardContent>
+            <CardContent className={isMainExpanded ? '' : 'hidden'}>
               {docs.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
                   <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
