@@ -481,6 +481,13 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         onClick={(e) => e.stopPropagation()}
       >
         <Card className="border-none shadow-2xl">
+          <style>
+            {`
+              [data-radix-popper-content-wrapper] {
+                z-index: 80 !important;
+              }
+            `}
+          </style>
           <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
             <div className="flex items-center justify-between mb-4">
               <CardTitle className="flex items-center gap-2 text-xl">
