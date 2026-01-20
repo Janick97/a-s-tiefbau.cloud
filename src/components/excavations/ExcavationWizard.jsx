@@ -515,9 +515,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               {currentStep === 1 && (
                 <motion.div
                   key="step1"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
                   <div className="text-center mb-8">
@@ -581,9 +581,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               {currentStep === 2 && (
                 <motion.div
                   key="step2"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
@@ -667,9 +667,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               {currentStep === 3 && (
                 <motion.div
                   key="step3"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
@@ -854,9 +854,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               {currentStep === 4 && (
                 <motion.div
                   key="step4"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
@@ -1017,9 +1017,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               {currentStep === 5 && (
                 <motion.div
                   key="step5"
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
