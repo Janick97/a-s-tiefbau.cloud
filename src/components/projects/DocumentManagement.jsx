@@ -348,14 +348,12 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return !remainingPath.includes('/');
   };
 
-  const getVisibleFolders = () => {
-    return allFolders.filter(folder => {
-      const depth = getFolderDepth(folder);
-      if (depth === 0) return true;
-      
-      const parent = getParentFolder(folder);
-      return expandedFolders.has(parent);
-    });
+  const getTopLevelFolders = () => {
+    return allFolders.filter(folder => getFolderDepth(folder) === 0);
+  };
+
+  const getDirectSubfolders = (parentFolder) => {
+    return allFolders.filter(folder => isSubfolderOf(folder, parentFolder));
   };
 
   return (
@@ -521,26 +519,28 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </div>
         )}
 
-        {getVisibleFolders().map((folder) => {
-          const docs = groupedDocuments[folder] || [];
-          const hasSubs = hasSubfolders(folder);
-          const isExpanded = expandedFolders.has(folder);
-          
-          return (
-            <Card 
-              key={folder} 
-              className={`card-elevation border-none transition-all ${dragActive && dragTargetFolder === folder ? 'border-2 border-orange-500 bg-orange-50' : ''}`}
-              style={{ marginLeft: `${getFolderDepth(folder) * 24}px` }}
-              onDrop={(e) => handleDrop(e, folder)}
-              onDragOver={(e) => handleDragOver(e, folder)}
-              onDragLeave={handleDragLeave}
-            >
+        {getTopLevelFolders().map((folder) => {
+          const renderFolder = (currentFolder, depth = 0) => {
+            const docs = groupedDocuments[currentFolder] || [];
+            const hasSubs = hasSubfolders(currentFolder);
+            const isExpanded = expandedFolders.has(currentFolder);
+            const subfolders = getDirectSubfolders(currentFolder);
+            
+            return (
+              <div key={currentFolder}>
+                <Card 
+                  className={`card-elevation border-none transition-all ${dragActive && dragTargetFolder === currentFolder ? 'border-2 border-orange-500 bg-orange-50' : ''}`}
+                  style={{ marginLeft: `${depth * 24}px` }}
+                  onDrop={(e) => handleDrop(e, currentFolder)}
+                  onDragOver={(e) => handleDragOver(e, currentFolder)}
+                  onDragLeave={handleDragLeave}
+                >
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     {hasSubs && (
                       <button
-                        onClick={() => toggleFolder(folder)}
+                        onClick={() => toggleFolder(currentFolder)}
                         className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors"
                       >
                         {isExpanded ? (
@@ -552,11 +552,11 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     )}
                     {!hasSubs && <div className="w-6" />}
                     <FolderOpen className="w-5 h-5 text-orange-600" />
-                    {getFolderName(folder)}
+                    {getFolderName(currentFolder)}
                     <Badge variant="outline">{docs.length} Datei(en)</Badge>
                     {hasSubs && (
                       <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        {getSubfolderCount(folder)} Unterordner
+                        {getSubfolderCount(currentFolder)} Unterordner
                       </Badge>
                     )}
                   </CardTitle>
@@ -564,7 +564,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setSelectedParentFolder(folder);
+                      setSelectedParentFolder(currentFolder);
                       setShowSubfolderDialog(true);
                     }}
                     title="Unterordner erstellen"
@@ -783,8 +783,19 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 </div>
               )}
             </CardContent>
-          </Card>
-          );
+                </Card>
+                
+                {/* Render subfolders wenn expanded */}
+                {isExpanded && subfolders.length > 0 && (
+                  <div className="mt-4 space-y-4">
+                    {subfolders.map(subfolder => renderFolder(subfolder, depth + 1))}
+                  </div>
+                )}
+              </div>
+            );
+          };
+          
+          return renderFolder(folder, 0);
         })}
       </div>
 
