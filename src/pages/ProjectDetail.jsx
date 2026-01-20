@@ -55,7 +55,7 @@ import ProjectChat from "../components/projects/ProjectChat";
 import ProjectCoverSheet from "../components/projects/ProjectCoverSheet";
 import ServicesOverview from "../components/projects/ServicesOverview";
 import MontageAuftragSection from "../components/projects/MontageAuftragSection";
-import ExcavationForm from "../components/excavations/ExcavationForm";
+import ExcavationWizard from "../components/excavations/ExcavationWizard";
 import PullingWorkForm from "../components/projects/PullingWorkForm";
 import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
@@ -359,10 +359,9 @@ function ForemanProjectView({
       {/* Excavation Form Modal */}
       <AnimatePresence>
         {showExcavationForm && (
-          <ExcavationForm
+          <ExcavationWizard
             excavation={editingExcavation}
             projects={[project]} // Pass current project for context
-            priceItems={priceItems} // Pass price items
             defaultProjectId={project.id}
             onSubmit={handleExcavationFormSubmit}
             onCancel={() => {
