@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Shovel, MapPin, Euro, CheckSquare, Package } from "lucide-react";
 import { Excavation, User } from "@/entities/all";
-import ExcavationForm from "../excavations/ExcavationForm";
+import ExcavationWizard from "../excavations/ExcavationWizard";
 import ExcavationDetail from "../excavations/ExcavationDetail";
 
 const statusColors = {
@@ -518,18 +518,16 @@ export default function ExcavationsManagement({
 
       <AnimatePresence>
         {showForm && (
-          <div className="mb-6">
-            <ExcavationForm
-              excavation={editingExcavation}
-              projects={[project]}
-              defaultProjectId={projectId}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingExcavation(null);
-              }}
-            />
-          </div>
+          <ExcavationWizard
+            excavation={editingExcavation}
+            projects={[project]}
+            defaultProjectId={projectId}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              setShowForm(false);
+              setEditingExcavation(null);
+            }}
+          />
         )}
       </AnimatePresence>
 
