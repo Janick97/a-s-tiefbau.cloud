@@ -368,11 +368,11 @@ function ForemanProjectView({
             setShowExcavationForm(true);
             setActiveAction('excavation');
           }}
-          className="w-full h-16 text-lg bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
           size="lg"
         >
           <Shovel className="w-6 h-6 mr-3" />
-          Leistung erfassen
+          TIEFBAU
         </Button>
 
         <Button
@@ -381,29 +381,29 @@ function ForemanProjectView({
             setShowPullingForm(true);
             setActiveAction('pulling');
           }}
-          className="w-full h-16 text-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
           size="lg"
         >
           <ListRestart className="w-6 h-6 mr-3" />
-          Einziehen erfassen
+          EINZIEHEN
         </Button>
 
         <Button
           onClick={() => setActiveAction('material')}
-          className="w-full h-16 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
           size="lg"
         >
           <Package className="w-6 h-6 mr-3" />
-          Material hinzufügen
+          MATERIAL
         </Button>
 
         <Button
           onClick={() => setActiveAction('timesheet')}
-          className="w-full h-16 text-lg bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
           size="lg"
         >
           <Clock className="w-6 h-6 mr-3" />
-          Stunden erfassen
+          STUNDENZETTEL
         </Button>
 
         <Button
