@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Project, Excavation, PriceItem, User, ExcavationClosure } from "@/entities/all";
+import { Project, Excavation, PriceItem, User, ExcavationClosure, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
+import ExcavationWizard from "../components/excavations/ExcavationWizard";
+import PullingWorkForm from "../components/projects/PullingWorkForm";
+import MaterialManagement from "../components/projects/MaterialManagement";
+import TimesheetManagement from "../components/projects/TimesheetManagement";
+import DocumentManagement from "../components/projects/DocumentManagement";
 import {
   ArrowLeft,
   Package,
@@ -29,7 +34,11 @@ import {
   Trash2,
   Camera,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Shovel,
+  ListRestart,
+  Clock,
+  FileText
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
@@ -39,11 +48,21 @@ export default function ProjectDetailOberflaechePage() {
   const [project, setProject] = useState(null);
   const [excavations, setExcavations] = useState([]);
   const [priceItems, setPriceItems] = useState([]);
+  const [pullingWorks, setPullingWorks] = useState([]);
+  const [projectMaterials, setProjectMaterials] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [timesheets, setTimesheets] = useState([]);
+  const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [updating, setUpdating] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [activeAction, setActiveAction] = useState(null);
+  const [showExcavationForm, setShowExcavationForm] = useState(false);
+  const [editingExcavation, setEditingExcavation] = useState(null);
+  const [showPullingForm, setShowPullingForm] = useState(false);
+  const [editingPulling, setEditingPulling] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     show: false,
     type: null, // 'backfill' or 'surface'
@@ -83,17 +102,27 @@ export default function ProjectDetailOberflaechePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [userData, projectData, excavationsData, priceItemsData] = await Promise.all([
+      const [userData, projectData, excavationsData, priceItemsData, pullingWorksData, projectMaterialsData, materialsData, timesheetsData, documentsData] = await Promise.all([
         User.me().catch(() => null),
         Project.get(projectId),
         Excavation.filter({ project_id: projectId }).catch(() => []),
-        PriceItem.list().catch(() => [])
+        PriceItem.list().catch(() => []),
+        PullingWork.filter({ project_id: projectId }).catch(() => []),
+        ProjectMaterial.filter({ project_id: projectId }).catch(() => []),
+        Material.list().catch(() => []),
+        TimesheetEntry.filter({ project_id: projectId }).catch(() => []),
+        ProjectDocument.filter({ project_id: projectId }).catch(() => [])
       ]);
 
       setUser(userData);
       setProject(projectData);
       setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
       setPriceItems(Array.isArray(priceItemsData) ? priceItemsData : []);
+      setPullingWorks(Array.isArray(pullingWorksData) ? pullingWorksData : []);
+      setProjectMaterials(Array.isArray(projectMaterialsData) ? projectMaterialsData : []);
+      setMaterials(Array.isArray(materialsData) ? materialsData : []);
+      setTimesheets(Array.isArray(timesheetsData) ? timesheetsData : []);
+      setDocuments(Array.isArray(documentsData) ? documentsData : []);
     } catch (err) {
       console.error("Fehler beim Laden:", err);
       setError(err.message || "Ein Fehler ist aufgetreten.");
@@ -340,6 +369,35 @@ export default function ProjectDetailOberflaechePage() {
     );
   }
 
+  const handleExcavationFormSubmit = async (data, excavationId) => {
+    try {
+      const dataWithProject = { ...data, project_id: data.project_id || projectId };
+      if (excavationId) {
+        await Excavation.update(excavationId, dataWithProject);
+      } else {
+        await Excavation.create(dataWithProject);
+      }
+      setShowExcavationForm(false);
+      setEditingExcavation(null);
+      setActiveAction(null);
+      loadData();
+    } catch (error) {
+      console.error("Fehler beim Speichern der Ausgrabung:", error);
+    }
+  };
+
+  const handlePullingFormSubmit = async (data) => {
+    if (editingPulling) {
+      await PullingWork.update(editingPulling.id, data);
+    } else {
+      await PullingWork.create({ ...data, project_id: project.id });
+    }
+    setShowPullingForm(false);
+    setEditingPulling(null);
+    setActiveAction(null);
+    loadData();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 pb-20">
       {/* Header */}
@@ -375,6 +433,86 @@ export default function ProjectDetailOberflaechePage() {
         </div>
       </div>
 
+      {/* Hauptaktionen - Große Buttons */}
+      <div className="p-3 space-y-2">
+        <Button
+          onClick={() => {
+            setEditingExcavation(null);
+            setShowExcavationForm(true);
+            setActiveAction('excavation');
+          }}
+          className="w-full h-16 text-lg bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+          size="lg"
+        >
+          <Shovel className="w-6 h-6 mr-3" />
+          Leistung erfassen
+        </Button>
+
+        <Button
+          onClick={() => {
+            setEditingPulling(null);
+            setShowPullingForm(true);
+            setActiveAction('pulling');
+          }}
+          className="w-full h-16 text-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+          size="lg"
+        >
+          <ListRestart className="w-6 h-6 mr-3" />
+          Einziehen erfassen
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('material')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+          size="lg"
+        >
+          <Package className="w-6 h-6 mr-3" />
+          Material hinzufügen
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('timesheet')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+          size="lg"
+        >
+          <Clock className="w-6 h-6 mr-3" />
+          Stunden erfassen
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('backfill')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700"
+          size="lg"
+        >
+          <Package className="w-6 h-6 mr-3" />
+          Verfüllen ({stats.needsBackfill})
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('surface')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+          size="lg"
+        >
+          <Layers className="w-6 h-6 mr-3" />
+          Oberfläche ({stats.needsSurface})
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('documents')}
+          variant="outline"
+          className="w-full h-14 text-base border-2"
+          size="lg"
+        >
+          <FileText className="w-5 h-5 mr-2" />
+          Dokumente ({documents.length})
+        </Button>
+      </div>
+
+      {/* Chat-Bereich */}
+      <div className="h-[400px] mx-3 mb-3">
+        <ProjectChat projectId={project.id} />
+      </div>
+
       {/* Projekt Info */}
       <div className="p-3">
         <Card className="card-elevation border-none mb-3">
@@ -400,43 +538,403 @@ export default function ProjectDetailOberflaechePage() {
           </CardContent>
         </Card>
 
-        {/* Filter */}
-        <div className="flex gap-2 mb-3 overflow-x-auto pb-2">
-          <Button
-            variant={filterStatus === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilterStatus('all')}
-            className="whitespace-nowrap"
-          >
-            Alle ({excavations.length})
-          </Button>
-          <Button
-            variant={filterStatus === 'needs_backfill' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilterStatus('needs_backfill')}
-            className="whitespace-nowrap bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
-          >
-            Verfüllen ({stats.needsBackfill})
-          </Button>
-          <Button
-            variant={filterStatus === 'needs_surface' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilterStatus('needs_surface')}
-            className="whitespace-nowrap bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-          >
-            Oberfläche ({stats.needsSurface})
-          </Button>
-          <Button
-            variant={filterStatus === 'completed' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilterStatus('completed')}
-            className="whitespace-nowrap bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-          >
-            Fertig ({stats.completed})
-          </Button>
-        </div>
+        {/* Leistungen Übersicht */}
+        {excavations.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Shovel className="w-4 h-4" />
+                Leistungen ({excavations.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {excavations.slice(0, 3).map((exc) => (
+                <div
+                  key={exc.id}
+                  onClick={() => handleExcavationClick(exc)}
+                  className="p-3 bg-gray-50 rounded-lg active:bg-gray-100 transition-colors"
+                >
+                  <div className="flex justify-between items-start mb-1">
+                    <p className="font-medium text-sm text-gray-900 truncate flex-1">{exc.location_name}</p>
+                    <p className="text-sm font-bold text-green-700 ml-2">
+                      €{Math.round(exc.calculated_price || 0).toLocaleString('de-DE')}
+                    </p>
+                  </div>
+                  <p className="text-xs text-gray-600 truncate">{exc.street}, {exc.city}</p>
+                </div>
+              ))}
+              {excavations.length > 3 && (
+                <Button variant="ghost" className="w-full text-sm" onClick={() => setFilterStatus('all')}>
+                  +{excavations.length - 3} weitere anzeigen
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
-        {/* Leistungen Liste */}
+      {/* Excavation Form Modal */}
+      <AnimatePresence>
+        {showExcavationForm && (
+          <ExcavationWizard
+            excavation={editingExcavation}
+            projects={[project]}
+            defaultProjectId={project.id}
+            onSubmit={handleExcavationFormSubmit}
+            onCancel={() => {
+              setShowExcavationForm(false);
+              setEditingExcavation(null);
+              setActiveAction(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Pulling Form Modal */}
+      <AnimatePresence>
+        {showPullingForm && (
+          <PullingWorkForm
+            pullingWork={editingPulling}
+            project={project}
+            onSubmit={handlePullingFormSubmit}
+            onCancel={() => {
+              setShowPullingForm(false);
+              setEditingPulling(null);
+              setActiveAction(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Material Modal */}
+      <AnimatePresence>
+        {activeAction === 'material' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Material verwalten</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <MaterialManagement
+                project={project}
+                projectMaterials={projectMaterials}
+                allMaterials={materials}
+                loadData={loadData}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Timesheet Modal */}
+      <AnimatePresence>
+        {activeAction === 'timesheet' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Stunden verwalten</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <TimesheetManagement
+                projectId={project.id}
+                project={project}
+                loadData={loadData}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Backfill Modal */}
+      <AnimatePresence>
+        {activeAction === 'backfill' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Leistungen zum Verfüllen</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                <AnimatePresence>
+                  {excavations.filter(exc => !exc.is_backfilled).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkBackfilledClick(excavation, e);
+                              }}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-sm"
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
+                                </>
+                              ) : (
+                                <>
+                                  <Package className="w-4 h-4 mr-2" />
+                                  Als verfüllt markieren
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+                {excavations.filter(exc => !exc.is_backfilled).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Alle Leistungen wurden bereits verfüllt</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Surface Modal */}
+      <AnimatePresence>
+        {activeAction === 'surface' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Leistungen für Oberfläche</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                <AnimatePresence>
+                  {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                    const anderePositionNumbers = [
+                      '10021010', '10010413', '10037473', '10037352',
+                      '10037463', '10037372', '10021040', '10037342', '10037363'
+                    ];
+                    const isGrabenPosition = priceItem?.unit === 'M' && 
+                      !detailDimensionPositions.includes(priceItem?.item_number) &&
+                      !anderePositionNumbers.includes(priceItem?.item_number);
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                              <Badge className="bg-blue-100 text-blue-800 text-xs ml-2">
+                                Verfüllt
+                              </Badge>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Verfüllt am: <span className="font-medium text-gray-900">{excavation.backfilled_date ? new Date(excavation.backfilled_date).toLocaleDateString('de-DE') : '-'}</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {isGrabenPosition ? (
+                                <>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handlePartialClosureClick(excavation, e);
+                                    }}
+                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-sm"
+                                  >
+                                    <Ruler className="w-4 h-4 mr-2" />
+                                    Teilabschluss verbuchen
+                                  </Button>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleMarkClosedClick(excavation, e);
+                                    }}
+                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    Komplett abschließen
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMarkClosedClick(excavation, e);
+                                  }}
+                                  disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                                >
+                                  {isUpdating ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Wird gespeichert...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Oberfläche fertigstellen
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+                {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Keine Leistungen warten auf Oberflächenherstellung</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Documents Modal */}
+      <AnimatePresence>
+        {activeAction === 'documents' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Dokumente</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <DocumentManagement
+                projectId={project.id}
+                project={project}
+                loadData={loadData}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Alte Filter-basierte Leistungsliste - wird nicht mehr verwendet */}
+      <div className="hidden">
         <div className="space-y-3">
           <AnimatePresence>
             {filteredExcavations.map((excavation) => {
@@ -658,11 +1156,6 @@ export default function ProjectDetailOberflaechePage() {
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Chat-Bereich */}
-        <div className="h-[500px] mt-3">
-          <ProjectChat projectId={project.id} />
         </div>
       </div>
 

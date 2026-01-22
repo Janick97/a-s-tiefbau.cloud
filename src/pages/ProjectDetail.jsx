@@ -35,7 +35,8 @@ import {
   Clock,
   Package,
   ListRestart,
-  Construction
+  Construction,
+  Layers
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProjectForm from "../components/projects/ProjectForm";
@@ -203,6 +204,24 @@ function ForemanProjectView({
         >
           <Clock className="w-6 h-6 mr-3" />
           Stunden erfassen
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('backfill')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700"
+          size="lg"
+        >
+          <Package className="w-6 h-6 mr-3" />
+          Verfüllen ({excavations.filter(exc => !exc.is_backfilled).length})
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('surface')}
+          className="w-full h-16 text-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+          size="lg"
+        >
+          <Layers className="w-6 h-6 mr-3" />
+          Oberfläche ({excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length})
         </Button>
 
         <Button
@@ -526,6 +545,126 @@ function ForemanProjectView({
                 project={project}
                 loadData={loadData}
               />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Backfill Modal */}
+      <AnimatePresence>
+        {activeAction === 'backfill' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Leistungen zum Verfüllen</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                {excavations.filter(exc => !exc.is_backfilled).map((exc) => {
+                  const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+                  return (
+                    <Card key={exc.id} className="border-2 border-orange-200">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{exc.location_name}</h4>
+                            <p className="text-sm text-gray-600">{exc.street}, {exc.city}</p>
+                            <p className="text-sm text-gray-500 mt-1">{priceItem?.description}</p>
+                          </div>
+                          <Badge className="bg-orange-100 text-orange-800">Offen</Badge>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t mt-2">
+                          <span className="text-sm font-medium text-green-600">
+                            €{(exc.calculated_price || 0).toLocaleString('de-DE')}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                {excavations.filter(exc => !exc.is_backfilled).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Alle Leistungen wurden bereits verfüllt</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Surface Modal */}
+      <AnimatePresence>
+        {activeAction === 'surface' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Leistungen für Oberfläche</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).map((exc) => {
+                  const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+                  return (
+                    <Card key={exc.id} className="border-2 border-blue-200">
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{exc.location_name}</h4>
+                            <p className="text-sm text-gray-600">{exc.street}, {exc.city}</p>
+                            <p className="text-sm text-gray-500 mt-1">{priceItem?.description}</p>
+                          </div>
+                          <Badge className="bg-blue-100 text-blue-800">Verfüllt</Badge>
+                        </div>
+                        <div className="text-xs text-gray-600 mt-2">
+                          <p>Verfüllt am: {exc.backfilled_date ? new Date(exc.backfilled_date).toLocaleDateString('de-DE') : '-'}</p>
+                          <p>Verfüllt von: {exc.backfilled_by || '-'}</p>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t mt-2">
+                          <span className="text-sm font-medium text-green-600">
+                            €{(exc.calculated_price || 0).toLocaleString('de-DE')}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Keine Leistungen warten auf Oberflächenherstellung</p>
+                  </div>
+                )}
+              </div>
             </motion.div>
           </motion.div>
         )}
