@@ -27,7 +27,8 @@ import {
   ChevronDown,
   ChevronUp,
   Shovel,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -452,12 +453,9 @@ export default function MyProjectsPage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+          <div className="space-y-3">
             <AnimatePresence>
               {filteredProjects.map((project, index) => {
-                const stats = getProjectStats(project);
-                const isCompleting = completing === project.id;
-
                 return (
                   <motion.div
                     key={project.id}
@@ -465,259 +463,27 @@ export default function MyProjectsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -4 }}
                   >
-                    <Card className={`card-elevation border-none h-full hover:shadow-xl transition-all duration-300 ${
-                      project.foreman_completed ? 'bg-green-50 border-l-4 border-l-green-500' : ''
-                    }`}>
-                      <CardHeader className="pb-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0 flex-1">
-                            <CardTitle className="text-base md:text-lg font-bold text-gray-900 truncate">
-                              {project.project_number}
-                            </CardTitle>
-                            <p className="text-xs md:text-sm text-gray-600 truncate">
-                              SM: {project.sm_number}
+                    <Card className="card-elevation border-none hover:shadow-lg transition-all">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h3 className="font-bold text-lg text-gray-900">
+                                {project.project_number}
+                              </h3>
+                              <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+                              {project.title}
                             </p>
                           </div>
-                          <div className="flex gap-1 flex-wrap justify-end">
-                            {project.foreman_completed ? (
-                              <Badge className="bg-green-100 text-green-800 border-green-200">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Erledigt
-                              </Badge>
-                            ) : (
-                              <Badge className={`text-xs ${statusColors[project.status] || statusColors.planning}`}>
-                                {statusLabels[project.status] || 'Unbekannt'}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-3 md:space-y-4">
-                        {/* Projekt Info */}
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-sm md:text-base text-gray-900 line-clamp-2 leading-tight">
-                            {project.title}
-                          </h3>
-                          <div className="space-y-1 text-xs md:text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Building className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                              <span className="truncate">{project.client}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                              <span className="truncate">{project.city}</span>
-                            </div>
-                            {project.start_date && (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                                <span>{new Date(project.start_date).toLocaleDateString('de-DE')}</span>
-                              </div>
-                            )}
-                            {project.foreman_completed_date && (
-                              <div className="flex items-center gap-2">
-                                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 text-green-600" />
-                                <span className="text-green-600">
-                                  Erledigt am {new Date(project.foreman_completed_date).toLocaleDateString('de-DE')}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Projekt Status */}
-                        {project.project_status && (
-                          <div>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100 text-gray-800 border-gray-200'}`}
-                            >
-                              {project.project_status}
-                            </Badge>
-                          </div>
-                        )}
-
-                        {/* Statistiken */}
-                        <div className="bg-gray-50 rounded-lg p-3">
-                          <div className="grid grid-cols-2 gap-3 text-xs md:text-sm">
-                            <div>
-                              <div className="flex items-center gap-1 text-gray-600 mb-1">
-                                <Clock className="w-3 h-3" />
-                                <span>Leistungen</span>
-                              </div>
-                              <div className="font-semibold">
-                                {stats.completedExcavations}/{stats.totalExcavations}
-                              </div>
-                            </div>
-                            {user?.position !== 'Bauleiter' && (
-                              <div>
-                                <div className="flex items-center gap-1 text-gray-600 mb-1">
-                                  <Euro className="w-3 h-3" />
-                                  <span>Umsatz</span>
-                                </div>
-                                <div className="font-semibold text-green-600">
-                                  €{stats.revenue.toLocaleString('de-DE')}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Fortschrittsbalken */}
-                          {stats.totalExcavations > 0 && (
-                            <div className="mt-2">
-                              <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs text-gray-600">Fortschritt</span>
-                                <span className="text-xs font-medium">{stats.completionPercentage}%</span>
-                              </div>
-                              <div className="w-full bg-gray-200 rounded-full h-1.5">
-                                <div
-                                  className="bg-gradient-to-r from-orange-500 to-amber-600 h-1.5 rounded-full transition-all duration-300"
-                                  style={{ width: `${stats.completionPercentage}%` }}
-                                />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Leistungsübersicht */}
-                        {(() => {
-                          const projectExcs = getProjectExcavations(project.id);
-                          const isExpanded = expandedProjects[project.id];
-                          
-                          return (
-                            <>
-                              {projectExcs.length > 0 && (
-                                <div className="border-t pt-3">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      toggleProjectExpanded(project.id);
-                                    }}
-                                    className="w-full justify-between text-xs"
-                                  >
-                                    <span className="flex items-center gap-2">
-                                      <Shovel className="w-4 h-4" />
-                                      {projectExcs.length} Leistung{projectExcs.length !== 1 ? 'en' : ''}
-                                    </span>
-                                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                  </Button>
-
-                                  {isExpanded && (
-                                    <div className="mt-3 space-y-2 max-h-96 overflow-y-auto">
-                                      {projectExcs.map(exc => {
-                                        const priceItem = priceItems.find(p => p.id === exc.price_item_id);
-                                        const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
-                                        const anderePositionNumbers = [
-                                          '10021010', '10010413', '10037473', '10037352',
-                                          '10037463', '10037372', '10021040', '10037342', '10037363'
-                                        ];
-                                        const isGrabenPosition = priceItem?.unit === 'M' && 
-                                          !detailDimensionPositions.includes(priceItem?.item_number) &&
-                                          !anderePositionNumbers.includes(priceItem?.item_number);
-                                        
-                                        return (
-                                        <div
-                                          key={exc.id}
-                                          className="bg-white rounded-lg p-3 border text-xs space-y-2"
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          <div className="font-medium text-gray-900">
-                                            {exc.location_name}
-                                          </div>
-                                          <div className="text-gray-600">
-                                            {getPriceItemDescription(exc.price_item_id)}
-                                          </div>
-                                          <div className="text-gray-600 flex justify-between">
-                                            <span>
-                                              {isGrabenPosition ? 'Länge' : 'Menge'}
-                                            </span>
-                                            <span className="font-semibold">
-                                              {isGrabenPosition 
-                                                ? `${(exc.excavation_length || 0).toFixed(2)} m`
-                                                : `${exc.quantity || 0} ${priceItem?.unit || 'ST'}`
-                                              }
-                                            </span>
-                                          </div>
-                                          <div className="text-green-600 flex justify-between">
-                                            <span>Preis</span>
-                                            <span className="font-semibold">
-                                              €{(exc.calculated_price || 0).toLocaleString('de-DE')}
-                                            </span>
-                                          </div>
-                                          
-                                          <div className="flex gap-4 pt-2 border-t">
-                                            <div className="flex items-center gap-2">
-                                              <Checkbox
-                                                checked={exc.is_backfilled || false}
-                                                onCheckedChange={(checked) => handleBackfillToggle(exc, checked)}
-                                                className="data-[state=checked]:bg-green-600"
-                                              />
-                                              <span className="text-gray-700">Verfüllt</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                              <Checkbox
-                                                checked={exc.is_closed || false}
-                                                onCheckedChange={(checked) => handleClosureToggle(exc, checked)}
-                                                className="data-[state=checked]:bg-green-600"
-                                              />
-                                              <span className="text-gray-700">Geschlossen</span>
-                                            </div>
-                                          </div>
-                                          
-                                          {(exc.is_backfilled || exc.is_closed) && (
-                                            <div className="text-[10px] text-green-600 space-y-0.5">
-                                              {exc.is_backfilled && (
-                                                <div>✓ Verfüllt {exc.backfilled_date && `am ${new Date(exc.backfilled_date).toLocaleDateString('de-DE')}`} {exc.backfilled_by && `von ${exc.backfilled_by}`}</div>
-                                              )}
-                                              {exc.is_closed && (
-                                                <div>✓ Geschlossen {exc.closed_date && `am ${new Date(exc.closed_date).toLocaleDateString('de-DE')}`} {exc.closed_by && `von ${exc.closed_by}`}</div>
-                                              )}
-                                            </div>
-                                          )}
-                                        </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
-
-                        {/* Action Buttons */}
-                        <div className="space-y-2">
                           <Link to={createPageUrl(`ProjectDetail?id=${project.id}`)}>
-                            <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-sm">
-                              <Eye className="w-4 h-4 mr-2" />
-                              Projekt öffnen
+                            <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-12 px-6">
+                              Öffnen
+                              <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
                             </Button>
                           </Link>
-
-                          {!project.foreman_completed && (
-                            <Button
-                              variant="outline"
-                              className="w-full border-green-200 text-green-700 hover:bg-green-50 text-sm"
-                              onClick={() => handleMarkAsCompleted(project)}
-                              disabled={isCompleting}
-                            >
-                              {isCompleting ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                  Wird markiert...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Als erledigt markieren
-                                </>
-                              )}
-                            </Button>
-                          )}
                         </div>
                       </CardContent>
                     </Card>
