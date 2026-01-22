@@ -1651,21 +1651,228 @@ function ForemanProjectView({
                   </div>
                 </CardHeader>
 
-                <CardContent className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Position:</span>
-                        <span className="font-medium">{detailDialog.priceItem?.description}</span>
+                <CardContent className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+                  {/* Standort */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-orange-600" />
+                      Standort
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <p className="font-medium text-gray-900">
+                        {detailDialog.excavation.street} {detailDialog.excavation.house_number}
+                      </p>
+                      <p className="text-gray-600">
+                        {detailDialog.excavation.postal_code} {detailDialog.excavation.city}
+                      </p>
+                      {detailDialog.excavation.latitude && detailDialog.excavation.longitude && (
+                        <div className="mt-3">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.open(`https://www.google.com/maps?q=${detailDialog.excavation.latitude},${detailDialog.excavation.longitude}`, '_blank')}
+                            className="w-full"
+                          >
+                            <Navigation className="w-4 h-4 mr-2" />
+                            In Google Maps öffnen
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Größe */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Ruler className="w-5 h-5 text-orange-600" />
+                      Größe & Abmessungen
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <p className="text-gray-600">Länge</p>
+                            <p className="font-semibold text-gray-900">
+                              {(detailDialog.excavation.excavation_length || 0).toFixed(2)} m
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Breite</p>
+                            <p className="font-semibold text-gray-900">
+                              {(detailDialog.excavation.excavation_width || 0).toFixed(2)} m
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">Tiefe</p>
+                            <p className="font-semibold text-gray-900">
+                              {(detailDialog.excavation.excavation_depth || 0).toFixed(2)} m
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Standort:</span>
-                        <span className="font-medium">{detailDialog.excavation.street}, {detailDialog.excavation.city}</span>
+                    </div>
+                  </div>
+
+                  {/* Oberfläche */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Layers className="w-5 h-5 text-orange-600" />
+                      Oberfläche
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">Oberflächentypen:</p>
+                        <div className="flex gap-2 flex-wrap">
+                          {detailDialog.excavation.surface_type && (
+                            <Badge className="bg-blue-100 text-blue-800">
+                              {detailDialog.excavation.surface_type}
+                            </Badge>
+                          )}
+                          {detailDialog.excavation.surface_type_2 && (
+                            <Badge className="bg-purple-100 text-purple-800">
+                              {detailDialog.excavation.surface_type_2}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Preis:</span>
-                        <span className="font-semibold text-green-600">€{(detailDialog.excavation.calculated_price || 0).toLocaleString('de-DE')}</span>
-                      </div>
+                    </div>
+                  </div>
+
+                  {/* Material */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-orange-600" />
+                      Verwendetes Material
+                    </h3>
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      {(detailDialog.excavation.concrete_base_used || 
+                        detailDialog.excavation.mortar_used || 
+                        detailDialog.excavation.gravel_used) ? (
+                        <div className="flex gap-2 flex-wrap">
+                          {detailDialog.excavation.concrete_base_used && (
+                            <Badge className="bg-gray-100 text-gray-800 border border-gray-300">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Unterbeton
+                            </Badge>
+                          )}
+                          {detailDialog.excavation.mortar_used && (
+                            <Badge className="bg-gray-100 text-gray-800 border border-gray-300">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Mörtel
+                            </Badge>
+                          )}
+                          {detailDialog.excavation.gravel_used && (
+                            <Badge className="bg-gray-100 text-gray-800 border border-gray-300">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Splitt
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">Keine Materialien erfasst</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Fotos */}
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <ImageIcon className="w-5 h-5 text-orange-600" />
+                      Fotos
+                    </h3>
+                    <div className="space-y-4">
+                      {/* Vorher-Fotos */}
+                      {detailDialog.excavation.photos_before?.length > 0 && (
+                       <div>
+                         <p className="text-sm font-medium text-gray-700 mb-2">Vorher ({detailDialog.excavation.photos_before.length})</p>
+                         <div className="grid grid-cols-3 gap-2">
+                           {detailDialog.excavation.photos_before.map((url, index) => (
+                             <div
+                               key={index}
+                               className="aspect-square rounded-lg overflow-hidden"
+                             >
+                               <img src={url} alt={`Vorher ${index + 1}`} className="w-full h-full object-cover" />
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                      )}
+
+                      {/* Umfeld-Fotos */}
+                      {detailDialog.excavation.photos_environment?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Umfeld ({detailDialog.excavation.photos_environment.length})</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {detailDialog.excavation.photos_environment.map((url, index) => (
+                              <div
+                                key={index}
+                                className="aspect-square rounded-lg overflow-hidden"
+                              >
+                                <img src={url} alt={`Umfeld ${index + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Verfüllungs-Fotos */}
+                      {detailDialog.excavation.photos_backfill?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Verfüllung ({detailDialog.excavation.photos_backfill.length})</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {detailDialog.excavation.photos_backfill.map((url, index) => (
+                              <div
+                                key={index}
+                                className="aspect-square rounded-lg overflow-hidden"
+                              >
+                                <img src={url} alt={`Verfüllung ${index + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Oberflächen-Fotos */}
+                      {detailDialog.excavation.photos_surface?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Oberfläche ({detailDialog.excavation.photos_surface.length})</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {detailDialog.excavation.photos_surface.map((url, index) => (
+                              <div
+                                key={index}
+                                className="aspect-square rounded-lg overflow-hidden"
+                              >
+                                <img src={url} alt={`Oberfläche ${index + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Nachher-Fotos */}
+                      {detailDialog.excavation.photos_after?.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-700 mb-2">Nachher ({detailDialog.excavation.photos_after.length})</p>
+                          <div className="grid grid-cols-3 gap-2">
+                            {detailDialog.excavation.photos_after.map((url, index) => (
+                              <div
+                                key={index}
+                                className="aspect-square rounded-lg overflow-hidden"
+                              >
+                                <img src={url} alt={`Nachher ${index + 1}`} className="w-full h-full object-cover" />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {!detailDialog.excavation.photos_before?.length && 
+                       !detailDialog.excavation.photos_environment?.length &&
+                       !detailDialog.excavation.photos_backfill?.length &&
+                       !detailDialog.excavation.photos_surface?.length &&
+                       !detailDialog.excavation.photos_after?.length && (
+                        <p className="text-gray-500 text-sm text-center py-4">Keine Fotos vorhanden</p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
