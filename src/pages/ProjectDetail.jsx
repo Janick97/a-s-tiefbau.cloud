@@ -36,7 +36,14 @@ import {
   Package,
   ListRestart,
   Construction,
-  Layers
+  Layers,
+  Loader2,
+  Check,
+  Upload,
+  Camera,
+  Ruler,
+  Image as ImageIcon,
+  Navigation
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProjectForm from "../components/projects/ProjectForm";
@@ -62,6 +69,8 @@ import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import ProjectHistory from "../components/projects/ProjectHistory";
+import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
+import { base44 } from "@/api/base44Client";
 
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -101,6 +110,29 @@ function ForemanProjectView({
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [showPullingForm, setShowPullingForm] = useState(false);
   const [editingPulling, setEditingPulling] = useState(null);
+  const [updating, setUpdating] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    show: false,
+    type: null,
+    excavation: null
+  });
+  const [photoUploadDialog, setPhotoUploadDialog] = useState({
+    show: false,
+    type: null,
+    excavation: null,
+    photos: [],
+    isUploading: false
+  });
+  const [detailDialog, setDetailDialog] = useState({
+    show: false,
+    excavation: null,
+    priceItem: null
+  });
+  const [partialClosureDialog, setPartialClosureDialog] = useState({
+    show: false,
+    excavation: null,
+    remainingMeters: 0
+  });
 
   const handleExcavationFormSubmit = async (data) => {
     await onExcavationSubmit(data, editingExcavation?.id);
@@ -121,7 +153,175 @@ function ForemanProjectView({
     loadData();
   };
 
+  const handleMarkBackfilledClick = (excavation, event) => {
+    event?.stopPropagation();
+    setConfirmDialog({
+      show: true,
+      type: 'backfill',
+      excavation: excavation
+    });
+  };
+
+  const handleMarkClosedClick = async (excavation, event) => {
+    event?.stopPropagation();
+    setConfirmDialog({
+      show: true,
+      type: 'surface',
+      excavation: excavation
+    });
+  };
+
+  const handlePartialClosureClick = async (excavation, event) => {
+    event?.stopPropagation();
+    const closures = await ExcavationClosure.filter({ excavation_id: excavation.id }).catch(() => []);
+    const totalClosedMeters = closures.reduce((sum, c) => sum + (c.meters_closed || 0), 0);
+    const remainingMeters = Math.max(0, excavation.excavation_length - totalClosedMeters);
+    
+    setPartialClosureDialog({
+      show: true,
+      excavation,
+      remainingMeters
+    });
+  };
+
+  const handleConfirmAction = () => {
+    const { type, excavation } = confirmDialog;
+    setConfirmDialog({ show: false, type: null, excavation: null });
+    setPhotoUploadDialog({
+      show: true,
+      type: type,
+      excavation: excavation,
+      photos: [],
+      isUploading: false
+    });
+  };
+
+  const handleCancelAction = () => {
+    setConfirmDialog({ show: false, type: null, excavation: null });
+  };
+
+  const handlePhotoUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+
+    const currentPhotos = photoUploadDialog.photos.length;
+    const remainingSlots = 10 - currentPhotos;
+    const filesToUpload = files.slice(0, remainingSlots);
+
+    if (files.length > remainingSlots) {
+      alert(`Sie können maximal 10 Bilder hochladen. Es werden nur die ersten ${filesToUpload.length} Bilder berücksichtigt.`);
+    }
+
+    if (filesToUpload.length === 0) return;
+
+    setPhotoUploadDialog(prev => ({ ...prev, isUploading: true }));
+
+    try {
+      const uploadPromises = filesToUpload.map(file => 
+        base44.integrations.Core.UploadFile({ file })
+      );
+      const uploadedFiles = await Promise.all(uploadPromises);
+      const newImageUrls = uploadedFiles.map(res => res.file_url);
+      
+      setPhotoUploadDialog(prev => ({
+        ...prev,
+        photos: [...prev.photos, ...newImageUrls],
+        isUploading: false
+      }));
+    } catch (error) {
+      console.error("Fehler beim Hochladen der Bilder:", error);
+      alert("Ein Fehler ist beim Hochladen aufgetreten.");
+      setPhotoUploadDialog(prev => ({ ...prev, isUploading: false }));
+    }
+
+    event.target.value = null;
+  };
+
+  const handleDeletePhoto = (urlToDelete) => {
+    setPhotoUploadDialog(prev => ({
+      ...prev,
+      photos: prev.photos.filter(url => url !== urlToDelete)
+    }));
+  };
+
+  const handleCancelPhotoUpload = () => {
+    setPhotoUploadDialog({
+      show: false,
+      type: null,
+      excavation: null,
+      photos: [],
+      isUploading: false
+    });
+  };
+
+  const handleConfirmPhotoUpload = async () => {
+    const { type, excavation, photos } = photoUploadDialog;
+
+    if (photos.length < 2) {
+      alert("Bitte laden Sie mindestens 2 Fotos hoch.");
+      return;
+    }
+
+    setUpdating(excavation.id);
+    setPhotoUploadDialog({ show: false, type: null, excavation: null, photos: [], isUploading: false });
+
+    try {
+      const updateData = {};
+      
+      if (type === 'backfill') {
+        const backfillCommission = (excavation.calculated_price || 0) * 0.2;
+        const existingBackfillPhotos = Array.isArray(excavation.photos_backfill) ? excavation.photos_backfill : [];
+        
+        updateData.is_backfilled = true;
+        updateData.backfilled_date = new Date().toISOString().split('T')[0];
+        updateData.backfilled_by = user.full_name;
+        updateData.backfilled_by_user_id = user.id;
+        updateData.backfill_commission = backfillCommission;
+        updateData.photos_backfill = [...existingBackfillPhotos, ...photos];
+      } else if (type === 'surface') {
+        const surfaceCommission = (excavation.calculated_price || 0) * 0.3;
+        const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
+        
+        updateData.is_closed = true;
+        updateData.closed_date = new Date().toISOString().split('T')[0];
+        updateData.closed_by = user.full_name;
+        updateData.closed_by_user_id = user.id;
+        updateData.surface_commission = surfaceCommission;
+        updateData.photos_surface = [...existingSurfacePhotos, ...photos];
+      }
+      
+      await Excavation.update(excavation.id, updateData);
+      await loadData();
+    } catch (error) {
+      console.error("Fehler beim Markieren:", error);
+      alert("Fehler beim Speichern. Bitte versuchen Sie es erneut.");
+    }
+    setUpdating(null);
+  };
+
+  const handleExcavationClick = (excavation) => {
+    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+    setDetailDialog({
+      show: true,
+      excavation,
+      priceItem
+    });
+  };
+
+  const handleCloseDetailDialog = () => {
+    setDetailDialog({
+      show: false,
+      excavation: null,
+      priceItem: null
+    });
+  };
+
   const totalRevenue = excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0);
+  const stats = {
+    needsBackfill: excavations.filter(exc => !exc.is_backfilled).length,
+    needsSurface: excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length,
+    completed: excavations.filter(exc => exc.is_closed).length
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 pb-20">
@@ -574,28 +774,63 @@ function ForemanProjectView({
                 </Button>
               </div>
               <div className="p-4 space-y-3">
-                {excavations.filter(exc => !exc.is_backfilled).map((exc) => {
-                  const priceItem = priceItems.find(p => p.id === exc.price_item_id);
-                  return (
-                    <Card key={exc.id} className="border-2 border-orange-200">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{exc.location_name}</h4>
-                            <p className="text-sm text-gray-600">{exc.street}, {exc.city}</p>
-                            <p className="text-sm text-gray-500 mt-1">{priceItem?.description}</p>
-                          </div>
-                          <Badge className="bg-orange-100 text-orange-800">Offen</Badge>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t mt-2">
-                          <span className="text-sm font-medium text-green-600">
-                            €{(exc.calculated_price || 0).toLocaleString('de-DE')}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                <AnimatePresence>
+                  {excavations.filter(exc => !exc.is_backfilled).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMarkBackfilledClick(excavation, e);
+                              }}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-sm"
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
+                                </>
+                              ) : (
+                                <>
+                                  <Package className="w-4 h-4 mr-2" />
+                                  Als verfüllt markieren
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
                 {excavations.filter(exc => !exc.is_backfilled).length === 0 && (
                   <div className="text-center py-12">
                     <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
@@ -632,32 +867,104 @@ function ForemanProjectView({
                 </Button>
               </div>
               <div className="p-4 space-y-3">
-                {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).map((exc) => {
-                  const priceItem = priceItems.find(p => p.id === exc.price_item_id);
-                  return (
-                    <Card key={exc.id} className="border-2 border-blue-200">
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{exc.location_name}</h4>
-                            <p className="text-sm text-gray-600">{exc.street}, {exc.city}</p>
-                            <p className="text-sm text-gray-500 mt-1">{priceItem?.description}</p>
-                          </div>
-                          <Badge className="bg-blue-100 text-blue-800">Verfüllt</Badge>
-                        </div>
-                        <div className="text-xs text-gray-600 mt-2">
-                          <p>Verfüllt am: {exc.backfilled_date ? new Date(exc.backfilled_date).toLocaleDateString('de-DE') : '-'}</p>
-                          <p>Verfüllt von: {exc.backfilled_by || '-'}</p>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t mt-2">
-                          <span className="text-sm font-medium text-green-600">
-                            €{(exc.calculated_price || 0).toLocaleString('de-DE')}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                <AnimatePresence>
+                  {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
+                    const anderePositionNumbers = [
+                      '10021010', '10010413', '10037473', '10037352',
+                      '10037463', '10037372', '10021040', '10037342', '10037363'
+                    ];
+                    const isGrabenPosition = priceItem?.unit === 'M' && 
+                      !detailDimensionPositions.includes(priceItem?.item_number) &&
+                      !anderePositionNumbers.includes(priceItem?.item_number);
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                              <Badge className="bg-blue-100 text-blue-800 text-xs ml-2">
+                                Verfüllt
+                              </Badge>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Verfüllt am: <span className="font-medium text-gray-900">{excavation.backfilled_date ? new Date(excavation.backfilled_date).toLocaleDateString('de-DE') : '-'}</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              {isGrabenPosition ? (
+                                <>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handlePartialClosureClick(excavation, e);
+                                    }}
+                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-sm"
+                                  >
+                                    <Ruler className="w-4 h-4 mr-2" />
+                                    Teilabschluss verbuchen
+                                  </Button>
+                                  <Button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleMarkClosedClick(excavation, e);
+                                    }}
+                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                                  >
+                                    <CheckCircle className="w-4 h-4 mr-2" />
+                                    Komplett abschließen
+                                  </Button>
+                                </>
+                              ) : (
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleMarkClosedClick(excavation, e);
+                                  }}
+                                  disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
+                                >
+                                  {isUpdating ? (
+                                    <>
+                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                      Wird gespeichert...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Oberfläche fertigstellen
+                                    </>
+                                  )}
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
                 {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length === 0 && (
                   <div className="text-center py-12">
                     <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
@@ -665,6 +972,349 @@ function ForemanProjectView({
                   </div>
                 )}
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bestätigungsdialog */}
+      <AnimatePresence>
+        {confirmDialog.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+            onClick={(e) => { if (e.target === e.currentTarget) handleCancelAction(); }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md"
+            >
+              <Card className="card-elevation border-none">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      confirmDialog.type === 'backfill' ? 'bg-orange-100' : 'bg-green-100'
+                    }`}>
+                      {confirmDialog.type === 'backfill' ? (
+                        <Package className="w-6 h-6 text-orange-600" />
+                      ) : (
+                        <CheckCircle className="w-6 h-6 text-green-600" />
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">Bestätigung erforderlich</h3>
+                      <p className="text-sm text-gray-600">
+                        {confirmDialog.type === 'backfill' ? 'Verfüllung bestätigen' : 'Oberfläche bestätigen'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mb-6">
+                    {confirmDialog.type === 'backfill' ? (
+                      <>
+                        <p className="text-gray-700 mb-3">
+                          Wurde die folgende Leistung wirklich <strong>verfüllt</strong>?
+                        </p>
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <p className="font-semibold text-gray-900">{confirmDialog.excavation?.location_name}</p>
+                          <p className="text-sm text-gray-600">
+                            {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
+                          </p>
+                        </div>
+                        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-blue-800">
+                            ⚠️ <strong>Wichtig:</strong> Bestätigen Sie nur, wenn die Verfüllung tatsächlich durchgeführt wurde. 
+                            Im nächsten Schritt müssen Sie mindestens 2 Fotos der Verfüllung hochladen.
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-gray-700 mb-3">
+                          Wurde die <strong>Oberflächenherstellung</strong> der folgenden Leistung wirklich fertiggestellt?
+                        </p>
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <p className="font-semibold text-gray-900">{confirmDialog.excavation?.location_name}</p>
+                          <p className="text-sm text-gray-600">
+                            {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
+                          </p>
+                        </div>
+                        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-blue-800">
+                            ⚠️ <strong>Wichtig:</strong> Bestätigen Sie nur, wenn die Oberfläche komplett fertiggestellt wurde. 
+                            Im nächsten Schritt müssen Sie mindestens 2 Fotos der fertigen Oberfläche hochladen.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelAction}
+                      className="flex-1"
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Abbrechen
+                    </Button>
+                    <Button
+                      onClick={handleConfirmAction}
+                      className={`flex-1 ${
+                        confirmDialog.type === 'backfill' 
+                          ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700'
+                          : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                      }`}
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      Ja, weiter
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Foto-Upload-Dialog */}
+      <AnimatePresence>
+        {photoUploadDialog.show && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget && !photoUploadDialog.isUploading) handleCancelPhotoUpload(); }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-2xl my-8"
+            >
+              <Card className="card-elevation border-none">
+                <CardHeader className={`${
+                  photoUploadDialog.type === 'backfill'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-600'
+                    : 'bg-gradient-to-r from-green-500 to-emerald-600'
+                } text-white`}>
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl flex items-center gap-2">
+                        <Camera className="w-6 h-6" />
+                        {photoUploadDialog.type === 'backfill' ? 'Verfüllungs-Fotos hochladen' : 'Oberflächen-Fotos hochladen'}
+                      </CardTitle>
+                      <p className="text-sm text-white/80 mt-1">
+                        Mindestens 2 Fotos erforderlich (maximal 10)
+                      </p>
+                    </div>
+                    {!photoUploadDialog.isUploading && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCancelPhotoUpload}
+                        className="text-white hover:bg-white/20"
+                      >
+                        <X className="w-5 h-5" />
+                      </Button>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-6">
+                  <div className="mb-6">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                      <div className="flex gap-2">
+                        <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-yellow-900">Wichtiger Hinweis:</p>
+                          <p className="text-sm text-yellow-800">
+                            Bitte laden Sie mindestens 2 Fotos hoch, die die {photoUploadDialog.type === 'backfill' ? 'Verfüllung' : 'fertige Oberfläche'} deutlich zeigen.
+                            Dies dient als Nachweis für die durchgeführte Arbeit.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Foto-Grid */}
+                    <div className="grid grid-cols-3 gap-3 mb-4">
+                      {photoUploadDialog.photos.map((url, index) => (
+                        <div key={url + index} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                          <img src={url} alt={`Foto ${index + 1}`} className="w-full h-full object-cover" />
+                          {!photoUploadDialog.isUploading && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeletePhoto(url)}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <div className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                            {index + 1}
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {photoUploadDialog.isUploading && (
+                        <div className="flex items-center justify-center aspect-square border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Upload Button */}
+                    <Input
+                      id="photo-upload-foreman"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                      disabled={photoUploadDialog.isUploading || photoUploadDialog.photos.length >= 10}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('photo-upload-foreman').click()}
+                      disabled={photoUploadDialog.isUploading || photoUploadDialog.photos.length >= 10}
+                      className="w-full"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      {photoUploadDialog.isUploading 
+                        ? 'Lädt hoch...' 
+                        : `Fotos auswählen (${photoUploadDialog.photos.length}/10)`
+                      }
+                    </Button>
+
+                    {photoUploadDialog.photos.length >= 10 && (
+                      <p className="text-sm text-yellow-600 mt-2 flex items-center gap-1">
+                        <AlertTriangle className="w-4 h-4" />
+                        Maximale Anzahl von 10 Bildern erreicht.
+                      </p>
+                    )}
+
+                    {photoUploadDialog.photos.length > 0 && photoUploadDialog.photos.length < 2 && (
+                      <p className="text-sm text-red-600 mt-2 flex items-center gap-1">
+                        <AlertTriangle className="w-4 h-4" />
+                        Bitte laden Sie noch mindestens {2 - photoUploadDialog.photos.length} Foto(s) hoch.
+                      </p>
+                    )}
+
+                    {photoUploadDialog.photos.length >= 2 && (
+                      <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        Mindestanzahl erreicht. Sie können nun fortfahren.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={handleCancelPhotoUpload}
+                      className="flex-1"
+                      disabled={photoUploadDialog.isUploading}
+                    >
+                      <X className="w-4 h-4 mr-2" />
+                      Abbrechen
+                    </Button>
+                    <Button
+                      onClick={handleConfirmPhotoUpload}
+                      className={`flex-1 ${
+                        photoUploadDialog.type === 'backfill'
+                          ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700'
+                          : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                      }`}
+                      disabled={photoUploadDialog.photos.length < 2 || photoUploadDialog.isUploading}
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      Bestätigen & Speichern
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Teilabschluss-Dialog für Gräben */}
+      <AnimatePresence>
+        {partialClosureDialog.show && (
+          <PartialClosureDialog
+            excavation={partialClosureDialog.excavation}
+            user={user}
+            remainingMeters={partialClosureDialog.remainingMeters}
+            onClose={() => setPartialClosureDialog({ show: false, excavation: null, remainingMeters: 0 })}
+            onSuccess={() => {
+              setPartialClosureDialog({ show: false, excavation: null, remainingMeters: 0 });
+              loadData();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Detail-Dialog */}
+      <AnimatePresence>
+        {detailDialog.show && detailDialog.excavation && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto"
+            onClick={(e) => { if (e.target === e.currentTarget) handleCloseDetailDialog(); }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-2xl my-8"
+            >
+              <Card className="card-elevation border-none">
+                <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <CardTitle className="text-xl">{detailDialog.excavation.location_name}</CardTitle>
+                      <p className="text-sm text-white/80 mt-1">
+                        {detailDialog.priceItem?.description}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleCloseDetailDialog}
+                      className="text-white hover:bg-white/20"
+                    >
+                      <X className="w-5 h-5" />
+                    </Button>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="text-sm space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Position:</span>
+                        <span className="font-medium">{detailDialog.priceItem?.description}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Standort:</span>
+                        <span className="font-medium">{detailDialog.excavation.street}, {detailDialog.excavation.city}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Preis:</span>
+                        <span className="font-semibold text-green-600">€{(detailDialog.excavation.calculated_price || 0).toLocaleString('de-DE')}</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </motion.div>
           </motion.div>
         )}
