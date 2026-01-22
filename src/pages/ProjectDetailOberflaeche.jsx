@@ -257,10 +257,9 @@ export default function ProjectDetailOberflaechePage() {
     });
   };
 
-  const handleConfirmPhotoUpload = async () => { // New function to confirm photo upload and update excavation
+  const handleConfirmPhotoUpload = async () => {
     const { type, excavation, photos } = photoUploadDialog;
 
-    // Validierung: Mindestens 2 Fotos erforderlich
     if (photos.length < 2) {
       alert("Bitte laden Sie mindestens 2 Fotos hoch.");
       return;
@@ -281,17 +280,42 @@ export default function ProjectDetailOberflaechePage() {
         updateData.backfilled_by = user.full_name;
         updateData.backfilled_by_user_id = user.id;
         updateData.backfill_commission = backfillCommission;
-        updateData.photos_backfill = [...existingBackfillPhotos, ...photos]; // Append new photos
-      } else if (type === 'surface') {
-        const surfaceCommission = (excavation.calculated_price || 0) * 0.3;
-        const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
+        updateData.photos_backfill = [...existingBackfillPhotos, ...photos];
+      } else if (type === 'asphalt_trag') {
+        const tragCommission = (excavation.calculated_price || 0) * 0.15;
         
+        updateData.asphalt_trag_completed = true;
+        updateData.asphalt_trag_date = new Date().toISOString().split('T')[0];
+        updateData.asphalt_trag_by = user.full_name;
+        updateData.asphalt_trag_by_user_id = user.id;
+        updateData.asphalt_trag_commission = tragCommission;
+        updateData.photos_asphalt_trag = photos;
+      } else if (type === 'asphalt_fein') {
+        const feinCommission = (excavation.calculated_price || 0) * 0.15;
+        
+        updateData.asphalt_fein_completed = true;
+        updateData.asphalt_fein_date = new Date().toISOString().split('T')[0];
+        updateData.asphalt_fein_by = user.full_name;
+        updateData.asphalt_fein_by_user_id = user.id;
+        updateData.asphalt_fein_commission = feinCommission;
+        updateData.photos_asphalt_fein = photos;
         updateData.is_closed = true;
         updateData.closed_date = new Date().toISOString().split('T')[0];
         updateData.closed_by = user.full_name;
         updateData.closed_by_user_id = user.id;
-        updateData.surface_commission = surfaceCommission;
-        updateData.photos_surface = [...existingSurfacePhotos, ...photos]; // Append new photos
+      } else if (type === 'platten_pflaster') {
+        const plattenCommission = (excavation.calculated_price || 0) * 0.3;
+        
+        updateData.platten_pflaster_completed = true;
+        updateData.platten_pflaster_date = new Date().toISOString().split('T')[0];
+        updateData.platten_pflaster_by = user.full_name;
+        updateData.platten_pflaster_by_user_id = user.id;
+        updateData.platten_pflaster_commission = plattenCommission;
+        updateData.photos_platten_pflaster = photos;
+        updateData.is_closed = true;
+        updateData.closed_date = new Date().toISOString().split('T')[0];
+        updateData.closed_by = user.full_name;
+        updateData.closed_by_user_id = user.id;
       }
       
       await Excavation.update(excavation.id, updateData);
@@ -312,7 +336,22 @@ export default function ProjectDetailOberflaechePage() {
 
   const stats = {
     needsBackfill: excavations.filter(exc => !exc.is_backfilled).length,
-    needsSurface: excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length,
+    needsAsphaltTrag: excavations.filter(exc => 
+      exc.is_backfilled && 
+      !exc.asphalt_trag_completed && 
+      (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+    ).length,
+    needsAsphaltFein: excavations.filter(exc => 
+      exc.asphalt_trag_completed && 
+      !exc.asphalt_fein_completed && 
+      (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+    ).length,
+    needsPlattenPflaster: excavations.filter(exc => 
+      exc.is_backfilled && 
+      !exc.platten_pflaster_completed && 
+      exc.surface_type !== 'Asphalt' && exc.surface_type_2 !== 'Asphalt' &&
+      exc.surface_type !== 'unbefestigt'
+    ).length,
     completed: excavations.filter(exc => exc.is_closed).length,
     totalRevenue: excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)
   };
@@ -439,12 +478,30 @@ export default function ProjectDetailOberflaechePage() {
         </Button>
 
         <Button
-          onClick={() => setActiveAction('surface')}
+          onClick={() => setActiveAction('asphalt_trag')}
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900"
+          size="lg"
+        >
+          <Layers className="w-6 h-6 mr-3" />
+          ASPHALT TRAG ({stats.needsAsphaltTrag})
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('asphalt_fein')}
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900"
+          size="lg"
+        >
+          <Layers className="w-6 h-6 mr-3" />
+          ASPHALT FEIN ({stats.needsAsphaltFein})
+        </Button>
+
+        <Button
+          onClick={() => setActiveAction('platten_pflaster')}
           className="w-full h-16 text-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
           size="lg"
         >
           <Layers className="w-6 h-6 mr-3" />
-          OBERFLÄCHE ({stats.needsSurface})
+          PLATTEN/PFLASTER ({stats.needsPlattenPflaster})
         </Button>
 
         <Button
@@ -798,9 +855,9 @@ export default function ProjectDetailOberflaechePage() {
         )}
       </AnimatePresence>
 
-      {/* Surface Modal */}
+      {/* Asphalt Trag Modal */}
       <AnimatePresence>
-        {activeAction === 'surface' && (
+        {activeAction === 'asphalt_trag' && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -816,14 +873,237 @@ export default function ProjectDetailOberflaechePage() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
-                <h3 className="text-lg font-bold">Leistungen für Oberfläche</h3>
+                <h3 className="text-lg font-bold">Asphalt Tragschicht</h3>
                 <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
               <div className="p-4 space-y-3">
                 <AnimatePresence>
-                  {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).map((excavation) => {
+                  {excavations.filter(exc => 
+                    exc.is_backfilled && 
+                    !exc.asphalt_trag_completed && 
+                    (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+                  ).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                              <Badge className="bg-amber-100 text-amber-800 text-xs ml-2">
+                                Verfüllt
+                              </Badge>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Oberfläche: <span className="font-medium text-gray-900">Asphalt</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDialog({
+                                  show: true,
+                                  type: 'asphalt_trag',
+                                  excavation: excavation
+                                });
+                              }}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900 text-sm"
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Tragschicht fertigstellen
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+                {excavations.filter(exc => 
+                  exc.is_backfilled && 
+                  !exc.asphalt_trag_completed && 
+                  (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+                ).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Keine Asphalt-Tragschichten ausstehend</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Asphalt Fein Modal */}
+      <AnimatePresence>
+        {activeAction === 'asphalt_fein' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Asphalt Feinschicht</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                <AnimatePresence>
+                  {excavations.filter(exc => 
+                    exc.asphalt_trag_completed && 
+                    !exc.asphalt_fein_completed && 
+                    (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+                  ).map((excavation) => {
+                    const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+                    const isUpdating = updating === excavation.id;
+                    
+                    return (
+                      <motion.div
+                        key={excavation.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                      >
+                        <Card className="card-elevation border-none cursor-pointer hover:shadow-lg transition-shadow"
+                          onClick={() => handleExcavationClick(excavation)}
+                        >
+                          <CardContent className="p-3">
+                            <div className="flex justify-between items-start mb-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-semibold text-sm truncate">{excavation.location_name}</h3>
+                                  <Eye className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                                </div>
+                                <p className="text-xs text-gray-600 truncate">{excavation.street}, {excavation.city}</p>
+                              </div>
+                              <Badge className="bg-gray-100 text-gray-800 text-xs ml-2">
+                                Trag fertig
+                              </Badge>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                              <div className="text-xs space-y-1">
+                                <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
+                                <p className="text-gray-500">Tragschicht: <span className="font-medium text-green-600">✓ {excavation.asphalt_trag_date ? new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE') : ''}</span></p>
+                                <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
+                              </div>
+                            </div>
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDialog({
+                                  show: true,
+                                  type: 'asphalt_fein',
+                                  excavation: excavation
+                                });
+                              }}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900 text-sm"
+                            >
+                              {isUpdating ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
+                                </>
+                              ) : (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Feinschicht fertigstellen
+                                </>
+                              )}
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+                {excavations.filter(exc => 
+                  exc.asphalt_trag_completed && 
+                  !exc.asphalt_fein_completed && 
+                  (exc.surface_type === 'Asphalt' || exc.surface_type_2 === 'Asphalt')
+                ).length === 0 && (
+                  <div className="text-center py-12">
+                    <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
+                    <p className="text-gray-600">Keine Asphalt-Feinschichten ausstehend</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Platten/Pflaster Modal */}
+      <AnimatePresence>
+        {activeAction === 'platten_pflaster' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setActiveAction(null)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sticky top-0 bg-white border-b p-4 flex items-center justify-between z-10">
+                <h3 className="text-lg font-bold">Platten/Pflaster Oberfläche</h3>
+                <Button variant="ghost" size="icon" onClick={() => setActiveAction(null)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="p-4 space-y-3">
+                <AnimatePresence>
+                  {excavations.filter(exc => 
+                    exc.is_backfilled && 
+                    !exc.platten_pflaster_completed && 
+                    exc.surface_type !== 'Asphalt' && exc.surface_type_2 !== 'Asphalt' &&
+                    exc.surface_type !== 'unbefestigt'
+                  ).map((excavation) => {
                     const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
                     const isUpdating = updating === excavation.id;
                     const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
@@ -861,69 +1141,49 @@ export default function ProjectDetailOberflaechePage() {
                             <div className="bg-gray-50 rounded-lg p-2 mb-2">
                               <div className="text-xs space-y-1">
                                 <p className="text-gray-500">Position: <span className="font-medium text-gray-900">{priceItem?.description || 'N/A'}</span></p>
-                                <p className="text-gray-500">Verfüllt am: <span className="font-medium text-gray-900">{excavation.backfilled_date ? new Date(excavation.backfilled_date).toLocaleDateString('de-DE') : '-'}</span></p>
+                                <p className="text-gray-500">Oberfläche: <span className="font-medium text-gray-900">{excavation.surface_type}</span></p>
                                 <p className="text-gray-500">Preis: <span className="font-semibold text-green-600">€{(excavation.calculated_price || 0).toLocaleString('de-DE')}</span></p>
                               </div>
                             </div>
-                            <div className="space-y-2">
-                              {isGrabenPosition ? (
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmDialog({
+                                  show: true,
+                                  type: 'platten_pflaster',
+                                  excavation: excavation
+                                });
+                              }}
+                              disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
+                              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-sm"
+                            >
+                              {isUpdating ? (
                                 <>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handlePartialClosureClick(excavation, e);
-                                    }}
-                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
-                                    className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-sm"
-                                  >
-                                    <Ruler className="w-4 h-4 mr-2" />
-                                    Teilabschluss verbuchen
-                                  </Button>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleMarkClosedClick(excavation, e);
-                                    }}
-                                    disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
-                                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
-                                  >
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Komplett abschließen
-                                  </Button>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Wird gespeichert...
                                 </>
                               ) : (
-                                <Button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleMarkClosedClick(excavation, e);
-                                  }}
-                                  disabled={isUpdating || confirmDialog.show || photoUploadDialog.show}
-                                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-sm"
-                                >
-                                  {isUpdating ? (
-                                    <>
-                                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                      Wird gespeichert...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <CheckCircle className="w-4 h-4 mr-2" />
-                                      Oberfläche fertigstellen
-                                    </>
-                                  )}
-                                </Button>
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Oberfläche fertigstellen
+                                </>
                               )}
-                            </div>
+                            </Button>
                           </CardContent>
                         </Card>
                       </motion.div>
                     );
                   })}
                 </AnimatePresence>
-                {excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length === 0 && (
+                {excavations.filter(exc => 
+                  exc.is_backfilled && 
+                  !exc.platten_pflaster_completed && 
+                  exc.surface_type !== 'Asphalt' && exc.surface_type_2 !== 'Asphalt' &&
+                  exc.surface_type !== 'unbefestigt'
+                ).length === 0 && (
                   <div className="text-center py-12">
                     <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                    <p className="text-gray-600">Keine Leistungen warten auf Oberflächenherstellung</p>
+                    <p className="text-gray-600">Keine Platten/Pflaster-Oberflächen ausstehend</p>
                   </div>
                 )}
               </div>
@@ -1584,13 +1844,16 @@ export default function ProjectDetailOberflaechePage() {
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">Bestätigung erforderlich</h3>
                       <p className="text-sm text-gray-600">
-                        {confirmDialog.type === 'backfill' ? 'Verfüllung bestätigen' : 'Oberfläche bestätigen'}
+                        {confirmDialog.type === 'backfill' && 'Verfüllung bestätigen'}
+                        {confirmDialog.type === 'asphalt_trag' && 'Asphalt Tragschicht bestätigen'}
+                        {confirmDialog.type === 'asphalt_fein' && 'Asphalt Feinschicht bestätigen'}
+                        {confirmDialog.type === 'platten_pflaster' && 'Platten/Pflaster bestätigen'}
                       </p>
                     </div>
                   </div>
 
                   <div className="mb-6">
-                    {confirmDialog.type === 'backfill' ? (
+                    {confirmDialog.type === 'backfill' && (
                       <>
                         <p className="text-gray-700 mb-3">
                           Wurde die folgende Leistung wirklich <strong>verfüllt</strong>?
@@ -1600,7 +1863,6 @@ export default function ProjectDetailOberflaechePage() {
                           <p className="text-sm text-gray-600">
                             {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
                           </p>
-
                         </div>
                         <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                           <p className="text-sm text-blue-800">
@@ -1609,22 +1871,60 @@ export default function ProjectDetailOberflaechePage() {
                           </p>
                         </div>
                       </>
-                    ) : (
+                    )}
+                    {confirmDialog.type === 'asphalt_trag' && (
                       <>
                         <p className="text-gray-700 mb-3">
-                          Wurde die <strong>Oberflächenherstellung</strong> der folgenden Leistung wirklich fertiggestellt?
+                          Wurde die <strong>Asphalt Tragschicht</strong> wirklich fertiggestellt?
                         </p>
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="bg-gray-50 border border-gray-300 rounded-lg p-4">
                           <p className="font-semibold text-gray-900">{confirmDialog.excavation?.location_name}</p>
                           <p className="text-sm text-gray-600">
                             {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
                           </p>
-
                         </div>
                         <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
                           <p className="text-sm text-blue-800">
-                            ⚠️ <strong>Wichtig:</strong> Bestätigen Sie nur, wenn die Oberfläche komplett fertiggestellt wurde. 
-                            Im nächsten Schritt müssen Sie mindestens 2 Fotos der fertigen Oberfläche hochladen.
+                            ⚠️ <strong>Wichtig:</strong> Bestätigen Sie nur, wenn die Tragschicht fertig verlegt wurde. 
+                            Im nächsten Schritt müssen Sie mindestens 2 Fotos hochladen.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    {confirmDialog.type === 'asphalt_fein' && (
+                      <>
+                        <p className="text-gray-700 mb-3">
+                          Wurde die <strong>Asphalt Feinschicht</strong> wirklich fertiggestellt?
+                        </p>
+                        <div className="bg-gray-900 border border-gray-700 rounded-lg p-4">
+                          <p className="font-semibold text-white">{confirmDialog.excavation?.location_name}</p>
+                          <p className="text-sm text-gray-300">
+                            {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
+                          </p>
+                        </div>
+                        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-blue-800">
+                            ⚠️ <strong>Wichtig:</strong> Die Feinschicht ist der letzte Schritt. Nach Bestätigung ist die Oberfläche komplett fertig.
+                            Im nächsten Schritt müssen Sie mindestens 2 Fotos hochladen.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    {confirmDialog.type === 'platten_pflaster' && (
+                      <>
+                        <p className="text-gray-700 mb-3">
+                          Wurde die <strong>Platten/Pflaster Oberfläche</strong> wirklich fertiggestellt?
+                        </p>
+                        <div className="bg-cyan-50 border border-cyan-200 rounded-lg p-4">
+                          <p className="font-semibold text-gray-900">{confirmDialog.excavation?.location_name}</p>
+                          <p className="text-sm text-gray-600">
+                            {confirmDialog.excavation?.street}, {confirmDialog.excavation?.city}
+                          </p>
+                        </div>
+                        <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <p className="text-sm text-blue-800">
+                            ⚠️ <strong>Wichtig:</strong> Bestätigen Sie nur, wenn die Oberfläche komplett fertiggestellt wurde.
+                            Im nächsten Schritt müssen Sie mindestens 2 Fotos hochladen.
                           </p>
                         </div>
                       </>
@@ -1645,7 +1945,11 @@ export default function ProjectDetailOberflaechePage() {
                       className={`flex-1 ${
                         confirmDialog.type === 'backfill' 
                           ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700'
-                          : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                          : confirmDialog.type === 'asphalt_trag'
+                          ? 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900'
+                          : confirmDialog.type === 'asphalt_fein'
+                          ? 'bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900'
+                          : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700'
                       }`}
                     >
                       <Check className="w-4 h-4 mr-2" />
@@ -1695,13 +1999,20 @@ export default function ProjectDetailOberflaechePage() {
                 <CardHeader className={`${
                   photoUploadDialog.type === 'backfill'
                     ? 'bg-gradient-to-r from-orange-500 to-amber-600'
-                    : 'bg-gradient-to-r from-green-500 to-emerald-600'
+                    : photoUploadDialog.type === 'asphalt_trag'
+                    ? 'bg-gradient-to-r from-gray-700 to-gray-800'
+                    : photoUploadDialog.type === 'asphalt_fein'
+                    ? 'bg-gradient-to-r from-gray-900 to-black'
+                    : 'bg-gradient-to-r from-cyan-500 to-blue-600'
                 } text-white`}>
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-xl flex items-center gap-2">
                         <Camera className="w-6 h-6" />
-                        {photoUploadDialog.type === 'backfill' ? 'Verfüllungs-Fotos hochladen' : 'Oberflächen-Fotos hochladen'}
+                        {photoUploadDialog.type === 'backfill' && 'Verfüllungs-Fotos hochladen'}
+                        {photoUploadDialog.type === 'asphalt_trag' && 'Asphalt Trag-Fotos hochladen'}
+                        {photoUploadDialog.type === 'asphalt_fein' && 'Asphalt Fein-Fotos hochladen'}
+                        {photoUploadDialog.type === 'platten_pflaster' && 'Platten/Pflaster-Fotos hochladen'}
                       </CardTitle>
                       <p className="text-sm text-white/80 mt-1">
                         Mindestens 2 Fotos erforderlich (maximal 10)
@@ -1728,8 +2039,12 @@ export default function ProjectDetailOberflaechePage() {
                         <div>
                           <p className="font-semibold text-yellow-900">Wichtiger Hinweis:</p>
                           <p className="text-sm text-yellow-800">
-                            Bitte laden Sie mindestens 2 Fotos hoch, die die {photoUploadDialog.type === 'backfill' ? 'Verfüllung' : 'fertige Oberfläche'} deutlich zeigen.
-                            Dies dient als Nachweis für die durchgeführte Arbeit.
+                            Bitte laden Sie mindestens 2 Fotos hoch, die 
+                            {photoUploadDialog.type === 'backfill' && ' die Verfüllung'}
+                            {photoUploadDialog.type === 'asphalt_trag' && ' die Asphalt Tragschicht'}
+                            {photoUploadDialog.type === 'asphalt_fein' && ' die Asphalt Feinschicht'}
+                            {photoUploadDialog.type === 'platten_pflaster' && ' die fertige Platten/Pflaster-Oberfläche'}
+                            {' '}deutlich zeigen. Dies dient als Nachweis für die durchgeführte Arbeit.
                           </p>
                         </div>
                       </div>
@@ -1823,7 +2138,11 @@ export default function ProjectDetailOberflaechePage() {
                       className={`flex-1 ${
                         photoUploadDialog.type === 'backfill'
                           ? 'bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700'
-                          : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                          : photoUploadDialog.type === 'asphalt_trag'
+                          ? 'bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900'
+                          : photoUploadDialog.type === 'asphalt_fein'
+                          ? 'bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900'
+                          : 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700'
                       }`}
                       disabled={photoUploadDialog.photos.length < 2 || photoUploadDialog.isUploading}
                     >
