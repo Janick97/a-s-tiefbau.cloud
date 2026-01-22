@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem } from "@/entities/all";
+import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem, ExcavationClosure } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { SendEmail } from "@/integrations/Core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,12 +40,12 @@ import {
   Loader2,
   Check,
   Upload,
-  Camera,
   Ruler,
   Image as ImageIcon,
   Navigation
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 import ProjectForm from "../components/projects/ProjectForm";
 import MaterialManagement from "../components/projects/MaterialManagement";
 import TimesheetManagement from "../components/projects/TimesheetManagement";
