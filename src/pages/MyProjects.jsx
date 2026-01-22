@@ -309,27 +309,26 @@ export default function MyProjectsPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-3 md:p-4 lg:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header - Tablet optimiert */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 md:mb-6 gap-3"
-        >
-          <div>
+        <div className="relative mb-4 md:mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
             <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
               Meine Aufträge
             </h1>
             <p className="text-sm md:text-base text-gray-600 mt-1">
               {filteredProjects.length} von {showCompletedProjects ? completedProjectsCount : activeProjectsCount} Aufträgen
             </p>
-          </div>
+          </motion.div>
           <button
             onClick={loadData}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            className="absolute top-0 right-0 p-2 hover:bg-white/50 rounded-lg transition-colors"
             title="Aktualisieren"
           >
             <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
           </button>
-        </motion.div>
+        </div>
 
         {/* Toggle zwischen aktiven und abgeschlossenen Projekten */}
         <motion.div
