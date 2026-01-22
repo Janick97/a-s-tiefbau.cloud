@@ -474,7 +474,7 @@ export default function MyProjectsPage() {
                               </h3>
                               <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+                            <p className="text-sm text-gray-600 mb-2">
                               {project.title}
                             </p>
                           </div>
