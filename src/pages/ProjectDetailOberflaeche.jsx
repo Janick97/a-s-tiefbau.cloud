@@ -415,22 +415,6 @@ export default function ProjectDetailOberflaechePage() {
               <p className="text-xs text-gray-600 truncate">{project.title}</p>
             </div>
           </div>
-          
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-orange-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Verfüllen</p>
-              <p className="text-sm font-bold text-orange-700">{stats.needsBackfill}</p>
-            </div>
-            <div className="bg-blue-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Oberfläche</p>
-              <p className="text-sm font-bold text-blue-700">{stats.needsSurface}</p>
-            </div>
-            <div className="bg-green-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Fertig</p>
-              <p className="text-sm font-bold text-green-700">{stats.completed}</p>
-            </div>
-          </div>
         </div>
       </div>
 

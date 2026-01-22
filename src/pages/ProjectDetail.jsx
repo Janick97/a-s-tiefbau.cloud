@@ -340,24 +340,6 @@ function ForemanProjectView({
               <p className="text-xs text-gray-600 truncate">{project.title}</p>
             </div>
           </div>
-          
-          {/* Kompakte Stats */}
-          <div className="grid grid-cols-3 gap-2 text-center">
-            {user?.position !== 'Bauleiter' && (
-              <div className="bg-green-50 rounded-lg p-2">
-                <p className="text-xs text-gray-600">Umsatz</p>
-                <p className="text-sm font-bold text-green-700">€{Math.round(totalRevenue).toLocaleString('de-DE')}</p>
-              </div>
-            )}
-            <div className="bg-blue-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Leistungen</p>
-              <p className="text-sm font-bold text-blue-700">{excavations.length}</p>
-            </div>
-            <div className="bg-orange-50 rounded-lg p-2">
-              <p className="text-xs text-gray-600">Stadt</p>
-              <p className="text-sm font-bold text-orange-700 truncate">{project.city || '-'}</p>
-            </div>
-          </div>
         </div>
       </div>
 
