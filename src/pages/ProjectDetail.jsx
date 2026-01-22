@@ -281,6 +281,7 @@ function ForemanProjectView({
         updateData.photos_backfill = [...existingBackfillPhotos, ...photos];
       } else if (type === 'asphalt_trag') {
         const tragCommission = (excavation.calculated_price || 0) * 0.15;
+        const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
         
         updateData.asphalt_trag_completed = true;
         updateData.asphalt_trag_date = new Date().toISOString().split('T')[0];
@@ -288,8 +289,10 @@ function ForemanProjectView({
         updateData.asphalt_trag_by_user_id = user.id;
         updateData.asphalt_trag_commission = tragCommission;
         updateData.photos_asphalt_trag = photos;
+        updateData.photos_surface = [...existingSurfacePhotos, ...photos];
       } else if (type === 'asphalt_fein') {
         const feinCommission = (excavation.calculated_price || 0) * 0.15;
+        const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
         
         updateData.asphalt_fein_completed = true;
         updateData.asphalt_fein_date = new Date().toISOString().split('T')[0];
@@ -297,12 +300,14 @@ function ForemanProjectView({
         updateData.asphalt_fein_by_user_id = user.id;
         updateData.asphalt_fein_commission = feinCommission;
         updateData.photos_asphalt_fein = photos;
+        updateData.photos_surface = [...existingSurfacePhotos, ...photos];
         updateData.is_closed = true;
         updateData.closed_date = new Date().toISOString().split('T')[0];
         updateData.closed_by = user.full_name;
         updateData.closed_by_user_id = user.id;
       } else if (type === 'platten_pflaster') {
         const plattenCommission = (excavation.calculated_price || 0) * 0.3;
+        const existingSurfacePhotos = Array.isArray(excavation.photos_surface) ? excavation.photos_surface : [];
         
         updateData.platten_pflaster_completed = true;
         updateData.platten_pflaster_date = new Date().toISOString().split('T')[0];
@@ -310,6 +315,7 @@ function ForemanProjectView({
         updateData.platten_pflaster_by_user_id = user.id;
         updateData.platten_pflaster_commission = plattenCommission;
         updateData.photos_platten_pflaster = photos;
+        updateData.photos_surface = [...existingSurfacePhotos, ...photos];
         updateData.is_closed = true;
         updateData.closed_date = new Date().toISOString().split('T')[0];
         updateData.closed_by = user.full_name;
