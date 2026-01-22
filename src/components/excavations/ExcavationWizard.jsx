@@ -470,17 +470,18 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[70] overflow-y-auto"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-[70] touch-none"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
     >
       <motion.div
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        className="w-full max-w-4xl my-8"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        className="w-full md:max-w-4xl md:mx-4 md:mb-8 md:rounded-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <Card className="border-none shadow-2xl">
+        <Card className="border-none shadow-2xl rounded-t-2xl md:rounded-lg max-h-[95vh] md:max-h-[90vh] flex flex-col">
           <style>
             {`
               [data-radix-popper-content-wrapper] {
@@ -488,14 +489,14 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               }
             `}
           </style>
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg">
-            <div className="flex items-center justify-between mb-4">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Shovel className="w-6 h-6" />
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-2xl md:rounded-t-lg flex-shrink-0">
+            <div className="flex items-center justify-between mb-3">
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Shovel className="w-5 h-5 md:w-6 md:h-6" />
                 {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
               </CardTitle>
-              <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80">
-                <X className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80 h-8 w-8">
+                <X className="w-4 h-4" />
               </Button>
             </div>
             
@@ -504,12 +505,12 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               <Progress value={progress} className="h-2 bg-white/20" />
               <div className="flex justify-between text-xs text-white/80">
                 <span>Schritt {currentStep} von {WIZARD_STEPS.length}</span>
-                <span>{WIZARD_STEPS[currentStep - 1].title}</span>
+                <span className="hidden sm:inline">{WIZARD_STEPS[currentStep - 1].title}</span>
               </div>
             </div>
           </CardHeader>
 
-          <CardContent className="p-6 min-h-[500px]">
+          <CardContent className="p-4 md:p-6 overflow-y-auto flex-1">
             <AnimatePresence mode="wait">
               {/* Schritt 1: Leistungsart */}
               {currentStep === 1 && (
@@ -1080,13 +1081,15 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
             </AnimatePresence>
           </CardContent>
 
-          <CardFooter className="flex justify-between gap-3 bg-gray-50 rounded-b-lg p-6">
+          <CardFooter className="flex justify-between gap-2 md:gap-3 bg-gray-50 rounded-b-2xl md:rounded-b-lg p-3 md:p-6 flex-shrink-0 border-t">
             <div className="flex gap-2">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onCancel}
                 disabled={isSubmitting}
+                size="sm"
+                className="h-9 md:h-10"
               >
                 Abbrechen
               </Button>
@@ -1096,9 +1099,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   variant="outline"
                   onClick={() => setCurrentStep(currentStep - 1)}
                   disabled={isSubmitting}
+                  size="sm"
+                  className="h-9 md:h-10"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Zurück
+                  <ChevronLeft className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Zurück</span>
                 </Button>
               )}
             </div>
@@ -1109,27 +1114,29 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   type="button"
                   onClick={() => setCurrentStep(currentStep + 1)}
                   disabled={!canGoNext() || isSubmitting}
-                  className="bg-orange-500 hover:bg-orange-600"
+                  className="bg-orange-500 hover:bg-orange-600 h-9 md:h-10"
+                  size="sm"
                 >
-                  Weiter
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                  <span className="hidden md:inline">Weiter</span>
+                  <ChevronRight className="w-4 h-4 md:ml-2" />
                 </Button>
               ) : (
                 <Button
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 h-9 md:h-10"
+                  size="sm"
                 >
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Speichere...
+                      <span className="hidden sm:inline">Speichere...</span>
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 mr-2" />
-                      {excavation ? 'Aktualisieren' : 'Erstellen'}
+                      <Save className="w-4 h-4 md:mr-2" />
+                      <span className="hidden sm:inline">{excavation ? 'Aktualisieren' : 'Erstellen'}</span>
                     </>
                   )}
                 </Button>
