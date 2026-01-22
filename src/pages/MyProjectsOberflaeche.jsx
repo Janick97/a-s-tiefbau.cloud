@@ -187,8 +187,9 @@ export default function MyProjectsOberflaechePage() {
                       </Link>
                     </CardContent>
                   </Card>
-                </motion.div>
-              ))}
+                  </motion.div>
+                  </Link>
+                  ))}
             </AnimatePresence>
           </div>
         )}
