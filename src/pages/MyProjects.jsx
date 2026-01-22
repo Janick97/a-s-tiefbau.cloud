@@ -411,16 +411,31 @@ export default function MyProjectsPage() {
                               </h3>
                               <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">
+                            <p className="text-sm text-gray-600">
                               {project.title}
                             </p>
                           </div>
-                          <Link to={createPageUrl(`ProjectDetail?id=${project.id}`)}>
-                            <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-12 px-6">
-                              Öffnen
-                              <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
-                            </Button>
-                          </Link>
+                          <div className="flex flex-col gap-2 flex-shrink-0">
+                            <Link to={createPageUrl(`ProjectDetail?id=${project.id}`)}>
+                              <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-10 px-8 w-full">
+                                Öffnen
+                              </Button>
+                            </Link>
+                            {!project.foreman_completed && (
+                              <Button
+                                variant="outline"
+                                className="border-green-200 text-green-700 hover:bg-green-50 h-10 px-8 w-full"
+                                onClick={() => handleMarkAsCompleted(project)}
+                                disabled={completing === project.id}
+                              >
+                                {completing === project.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  'Erledigt'
+                                )}
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
