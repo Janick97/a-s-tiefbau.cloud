@@ -59,6 +59,7 @@ export default function ProjectDetailOberflaechePage() {
   const [updating, setUpdating] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [activeAction, setActiveAction] = useState(null);
+  const [showTiefbauMenu, setShowTiefbauMenu] = useState(false);
   const [showExcavationForm, setShowExcavationForm] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [showPullingForm, setShowPullingForm] = useState(false);
@@ -436,47 +437,12 @@ export default function ProjectDetailOberflaechePage() {
       {/* Hauptaktionen - Große Buttons */}
       <div className="p-3 space-y-2">
         <Button
-          onClick={() => {
-            setEditingExcavation(null);
-            setShowExcavationForm(true);
-            setActiveAction('excavation');
-          }}
+          onClick={() => setShowTiefbauMenu(true)}
           className="w-full h-16 text-xl font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
           size="lg"
         >
           <Shovel className="w-6 h-6 mr-3" />
           TIEFBAU
-        </Button>
-
-        <Button
-          onClick={() => {
-            setEditingPulling(null);
-            setShowPullingForm(true);
-            setActiveAction('pulling');
-          }}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-          size="lg"
-        >
-          <ListRestart className="w-6 h-6 mr-3" />
-          EINZIEHEN
-        </Button>
-
-        <Button
-          onClick={() => setActiveAction('material')}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-          size="lg"
-        >
-          <Package className="w-6 h-6 mr-3" />
-          MATERIAL
-        </Button>
-
-        <Button
-          onClick={() => setActiveAction('timesheet')}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-          size="lg"
-        >
-          <Clock className="w-6 h-6 mr-3" />
-          STUNDENZETTEL
         </Button>
 
         <Button
@@ -507,6 +473,88 @@ export default function ProjectDetailOberflaechePage() {
           DOKUMENTE ({documents.length})
         </Button>
       </div>
+
+      {/* Tiefbau Untermenü */}
+      <AnimatePresence>
+        {showTiefbauMenu && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setShowTiefbauMenu(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-lg p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Tiefbau Optionen</h3>
+                <Button variant="ghost" size="icon" onClick={() => setShowTiefbauMenu(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <Button
+                  onClick={() => {
+                    setShowTiefbauMenu(false);
+                    setEditingExcavation(null);
+                    setShowExcavationForm(true);
+                    setActiveAction('excavation');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700"
+                  size="lg"
+                >
+                  <Shovel className="w-5 h-5 mr-2" />
+                  Leistung erfassen
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setShowTiefbauMenu(false);
+                    setEditingPulling(null);
+                    setShowPullingForm(true);
+                    setActiveAction('pulling');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
+                  size="lg"
+                >
+                  <ListRestart className="w-5 h-5 mr-2" />
+                  Einziehen
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setShowTiefbauMenu(false);
+                    setActiveAction('material');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+                  size="lg"
+                >
+                  <Package className="w-5 h-5 mr-2" />
+                  Material
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setShowTiefbauMenu(false);
+                    setActiveAction('timesheet');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
+                  size="lg"
+                >
+                  <Clock className="w-5 h-5 mr-2" />
+                  Stundenzettel
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Chat-Bereich */}
       <div className="h-[400px] mx-3 mb-3">
