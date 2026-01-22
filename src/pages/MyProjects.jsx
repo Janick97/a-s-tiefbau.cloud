@@ -322,21 +322,13 @@ export default function MyProjectsPage() {
               {filteredProjects.length} von {showCompletedProjects ? completedProjectsCount : activeProjectsCount} Aufträgen
             </p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={loadData}
-              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-              title="Aktualisieren"
-            >
-              <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
-            </button>
-            <Link to={createPageUrl("Analytics")}>
-              <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-sm">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Zur Auswertung
-              </Button>
-            </Link>
-          </div>
+          <button
+            onClick={loadData}
+            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+            title="Aktualisieren"
+          >
+            <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+          </button>
         </motion.div>
 
         {/* Toggle zwischen aktiven und abgeschlossenen Projekten */}
@@ -366,61 +358,7 @@ export default function MyProjectsPage() {
           </div>
         </motion.div>
 
-        {/* Filter Section - Tablet optimiert */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="card-elevation border-none mb-4 md:mb-6">
-            <CardContent className="p-3 md:p-4">
-              <div className="flex flex-col md:flex-row gap-3">
-                {/* Suchfeld */}
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
-                    <Input
-                      placeholder="Suche nach Projektnummer, SM-Nr., Titel, Kunde oder Stadt..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 text-sm"
-                    />
-                  </div>
-                </div>
 
-                {/* Filter */}
-                <div className="flex gap-2 md:gap-3">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-32 text-sm">
-                      <Filter className="w-4 h-4 mr-1" />
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Alle Status</SelectItem>
-                      <SelectItem value="planning">Planung</SelectItem>
-                      <SelectItem value="active">Aktiv</SelectItem>
-                      <SelectItem value="completed">Abgeschlossen</SelectItem>
-                      <SelectItem value="on_hold">Pausiert</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={projectStatusFilter} onValueChange={setProjectStatusFilter}>
-                    <SelectTrigger className="w-40 text-sm">
-                      <SelectValue placeholder="Projekt-Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Alle Projekt-Status</SelectItem>
-                      <SelectItem value="Baustelle fertig">Baustelle fertig</SelectItem>
-                      <SelectItem value="Auftrag komplett abgeschlossen">Komplett abgeschlossen</SelectItem>
-                      <SelectItem value="VAO bei Baubeginn">VAO bei Baubeginn</SelectItem>
-                      <SelectItem value="Auftrag angelegt ohne VAO">Ohne VAO</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
 
         {/* Projects Grid - Tablet optimiert */}
         {filteredProjects.length === 0 ? (
