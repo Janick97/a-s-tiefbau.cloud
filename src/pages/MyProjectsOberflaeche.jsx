@@ -22,7 +22,8 @@ import {
   Loader2,
   BarChart3,
   Package,
-  RefreshCw
+  RefreshCw,
+  ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -152,7 +153,7 @@ export default function MyProjectsOberflaechePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+          <div className="space-y-3">
             <AnimatePresence>
               {projects.map((project, index) => (
                 <motion.div
@@ -161,35 +162,32 @@ export default function MyProjectsOberflaechePage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ delay: index * 0.05 }}
-                  whileHover={{ y: -4 }}
                 >
-                  <Card className="card-elevation border-none h-full hover:shadow-xl transition-all duration-300">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-base md:text-lg font-bold text-gray-900 truncate">
-                        {project.project_number}
-                      </CardTitle>
-                      <p className="text-xs md:text-sm text-gray-600 truncate">
-                        SM: {project.sm_number}
-                      </p>
-                    </CardHeader>
-
-                    <CardContent className="space-y-3 md:space-y-4">
-                      <h3 className="font-semibold text-sm md:text-base text-gray-900 line-clamp-2 leading-tight">
-                        {project.title}
-                      </h3>
-
-                      {/* Action Button */}
-                      <Link to={createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}>
-                        <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-sm">
-                          <Eye className="w-4 h-4 mr-2" />
-                          Projekt öffnen
-                        </Button>
-                      </Link>
+                  <Card className="card-elevation border-none hover:shadow-lg transition-all">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-bold text-lg text-gray-900">
+                              {project.project_number}
+                            </h3>
+                            <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2 line-clamp-1">
+                            {project.title}
+                          </p>
+                        </div>
+                        <Link to={createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}>
+                          <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-12 px-6">
+                            Öffnen
+                            <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
+                          </Button>
+                        </Link>
+                      </div>
                     </CardContent>
                   </Card>
-                  </motion.div>
-                  </Link>
-                  ))}
+                </motion.div>
+              ))}
             </AnimatePresence>
           </div>
         )}
