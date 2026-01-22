@@ -551,10 +551,7 @@ function ForemanProjectView({
               {excavations.slice(0, 3).map((exc) => (
                 <div
                   key={exc.id}
-                  onClick={() => {
-                    setEditingExcavation(exc);
-                    setShowExcavationForm(true);
-                  }}
+                  onClick={() => handleExcavationClick(exc)}
                   className="p-3 bg-gray-50 rounded-lg active:bg-gray-100 transition-colors"
                 >
                   <div className="flex justify-between items-start mb-1">
