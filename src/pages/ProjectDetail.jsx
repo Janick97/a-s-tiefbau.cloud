@@ -408,30 +408,30 @@ function ForemanProjectView({
 
         <Button
           onClick={() => setActiveAction('backfill')}
-          className="w-full h-16 text-lg bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-600 hover:to-yellow-700"
           size="lg"
         >
           <Package className="w-6 h-6 mr-3" />
-          Verfüllen ({excavations.filter(exc => !exc.is_backfilled).length})
+          VERFÜLLEN ({excavations.filter(exc => !exc.is_backfilled).length})
         </Button>
 
         <Button
           onClick={() => setActiveAction('surface')}
-          className="w-full h-16 text-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
           size="lg"
         >
           <Layers className="w-6 h-6 mr-3" />
-          Oberfläche ({excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length})
+          OBERFLÄCHE ({excavations.filter(exc => exc.is_backfilled && !exc.is_closed).length})
         </Button>
 
         <Button
           onClick={() => setActiveAction('documents')}
           variant="outline"
-          className="w-full h-14 text-base border-2"
+          className="w-full h-14 text-xl font-bold border-2"
           size="lg"
         >
           <FileText className="w-5 h-5 mr-2" />
-          Dokumente ({documents.length})
+          DOKUMENTE ({documents.length})
         </Button>
       </div>
 
