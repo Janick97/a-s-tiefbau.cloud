@@ -639,11 +639,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Wo befindet sich die Baustelle?</h3>
-                    <p className="text-gray-600">Erfassen Sie den GPS-Standort oder geben Sie die Adresse manuell ein</p>
-                  </div>
-
                   <div className="space-y-4">
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <Label className="mb-2 block font-semibold">GPS-Standort erfassen</Label>
