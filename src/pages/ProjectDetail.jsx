@@ -107,6 +107,7 @@ function ForemanProjectView({
 }) {
   const [activeAction, setActiveAction] = useState(null);
   const [showTiefbauMenu, setShowTiefbauMenu] = useState(false);
+  const [showOberflaecheMenu, setShowOberflaecheMenu] = useState(false);
   const [showExcavationForm, setShowExcavationForm] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [showPullingForm, setShowPullingForm] = useState(false);
@@ -410,30 +411,12 @@ function ForemanProjectView({
         </Button>
 
         <Button
-          onClick={() => setActiveAction('asphalt_trag')}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900"
+          onClick={() => setShowOberflaecheMenu(true)}
+          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
           size="lg"
         >
           <Layers className="w-6 h-6 mr-3" />
-          ASPHALT TRAG ({stats.needsAsphaltTrag})
-        </Button>
-
-        <Button
-          onClick={() => setActiveAction('asphalt_fein')}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900"
-          size="lg"
-        >
-          <Layers className="w-6 h-6 mr-3" />
-          ASPHALT FEIN ({stats.needsAsphaltFein})
-        </Button>
-
-        <Button
-          onClick={() => setActiveAction('platten_pflaster')}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
-          size="lg"
-        >
-          <Layers className="w-6 h-6 mr-3" />
-          PLATTEN/PFLASTER ({stats.needsPlattenPflaster})
+          OBERFLÄCHE ({stats.needsAsphaltTrag + stats.needsAsphaltFein + stats.needsPlattenPflaster})
         </Button>
 
         <Button
@@ -522,6 +505,72 @@ function ForemanProjectView({
                 >
                   <Clock className="w-5 h-5 mr-2" />
                   Stundenzettel
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Oberfläche Untermenü */}
+      <AnimatePresence>
+        {showOberflaecheMenu && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end md:items-center justify-center z-50"
+            onClick={() => setShowOberflaecheMenu(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-lg p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900">Oberfläche Optionen</h3>
+                <Button variant="ghost" size="icon" onClick={() => setShowOberflaecheMenu(false)}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <Button
+                  onClick={() => {
+                    setShowOberflaecheMenu(false);
+                    setActiveAction('asphalt_trag');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-800 hover:to-gray-900"
+                  size="lg"
+                >
+                  <Layers className="w-5 h-5 mr-2" />
+                  ASPHALT TRAG ({stats.needsAsphaltTrag})
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setShowOberflaecheMenu(false);
+                    setActiveAction('asphalt_fein');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-gray-900 to-black hover:from-black hover:to-gray-900"
+                  size="lg"
+                >
+                  <Layers className="w-5 h-5 mr-2" />
+                  ASPHALT FEIN ({stats.needsAsphaltFein})
+                </Button>
+
+                <Button
+                  onClick={() => {
+                    setShowOberflaecheMenu(false);
+                    setActiveAction('platten_pflaster');
+                  }}
+                  className="w-full h-14 text-lg font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700"
+                  size="lg"
+                >
+                  <Layers className="w-5 h-5 mr-2" />
+                  PLATTEN/PFLASTER ({stats.needsPlattenPflaster})
                 </Button>
               </div>
             </motion.div>
