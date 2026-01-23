@@ -463,7 +463,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
   };
 
   const handleFinish = () => {
-    setShowContinueDialog(false);
     onCancel();
   };
 
