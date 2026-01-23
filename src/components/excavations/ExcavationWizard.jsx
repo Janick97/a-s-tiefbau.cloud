@@ -591,14 +591,13 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       className={`cursor-pointer transition-all hover:shadow-lg ${serviceCategory === 'grube' ? 'ring-2 ring-orange-500 bg-orange-50' : ''}`}
                       onClick={() => setServiceCategory('grube')}
                     >
-                      <CardContent className="p-6 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-orange-100 flex items-center justify-center">
-                          <Shovel className="w-8 h-8 text-orange-600" />
+                      <CardContent className="p-4 text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-orange-100 flex items-center justify-center">
+                          <Shovel className="w-6 h-6 text-orange-600" />
                         </div>
-                        <h4 className="font-bold text-lg mb-2">Grube</h4>
-                        <p className="text-sm text-gray-600">Standardgruben mit festen Abmessungen</p>
+                        <h4 className="font-bold text-base">Grube</h4>
                         {serviceCategory === 'grube' && (
-                          <Badge className="mt-3 bg-orange-500">Ausgewählt</Badge>
+                          <Badge className="mt-2 bg-orange-500">Ausgewählt</Badge>
                         )}
                       </CardContent>
                     </Card>
@@ -607,14 +606,13 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       className={`cursor-pointer transition-all hover:shadow-lg ${serviceCategory === 'graben' ? 'ring-2 ring-blue-500 bg-blue-50' : ''}`}
                       onClick={() => setServiceCategory('graben')}
                     >
-                      <CardContent className="p-6 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-100 flex items-center justify-center">
-                          <Shovel className="w-8 h-8 text-blue-600" />
+                      <CardContent className="p-4 text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-blue-100 flex items-center justify-center">
+                          <Shovel className="w-6 h-6 text-blue-600" />
                         </div>
-                        <h4 className="font-bold text-lg mb-2">Graben</h4>
-                        <p className="text-sm text-gray-600">Lineare Grabungen mit variabler Länge</p>
+                        <h4 className="font-bold text-base">Graben</h4>
                         {serviceCategory === 'graben' && (
-                          <Badge className="mt-3 bg-blue-500">Ausgewählt</Badge>
+                          <Badge className="mt-2 bg-blue-500">Ausgewählt</Badge>
                         )}
                       </CardContent>
                     </Card>
@@ -623,14 +621,13 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       className={`cursor-pointer transition-all hover:shadow-lg ${serviceCategory === 'andere' ? 'ring-2 ring-purple-500 bg-purple-50' : ''}`}
                       onClick={() => setServiceCategory('andere')}
                     >
-                      <CardContent className="p-6 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-purple-100 flex items-center justify-center">
-                          <Shovel className="w-8 h-8 text-purple-600" />
+                      <CardContent className="p-4 text-center">
+                        <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-purple-100 flex items-center justify-center">
+                          <Shovel className="w-6 h-6 text-purple-600" />
                         </div>
-                        <h4 className="font-bold text-lg mb-2">Andere</h4>
-                        <p className="text-sm text-gray-600">Sonstige Leistungen und Positionen</p>
+                        <h4 className="font-bold text-base">Andere</h4>
                         {serviceCategory === 'andere' && (
-                          <Badge className="mt-3 bg-purple-500">Ausgewählt</Badge>
+                          <Badge className="mt-2 bg-purple-500">Ausgewählt</Badge>
                         )}
                       </CardContent>
                     </Card>
