@@ -697,7 +697,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
               </header>
 
               <div className="flex-1 overflow-auto">
-              {children}
+                {children}
               </div>
               </main>
               </div>
@@ -717,11 +717,11 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
               // Bauleiter, Oberfläche und Monteure laden
               if (userData && userData.role === 'admin') {
-              const users = await User.list();
-              const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
-              const monteurUsers = users.filter((u) => u.position === 'Monteur');
-              setBauleiter(bauLeiterUsers);
-              setMonteure(monteurUsers);
+                const users = await User.list();
+                const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+                const monteurUsers = users.filter((u) => u.position === 'Monteur');
+                setBauleiter(bauLeiterUsers);
+                setMonteure(monteurUsers);
               }
               } catch (error) {
               console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
