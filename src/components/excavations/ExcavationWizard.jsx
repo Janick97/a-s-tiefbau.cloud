@@ -1300,62 +1300,34 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
             <p className="text-gray-600">Haben Sie bei dieser Leistung Material verwendet?</p>
           </div>
 
-          {usedMaterials.length === 0 ? (
-            <div className="flex flex-col gap-3 mb-6">
-              <Button 
-                variant="outline" 
-                onClick={handleMaterialNo}
-                className="h-12 text-base"
-              >
-                Nein, kein Material verbraucht
-              </Button>
-              <Button 
-                onClick={() => {}}
-                className="bg-orange-500 hover:bg-orange-600 h-12 text-base"
-              >
-                Ja, Material hinzufügen
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-4 mb-6">
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h4 className="font-semibold text-green-800 mb-3">Verwendete Materialien:</h4>
-                <div className="space-y-2">
-                  {usedMaterials.map((mat, index) => {
-                    const material = materials.find(m => m.id === mat.material_id);
-                    return (
-                      <div key={index} className="flex items-center justify-between bg-white p-3 rounded">
-                        <div>
-                          <div className="font-medium">{material?.name}</div>
-                          <div className="text-sm text-gray-600">{mat.quantity} {material?.unit}</div>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeMaterial(index)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+          {usedMaterials.length > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <h4 className="font-semibold text-green-800 mb-3">Verwendete Materialien:</h4>
+              <div className="space-y-2">
+                {usedMaterials.map((mat, index) => {
+                  const material = materials.find(m => m.id === mat.material_id);
+                  return (
+                    <div key={index} className="flex items-center justify-between bg-white p-3 rounded">
+                      <div>
+                        <div className="font-medium">{material?.name}</div>
+                        <div className="text-sm text-gray-600">{mat.quantity} {material?.unit}</div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button 
-                  variant="outline"
-                  onClick={handleMaterialYes}
-                  className="flex-1 h-12 text-base"
-                >
-                  Fertig
-                </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeMaterial(index)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          <Card className="bg-gray-50">
+          <Card className="bg-gray-50 mb-6">
             <CardHeader>
               <CardTitle className="text-base">Material hinzufügen</CardTitle>
             </CardHeader>
@@ -1399,6 +1371,24 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               </Button>
             </CardContent>
           </Card>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="outline" 
+              onClick={handleMaterialNo}
+              className="flex-1 h-12 text-base"
+            >
+              Nein, kein Material verbraucht
+            </Button>
+            {usedMaterials.length > 0 && (
+              <Button 
+                onClick={handleMaterialYes}
+                className="flex-1 bg-green-600 hover:bg-green-700 h-12 text-base"
+              >
+                Fertig
+              </Button>
+            )}
+          </div>
         </motion.div>
       </motion.div>
     )}
