@@ -31,6 +31,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
   const [currentUser, setCurrentUser] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [comboOpen, setComboOpen] = useState(false);
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -141,7 +142,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
         completion_date: new Date().toISOString().split('T')[0]
       };
 
-      onSubmit(submitData);
+      await onSubmit(submitData);
       return;
     }
 
@@ -166,19 +167,41 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
 
         await onSubmit(submitData);
       }
+      
+      // Nach erfolgreichem Speichern Dialog anzeigen
+      setShowContinueDialog(true);
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
       alert("Fehler beim Speichern der Leistungen");
     }
   };
 
+  const handleContinue = () => {
+    // Formular zurücksetzen für neue Leistung
+    setSelectedItems([{ preis_item_id: "", quantity: 1 }]);
+    setSharedData({
+      location_name: "",
+      work_description: "",
+      photos: [],
+      einmass_skizze: [],
+      notes: ""
+    });
+    setShowContinueDialog(false);
+  };
+
+  const handleFinish = () => {
+    setShowContinueDialog(false);
+    onCancel();
+  };
+
   return (
-    <Dialog open onOpenChange={onCancel}>
-      <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[95vh] overflow-y-auto p-4">
+    <>
+    <Dialog open={!showContinueDialog} onOpenChange={onCancel}>
+      <DialogContent className="w-screen h-screen sm:max-w-2xl sm:max-h-[95vh] sm:w-auto sm:h-auto max-w-none max-h-none sm:rounded-lg rounded-none overflow-y-auto p-4 sm:p-6">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
+          <DialogTitle className="text-lg sm:text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-3 pb-20 sm:pb-0">
           {/* Positionen - mehrere auswählbar, wenn nicht im Edit-Modus */}
           <div>
             <Label className="text-sm flex items-center justify-between">
@@ -411,15 +434,36 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 sm:flex-none h-10">Abbrechen</Button>
-            <Button type="submit" disabled={uploading} className="flex-1 sm:flex-none bg-blue-600 h-10">
-              {leistung ? "Aktualisieren" : "Erfassen"}
+          <DialogFooter className="gap-2 sm:gap-0 fixed sm:relative bottom-0 left-0 right-0 p-4 bg-white border-t sm:border-0 sm:p-0">
+            <Button type="button" variant="outline" onClick={onCancel} className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm">Abbrechen</Button>
+            <Button type="submit" disabled={uploading} className="flex-1 sm:flex-none bg-blue-600 h-12 sm:h-10 text-base sm:text-sm">
+              {leistung ? "Aktualisieren" : "Weiter"}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Dialog für "Weitere Leistung erfassen" */}
+    <Dialog open={showContinueDialog} onOpenChange={handleFinish}>
+      <DialogContent className="max-w-[90vw] sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center">Leistung erfasst! ✓</DialogTitle>
+        </DialogHeader>
+        <div className="text-center py-4">
+          <p className="text-gray-600 mb-4">Möchten Sie eine weitere Leistung erfassen?</p>
+        </div>
+        <DialogFooter className="gap-2 sm:gap-2 flex-col sm:flex-row">
+          <Button variant="outline" onClick={handleFinish} className="flex-1 h-12 sm:h-10 text-base sm:text-sm">
+            Fertig
+          </Button>
+          <Button onClick={handleContinue} className="flex-1 bg-blue-600 h-12 sm:h-10 text-base sm:text-sm">
+            Weitere Leistung
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
 
