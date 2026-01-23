@@ -581,11 +581,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Welche Art von Leistung möchten Sie erfassen?</h3>
-                    <p className="text-gray-600">Wählen Sie die Kategorie, die am besten zu Ihrer Arbeit passt</p>
-                  </div>
-                  
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Card 
                       className={`cursor-pointer transition-all hover:shadow-lg ${serviceCategory === 'grube' ? 'ring-2 ring-orange-500 bg-orange-50' : ''}`}
