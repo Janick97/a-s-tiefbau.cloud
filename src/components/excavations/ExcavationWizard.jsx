@@ -104,6 +104,7 @@ const WIZARD_STEPS = [
   { id: 3, title: 'Leistungsdetails', icon: Info },
   { id: 4, title: 'Oberfläche', icon: Check },
   { id: 5, title: 'Fotos & Notizen', icon: Camera },
+  { id: 6, title: 'Zusammenfassung', icon: Check },
 ];
 
 export default function ExcavationWizard({ excavation, projects = [], defaultProjectId, onSubmit, onCancel }) {
@@ -566,6 +567,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         return formData.price_item_id !== '';
       case 4:
         return formData.surface_type !== '';
+      case 5:
+        return true;
       default:
         return true;
     }
@@ -1177,6 +1180,129 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   </div>
                 </motion.div>
               )}
+
+              {/* Schritt 6: Zusammenfassung */}
+              {currentStep === 6 && (
+                <motion.div
+                  key="step6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Zusammenfassung</h3>
+                    <p className="text-gray-600">Überprüfen Sie Ihre Angaben</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Leistungsart</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="font-medium capitalize">{serviceCategory}</p>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Standort</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p><span className="font-medium">Straße:</span> {formData.street} {formData.house_number}</p>
+                        <p><span className="font-medium">Stadt:</span> {formData.city}</p>
+                        {formData.latitude && formData.longitude && (
+                          <p className="text-sm text-green-600">✓ GPS erfasst</p>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Leistungsdetails</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {selectedPriceItem && (
+                          <>
+                            <p><span className="font-medium">Position:</span> {selectedPriceItem.item_number}</p>
+                            <p className="text-sm text-gray-600">{selectedPriceItem.description}</p>
+                          </>
+                        )}
+                        <div className="grid grid-cols-3 gap-2 mt-2">
+                          <div>
+                            <p className="text-xs text-gray-600">Länge</p>
+                            <p className="font-medium">{formData.excavation_length} m</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Breite</p>
+                            <p className="font-medium">{formData.excavation_width} m</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-600">Tiefe</p>
+                            <p className="font-medium">{formData.excavation_depth} m</p>
+                          </div>
+                        </div>
+                        {selectedCable && (
+                          <p className="text-sm mt-2"><span className="font-medium">Kabel:</span> {selectedCable.name}</p>
+                        )}
+                        {currentUser?.position !== 'Bauleiter' && (
+                          <div className="bg-green-50 border border-green-200 rounded p-3 mt-2">
+                            <p className="font-semibold text-green-800">Preis: €{formData.calculated_price.toFixed(2)}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Oberfläche</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p><span className="font-medium">Oberfläche 1:</span> {formData.surface_type}</p>
+                        {formData.surface_type_2 && (
+                          <p><span className="font-medium">Oberfläche 2:</span> {formData.surface_type_2}</p>
+                        )}
+                        {formData.asphalt_thickness && (
+                          <p><span className="font-medium">Asphaltdicke:</span> {formData.asphalt_thickness} cm</p>
+                        )}
+                        {formData.concrete_thickness && (
+                          <p><span className="font-medium">Betondicke:</span> {formData.concrete_thickness} cm</p>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {formData.concrete_base_used && <Badge variant="outline">Unterbeton</Badge>}
+                          {formData.mortar_used && <Badge variant="outline">Mörtel</Badge>}
+                          {formData.gravel_used && <Badge variant="outline">Splitt</Badge>}
+                          {formData.iron_plate_laid && <Badge variant="outline">Eisenplatte</Badge>}
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-base">Dokumentation</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <p><span className="font-medium">Vorher-Fotos:</span> {formData.photos_before.length}</p>
+                        <p><span className="font-medium">Zollstock-Fotos:</span> {formData.photos_after.length}</p>
+                        <p><span className="font-medium">Umfeld-Fotos:</span> {formData.photos_environment.length}</p>
+                        {formData.construction_justification && (
+                          <div className="mt-2">
+                            <p className="font-medium text-sm">Tiefbaubegründung:</p>
+                            <p className="text-sm text-gray-600 mt-1">{formData.construction_justification}</p>
+                          </div>
+                        )}
+                        {formData.notes && (
+                          <div className="mt-2">
+                            <p className="font-medium text-sm">Notizen:</p>
+                            <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </CardContent>
 
@@ -1230,8 +1356,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                     </>
                   ) : (
                     <>
-                      Weiter
-                      <ChevronRight className="w-5 h-5 md:w-4 md:h-4 ml-2" />
+                      <Check className="w-5 h-5 md:w-4 md:h-4 mr-2" />
+                      Bestätigen & Speichern
                     </>
                   )}
                 </Button>
