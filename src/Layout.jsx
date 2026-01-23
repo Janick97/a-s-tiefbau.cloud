@@ -120,28 +120,6 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
     setOpen(false);
   };
 
-  React.useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userData = await User.me();
-        setUser(userData);
-
-        // Bauleiter, Oberfläche und Monteure laden
-        if (userData && userData.role === 'admin') {
-          const users = await User.list();
-          const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
-          const monteurUsers = users.filter((u) => u.position === 'Monteur');
-          setBauleiter(bauLeiterUsers);
-          setMonteure(monteurUsers);
-        }
-      } catch (error) {
-        console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
-        setUser(null);
-      }
-    };
-    loadUser();
-  }, []);
-
   // Filtern der Navigationselemente basierend auf der Benutzerrolle/Position
   const filteredNavigationItems = React.useMemo(() => {
     if (!user) {
@@ -699,13 +677,13 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
               <div className="h-10"></div>
               }
-            </div>
-          </div>
-        </Sidebar>
+              </div>
+              </div>
+              </Sidebar>
 
-        <main className="flex-1 flex flex-col">
-          <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3 shadow-sm no-print">
-            <div className="flex items-center gap-4">
+              <main className="flex-1 flex flex-col">
+              <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3 shadow-sm no-print">
+              <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-gray-100 p-3 rounded-xl transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center" />
               <div className="hidden md:flex items-center gap-2">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
@@ -715,59 +693,59 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
                 <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
               </div>
-            </div>
-          </header>
+              </div>
+              </header>
 
-          <div className="flex-1 overflow-auto">
-            {children}
-          </div>
-        </main>
-        </div>
-        );
-        }
+              <div className="flex-1 overflow-auto">
+              {children}
+              </div>
+              </main>
+              </div>
+              );
+              }
 
-        export default function Layout({ children, currentPageName }) {
-        const [user, setUser] = React.useState(null);
-        const [bauleiter, setBauleiter] = React.useState([]);
-        const [monteure, setMonteure] = React.useState([]);
+              export default function Layout({ children, currentPageName }) {
+              const [user, setUser] = React.useState(null);
+              const [bauleiter, setBauleiter] = React.useState([]);
+              const [monteure, setMonteure] = React.useState([]);
 
-        React.useEffect(() => {
-        const loadUser = async () => {
-        try {
-          const userData = await User.me();
-          setUser(userData);
+              React.useEffect(() => {
+              const loadUser = async () => {
+              try {
+              const userData = await User.me();
+              setUser(userData);
 
-          // Bauleiter, Oberfläche und Monteure laden
-          if (userData && userData.role === 'admin') {
-            const users = await User.list();
-            const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
-            const monteurUsers = users.filter((u) => u.position === 'Monteur');
-            setBauleiter(bauLeiterUsers);
-            setMonteure(monteurUsers);
-          }
-        } catch (error) {
-          console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
-          setUser(null);
-        }
-        };
-        loadUser();
-        }, []);
+              // Bauleiter, Oberfläche und Monteure laden
+              if (userData && userData.role === 'admin') {
+              const users = await User.list();
+              const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+              const monteurUsers = users.filter((u) => u.position === 'Monteur');
+              setBauleiter(bauLeiterUsers);
+              setMonteure(monteurUsers);
+              }
+              } catch (error) {
+              console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
+              setUser(null);
+              }
+              };
+              loadUser();
+              }, []);
 
-        const handleLogout = async () => {
-        await User.logout();
-        window.location.reload();
-        };
+              const handleLogout = async () => {
+              await User.logout();
+              window.location.reload();
+              };
 
-        return (
-        <SidebarProvider>
-        <LayoutContent 
-          children={children} 
-          currentPageName={currentPageName} 
-          user={user} 
-          bauleiter={bauleiter}
-          monteure={monteure}
-          handleLogout={handleLogout}
-        />
-        </SidebarProvider>
-        );
-        }
+              return (
+              <SidebarProvider>
+              <LayoutContent 
+              children={children} 
+              currentPageName={currentPageName} 
+              user={user} 
+              bauleiter={bauleiter}
+              monteure={monteure}
+              handleLogout={handleLogout}
+              />
+              </SidebarProvider>
+              );
+              }
