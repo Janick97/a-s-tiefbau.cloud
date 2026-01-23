@@ -38,7 +38,8 @@ import {
   SidebarMenuSubButton,
   SidebarHeader,
   SidebarProvider,
-  SidebarTrigger } from
+  SidebarTrigger,
+  useSidebar } from
 "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -107,15 +108,17 @@ const navigationItems = [
 }];
 
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName, user, bauleiter, monteure, handleLogout }) {
   const location = useLocation();
-  const [user, setUser] = React.useState(null);
-  const [bauleiter, setBauleiter] = React.useState([]);
-  const [monteure, setMonteure] = React.useState([]);
+  const { setOpen } = useSidebar();
   const [dispositionOpen, setDispositionOpen] = React.useState(false);
   const [dispositionMontageOpen, setDispositionMontageOpen] = React.useState(false);
   const [verwaltungOpen, setVerwaltungOpen] = React.useState(false);
   const [auswertungenOpen, setAuswertungenOpen] = React.useState(false);
+
+  const handleLinkClick = () => {
+    setOpen(false);
+  };
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -359,7 +362,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
 
                                         <ClipboardList className="w-4 h-4 mr-2" />
                                         Übersicht
@@ -371,7 +375,8 @@ export default function Layout({ children, currentPageName }) {
                                       <SidebarMenuSubButton asChild>
                                         <Link
                                         to={createPageUrl(`DispositionBauleiter?id=${bl.id}`)}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
 
                                           <UserCircle className="w-4 h-4 mr-2" />
                                           {bl.full_name}
@@ -418,7 +423,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
 
                                         <Construction className="w-4 h-4 mr-2" />
                                         Übersicht
@@ -430,7 +436,8 @@ export default function Layout({ children, currentPageName }) {
                                       <SidebarMenuSubButton asChild>
                                         <Link
                                         to={createPageUrl(`DispositionMonteurDetail?id=${monteur.id}`)}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
 
                                           <UserCircle className="w-4 h-4 mr-2" />
                                           {monteur.full_name}
@@ -478,7 +485,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
 
                                         <BarChart3 className="w-4 h-4 mr-2" />
                                         Standard
@@ -489,7 +497,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("KolonnenUebersicht")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
                                         <UsersIcon className="w-4 h-4 mr-2" />
                                         Kolonnen
                                       </Link>
@@ -499,7 +508,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("KolonnenKonfiguration")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
                                         <Settings className="w-4 h-4 mr-2" />
                                         Konfiguration
                                       </Link>
@@ -549,7 +559,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("Excavations")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Shovel className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Ausgrabungen</span>
@@ -560,7 +571,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("PriceList")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Preisliste</span>
@@ -571,7 +583,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("VAOMonitoring")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>VAO-Überwachung</span>
@@ -582,7 +595,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("OpenMaterialBookings")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Construction className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Offene Materialbuchungen</span>
@@ -593,7 +607,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("OpenDocumentations")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Offene Dokumentationen</span>
@@ -604,7 +619,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MaterialInventory")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Materiallager</span>
@@ -615,7 +631,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MontagePriceList")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Wrench className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Montage-Preisliste</span>
@@ -626,7 +643,8 @@ export default function Layout({ children, currentPageName }) {
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MontageMaterialInventory")}
-                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words">
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
 
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Montage-Materiallager</span>
@@ -651,7 +669,7 @@ export default function Layout({ children, currentPageName }) {
                             'text-white/80'}`
                             }>
 
-                            <Link to={item.url} className="flex items-center gap-3">
+                            <Link to={item.url} className="flex items-center gap-3" onClick={handleLinkClick}>
                               <item.icon className="w-5 h-5" />
                               <span className="font-medium">{item.title}</span>
                             </Link>
@@ -704,7 +722,52 @@ export default function Layout({ children, currentPageName }) {
             {children}
           </div>
         </main>
-      </div>
-    </SidebarProvider>);
+        </div>
+        );
+        }
 
-}
+        export default function Layout({ children, currentPageName }) {
+        const [user, setUser] = React.useState(null);
+        const [bauleiter, setBauleiter] = React.useState([]);
+        const [monteure, setMonteure] = React.useState([]);
+
+        React.useEffect(() => {
+        const loadUser = async () => {
+        try {
+          const userData = await User.me();
+          setUser(userData);
+
+          // Bauleiter, Oberfläche und Monteure laden
+          if (userData && userData.role === 'admin') {
+            const users = await User.list();
+            const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+            const monteurUsers = users.filter((u) => u.position === 'Monteur');
+            setBauleiter(bauLeiterUsers);
+            setMonteure(monteurUsers);
+          }
+        } catch (error) {
+          console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
+          setUser(null);
+        }
+        };
+        loadUser();
+        }, []);
+
+        const handleLogout = async () => {
+        await User.logout();
+        window.location.reload();
+        };
+
+        return (
+        <SidebarProvider>
+        <LayoutContent 
+          children={children} 
+          currentPageName={currentPageName} 
+          user={user} 
+          bauleiter={bauleiter}
+          monteure={monteure}
+          handleLogout={handleLogout}
+        />
+        </SidebarProvider>
+        );
+        }
