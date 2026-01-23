@@ -117,6 +117,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
   const [serviceCategory, setServiceCategory] = useState('grube');
   const [selectedCable, setSelectedCable] = useState(null);
   const [cableLayingMethod, setCableLayingMethod] = useState('auslegen');
+  const [showContinueDialog, setShowContinueDialog] = useState(false);
   
   const [formData, setFormData] = useState({
     project_id: defaultProjectId || '',
@@ -342,6 +343,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
 
       if (excavation) {
         await onSubmit(dataToSubmit);
+        onCancel();
       } else {
         const selectedItem = priceItems.find(p => p.id === dataToSubmit.price_item_id);
         const anderePositionNumbers = ['10021010', '10010413', '10037473', '10037352', '10037463', '10037372', '10021040', '10037342', '10037363'];
@@ -397,15 +399,72 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
             }
           }
         }
+        
+        // Dialog anzeigen statt sofort zu schließen
+        setShowContinueDialog(true);
       }
-      
-      onCancel();
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
       alert("Fehler beim Speichern: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleContinue = () => {
+    // Formular zurücksetzen für neue Leistung
+    setCurrentStep(1);
+    setServiceCategory('grube');
+    setSelectedCable(null);
+    setFormData({
+      project_id: defaultProjectId || '',
+      price_item_id: '',
+      quantity: 1,
+      location_name: '',
+      street: formData.street, // Behalte Adressdaten
+      house_number: '',
+      postal_code: formData.postal_code,
+      city: formData.city,
+      latitude: formData.latitude, // Behalte GPS
+      longitude: formData.longitude,
+      excavation_length: 0,
+      excavation_depth: 0.6,
+      excavation_width: 0.3,
+      excavation_factor: 1,
+      surface_type: '',
+      surface_type_2: null,
+      surface_1_sqm: '',
+      surface_2_sqm: '',
+      asphalt_thickness: '',
+      concrete_thickness: '',
+      concrete_base_used: false,
+      mortar_used: false,
+      gravel_used: false,
+      iron_plate_laid: false,
+      curb_length: '',
+      edge_stone_length: '',
+      gutter_length: '',
+      excavated_material_left_onsite: false,
+      photos_before: [],
+      photos_after: [],
+      photos_environment: [],
+      photos_backfill: [],
+      photos_surface: [],
+      foreman: currentUser?.full_name || 'Nicht zugewiesen',
+      calculated_price: 0,
+      foreman_commission: 0,
+      backfill_commission: 0,
+      surface_commission: 0,
+      foreman_user_id: currentUser?.id || null,
+      notes: '',
+      construction_justification: '',
+    });
+    setShowContinueDialog(false);
+  };
+
+  const handleFinish = () => {
+    setShowContinueDialog(false);
+    onCancel();
   };
 
   const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
@@ -466,6 +525,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
   const progress = (currentStep / WIZARD_STEPS.length) * 100;
 
   return (
+    <>
+    {!showContinueDialog && (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -478,10 +539,10 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: "spring", damping: 25, stiffness: 300 }}
-        className="w-full md:max-w-4xl md:mx-4 md:mb-8 md:rounded-lg overflow-hidden"
+        className="w-full h-full md:h-auto md:max-w-4xl md:mx-4 md:mb-8 md:rounded-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        <Card className="border-none shadow-2xl rounded-t-2xl md:rounded-lg max-h-[95vh] md:max-h-[90vh] flex flex-col">
+        <Card className="border-none shadow-2xl h-full md:h-auto rounded-none md:rounded-lg max-h-none md:max-h-[90vh] flex flex-col">
           <style>
             {`
               [data-radix-popper-content-wrapper] {
@@ -1081,15 +1142,14 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
             </AnimatePresence>
           </CardContent>
 
-          <CardFooter className="flex justify-between gap-2 md:gap-3 bg-gray-50 rounded-b-2xl md:rounded-b-lg p-3 md:p-6 flex-shrink-0 border-t">
+          <CardFooter className="flex justify-between gap-2 md:gap-3 bg-gray-50 rounded-none md:rounded-b-lg p-4 md:p-6 flex-shrink-0 border-t">
             <div className="flex gap-2">
               <Button 
                 type="button" 
                 variant="outline" 
                 onClick={onCancel}
                 disabled={isSubmitting}
-                size="sm"
-                className="h-9 md:h-10"
+                className="h-12 md:h-10 text-base md:text-sm"
               >
                 Abbrechen
               </Button>
@@ -1099,10 +1159,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   variant="outline"
                   onClick={() => setCurrentStep(currentStep - 1)}
                   disabled={isSubmitting}
-                  size="sm"
-                  className="h-9 md:h-10"
+                  className="h-12 md:h-10 text-base md:text-sm"
                 >
-                  <ChevronLeft className="w-4 h-4 md:mr-2" />
+                  <ChevronLeft className="w-5 h-5 md:w-4 md:h-4 md:mr-2" />
                   <span className="hidden md:inline">Zurück</span>
                 </Button>
               )}
@@ -1114,29 +1173,27 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   type="button"
                   onClick={() => setCurrentStep(currentStep + 1)}
                   disabled={!canGoNext() || isSubmitting}
-                  className="bg-orange-500 hover:bg-orange-600 h-9 md:h-10"
-                  size="sm"
+                  className="bg-orange-500 hover:bg-orange-600 h-12 md:h-10 text-base md:text-sm px-8"
                 >
-                  <span className="hidden md:inline">Weiter</span>
-                  <ChevronRight className="w-4 h-4 md:ml-2" />
+                  Weiter
+                  <ChevronRight className="w-5 h-5 md:w-4 md:h-4 ml-2" />
                 </Button>
               ) : (
                 <Button
                   type="button"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className="bg-green-600 hover:bg-green-700 h-9 md:h-10"
-                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 h-12 md:h-10 text-base md:text-sm px-8"
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      <span className="hidden sm:inline">Speichere...</span>
+                      <Loader2 className="w-5 h-5 md:w-4 md:h-4 mr-2 animate-spin" />
+                      Speichere...
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4 md:mr-2" />
-                      <span className="hidden sm:inline">{excavation ? 'Aktualisieren' : 'Erstellen'}</span>
+                      Weiter
+                      <ChevronRight className="w-5 h-5 md:w-4 md:h-4 ml-2" />
                     </>
                   )}
                 </Button>
@@ -1146,5 +1203,47 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         </Card>
       </motion.div>
     </motion.div>
+    )}
+
+    {/* Dialog für "Weitere Leistung erfassen" */}
+    {showContinueDialog && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4"
+        onClick={handleFinish}
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6"
+        >
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Leistung erfasst!</h3>
+            <p className="text-gray-600">Möchten Sie eine weitere Leistung erfassen?</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="outline" 
+              onClick={handleFinish}
+              className="flex-1 h-12 text-base"
+            >
+              Fertig
+            </Button>
+            <Button 
+              onClick={handleContinue}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 h-12 text-base"
+            >
+              Weitere Leistung
+            </Button>
+          </div>
+        </motion.div>
+      </motion.div>
+    )}
+    </>
   );
 }
