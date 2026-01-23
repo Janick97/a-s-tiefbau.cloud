@@ -186,13 +186,8 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
     });
   }, [user]);
 
-  const handleLogout = async () => {
-    await User.logout();
-    window.location.reload();
-  };
-
   return (
-    <SidebarProvider>
+    <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-gray-100">
       <style>
         {`
           :root {
@@ -686,18 +681,18 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
               <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-gray-100 p-3 rounded-xl transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center" />
               <div className="hidden md:flex items-center gap-2">
-                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-                <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
+              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
               </div>
               <div className="flex md:hidden items-center gap-2">
-                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-                <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
+              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
               </div>
               </div>
               </header>
 
               <div className="flex-1 overflow-auto">
-                {children}
+              {children}
               </div>
               </main>
               </div>
@@ -717,11 +712,11 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
               // Bauleiter, Oberfläche und Monteure laden
               if (userData && userData.role === 'admin') {
-                const users = await User.list();
-                const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
-                const monteurUsers = users.filter((u) => u.position === 'Monteur');
-                setBauleiter(bauLeiterUsers);
-                setMonteure(monteurUsers);
+              const users = await User.list();
+              const bauLeiterUsers = users.filter((u) => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+              const monteurUsers = users.filter((u) => u.position === 'Monteur');
+              setBauleiter(bauLeiterUsers);
+              setMonteure(monteurUsers);
               }
               } catch (error) {
               console.log("Benutzer nicht angemeldet oder Fehler beim Laden:", error);
