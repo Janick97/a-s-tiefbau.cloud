@@ -118,6 +118,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
   const [selectedCable, setSelectedCable] = useState(null);
   const [cableLayingMethod, setCableLayingMethod] = useState('auslegen');
   const [showContinueDialog, setShowContinueDialog] = useState(false);
+  const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  const [usedMaterials, setUsedMaterials] = useState([]);
+  const [currentMaterial, setCurrentMaterial] = useState({ material_id: '', quantity: '' });
   
   const [formData, setFormData] = useState({
     project_id: defaultProjectId || '',
@@ -184,7 +187,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
       try {
         const [priceData, materialsData] = await Promise.all([
           PriceItem.list('item_number').catch(() => []),
-          Material.filter({ category: 'Kabel' }).catch(() => []),
+          Material.list().catch(() => []),
         ]);
         setPriceItems(Array.isArray(priceData) ? priceData : []);
         setMaterials(Array.isArray(materialsData) ? materialsData : []);
@@ -345,11 +348,13 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         await onSubmit(dataToSubmit);
         onCancel();
       } else {
+        window.lastCreatedExcavationId = null;
         const selectedItem = priceItems.find(p => p.id === dataToSubmit.price_item_id);
         const anderePositionNumbers = ['10021010', '10010413', '10037473', '10037352', '10037463', '10037372', '10021040', '10037342', '10037363'];
         const isGrabenPosition = selectedItem?.unit === 'M' && !anderePositionNumbers.includes(selectedItem?.item_number);
         
         const createdExcavation = await Excavation.create(dataToSubmit);
+        window.lastCreatedExcavationId = createdExcavation?.id;
         
         // Kabelverlegung für Graben
         if (isGrabenPosition && selectedCable && createdExcavation?.id) {
@@ -463,7 +468,59 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
   };
 
   const handleFinish = () => {
+    setShowContinueDialog(false);
+    setShowMaterialDialog(true);
+  };
+
+  const handleMaterialNo = () => {
+    setShowMaterialDialog(false);
     onCancel();
+  };
+
+  const handleMaterialYes = async () => {
+    if (usedMaterials.length === 0) {
+      alert('Bitte fügen Sie mindestens ein Material hinzu.');
+      return;
+    }
+    
+    // Material speichern
+    try {
+      const excavationId = window.lastCreatedExcavationId;
+      if (!excavationId) {
+        throw new Error('Keine Excavation-ID gefunden');
+      }
+      
+      for (const mat of usedMaterials) {
+        await ExcavationMaterial.create({
+          excavation_id: excavationId,
+          material_id: mat.material_id,
+          quantity_used: mat.quantity,
+          used_by: currentUser?.full_name || formData.foreman,
+          used_by_user_id: currentUser?.id,
+          usage_date: new Date().toISOString().split('T')[0],
+          notes: 'Beim Erfassen hinzugefügt',
+        });
+      }
+      setShowMaterialDialog(false);
+      setUsedMaterials([]);
+      onCancel();
+    } catch (error) {
+      console.error('Fehler beim Speichern der Materialien:', error);
+      alert('Fehler beim Speichern der Materialien.');
+    }
+  };
+
+  const addMaterial = () => {
+    if (!currentMaterial.material_id || !currentMaterial.quantity) {
+      alert('Bitte Material und Menge auswählen.');
+      return;
+    }
+    setUsedMaterials([...usedMaterials, currentMaterial]);
+    setCurrentMaterial({ material_id: '', quantity: '' });
+  };
+
+  const removeMaterial = (index) => {
+    setUsedMaterials(usedMaterials.filter((_, i) => i !== index));
   };
 
   const detailDimensionPositions = ['10001', '10002', '10003', '10004', '10005'];
@@ -1192,7 +1249,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4"
-        onClick={handleFinish}
       >
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}
@@ -1222,6 +1278,127 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               Weitere Leistung
             </Button>
           </div>
+        </motion.div>
+      </motion.div>
+    )}
+
+    {/* Dialog für Material-Verbrauch */}
+    {showMaterialDialog && (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[80] p-4"
+      >
+        <motion.div
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-lg shadow-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto"
+        >
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Material verbraucht?</h3>
+            <p className="text-gray-600">Haben Sie bei dieser Leistung Material verwendet?</p>
+          </div>
+
+          {usedMaterials.length === 0 ? (
+            <div className="flex flex-col gap-3 mb-6">
+              <Button 
+                variant="outline" 
+                onClick={handleMaterialNo}
+                className="h-12 text-base"
+              >
+                Nein, kein Material verbraucht
+              </Button>
+              <Button 
+                onClick={() => {}}
+                className="bg-orange-500 hover:bg-orange-600 h-12 text-base"
+              >
+                Ja, Material hinzufügen
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4 mb-6">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-semibold text-green-800 mb-3">Verwendete Materialien:</h4>
+                <div className="space-y-2">
+                  {usedMaterials.map((mat, index) => {
+                    const material = materials.find(m => m.id === mat.material_id);
+                    return (
+                      <div key={index} className="flex items-center justify-between bg-white p-3 rounded">
+                        <div>
+                          <div className="font-medium">{material?.name}</div>
+                          <div className="text-sm text-gray-600">{mat.quantity} {material?.unit}</div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMaterial(index)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline"
+                  onClick={handleMaterialYes}
+                  className="flex-1 h-12 text-base"
+                >
+                  Fertig
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <Card className="bg-gray-50">
+            <CardHeader>
+              <CardTitle className="text-base">Material hinzufügen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Material</Label>
+                <Select 
+                  value={currentMaterial.material_id} 
+                  onValueChange={(value) => setCurrentMaterial({...currentMaterial, material_id: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Material auswählen..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {materials.map(material => (
+                      <SelectItem key={material.id} value={material.id}>
+                        {material.name} ({material.article_number})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Menge</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={currentMaterial.quantity}
+                  onChange={(e) => setCurrentMaterial({...currentMaterial, quantity: parseFloat(e.target.value)})}
+                  placeholder="Menge eingeben..."
+                />
+              </div>
+
+              <Button 
+                onClick={addMaterial}
+                className="w-full bg-orange-500 hover:bg-orange-600"
+              >
+                Material hinzufügen
+              </Button>
+            </CardContent>
+          </Card>
         </motion.div>
       </motion.div>
     )}
