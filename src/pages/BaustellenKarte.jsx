@@ -1,19 +1,20 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Tooltip, useMap, useMapEvents } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import { Project, Excavation } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { motion } from "framer-motion";
-import { MapPin, Search, Filter, Eye, Navigation } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { motion, AnimatePresence } from "framer-motion";
+import { MapPin, Search, Filter, Eye, Navigation, Calendar, Save, Trash2, Route, Layers } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-
-
 
 // Komponente um Map-Instanz zu speichern
 function MapEvents({ setMapInstance }) {
@@ -26,9 +27,8 @@ function MapEvents({ setMapInstance }) {
   return null;
 }
 
-// Custom Marker Icons - IMMER sichtbar mit orangenen Punkten
+// Custom Marker Icons
 const createCustomIcon = (isBackfilled, isClosed) => {
-  // Verschiedene Farben je nach Status
   let color = '#f97316'; // Orange = Offen
   
   if (isClosed) {
@@ -51,19 +51,53 @@ const createCustomIcon = (isBackfilled, isClosed) => {
   });
 };
 
+// Custom Cluster Icon
+const createClusterCustomIcon = function (cluster) {
+  return L.divIcon({
+    html: `<div style="
+      background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+      border: 3px solid white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    ">${cluster.getChildCount()}</div>`,
+    className: 'custom-cluster-icon',
+    iconSize: L.point(40, 40, true),
+  });
+};
+
 export default function BaustellenKartePage() {
   const [projects, setProjects] = useState([]);
   const [excavations, setExcavations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
   const [workflowStatusFilter, setWorkflowStatusFilter] = useState("all");
-  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // Deutschland Zentrum
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]);
   const [mapZoom, setMapZoom] = useState(6);
   const [mapInstance, setMapInstance] = useState(null);
+  
+  // Interaktive Legende
+  const [showOpen, setShowOpen] = useState(true);
+  const [showBackfilled, setShowBackfilled] = useState(true);
+  const [showClosed, setShowClosed] = useState(true);
+  
+  // Gespeicherte Ansichten
+  const [savedViews, setSavedViews] = useState([]);
+  const [viewName, setViewName] = useState("");
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
 
   useEffect(() => {
     loadData();
+    loadSavedViews();
   }, []);
 
   const loadData = async () => {
@@ -84,6 +118,57 @@ export default function BaustellenKartePage() {
     setIsLoading(false);
   };
 
+  const loadSavedViews = () => {
+    try {
+      const views = localStorage.getItem('baustellenkarteViews');
+      if (views) {
+        setSavedViews(JSON.parse(views));
+      }
+    } catch (error) {
+      console.error("Fehler beim Laden der Ansichten:", error);
+    }
+  };
+
+  const saveCurrentView = () => {
+    if (!viewName.trim()) return;
+    
+    const newView = {
+      id: Date.now(),
+      name: viewName,
+      filters: {
+        searchTerm,
+        workflowStatusFilter,
+        startDate,
+        endDate,
+        showOpen,
+        showBackfilled,
+        showClosed
+      }
+    };
+    
+    const updatedViews = [...savedViews, newView];
+    setSavedViews(updatedViews);
+    localStorage.setItem('baustellenkarteViews', JSON.stringify(updatedViews));
+    setViewName("");
+    setShowSaveDialog(false);
+  };
+
+  const loadView = (view) => {
+    setSearchTerm(view.filters.searchTerm);
+    setWorkflowStatusFilter(view.filters.workflowStatusFilter);
+    setStartDate(view.filters.startDate || "");
+    setEndDate(view.filters.endDate || "");
+    setShowOpen(view.filters.showOpen);
+    setShowBackfilled(view.filters.showBackfilled);
+    setShowClosed(view.filters.showClosed);
+  };
+
+  const deleteView = (id) => {
+    const updatedViews = savedViews.filter(v => v.id !== id);
+    setSavedViews(updatedViews);
+    localStorage.setItem('baustellenkarteViews', JSON.stringify(updatedViews));
+  };
+
   // Baustellen mit GPS-Koordinaten vorbereiten
   const baustellenMitKoordinaten = useMemo(() => {
     const baustellen = [];
@@ -102,6 +187,8 @@ export default function BaustellenKartePage() {
             projectStatusLabel: project.project_status,
             client: project.client,
             orderType: project.order_type,
+            startDate: project.start_date,
+            endDate: project.end_date,
             locationName: exc.location_name,
             street: exc.street,
             city: exc.city,
@@ -114,16 +201,6 @@ export default function BaustellenKartePage() {
             excavationLength: exc.excavation_length,
             excavationWidth: exc.excavation_width,
             excavationDepth: exc.excavation_depth,
-            excavationFactor: exc.excavation_factor,
-            concreteBaseUsed: exc.concrete_base_used,
-            mortarUsed: exc.mortar_used,
-            gravelUsed: exc.gravel_used,
-            photosBefore: exc.photos_before || [],
-            photosAfter: exc.photos_after || [],
-            photosEnvironment: exc.photos_environment || [],
-            photosBackfill: exc.photos_backfill || [],
-            photosSurface: exc.photos_surface || [],
-            constructionJustification: exc.construction_justification,
             calculatedPrice: exc.calculated_price,
             isBackfilled: exc.is_backfilled,
             isClosed: exc.is_closed,
@@ -131,7 +208,7 @@ export default function BaustellenKartePage() {
             backfilledDate: exc.backfilled_date,
             closedBy: exc.closed_by,
             closedDate: exc.closed_date,
-            excavationStatus: exc.status
+            createdDate: exc.created_date
           });
         }
       }
@@ -143,6 +220,7 @@ export default function BaustellenKartePage() {
   // Gefilterte Baustellen
   const filteredBaustellen = useMemo(() => {
     return baustellenMitKoordinaten.filter(baustelle => {
+      // Suchfilter
       const searchLower = searchTerm.toLowerCase();
       const matchesSearch = 
         (baustelle.projectNumber || '').toLowerCase().includes(searchLower) ||
@@ -150,12 +228,28 @@ export default function BaustellenKartePage() {
         (baustelle.locationName || '').toLowerCase().includes(searchLower) ||
         (baustelle.city || '').toLowerCase().includes(searchLower);
       
-      const matchesStatus = statusFilter === "all" || baustelle.projectStatus === statusFilter;
+      // Workflow-Status
       const matchesWorkflowStatus = workflowStatusFilter === "all" || baustelle.projectStatusLabel === workflowStatusFilter;
       
-      return matchesSearch && matchesStatus && matchesWorkflowStatus;
+      // Datumsfilter
+      let matchesDate = true;
+      if (startDate || endDate) {
+        const baustelleDate = baustelle.createdDate ? new Date(baustelle.createdDate) : null;
+        if (baustelleDate) {
+          if (startDate && new Date(startDate) > baustelleDate) matchesDate = false;
+          if (endDate && new Date(endDate) < baustelleDate) matchesDate = false;
+        }
+      }
+      
+      // Legende-Filter (Status)
+      let matchesLegend = false;
+      if (baustelle.isClosed && showClosed) matchesLegend = true;
+      if (baustelle.isBackfilled && !baustelle.isClosed && showBackfilled) matchesLegend = true;
+      if (!baustelle.isBackfilled && !baustelle.isClosed && showOpen) matchesLegend = true;
+      
+      return matchesSearch && matchesWorkflowStatus && matchesDate && matchesLegend;
     });
-  }, [baustellenMitKoordinaten, searchTerm, statusFilter, workflowStatusFilter]);
+  }, [baustellenMitKoordinaten, searchTerm, workflowStatusFilter, startDate, endDate, showOpen, showBackfilled, showClosed]);
 
   const handleBaustelleClick = (baustelle) => {
     if (mapInstance) {
@@ -163,34 +257,16 @@ export default function BaustellenKartePage() {
     }
   };
 
+  const openRoute = (baustelle) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${baustelle.latitude},${baustelle.longitude}`;
+    window.open(url, '_blank');
+  };
+
   const statusLabels = {
     planning: "Planung",
     active: "Aktiv",
     completed: "Abgeschlossen",
     on_hold: "Pausiert"
-  };
-
-  // Helper: Alle Fotos einer Baustelle sammeln
-  const getAllPhotos = (baustelle) => {
-    const allPhotos = [];
-    
-    if (Array.isArray(baustelle.photosBefore) && baustelle.photosBefore.length > 0) {
-      baustelle.photosBefore.forEach(url => allPhotos.push({ url, type: 'Vorher' }));
-    }
-    if (Array.isArray(baustelle.photosEnvironment) && baustelle.photosEnvironment.length > 0) {
-      baustelle.photosEnvironment.forEach(url => allPhotos.push({ url, type: 'Umfeld' }));
-    }
-    if (Array.isArray(baustelle.photosBackfill) && baustelle.photosBackfill.length > 0) {
-      baustelle.photosBackfill.forEach(url => allPhotos.push({ url, type: 'Verfüllung' }));
-    }
-    if (Array.isArray(baustelle.photosSurface) && baustelle.photosSurface.length > 0) {
-      baustelle.photosSurface.forEach(url => allPhotos.push({ url, type: 'Oberfläche' }));
-    }
-    if (Array.isArray(baustelle.photosAfter) && baustelle.photosAfter.length > 0) {
-      baustelle.photosAfter.forEach(url => allPhotos.push({ url, type: 'Nachher' }));
-    }
-    
-    return allPhotos;
   };
 
   return (
@@ -206,6 +282,10 @@ export default function BaustellenKartePage() {
         .leaflet-marker-icon:hover {
           transform: scale(1.2);
         }
+        .custom-cluster-icon {
+          background: transparent !important;
+          border: none !important;
+        }
         .leaflet-tooltip {
           background: white !important;
           border: none !important;
@@ -217,43 +297,6 @@ export default function BaustellenKartePage() {
         }
         .leaflet-tooltip:before {
           display: none !important;
-        }
-        .photo-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 8px;
-          margin-top: 12px;
-        }
-        .photo-item {
-          position: relative;
-          aspect-ratio: 1;
-          overflow: hidden;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        .photo-item:hover {
-          transform: scale(1.05);
-        }
-        .photo-item img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-        .photo-badge {
-          position: absolute;
-          bottom: 4px;
-          left: 4px;
-          background: rgba(0, 0, 0, 0.7);
-          color: white;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 10px;
-          font-weight: 500;
-        }
-        .scrollable-photos {
-          max-height: 200px;
-          overflow-y: auto;
         }
       `}</style>
       
@@ -278,47 +321,142 @@ export default function BaustellenKartePage() {
         {/* Filter und Suche */}
         <Card className="card-elevation border-none mb-6">
           <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Suche nach Projektnummer, Titel, Standort..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+            <div className="space-y-4">
+              {/* Zeile 1: Suche und Status */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Suche nach Projektnummer, Titel, Standort..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={workflowStatusFilter} onValueChange={setWorkflowStatusFilter}>
+                  <SelectTrigger className="w-full md:w-64">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Auftragsstatus" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Alle Auftragsstatus</SelectItem>
+                    <SelectItem value="Auftrag neu im Server">Auftrag neu im Server</SelectItem>
+                    <SelectItem value="Auftrag angelegt ohne VAO">Auftrag angelegt ohne VAO</SelectItem>
+                    <SelectItem value="Auftrag neu VAO beantragt">Auftrag neu VAO beantragt</SelectItem>
+                    <SelectItem value="VAO bei Baubeginn">VAO bei Baubeginn</SelectItem>
+                    <SelectItem value="Auftrag angelegt keine VAO nötig">Auftrag angelegt keine VAO nötig</SelectItem>
+                    <SelectItem value="Folgeauftrag">Folgeauftrag</SelectItem>
+                    <SelectItem value="VAO von Projekt">VAO von Projekt</SelectItem>
+                    <SelectItem value="Jahresgenehmigung">Jahresgenehmigung</SelectItem>
+                    <SelectItem value="Aufgrabung beantragt">Aufgrabung beantragt</SelectItem>
+                    <SelectItem value="Privat">Privat</SelectItem>
+                    <SelectItem value="Storniert">Storniert</SelectItem>
+                    <SelectItem value="Baustelle bearbeiten">Baustelle bearbeiten</SelectItem>
+                    <SelectItem value="Montage neu in Craftnote angelegt">Montage neu in Craftnote angelegt</SelectItem>
+                    <SelectItem value="Montage fertig">Montage fertig</SelectItem>
+                    <SelectItem value="Planbare Baustelle begonnen">Planbare Baustelle begonnen</SelectItem>
+                    <SelectItem value="Technisch fertig">Technisch fertig</SelectItem>
+                    <SelectItem value="Kann zu VERFÜLLEN">Kann zu VERFÜLLEN</SelectItem>
+                    <SelectItem value="Kann zu Pflaster/Platten">Kann zu Pflaster/Platten</SelectItem>
+                    <SelectItem value="Kann zu Asphalt TRAG">Kann zu Asphalt TRAG</SelectItem>
+                    <SelectItem value="Kann zu Asphalt FEIN">Kann zu Asphalt FEIN</SelectItem>
+                    <SelectItem value="Baustelle fertig">Baustelle fertig</SelectItem>
+                    <SelectItem value="Auftrag komplett abgeschlossen">Auftrag komplett abgeschlossen</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={workflowStatusFilter} onValueChange={setWorkflowStatusFilter}>
-                <SelectTrigger className="w-full md:w-64">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Auftragsstatus" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Alle Auftragsstatus</SelectItem>
-                  <SelectItem value="Auftrag neu im Server">Auftrag neu im Server</SelectItem>
-                  <SelectItem value="Auftrag angelegt ohne VAO">Auftrag angelegt ohne VAO</SelectItem>
-                  <SelectItem value="Auftrag neu VAO beantragt">Auftrag neu VAO beantragt</SelectItem>
-                  <SelectItem value="VAO bei Baubeginn">VAO bei Baubeginn</SelectItem>
-                  <SelectItem value="Auftrag angelegt keine VAO nötig">Auftrag angelegt keine VAO nötig</SelectItem>
-                  <SelectItem value="Folgeauftrag">Folgeauftrag</SelectItem>
-                  <SelectItem value="VAO von Projekt">VAO von Projekt</SelectItem>
-                  <SelectItem value="Jahresgenehmigung">Jahresgenehmigung</SelectItem>
-                  <SelectItem value="Aufgrabung beantragt">Aufgrabung beantragt</SelectItem>
-                  <SelectItem value="Privat">Privat</SelectItem>
-                  <SelectItem value="Storniert">Storniert</SelectItem>
-                  <SelectItem value="Baustelle bearbeiten">Baustelle bearbeiten</SelectItem>
-                  <SelectItem value="Montage neu in Craftnote angelegt">Montage neu in Craftnote angelegt</SelectItem>
-                  <SelectItem value="Montage fertig">Montage fertig</SelectItem>
-                  <SelectItem value="Planbare Baustelle begonnen">Planbare Baustelle begonnen</SelectItem>
-                  <SelectItem value="Technisch fertig">Technisch fertig</SelectItem>
-                  <SelectItem value="Kann zu VERFÜLLEN">Kann zu VERFÜLLEN</SelectItem>
-                  <SelectItem value="Kann zu Pflaster/Platten">Kann zu Pflaster/Platten</SelectItem>
-                  <SelectItem value="Kann zu Asphalt TRAG">Kann zu Asphalt TRAG</SelectItem>
-                  <SelectItem value="Kann zu Asphalt FEIN">Kann zu Asphalt FEIN</SelectItem>
-                  <SelectItem value="Baustelle fertig">Baustelle fertig</SelectItem>
-                  <SelectItem value="Auftrag komplett abgeschlossen">Auftrag komplett abgeschlossen</SelectItem>
-                </SelectContent>
-              </Select>
+
+              {/* Zeile 2: Datumsfilter */}
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="flex-1">
+                  <Label className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Von Datum
+                  </Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+                <div className="flex-1">
+                  <Label className="text-sm text-gray-600 mb-2 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Bis Datum
+                  </Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </div>
+                <div className="flex items-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setStartDate("");
+                      setEndDate("");
+                    }}
+                  >
+                    Datum zurücksetzen
+                  </Button>
+                </div>
+              </div>
+
+              {/* Zeile 3: Gespeicherte Ansichten */}
+              <div className="border-t pt-4">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Label className="text-sm font-semibold text-gray-700">Gespeicherte Ansichten:</Label>
+                  {savedViews.map(view => (
+                    <div key={view.id} className="flex items-center gap-1 bg-gray-100 rounded-lg px-3 py-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => loadView(view)}
+                        className="h-7 px-2 text-xs"
+                      >
+                        {view.name}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteView(view.id)}
+                        className="h-7 w-7 p-0 text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                  
+                  {showSaveDialog ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        placeholder="Ansichtsname..."
+                        value={viewName}
+                        onChange={(e) => setViewName(e.target.value)}
+                        className="w-40 h-8"
+                        onKeyPress={(e) => e.key === 'Enter' && saveCurrentView()}
+                      />
+                      <Button size="sm" onClick={saveCurrentView} className="h-8">
+                        Speichern
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setShowSaveDialog(false)} className="h-8">
+                        Abbrechen
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowSaveDialog(true)}
+                      className="h-8"
+                    >
+                      <Save className="w-4 h-4 mr-1" />
+                      Aktuelle Ansicht speichern
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -347,20 +485,22 @@ export default function BaustellenKartePage() {
                       />
                       <MapEvents setMapInstance={setMapInstance} />
                       
-                      {filteredBaustellen.map((baustelle) => {
-                      const allPhotos = getAllPhotos(baustelle);
-
-                      return (
-                        <Marker
-                          key={baustelle.id}
-                          position={[baustelle.latitude, baustelle.longitude]}
-                          icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
-                        >
+                      <MarkerClusterGroup
+                        chunkedLoading
+                        iconCreateFunction={createClusterCustomIcon}
+                      >
+                        {filteredBaustellen.map((baustelle) => (
+                          <Marker
+                            key={baustelle.id}
+                            position={[baustelle.latitude, baustelle.longitude]}
+                            icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
+                          >
                             <Tooltip 
                               direction="right" 
                               offset={[10, 0]}
                               opacity={1}
-                              permanent={false}>
+                              permanent={false}
+                            >
                               {/* Kompakte Header */}
                               <div style={{ 
                                 background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
@@ -427,7 +567,7 @@ export default function BaustellenKartePage() {
                                   </div>
                                 )}
 
-                                {/* Oberflächen & Material kompakt */}
+                                {/* Oberflächen */}
                                 {(baustelle.surfaceType || baustelle.surfaceType2) && (
                                   <div style={{ marginBottom: '6px' }}>
                                     <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', fontSize: '9px' }}>
@@ -457,7 +597,7 @@ export default function BaustellenKartePage() {
                                   </div>
                                 )}
 
-                                {/* Status der Leistung */}
+                                {/* Status */}
                                 <div style={{ 
                                   background: baustelle.isClosed ? '#dcfce7' : baustelle.isBackfilled ? '#fef9c3' : '#fee2e2',
                                   padding: '6px',
@@ -491,28 +631,47 @@ export default function BaustellenKartePage() {
                                   </div>
                                 )}
 
-                                <a 
-                                  href={createPageUrl(`ProjectDetail?id=${baustelle.projectId}`)}
-                                  style={{ 
-                                    display: 'inline-block',
-                                    width: '100%',
-                                    padding: '6px',
-                                    background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
-                                    color: 'white',
-                                    textAlign: 'center',
-                                    borderRadius: '4px',
-                                    fontSize: '10px',
-                                    fontWeight: '600',
-                                    textDecoration: 'none'
-                                  }}
-                                >
-                                  Details ansehen →
-                                </a>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                  <a 
+                                    href={createPageUrl(`ProjectDetail?id=${baustelle.projectId}`)}
+                                    style={{ 
+                                      flex: 1,
+                                      padding: '6px',
+                                      background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
+                                      color: 'white',
+                                      textAlign: 'center',
+                                      borderRadius: '4px',
+                                      fontSize: '10px',
+                                      fontWeight: '600',
+                                      textDecoration: 'none'
+                                    }}
+                                  >
+                                    Details →
+                                  </a>
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      openRoute(baustelle);
+                                    }}
+                                    style={{ 
+                                      padding: '6px',
+                                      background: '#3b82f6',
+                                      color: 'white',
+                                      borderRadius: '4px',
+                                      fontSize: '10px',
+                                      fontWeight: '600',
+                                      border: 'none',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    🗺️
+                                  </button>
+                                </div>
                               </div>
                             </Tooltip>
                           </Marker>
-                        );
-                      })}
+                        ))}
+                      </MarkerClusterGroup>
                     </MapContainer>
                   )}
                 </div>
@@ -576,24 +735,30 @@ export default function BaustellenKartePage() {
                           <span className="truncate">{baustelle.city}</span>
                           {baustelle.street && <span className="truncate">• {baustelle.street}</span>}
                         </div>
-                        {baustelle.surfaceType && (
-                          <div className="text-xs text-gray-600 mb-2">
-                            <span className="font-medium">Oberfläche:</span> {baustelle.surfaceType}
-                            {baustelle.surfaceType2 && `, ${baustelle.surfaceType2}`}
-                          </div>
-                        )}
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-xs h-7"
+                            className="text-xs h-7 flex-1"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleBaustelleClick(baustelle);
                             }}
                           >
                             <Navigation className="w-3 h-3 mr-1" />
-                            Auf Karte
+                            Karte
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-xs h-7"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openRoute(baustelle);
+                            }}
+                          >
+                            <Route className="w-3 h-3 mr-1" />
+                            Route
                           </Button>
                           <Link to={createPageUrl(`ProjectDetail?id=${baustelle.projectId}`)} onClick={(e) => e.stopPropagation()}>
                             <Button variant="outline" size="sm" className="text-xs h-7">
@@ -611,28 +776,52 @@ export default function BaustellenKartePage() {
           </div>
         </div>
 
-        {/* Legende */}
+        {/* Interaktive Legende */}
         <Card className="card-elevation border-none mt-6">
           <CardContent className="p-4">
-            <h3 className="font-semibold text-gray-900 mb-3">Legende - Leistungsstatus</h3>
+            <div className="flex items-center gap-2 mb-3">
+              <Layers className="w-5 h-5 text-gray-700" />
+              <h3 className="font-semibold text-gray-900">Interaktive Legende - Leistungsstatus</h3>
+            </div>
             <div className="flex flex-wrap gap-6">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-orange-500 border-3 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm text-gray-700 font-medium">Offen (nicht verfüllt)</span>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="show-open"
+                  checked={showOpen}
+                  onCheckedChange={setShowOpen}
+                />
+                <Label htmlFor="show-open" className="flex items-center gap-2 cursor-pointer">
+                  <div className="w-5 h-5 rounded-full bg-orange-500 border-3 border-white shadow-lg flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium">Offen (nicht verfüllt)</span>
+                </Label>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-yellow-500 border-3 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm text-gray-700 font-medium">Verfüllt (Oberfläche offen)</span>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="show-backfilled"
+                  checked={showBackfilled}
+                  onCheckedChange={setShowBackfilled}
+                />
+                <Label htmlFor="show-backfilled" className="flex items-center gap-2 cursor-pointer">
+                  <div className="w-5 h-5 rounded-full bg-yellow-500 border-3 border-white shadow-lg flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium">Verfüllt (Oberfläche offen)</span>
+                </Label>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-600 border-3 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-2 h-2 bg-white rounded-full"></div>
-                </div>
-                <span className="text-sm text-gray-700 font-medium">Fertiggestellt</span>
+              <div className="flex items-center gap-3">
+                <Checkbox
+                  id="show-closed"
+                  checked={showClosed}
+                  onCheckedChange={setShowClosed}
+                />
+                <Label htmlFor="show-closed" className="flex items-center gap-2 cursor-pointer">
+                  <div className="w-5 h-5 rounded-full bg-green-600 border-3 border-white shadow-lg flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <span className="text-sm text-gray-700 font-medium">Fertiggestellt</span>
+                </Label>
               </div>
             </div>
           </CardContent>
