@@ -337,6 +337,14 @@ export default function BaustellenKartePage() {
                       zoom={mapZoom}
                       style={{ height: '100%', width: '100%' }}
                       scrollWheelZoom={true}
+                      whenCreated={(map) => {
+                        map.on('popupopen', () => {
+                          map.dragging.disable();
+                        });
+                        map.on('popupclose', () => {
+                          map.dragging.enable();
+                        });
+                      }}
                     >
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
