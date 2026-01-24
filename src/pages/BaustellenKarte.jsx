@@ -13,22 +13,17 @@ import { Link } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Komponente zum Anpassen der Kartenansicht
-function MapController({ center, zoom }) {
+// Komponente zum Anpassen der Kartenansicht nur bei gezielten Klicks
+function MapController({ targetMarker, onMoveComplete }) {
   const map = useMap();
-  const [lastCenter, setLastCenter] = useState(null);
   
   useEffect(() => {
-    // Nur bewegen, wenn sich center wirklich geändert hat
-    const centerChanged = !lastCenter || 
-      lastCenter[0] !== center[0] || 
-      lastCenter[1] !== center[1];
-    
-    if (center && centerChanged) {
-      map.setView(center, zoom, { animate: true });
-      setLastCenter(center);
+    if (targetMarker) {
+      map.setView([targetMarker.lat, targetMarker.lng], targetMarker.zoom, { animate: true });
+      // Reset nach dem Bewegen
+      setTimeout(() => onMoveComplete(), 500);
     }
-  }, [center, zoom, map, lastCenter]);
+  }, [targetMarker, map, onMoveComplete]);
   
   return null;
 }
@@ -161,9 +156,10 @@ export default function BaustellenKartePage() {
     });
   }, [baustellenMitKoordinaten, searchTerm, statusFilter]);
 
+  const [targetMarker, setTargetMarker] = useState(null);
+
   const handleBaustelleClick = (baustelle) => {
-    setMapCenter([baustelle.latitude, baustelle.longitude]);
-    setMapZoom(15);
+    setTargetMarker({ lat: baustelle.latitude, lng: baustelle.longitude, zoom: 15 });
   };
 
   const statusLabels = {
@@ -346,7 +342,7 @@ export default function BaustellenKartePage() {
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
-                      <MapController center={mapCenter} zoom={mapZoom} />
+                      <MapController targetMarker={targetMarker} onMoveComplete={() => setTargetMarker(null)} />
                       
                       {filteredBaustellen.map((baustelle) => {
                       const allPhotos = getAllPhotos(baustelle);
