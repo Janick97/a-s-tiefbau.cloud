@@ -92,7 +92,7 @@ const createClusterCustomIcon = function (cluster) {
       </svg>
       <div style="
         position: relative;
-        color: white;
+        color: #f97316;
         font-weight: 900;
         font-size: ${fontSize}px;
         font-family: system-ui, -apple-system, sans-serif;
