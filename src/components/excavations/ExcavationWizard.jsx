@@ -610,21 +610,21 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               }
             `}
           </style>
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-2xl md:rounded-t-lg flex-shrink-0">
-            <div className="flex items-center justify-between mb-3">
-              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
-                <Shovel className="w-5 h-5 md:w-6 md:h-6" />
+          <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-2xl md:rounded-t-lg flex-shrink-0 py-3 px-4">
+            <div className="flex items-center justify-between mb-2">
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <Shovel className="w-4 h-4 md:w-5 md:h-5" />
                 {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
               </CardTitle>
-              <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80 h-8 w-8">
+              <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80 h-7 w-7">
                 <X className="w-4 h-4" />
               </Button>
             </div>
             
             {/* Progress Bar */}
-            <div className="space-y-2">
-              <Progress value={progress} className="h-2 bg-white/20" />
-              <div className="flex justify-between text-xs text-white/80">
+            <div className="space-y-1">
+              <Progress value={progress} className="h-1.5 bg-white/20" />
+              <div className="flex justify-between text-[11px] text-white/80">
                 <span>Schritt {currentStep} von {WIZARD_STEPS.length}</span>
                 <span className="hidden sm:inline">{WIZARD_STEPS[currentStep - 1].title}</span>
               </div>
@@ -1176,8 +1176,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Fotodokumentation & Notizen</h3>
-                    <p className="text-gray-600">Dokumentieren Sie die Baustelle mit Fotos und Notizen</p>
+                    <h3 className="text-2xl font-bold text-gray-900">Fotodokumentation & Notizen</h3>
                   </div>
 
                   <div className="space-y-4">
