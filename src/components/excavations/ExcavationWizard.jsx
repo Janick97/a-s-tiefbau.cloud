@@ -1405,7 +1405,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   ) : (
                     <>
                       <Check className="w-5 h-5 md:w-4 md:h-4 mr-2" />
-                      Bestätigen & Speichern
+                      Speichern
                     </>
                   )}
                 </Button>
