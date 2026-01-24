@@ -508,11 +508,11 @@ export default function BaustellenKartePage() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="absolute top-4 right-4 z-[1000] bg-white hover:bg-gray-100 shadow-lg"
+                  className="absolute top-4 right-4 z-[1000] bg-white hover:bg-gray-100 shadow-lg hidden lg:flex"
                   onClick={() => setIsMapExpanded(!isMapExpanded)}
                 >
                   {isMapExpanded ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}
-                  {isMapExpanded ? 'Verkleinern' : 'Vergrößern'}
+                  <span>{isMapExpanded ? 'Verkleinern' : 'Vergrößern'}</span>
                 </Button>
                 <div className="h-[calc(100vh-280px)] min-h-[600px] relative">
                   {isLoading ? (
