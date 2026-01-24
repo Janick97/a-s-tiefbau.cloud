@@ -16,11 +16,20 @@ import L from 'leaflet';
 // Komponente zum Anpassen der Kartenansicht
 function MapController({ center, zoom }) {
   const map = useMap();
+  const [lastCenter, setLastCenter] = useState(null);
+  
   useEffect(() => {
-    if (center) {
-      map.setView(center, zoom);
+    // Nur bewegen, wenn sich center wirklich geändert hat
+    const centerChanged = !lastCenter || 
+      lastCenter[0] !== center[0] || 
+      lastCenter[1] !== center[1];
+    
+    if (center && centerChanged) {
+      map.setView(center, zoom, { animate: true });
+      setLastCenter(center);
     }
-  }, [center, zoom, map]);
+  }, [center, zoom, map, lastCenter]);
+  
   return null;
 }
 
@@ -347,8 +356,20 @@ export default function BaustellenKartePage() {
                           key={baustelle.id}
                           position={[baustelle.latitude, baustelle.longitude]}
                           icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
+                          eventHandlers={{
+                            click: (e) => {
+                              e.originalEvent.stopPropagation();
+                            }
+                          }}
                         >
-                            <Popup maxWidth={400} minWidth={350}>
+                            <Popup 
+                              maxWidth={400} 
+                              minWidth={350}
+                              autoPan={true}
+                              closeButton={true}
+                              autoClose={false}
+                              closeOnClick={false}
+                            >
                               {/* Header mit Gradient */}
                               <div style={{ 
                                 background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
