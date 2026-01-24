@@ -962,9 +962,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                 >
                   <div className="space-y-4">
                     {/* Schnellauswahl Sets */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <Label className="mb-3 block font-semibold">Schnellauswahl Oberflächen-Sets</Label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <Label className="mb-2 block text-sm font-semibold">Schnellauswahl Sets</Label>
+                      <div className="grid grid-cols-2 gap-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -972,9 +972,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                             handleInputChange('surface_type', 'Platten');
                             handleInputChange('surface_type_2', 'Pflaster');
                           }}
-                          className="h-auto py-3 text-sm"
+                          className="h-auto py-2 text-xs"
                         >
-                          Platten & Pflaster
+                          Platten/Pflaster
                         </Button>
                         <Button
                           type="button"
@@ -983,7 +983,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                             handleInputChange('surface_type', 'Asphalt');
                             handleInputChange('surface_type_2', 'Platten');
                           }}
-                          className="h-auto py-3 text-sm"
+                          className="h-auto py-2 text-xs"
                         >
                           Asphalt/Platten
                         </Button>
@@ -994,9 +994,20 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                             handleInputChange('surface_type', 'Asphalt');
                             handleInputChange('surface_type_2', 'Pflaster');
                           }}
-                          className="h-auto py-3 text-sm"
+                          className="h-auto py-2 text-xs"
                         >
                           Asphalt/Pflaster
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            handleInputChange('surface_type', 'Naturstein');
+                            handleInputChange('surface_type_2', 'Pflaster');
+                          }}
+                          className="h-auto py-2 text-xs"
+                        >
+                          Naturstein/Pflaster
                         </Button>
                       </div>
                     </div>
