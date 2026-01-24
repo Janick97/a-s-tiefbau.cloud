@@ -782,8 +782,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   className="space-y-6"
                 >
                   <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Leistungsdetails erfassen</h3>
-                    <p className="text-gray-600">Wählen Sie die Position und geben Sie die Abmessungen ein</p>
+                    <h3 className="text-2xl font-bold text-gray-900">Leistungsdetails erfassen</h3>
                   </div>
 
                   <div className="space-y-4">
