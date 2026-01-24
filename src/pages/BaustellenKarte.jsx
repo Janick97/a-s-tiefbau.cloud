@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import { Project, Excavation } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -352,7 +352,11 @@ export default function BaustellenKartePage() {
                           position={[baustelle.latitude, baustelle.longitude]}
                           icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
                         >
-                            <Popup maxWidth={400}>
+                            <Tooltip 
+                              direction="right" 
+                              offset={[10, 0]}
+                              opacity={1}
+                              permanent={false}>
                               {/* Header mit Gradient */}
                               <div style={{ 
                                 background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
@@ -783,7 +787,7 @@ export default function BaustellenKartePage() {
                                   Details ansehen
                                 </a>
                               </div>
-                            </Popup>
+                            </Tooltip>
                           </Marker>
                         );
                       })}
