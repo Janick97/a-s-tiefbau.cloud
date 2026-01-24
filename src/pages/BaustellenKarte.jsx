@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Search, Filter, Eye, Navigation, Calendar, Save, Trash2, Route, Layers } from "lucide-react";
+import { MapPin, Search, Filter, Eye, Navigation, Calendar, Save, Trash2, Route, Layers, Maximize2, Minimize2 } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import { Link } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
@@ -127,6 +127,7 @@ export default function BaustellenKartePage() {
   const [savedViews, setSavedViews] = useState([]);
   const [viewName, setViewName] = useState("");
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -499,11 +500,20 @@ export default function BaustellenKartePage() {
         </Card>
 
         {/* Hauptbereich mit Karte und Liste */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 gap-6 ${isMapExpanded ? 'lg:grid-cols-1' : 'lg:grid-cols-3'}`}>
           {/* Karte */}
-          <div className="lg:col-span-2">
+          <div className={isMapExpanded ? 'lg:col-span-1' : 'lg:col-span-2'}>
             <Card className="card-elevation border-none overflow-hidden">
-              <CardContent className="p-0">
+              <CardContent className="p-0 relative">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="absolute top-4 right-4 z-[1000] bg-white hover:bg-gray-100 shadow-lg"
+                  onClick={() => setIsMapExpanded(!isMapExpanded)}
+                >
+                  {isMapExpanded ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}
+                  {isMapExpanded ? 'Verkleinern' : 'Vergrößern'}
+                </Button>
                 <div className="h-[calc(100vh-280px)] min-h-[600px] relative">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-full">
@@ -717,6 +727,7 @@ export default function BaustellenKartePage() {
           </div>
 
           {/* Liste der Baustellen */}
+          {!isMapExpanded && (
           <div className="lg:col-span-1">
             <Card className="card-elevation border-none">
               <CardContent className="p-4">
@@ -809,9 +820,10 @@ export default function BaustellenKartePage() {
                   )}
                 </div>
               </CardContent>
-            </Card>
-          </div>
-        </div>
+              </Card>
+              </div>
+              )}
+              </div>
 
         {/* Interaktive Legende */}
         <Card className="card-elevation border-none mt-6">
