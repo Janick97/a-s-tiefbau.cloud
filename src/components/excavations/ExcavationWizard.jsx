@@ -925,27 +925,29 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="excavation_factor">
-                        Faktor
-                        {selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) && (
-                          <span className="text-xs text-blue-600 ml-2">(automatisch berechnet)</span>
-                        )}
-                      </Label>
-                      <Input
-                        id="excavation_factor"
-                        type="number"
-                        step="0.1"
-                        min="0"
-                        value={formData.excavation_factor}
-                        onChange={(e) => handleInputChange('excavation_factor', parseFloat(e.target.value))}
-                        readOnly={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number)}
-                        className={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) ? 'bg-gray-100' : ''}
-                      />
+                    {serviceCategory !== 'graben' && (
+                      <div className="space-y-2">
+                        <Label htmlFor="excavation_factor">
+                          Faktor
+                          {selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) && (
+                            <span className="text-xs text-blue-600 ml-2">(automatisch berechnet)</span>
+                          )}
+                        </Label>
+                        <Input
+                          id="excavation_factor"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={formData.excavation_factor}
+                          onChange={(e) => handleInputChange('excavation_factor', parseFloat(e.target.value))}
+                          readOnly={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number)}
+                          className={selectedPriceItem && detailDimensionPositions.includes(selectedPriceItem.item_number) ? 'bg-gray-100' : ''}
+                        />
+                      </div>
+                    )}
+
+
                     </div>
-
-
-                  </div>
                 </motion.div>
               )}
 
