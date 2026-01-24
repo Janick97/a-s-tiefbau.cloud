@@ -1593,7 +1593,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                     <SelectValue placeholder="Material auswählen..." />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {['SNRVe', 'Mikro-Rohr', 'Kabel', 'Mauerdurchführung', 'KVz'].map(category => {
+                    {['Kabel', 'SNRVe', 'Mikro-Rohr', 'Mauerdurchführung', 'KVz'].map(category => {
                       const categoryMaterials = materials.filter(m => m.category === category);
                       if (categoryMaterials.length === 0) return null;
                       return (
