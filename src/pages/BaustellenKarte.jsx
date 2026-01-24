@@ -54,37 +54,55 @@ const createCustomIcon = (isBackfilled, isClosed) => {
 // Custom Cluster Icon
 const createClusterCustomIcon = function (cluster) {
   const childCount = cluster.getChildCount();
-  let size = 50;
+  let size = 60;
   let fontSize = 20;
   
   // Größere Cluster = größeres Icon
   if (childCount > 100) {
-    size = 80;
+    size = 90;
     fontSize = 28;
   } else if (childCount > 50) {
-    size = 65;
+    size = 75;
     fontSize = 24;
   }
   
+  const svgSize = size;
+  const trianglePoints = `${svgSize/2},${svgSize*0.15} ${svgSize*0.9},${svgSize*0.85} ${svgSize*0.1},${svgSize*0.85}`;
+  
   return new L.DivIcon({
     html: `<div style="
-      width: ${size}px;
-      height: ${size}px;
-      background: #dc2626;
-      border-radius: 50%;
-      border: 5px solid white;
-      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.6), 0 3px 8px rgba(0, 0, 0, 0.4);
+      width: ${svgSize}px;
+      height: ${svgSize}px;
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
-      font-weight: 900;
-      font-size: ${fontSize}px;
-      font-family: system-ui, -apple-system, sans-serif;
-    ">${childCount}</div>`,
+    ">
+      <svg width="${svgSize}" height="${svgSize}" style="position: absolute; top: 0; left: 0;">
+        <polygon points="${trianglePoints}" 
+          fill="#dc2626" 
+          stroke="white" 
+          stroke-width="4"
+          filter="url(#shadow)" />
+        <defs>
+          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+            <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="rgba(220, 38, 38, 0.6)"/>
+          </filter>
+        </defs>
+      </svg>
+      <div style="
+        position: relative;
+        color: white;
+        font-weight: 900;
+        font-size: ${fontSize}px;
+        font-family: system-ui, -apple-system, sans-serif;
+        z-index: 1;
+        margin-top: ${svgSize * 0.1}px;
+      ">${childCount}</div>
+    </div>`,
     className: 'custom-cluster-marker',
-    iconSize: new L.Point(size, size),
-    iconAnchor: new L.Point(size / 2, size / 2)
+    iconSize: new L.Point(svgSize, svgSize),
+    iconAnchor: new L.Point(svgSize / 2, svgSize * 0.7)
   });
 };
 
