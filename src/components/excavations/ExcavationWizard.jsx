@@ -152,6 +152,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
     edge_stone_length: '',
     gutter_length: '',
     excavated_material_left_onsite: false,
+    provisionally_filled: false,
     photos_before: [],
     photos_after: [],
     photos_environment: [],
@@ -1066,18 +1067,36 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         />
                         <Label htmlFor="gravel_used" className="cursor-pointer">Splitt</Label>
                       </div>
-                    </div>
+                      </div>
 
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="iron_plate_laid"
-                        checked={formData.iron_plate_laid}
-                        onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
-                      />
-                      <Label htmlFor="iron_plate_laid" className="cursor-pointer">Eisenplatte vor Ort</Label>
-                    </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="iron_plate_laid"
+                          checked={formData.iron_plate_laid}
+                          onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
+                        />
+                        <Label htmlFor="iron_plate_laid" className="cursor-pointer">Eisenplatte vor Ort</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="excavated_material_left_onsite"
+                          checked={formData.excavated_material_left_onsite}
+                          onCheckedChange={(checked) => handleInputChange('excavated_material_left_onsite', checked)}
+                        />
+                        <Label htmlFor="excavated_material_left_onsite" className="cursor-pointer">Aushub vor Ort</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="provisionally_filled"
+                          checked={formData.provisionally_filled}
+                          onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
+                        />
+                        <Label htmlFor="provisionally_filled" className="cursor-pointer">Grube prov. bündig verfüllt</Label>
+                      </div>
+                      </div>
 
-                    <div className="grid grid-cols-3 gap-3">
+                      <div className="grid grid-cols-3 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="curb_length">Bordstein (m)</Label>
                         <Input
@@ -1274,9 +1293,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           {formData.mortar_used && <Badge variant="outline">Mörtel</Badge>}
                           {formData.gravel_used && <Badge variant="outline">Splitt</Badge>}
                           {formData.iron_plate_laid && <Badge variant="outline">Eisenplatte</Badge>}
+                          {formData.excavated_material_left_onsite && <Badge variant="outline">Aushub vor Ort</Badge>}
+                          {formData.provisionally_filled && <Badge variant="outline">Prov. bündig verfüllt</Badge>}
                         </div>
-                      </CardContent>
-                    </Card>
+                        </CardContent>
+                        </Card>
 
                     <Card>
                       <CardHeader>
