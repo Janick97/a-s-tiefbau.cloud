@@ -505,9 +505,9 @@ export default function BaustellenKartePage() {
           <div className={isMapExpanded ? 'lg:col-span-1' : 'lg:col-span-2'}>
             <Card className="card-elevation border-none overflow-hidden relative">
               <Button
-                variant="secondary"
+                variant="default"
                 size="sm"
-                className="absolute top-4 right-4 z-[1000] bg-white hover:bg-gray-100 shadow-lg hidden lg:flex"
+                className="absolute top-4 right-4 z-[1000] shadow-lg hidden lg:flex"
                 onClick={() => setIsMapExpanded(!isMapExpanded)}
               >
                 {isMapExpanded ? <Minimize2 className="w-4 h-4 mr-2" /> : <Maximize2 className="w-4 h-4 mr-2" />}
