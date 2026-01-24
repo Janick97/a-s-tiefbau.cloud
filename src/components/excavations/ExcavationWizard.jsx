@@ -1171,7 +1171,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           checked={formData.provisionally_filled}
                           onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
                         />
-                        <Label htmlFor="provisionally_filled" className="cursor-pointer">Grube prov. bündig verfüllt</Label>
+                        <Label htmlFor="provisionally_filled" className="cursor-pointer">Grube bündig verfüllt</Label>
                       </div>
                       </div>
 
@@ -1374,7 +1374,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           {formData.gravel_used && <Badge variant="outline">Splitt</Badge>}
                           {formData.iron_plate_laid && <Badge variant="outline">Eisenplatte</Badge>}
                           {formData.excavated_material_left_onsite && <Badge variant="outline">Aushub vor Ort</Badge>}
-                          {formData.provisionally_filled && <Badge variant="outline">Prov. bündig verfüllt</Badge>}
+                          {formData.provisionally_filled && <Badge variant="outline">Bündig verfüllt</Badge>}
                         </div>
                         </CardContent>
                         </Card>
