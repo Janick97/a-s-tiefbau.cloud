@@ -13,20 +13,7 @@ import { Link } from "react-router-dom";
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Komponente zum Anpassen der Kartenansicht nur bei gezielten Klicks
-function MapController({ targetMarker, onMoveComplete }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (targetMarker) {
-      map.setView([targetMarker.lat, targetMarker.lng], targetMarker.zoom, { animate: true });
-      // Reset nach dem Bewegen
-      setTimeout(() => onMoveComplete(), 500);
-    }
-  }, [targetMarker, map, onMoveComplete]);
-  
-  return null;
-}
+
 
 // Custom Marker Icons - IMMER sichtbar mit orangenen Punkten
 const createCustomIcon = (isBackfilled, isClosed) => {
@@ -61,6 +48,7 @@ export default function BaustellenKartePage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // Deutschland Zentrum
   const [mapZoom, setMapZoom] = useState(6);
+  const [mapInstance, setMapInstance] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -156,10 +144,10 @@ export default function BaustellenKartePage() {
     });
   }, [baustellenMitKoordinaten, searchTerm, statusFilter]);
 
-  const [targetMarker, setTargetMarker] = useState(null);
-
   const handleBaustelleClick = (baustelle) => {
-    setTargetMarker({ lat: baustelle.latitude, lng: baustelle.longitude, zoom: 15 });
+    if (mapInstance) {
+      mapInstance.setView([baustelle.latitude, baustelle.longitude], 15, { animate: true });
+    }
   };
 
   const statusLabels = {
@@ -337,20 +325,12 @@ export default function BaustellenKartePage() {
                       zoom={mapZoom}
                       style={{ height: '100%', width: '100%' }}
                       scrollWheelZoom={true}
-                      whenCreated={(map) => {
-                        map.on('popupopen', () => {
-                          map.dragging.disable();
-                        });
-                        map.on('popupclose', () => {
-                          map.dragging.enable();
-                        });
-                      }}
+                      ref={setMapInstance}
                     >
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
-                      <MapController targetMarker={targetMarker} onMoveComplete={() => setTargetMarker(null)} />
                       
                       {filteredBaustellen.map((baustelle) => {
                       const allPhotos = getAllPhotos(baustelle);
@@ -369,7 +349,7 @@ export default function BaustellenKartePage() {
                             <Popup 
                               maxWidth={400} 
                               minWidth={350}
-                              autoPan={true}
+                              autoPan={false}
                               closeButton={true}
                               autoClose={false}
                               closeOnClick={false}
