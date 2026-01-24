@@ -1559,32 +1559,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               <CardTitle className="text-base">Material hinzufügen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Schnellauswahl für häufige Materialien */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <Label className="mb-2 block text-sm font-semibold">Schnellauswahl Vzk</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {['10p Vzk', '20p Vzk', '50p Vzk', '100p Vzk'].map(vzkName => {
-                    const vzkMaterial = materials.find(m => m.name.includes(vzkName) || m.article_number.includes(vzkName));
-                    return vzkMaterial ? (
-                      <Button
-                        key={vzkMaterial.id}
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setCurrentMaterial({
-                            material_id: vzkMaterial.id,
-                            quantity: 1
-                          });
-                        }}
-                        className="h-auto py-2 text-xs"
-                      >
-                        {vzkName}
-                      </Button>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <Label>Material</Label>
                 <Select 
@@ -1594,12 +1568,23 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   <SelectTrigger>
                     <SelectValue placeholder="Material auswählen..." />
                   </SelectTrigger>
-                  <SelectContent>
-                    {materials.map(material => (
-                      <SelectItem key={material.id} value={material.id}>
-                        {material.name} ({material.article_number})
-                      </SelectItem>
-                    ))}
+                  <SelectContent className="max-h-[300px]">
+                    {['SNRVe', 'Mikro-Rohr', 'Kabel', 'Mauerdurchführung', 'KVz'].map(category => {
+                      const categoryMaterials = materials.filter(m => m.category === category);
+                      if (categoryMaterials.length === 0) return null;
+                      return (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 sticky top-0">
+                            {category}
+                          </div>
+                          {categoryMaterials.map(material => (
+                            <SelectItem key={material.id} value={material.id} className="pl-4">
+                              {material.name} ({material.article_number})
+                            </SelectItem>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
