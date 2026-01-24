@@ -57,6 +57,7 @@ export default function BaustellenKartePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [workflowStatusFilter, setWorkflowStatusFilter] = useState("all");
   const [mapCenter, setMapCenter] = useState([51.1657, 10.4515]); // Deutschland Zentrum
   const [mapZoom, setMapZoom] = useState(6);
   const [mapInstance, setMapInstance] = useState(null);
@@ -150,10 +151,11 @@ export default function BaustellenKartePage() {
         (baustelle.city || '').toLowerCase().includes(searchLower);
       
       const matchesStatus = statusFilter === "all" || baustelle.projectStatus === statusFilter;
+      const matchesWorkflowStatus = workflowStatusFilter === "all" || baustelle.projectStatusLabel === workflowStatusFilter;
       
-      return matchesSearch && matchesStatus;
+      return matchesSearch && matchesStatus && matchesWorkflowStatus;
     });
-  }, [baustellenMitKoordinaten, searchTerm, statusFilter]);
+  }, [baustellenMitKoordinaten, searchTerm, statusFilter, workflowStatusFilter]);
 
   const handleBaustelleClick = (baustelle) => {
     if (mapInstance) {
@@ -286,17 +288,35 @@ export default function BaustellenKartePage() {
                   className="pl-10"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+              <Select value={workflowStatusFilter} onValueChange={setWorkflowStatusFilter}>
+                <SelectTrigger className="w-full md:w-64">
                   <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue />
+                  <SelectValue placeholder="Auftragsstatus" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle Status</SelectItem>
-                  <SelectItem value="planning">Planung</SelectItem>
-                  <SelectItem value="active">Aktiv</SelectItem>
-                  <SelectItem value="completed">Abgeschlossen</SelectItem>
-                  <SelectItem value="on_hold">Pausiert</SelectItem>
+                  <SelectItem value="all">Alle Auftragsstatus</SelectItem>
+                  <SelectItem value="Auftrag neu im Server">Auftrag neu im Server</SelectItem>
+                  <SelectItem value="Auftrag angelegt ohne VAO">Auftrag angelegt ohne VAO</SelectItem>
+                  <SelectItem value="Auftrag neu VAO beantragt">Auftrag neu VAO beantragt</SelectItem>
+                  <SelectItem value="VAO bei Baubeginn">VAO bei Baubeginn</SelectItem>
+                  <SelectItem value="Auftrag angelegt keine VAO nötig">Auftrag angelegt keine VAO nötig</SelectItem>
+                  <SelectItem value="Folgeauftrag">Folgeauftrag</SelectItem>
+                  <SelectItem value="VAO von Projekt">VAO von Projekt</SelectItem>
+                  <SelectItem value="Jahresgenehmigung">Jahresgenehmigung</SelectItem>
+                  <SelectItem value="Aufgrabung beantragt">Aufgrabung beantragt</SelectItem>
+                  <SelectItem value="Privat">Privat</SelectItem>
+                  <SelectItem value="Storniert">Storniert</SelectItem>
+                  <SelectItem value="Baustelle bearbeiten">Baustelle bearbeiten</SelectItem>
+                  <SelectItem value="Montage neu in Craftnote angelegt">Montage neu in Craftnote angelegt</SelectItem>
+                  <SelectItem value="Montage fertig">Montage fertig</SelectItem>
+                  <SelectItem value="Planbare Baustelle begonnen">Planbare Baustelle begonnen</SelectItem>
+                  <SelectItem value="Technisch fertig">Technisch fertig</SelectItem>
+                  <SelectItem value="Kann zu VERFÜLLEN">Kann zu VERFÜLLEN</SelectItem>
+                  <SelectItem value="Kann zu Pflaster/Platten">Kann zu Pflaster/Platten</SelectItem>
+                  <SelectItem value="Kann zu Asphalt TRAG">Kann zu Asphalt TRAG</SelectItem>
+                  <SelectItem value="Kann zu Asphalt FEIN">Kann zu Asphalt FEIN</SelectItem>
+                  <SelectItem value="Baustelle fertig">Baustelle fertig</SelectItem>
+                  <SelectItem value="Auftrag komplett abgeschlossen">Auftrag komplett abgeschlossen</SelectItem>
                 </SelectContent>
               </Select>
             </div>
