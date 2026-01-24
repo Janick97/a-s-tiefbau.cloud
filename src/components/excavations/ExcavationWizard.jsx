@@ -803,7 +803,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                                 <div className="font-semibold">{item.item_number}</div>
                                 <div className="line-clamp-2">{item.description}</div>
                                 <div className="font-semibold text-[10px]">
-                                  {item.unit}{currentUser?.position !== 'Bauleiter' && ` • €${item.price.toFixed(2)}`}
+                                 {item.unit}
                                 </div>
                               </div>
                             </SelectItem>
@@ -814,7 +814,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded border">
                           <div className="font-medium text-gray-900">{selectedPriceItem.item_number}</div>
                           <div className="mt-1">{selectedPriceItem.description}</div>
-                          <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit}{currentUser?.position !== 'Bauleiter' && ` • €${selectedPriceItem.price.toFixed(2)}`}</div>
+                          <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit}</div>
                         </div>
                       )}
                     </div>
@@ -945,16 +945,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       />
                     </div>
 
-                    {selectedPriceItem && currentUser?.position !== 'Bauleiter' && (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-green-800">Berechneter Preis:</span>
-                          <span className="text-xl font-bold text-green-700">
-                            €{formData.calculated_price.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+
                   </div>
                 </motion.div>
               )}
@@ -969,6 +960,46 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   className="space-y-6"
                 >
                   <div className="space-y-4">
+                    {/* Schnellauswahl Sets */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <Label className="mb-3 block font-semibold">Schnellauswahl Oberflächen-Sets</Label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            handleInputChange('surface_type', 'Platten');
+                            handleInputChange('surface_type_2', 'Pflaster');
+                          }}
+                          className="h-auto py-3 text-sm"
+                        >
+                          Platten & Pflaster
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            handleInputChange('surface_type', 'Asphalt');
+                            handleInputChange('surface_type_2', 'Platten');
+                          }}
+                          className="h-auto py-3 text-sm"
+                        >
+                          Asphalt/Platten
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            handleInputChange('surface_type', 'Asphalt');
+                            handleInputChange('surface_type_2', 'Pflaster');
+                          }}
+                          className="h-auto py-3 text-sm"
+                        >
+                          Asphalt/Pflaster
+                        </Button>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="surface_type">Oberfläche 1 *</Label>
@@ -1265,11 +1296,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         {selectedCable && (
                           <p className="text-sm mt-2"><span className="font-medium">Kabel:</span> {selectedCable.name}</p>
                         )}
-                        {currentUser?.position !== 'Bauleiter' && (
-                          <div className="bg-green-50 border border-green-200 rounded p-3 mt-2">
-                            <p className="font-semibold text-green-800">Preis: €{formData.calculated_price.toFixed(2)}</p>
-                          </div>
-                        )}
+
                       </CardContent>
                     </Card>
 
@@ -1479,6 +1506,32 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
               <CardTitle className="text-base">Material hinzufügen</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Schnellauswahl für häufige Materialien */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <Label className="mb-2 block text-sm font-semibold">Schnellauswahl Vzk</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {['10p Vzk', '20p Vzk', '50p Vzk', '100p Vzk'].map(vzkName => {
+                    const vzkMaterial = materials.find(m => m.name.includes(vzkName) || m.article_number.includes(vzkName));
+                    return vzkMaterial ? (
+                      <Button
+                        key={vzkMaterial.id}
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setCurrentMaterial({
+                            material_id: vzkMaterial.id,
+                            quantity: 1
+                          });
+                        }}
+                        className="h-auto py-2 text-xs"
+                      >
+                        {vzkName}
+                      </Button>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <Label>Material</Label>
                 <Select 
