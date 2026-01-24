@@ -354,11 +354,9 @@ export default function BaustellenKartePage() {
                         >
                             <Popup 
                               maxWidth={400} 
-                              minWidth={350}
-                              autoPan={false}
+                              minWidth={300}
                               closeButton={true}
-                              autoClose={false}
-                              closeOnClick={false}
+                              keepInView={true}
                             >
                               {/* Header mit Gradient */}
                               <div style={{ 
