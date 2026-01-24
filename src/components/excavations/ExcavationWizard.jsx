@@ -855,13 +855,24 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                               <SelectTrigger>
                                 <SelectValue placeholder="Optional: Kabel auswählen..." />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="max-h-[300px]">
                                 <SelectItem value={null}>Kein Kabel</SelectItem>
-                                {materials.map(material => (
-                                  <SelectItem key={material.id} value={material.id}>
-                                    {material.name} ({material.article_number})
-                                  </SelectItem>
-                                ))}
+                                {['SNRVe', 'Mikro-Rohr', 'Kabel', 'Mauerdurchführung', 'KVz'].map(category => {
+                                  const categoryMaterials = materials.filter(m => m.category === category);
+                                  if (categoryMaterials.length === 0) return null;
+                                  return (
+                                    <div key={category}>
+                                      <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-100 sticky top-0">
+                                        {category}
+                                      </div>
+                                      {categoryMaterials.map(material => (
+                                        <SelectItem key={material.id} value={material.id} className="pl-4">
+                                          {material.name} ({material.article_number})
+                                        </SelectItem>
+                                      ))}
+                                    </div>
+                                  );
+                                })}
                               </SelectContent>
                             </Select>
                           </div>
