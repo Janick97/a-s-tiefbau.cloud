@@ -504,7 +504,7 @@ export default function BaustellenKartePage() {
           <div className="lg:col-span-2">
             <Card className="card-elevation border-none overflow-hidden">
               <CardContent className="p-0">
-                <div className="h-[600px] relative">
+                <div className="h-[calc(100vh-280px)] min-h-[600px] relative">
                   {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                       <div className="animate-spin w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full"></div>
@@ -721,7 +721,7 @@ export default function BaustellenKartePage() {
             <Card className="card-elevation border-none">
               <CardContent className="p-4">
                 <h3 className="font-semibold text-gray-900 mb-4">Baustellen-Liste</h3>
-                <div className="space-y-3 max-h-[540px] overflow-y-auto">
+                <div className="space-y-3 max-h-[calc(100vh-340px)] min-h-[540px] overflow-y-auto">
                   {filteredBaustellen.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">
                       <MapPin className="w-12 h-12 mx-auto mb-2 text-gray-300" />
