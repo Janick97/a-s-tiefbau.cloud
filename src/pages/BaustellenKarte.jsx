@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { Project, Excavation } from "@/entities/all";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,17 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 
+
+// Komponente um Map-Instanz zu speichern
+function MapEvents({ setMapInstance }) {
+  const map = useMapEvents({});
+  
+  useEffect(() => {
+    setMapInstance(map);
+  }, [map, setMapInstance]);
+  
+  return null;
+}
 
 // Custom Marker Icons - IMMER sichtbar mit orangenen Punkten
 const createCustomIcon = (isBackfilled, isClosed) => {
@@ -325,12 +336,12 @@ export default function BaustellenKartePage() {
                       zoom={mapZoom}
                       style={{ height: '100%', width: '100%' }}
                       scrollWheelZoom={true}
-                      ref={setMapInstance}
                     >
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
+                      <MapEvents setMapInstance={setMapInstance} />
                       
                       {filteredBaustellen.map((baustelle) => {
                       const allPhotos = getAllPhotos(baustelle);
@@ -340,11 +351,6 @@ export default function BaustellenKartePage() {
                           key={baustelle.id}
                           position={[baustelle.latitude, baustelle.longitude]}
                           icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
-                          eventHandlers={{
-                            click: (e) => {
-                              e.originalEvent.stopPropagation();
-                            }
-                          }}
                         >
                             <Popup 
                               maxWidth={400} 
