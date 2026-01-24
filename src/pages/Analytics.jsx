@@ -37,6 +37,7 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
+import AIInsights from "../components/analytics/AIInsights";
 
 const MONTHLY_TARGET_BAULEITER = 50000;
 const MONTHLY_TARGET_OBERFLAECHE = 10000;
@@ -583,6 +584,22 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
+        
+        {/* KI-Analysebereich - nur für Admins sichtbar */}
+        {user?.role === 'admin' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <AIInsights 
+              projects={projects}
+              excavations={excavations}
+              selectedMonth={selectedMonth}
+              user={user}
+            />
+          </motion.div>
+        )}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
