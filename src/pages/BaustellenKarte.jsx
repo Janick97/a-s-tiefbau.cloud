@@ -66,9 +66,8 @@ const createClusterCustomIcon = function (cluster) {
     fontSize = 24;
   }
   
-  return L.divIcon({
+  return new L.DivIcon({
     html: `<div style="
-      position: relative;
       width: ${size}px;
       height: ${size}px;
       background: #dc2626;
@@ -83,9 +82,9 @@ const createClusterCustomIcon = function (cluster) {
       font-size: ${fontSize}px;
       font-family: system-ui, -apple-system, sans-serif;
     ">${childCount}</div>`,
-    className: 'marker-cluster-custom',
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2]
+    className: 'custom-cluster-marker',
+    iconSize: new L.Point(size, size),
+    iconAnchor: new L.Point(size / 2, size / 2)
   });
 };
 
@@ -298,11 +297,11 @@ export default function BaustellenKartePage() {
         .leaflet-marker-icon:hover {
           transform: scale(1.2);
         }
-        .marker-cluster-custom {
+        .custom-cluster-marker {
           background: transparent !important;
           border: none !important;
         }
-        .marker-cluster-custom div:hover {
+        .custom-cluster-marker > div:hover {
           transform: scale(1.1);
           box-shadow: 0 8px 20px rgba(220, 38, 38, 0.8), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
         }
