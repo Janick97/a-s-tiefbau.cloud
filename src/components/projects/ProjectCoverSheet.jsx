@@ -136,6 +136,10 @@ export default function ProjectCoverSheet({ project, excavations, materials, tim
       details.push('✓ Aushub vor Ort');
     }
 
+    if (exc.provisionally_filled) {
+      details.push('✓ Prov. bündig verfüllt');
+    }
+
     return details.length > 0 ? details : ['-'];
   };
 
