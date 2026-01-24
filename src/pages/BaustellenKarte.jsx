@@ -352,14 +352,7 @@ export default function BaustellenKartePage() {
                           position={[baustelle.latitude, baustelle.longitude]}
                           icon={createCustomIcon(baustelle.isBackfilled, baustelle.isClosed)}
                         >
-                            <Popup 
-                              maxWidth={400} 
-                              minWidth={300}
-                              autoPan={false}
-                              closeButton={true}
-                              autoClose={false}
-                              closeOnClick={false}
-                            >
+                            <Popup maxWidth={400}>
                               {/* Header mit Gradient */}
                               <div style={{ 
                                 background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
