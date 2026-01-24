@@ -204,33 +204,17 @@ export default function BaustellenKartePage() {
         .leaflet-marker-icon:hover {
           transform: scale(1.2);
         }
-        .leaflet-popup-content-wrapper {
+        .leaflet-tooltip {
           background: white !important;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
-          border-radius: 16px !important;
+          border: none !important;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          border-radius: 8px !important;
           padding: 0 !important;
-          overflow: hidden !important;
-          max-width: 400px !important;
-        }
-        .leaflet-popup-content {
-          margin: 0 !important;
-          padding: 0 !important;
-          width: 100% !important;
-          max-width: 400px !important;
+          max-width: 280px !important;
           font-family: system-ui, -apple-system, sans-serif !important;
         }
-        .leaflet-popup-tip {
-          background: white !important;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
-        }
-        .leaflet-popup-close-button {
-          color: white !important;
-          font-size: 24px !important;
-          padding: 8px 12px !important;
-          z-index: 10 !important;
-        }
-        .leaflet-popup-close-button:hover {
-          color: rgba(255, 255, 255, 0.8) !important;
+        .leaflet-tooltip:before {
+          display: none !important;
         }
         .photo-grid {
           display: grid;
@@ -357,74 +341,48 @@ export default function BaustellenKartePage() {
                               offset={[10, 0]}
                               opacity={1}
                               permanent={false}>
-                              {/* Header mit Gradient */}
+                              {/* Kompakte Header */}
                               <div style={{ 
                                 background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
-                                padding: '20px',
+                                padding: '8px 12px',
                                 color: 'white'
                               }}>
                                 <div style={{ 
-                                  fontSize: '18px',
+                                  fontSize: '13px',
                                   fontWeight: 'bold',
-                                  marginBottom: '4px'
+                                  marginBottom: '2px'
                                 }}>
                                   {baustelle.projectNumber}
                                 </div>
                                 <div style={{ 
-                                  fontSize: '14px',
-                                  opacity: 0.95
+                                  fontSize: '11px',
+                                  opacity: 0.9,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
                                 }}>
                                   {baustelle.projectTitle}
                                 </div>
                               </div>
-                              
+
                               {/* Content */}
                               <div style={{ 
-                                padding: '20px',
-                                background: 'white'
+                                padding: '10px',
+                                background: 'white',
+                                fontSize: '11px'
                               }}>
                                 {/* Standort */}
-                                <div style={{ marginBottom: '16px' }}>
+                                <div style={{ marginBottom: '8px' }}>
                                   <div style={{ 
-                                    display: 'flex',
-                                    alignItems: 'flex-start',
-                                    gap: '8px',
-                                    marginBottom: '8px'
+                                    fontWeight: '600',
+                                    color: '#111827',
+                                    marginBottom: '2px',
+                                    fontSize: '11px'
                                   }}>
-                                    <svg 
-                                      xmlns="http://www.w3.org/2000/svg" 
-                                      width="16" 
-                                      height="16" 
-                                      viewBox="0 0 24 24" 
-                                      fill="none" 
-                                      stroke="currentColor" 
-                                      strokeWidth="2" 
-                                      strokeLinecap="round" 
-                                      strokeLinejoin="round"
-                                      style={{ 
-                                        color: '#6b7280',
-                                        marginTop: '2px',
-                                        flexShrink: 0
-                                      }}
-                                    >
-                                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                      <circle cx="12" cy="10" r="3"></circle>
-                                    </svg>
-                                    <div style={{ fontSize: '14px' }}>
-                                      <div style={{ 
-                                        fontWeight: '500',
-                                        color: '#111827',
-                                        marginBottom: '2px'
-                                      }}>
-                                        {baustelle.locationName}
-                                      </div>
-                                      <div style={{ color: '#6b7280' }}>
-                                        {baustelle.street}
-                                      </div>
-                                      <div style={{ color: '#6b7280' }}>
-                                        {baustelle.city}
-                                      </div>
-                                    </div>
+                                    {baustelle.locationName}
+                                  </div>
+                                  <div style={{ color: '#6b7280', fontSize: '10px' }}>
+                                    {baustelle.street}, {baustelle.city}
                                   </div>
                                 </div>
                                 
@@ -432,359 +390,103 @@ export default function BaustellenKartePage() {
                                 {(baustelle.excavationLength || baustelle.excavationWidth || baustelle.excavationDepth) && (
                                   <div style={{ 
                                     background: '#f9fafb',
-                                    padding: '12px',
-                                    borderRadius: '8px',
-                                    marginBottom: '12px'
+                                    padding: '6px',
+                                    borderRadius: '4px',
+                                    marginBottom: '6px',
+                                    fontSize: '10px'
                                   }}>
                                     <div style={{ 
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      color: '#f97316',
-                                      marginBottom: '8px'
-                                    }}>
-                                      Abmessungen
-                                    </div>
-                                    <div style={{ 
-                                      display: 'grid',
-                                      gridTemplateColumns: '1fr 1fr',
+                                      display: 'flex',
                                       gap: '8px',
-                                      fontSize: '13px'
+                                      flexWrap: 'wrap'
                                     }}>
-                                      <div>
-                                        <span style={{ color: '#6b7280' }}>Länge:</span>{' '}
-                                        <span style={{ fontWeight: '600' }}>{baustelle.excavationLength?.toFixed(2) || '0.00'}m</span>
-                                      </div>
-                                      <div>
-                                        <span style={{ color: '#6b7280' }}>Breite:</span>{' '}
-                                        <span style={{ fontWeight: '600' }}>{baustelle.excavationWidth?.toFixed(2) || '0.00'}m</span>
-                                      </div>
-                                      <div>
-                                        <span style={{ color: '#6b7280' }}>Tiefe:</span>{' '}
-                                        <span style={{ fontWeight: '600' }}>{baustelle.excavationDepth?.toFixed(2) || '0.00'}m</span>
-                                      </div>
-                                      {baustelle.excavationFactor && baustelle.excavationFactor !== 1 && (
-                                        <div>
-                                          <span style={{ color: '#6b7280' }}>Faktor:</span>{' '}
-                                          <span style={{ fontWeight: '600' }}>{baustelle.excavationFactor}</span>
-                                        </div>
-                                      )}
+                                      <span><strong>L:</strong> {baustelle.excavationLength?.toFixed(1)}m</span>
+                                      <span><strong>B:</strong> {baustelle.excavationWidth?.toFixed(1)}m</span>
+                                      <span><strong>T:</strong> {baustelle.excavationDepth?.toFixed(1)}m</span>
                                     </div>
                                   </div>
                                 )}
 
-                                {/* Oberflächen & Material */}
-                                {(baustelle.surfaceType || baustelle.surfaceType2 || baustelle.concreteBaseUsed || baustelle.mortarUsed || baustelle.gravelUsed) && (
-                                  <div style={{ marginBottom: '12px' }}>
-                                    {(baustelle.surfaceType || baustelle.surfaceType2) && (
-                                      <div style={{ marginBottom: '8px' }}>
-                                        <div style={{ 
-                                          fontSize: '12px',
-                                          fontWeight: '600',
-                                          color: '#3b82f6',
-                                          marginBottom: '4px'
+                                {/* Oberflächen & Material kompakt */}
+                                {(baustelle.surfaceType || baustelle.surfaceType2) && (
+                                  <div style={{ marginBottom: '6px' }}>
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', fontSize: '9px' }}>
+                                      {baustelle.surfaceType && (
+                                        <span style={{ 
+                                          background: '#dbeafe',
+                                          color: '#1e40af',
+                                          padding: '2px 6px',
+                                          borderRadius: '3px',
+                                          fontWeight: '500'
                                         }}>
-                                          Oberfläche
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                          {baustelle.surfaceType && (
-                                            <span style={{ 
-                                              background: '#dbeafe',
-                                              color: '#1e40af',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px',
-                                              fontWeight: '500'
-                                            }}>
-                                              {baustelle.surfaceType}
-                                            </span>
-                                          )}
-                                          {baustelle.surfaceType2 && (
-                                            <span style={{ 
-                                              background: '#e9d5ff',
-                                              color: '#7c3aed',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px',
-                                              fontWeight: '500'
-                                            }}>
-                                              {baustelle.surfaceType2}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
-                                    {(baustelle.concreteBaseUsed || baustelle.mortarUsed || baustelle.gravelUsed) && (
-                                      <div>
-                                        <div style={{ 
-                                          fontSize: '12px',
-                                          fontWeight: '600',
-                                          color: '#10b981',
-                                          marginBottom: '4px'
+                                          {baustelle.surfaceType}
+                                        </span>
+                                      )}
+                                      {baustelle.surfaceType2 && (
+                                        <span style={{ 
+                                          background: '#e9d5ff',
+                                          color: '#7c3aed',
+                                          padding: '2px 6px',
+                                          borderRadius: '3px',
+                                          fontWeight: '500'
                                         }}>
-                                          Material
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                          {baustelle.concreteBaseUsed && (
-                                            <span style={{ 
-                                              background: '#d1fae5',
-                                              color: '#065f46',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px'
-                                            }}>
-                                              Unterbeton
-                                            </span>
-                                          )}
-                                          {baustelle.mortarUsed && (
-                                            <span style={{ 
-                                              background: '#d1fae5',
-                                              color: '#065f46',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px'
-                                            }}>
-                                              Mörtel
-                                            </span>
-                                          )}
-                                          {baustelle.gravelUsed && (
-                                            <span style={{ 
-                                              background: '#d1fae5',
-                                              color: '#065f46',
-                                              padding: '4px 8px',
-                                              borderRadius: '4px',
-                                              fontSize: '11px'
-                                            }}>
-                                              Splitt
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
+                                          {baustelle.surfaceType2}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
 
                                 {/* Status der Leistung */}
                                 <div style={{ 
                                   background: baustelle.isClosed ? '#dcfce7' : baustelle.isBackfilled ? '#fef9c3' : '#fee2e2',
-                                  padding: '12px',
-                                  borderRadius: '8px',
-                                  marginBottom: '12px',
-                                  border: `2px solid ${baustelle.isClosed ? '#22c55e' : baustelle.isBackfilled ? '#eab308' : '#ef4444'}`
+                                  padding: '6px',
+                                  borderRadius: '4px',
+                                  marginBottom: '6px',
+                                  fontSize: '10px',
+                                  fontWeight: '600',
+                                  color: baustelle.isClosed ? '#166534' : baustelle.isBackfilled ? '#854d0e' : '#991b1b'
                                 }}>
-                                  <div style={{ 
-                                    fontSize: '12px',
-                                    fontWeight: '700',
-                                    color: baustelle.isClosed ? '#166534' : baustelle.isBackfilled ? '#854d0e' : '#991b1b',
-                                    marginBottom: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                  }}>
-                                    <span style={{ fontSize: '16px' }}>
-                                      {baustelle.isClosed ? '✅' : baustelle.isBackfilled ? '🟡' : '🔴'}
-                                    </span>
-                                    {baustelle.isClosed ? 'Fertiggestellt' : baustelle.isBackfilled ? 'Verfüllt - Oberfläche offen' : 'Offen - Nicht verfüllt'}
-                                  </div>
-                                  
-                                  {baustelle.isBackfilled && baustelle.backfilledBy && (
-                                    <div style={{ fontSize: '11px', color: '#713f12', marginBottom: '4px' }}>
-                                      <strong>Verfüllt:</strong> {baustelle.backfilledBy}
-                                      {baustelle.backfilledDate && ` (${new Date(baustelle.backfilledDate).toLocaleDateString('de-DE')})`}
-                                    </div>
-                                  )}
-                                  
-                                  {baustelle.isClosed && baustelle.closedBy && (
-                                    <div style={{ fontSize: '11px', color: '#166534' }}>
-                                      <strong>Geschlossen:</strong> {baustelle.closedBy}
-                                      {baustelle.closedDate && ` (${new Date(baustelle.closedDate).toLocaleDateString('de-DE')})`}
-                                    </div>
-                                  )}
+                                  {baustelle.isClosed ? '✅ Fertig' : baustelle.isBackfilled ? '🟡 Verfüllt' : '🔴 Offen'}
                                 </div>
 
-                                {/* Tiefbaubegründung */}
-                                {baustelle.constructionJustification && (
-                                  <div style={{ 
-                                    background: '#fef3c7',
-                                    padding: '10px',
-                                    borderRadius: '6px',
-                                    marginBottom: '12px'
-                                  }}>
-                                    <div style={{ 
-                                      fontSize: '11px',
-                                      fontWeight: '600',
-                                      color: '#92400e',
-                                      marginBottom: '4px'
-                                    }}>
-                                      Tiefbaubegründung
-                                    </div>
-                                    <div style={{ 
-                                      fontSize: '12px',
-                                      color: '#78350f',
-                                      lineHeight: '1.4'
-                                    }}>
-                                      {baustelle.constructionJustification}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Fotos */}
-                                {allPhotos.length > 0 && (
-                                  <div style={{ marginBottom: '12px' }}>
-                                    <div style={{ 
-                                      fontSize: '12px',
-                                      fontWeight: '600',
-                                      color: '#6b7280',
-                                      marginBottom: '8px',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '6px'
-                                    }}>
-                                      <svg 
-                                        xmlns="http://www.w3.org/2000/svg" 
-                                        width="14" 
-                                        height="14" 
-                                        viewBox="0 0 24 24" 
-                                        fill="none" 
-                                        stroke="currentColor" 
-                                        strokeWidth="2"
-                                      >
-                                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                                        <circle cx="12" cy="13" r="4"></circle>
-                                      </svg>
-                                      Fotos ({allPhotos.length})
-                                    </div>
-                                    <div className="photo-grid scrollable-photos">
-                                      {allPhotos.slice(0, 6).map((photo, idx) => (
-                                        <div key={idx} className="photo-item" onClick={() => window.open(photo.url, '_blank')}>
-                                          <img src={photo.url} alt={`Foto ${idx + 1}`} />
-                                          <div className="photo-badge">{photo.type}</div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                    {allPhotos.length > 6 && (
-                                      <div style={{ 
-                                        textAlign: 'center',
-                                        marginTop: '8px',
-                                        fontSize: '11px',
-                                        color: '#6b7280'
-                                      }}>
-                                        +{allPhotos.length - 6} weitere Fotos
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                                
-                                {/* Status & Info */}
-                                <div style={{ 
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  paddingTop: '12px',
-                                  borderTop: '1px solid #f3f4f6',
-                                  marginBottom: '12px'
-                                }}>
-                                  <span style={{ 
-                                    fontSize: '12px',
-                                    padding: '4px 8px',
-                                    background: '#f9fafb',
-                                    border: '1px solid #e5e7eb',
-                                    borderRadius: '4px',
-                                    color: '#374151'
-                                  }}>
-                                    {statusLabels[baustelle.projectStatus]}
-                                  </span>
-                                  {baustelle.orderType && (
-                                    <span style={{ 
-                                      fontSize: '11px',
-                                      color: '#6b7280',
-                                      marginLeft: '8px',
-                                      overflow: 'hidden',
-                                      textOverflow: 'ellipsis',
-                                      whiteSpace: 'nowrap'
-                                    }}>
-                                      {baustelle.orderType}
-                                    </span>
-                                  )}
-                                </div>
-                                
                                 {baustelle.foreman && (
                                   <div style={{ 
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '13px',
+                                    fontSize: '10px',
                                     color: '#6b7280',
-                                    marginBottom: '12px'
+                                    marginBottom: '6px'
                                   }}>
-                                    <div style={{ 
-                                      width: '24px',
-                                      height: '24px',
-                                      borderRadius: '50%',
-                                      background: '#fed7aa',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      flexShrink: 0
-                                    }}>
-                                      <span style={{ 
-                                        fontSize: '12px',
-                                        fontWeight: '600',
-                                        color: '#c2410c'
-                                      }}>
-                                        {baustelle.foreman.charAt(0)}
-                                      </span>
-                                    </div>
-                                    <span>{baustelle.foreman}</span>
+                                    <strong>Bauleiter:</strong> {baustelle.foreman}
                                   </div>
                                 )}
-                                
+
                                 {baustelle.calculatedPrice && (
                                   <div style={{ 
-                                    background: '#dcfce7',
-                                    padding: '8px 12px',
-                                    borderRadius: '6px',
-                                    marginBottom: '12px'
+                                    fontSize: '10px',
+                                    color: '#15803d',
+                                    fontWeight: '600',
+                                    marginBottom: '6px'
                                   }}>
-                                    <div style={{ 
-                                      fontSize: '11px',
-                                      color: '#166534',
-                                      marginBottom: '2px'
-                                    }}>
-                                      Kalkulierter Preis
-                                    </div>
-                                    <div style={{ 
-                                      fontSize: '18px',
-                                      fontWeight: 'bold',
-                                      color: '#15803d'
-                                    }}>
-                                      €{baustelle.calculatedPrice.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
-                                    </div>
+                                    €{baustelle.calculatedPrice.toLocaleString('de-DE', { minimumFractionDigits: 2 })}
                                   </div>
                                 )}
-                                
+
                                 <a 
                                   href={createPageUrl(`ProjectDetail?id=${baustelle.projectId}`)}
                                   style={{ 
                                     display: 'inline-block',
                                     width: '100%',
-                                    padding: '10px 16px',
+                                    padding: '6px',
                                     background: 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)',
                                     color: 'white',
                                     textAlign: 'center',
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                    textDecoration: 'none',
-                                    transition: 'all 0.2s'
-                                  }}
-                                  onMouseOver={(e) => {
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #ea580c 0%, #f97316 100%)';
-                                  }}
-                                  onMouseOut={(e) => {
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #f97316 0%, #fb923c 100%)';
+                                    borderRadius: '4px',
+                                    fontSize: '10px',
+                                    fontWeight: '600',
+                                    textDecoration: 'none'
                                   }}
                                 >
-                                  Details ansehen
+                                  Details ansehen →
                                 </a>
                               </div>
                             </Tooltip>
