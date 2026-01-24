@@ -67,36 +67,35 @@ const createClusterCustomIcon = function (cluster) {
   }
   
   return L.divIcon({
-    html: `<div style="
-      background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
-      border-radius: 50%;
-      width: ${size}px;
-      height: ${size}px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      color: white;
-      font-weight: bold;
-      font-size: ${fontSize}px;
-      border: 4px solid white;
-      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4), 0 4px 8px rgba(0,0,0,0.2);
-      transition: all 0.3s ease;
-      animation: pulse-cluster 2s ease-in-out infinite;
-    ">
-      <div style="
-        font-size: ${fontSize}px;
-        line-height: 1;
-        margin-bottom: 2px;
-      ">${childCount}</div>
-      <div style="
-        font-size: ${fontSize * 0.4}px;
-        opacity: 0.9;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      ">Baustellen</div>
-    </div>`,
-    className: 'custom-cluster-icon',
+    html: `
+      <div class="cluster-marker-outer" style="
+        width: ${size}px;
+        height: ${size}px;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <div class="cluster-marker-inner" style="
+          background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+          border-radius: 50%;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: ${fontSize}px;
+          border: 4px solid white;
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5), 0 2px 6px rgba(0,0,0,0.3);
+          transition: all 0.3s ease;
+        ">
+          ${childCount}
+        </div>
+      </div>
+    `,
+    className: 'custom-cluster-icon-wrapper',
     iconSize: L.point(size, size, true),
   });
 };
@@ -310,20 +309,16 @@ export default function BaustellenKartePage() {
         .leaflet-marker-icon:hover {
           transform: scale(1.2);
         }
-        .custom-cluster-icon {
+        .custom-cluster-icon-wrapper {
           background: transparent !important;
           border: none !important;
         }
-        .custom-cluster-icon:hover div {
-          transform: scale(1.1);
+        .cluster-marker-outer {
+          background: transparent !important;
         }
-        @keyframes pulse-cluster {
-          0%, 100% {
-            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4), 0 4px 8px rgba(0,0,0,0.2);
-          }
-          50% {
-            box-shadow: 0 8px 30px rgba(249, 115, 22, 0.6), 0 6px 12px rgba(0,0,0,0.3);
-          }
+        .cluster-marker-inner:hover {
+          transform: scale(1.15);
+          box-shadow: 0 6px 16px rgba(220, 38, 38, 0.7), 0 3px 8px rgba(0,0,0,0.4) !important;
         }
         .leaflet-tooltip {
           background: white !important;
