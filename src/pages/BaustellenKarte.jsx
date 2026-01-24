@@ -55,48 +55,37 @@ const createCustomIcon = (isBackfilled, isClosed) => {
 const createClusterCustomIcon = function (cluster) {
   const childCount = cluster.getChildCount();
   let size = 50;
-  let fontSize = 18;
+  let fontSize = 20;
   
   // Größere Cluster = größeres Icon
   if (childCount > 100) {
-    size = 70;
-    fontSize = 24;
+    size = 80;
+    fontSize = 28;
   } else if (childCount > 50) {
-    size = 60;
-    fontSize = 20;
+    size = 65;
+    fontSize = 24;
   }
   
   return L.divIcon({
-    html: `
-      <div class="cluster-marker-outer" style="
-        width: ${size}px;
-        height: ${size}px;
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <div class="cluster-marker-inner" style="
-          background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-          border-radius: 50%;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: bold;
-          font-size: ${fontSize}px;
-          border: 4px solid white;
-          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.5), 0 2px 6px rgba(0,0,0,0.3);
-          transition: all 0.3s ease;
-        ">
-          ${childCount}
-        </div>
-      </div>
-    `,
-    className: 'custom-cluster-icon-wrapper',
-    iconSize: L.point(size, size, true),
+    html: `<div style="
+      position: relative;
+      width: ${size}px;
+      height: ${size}px;
+      background: #dc2626;
+      border-radius: 50%;
+      border: 5px solid white;
+      box-shadow: 0 6px 16px rgba(220, 38, 38, 0.6), 0 3px 8px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 900;
+      font-size: ${fontSize}px;
+      font-family: system-ui, -apple-system, sans-serif;
+    ">${childCount}</div>`,
+    className: 'marker-cluster-custom',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2]
   });
 };
 
@@ -309,16 +298,13 @@ export default function BaustellenKartePage() {
         .leaflet-marker-icon:hover {
           transform: scale(1.2);
         }
-        .custom-cluster-icon-wrapper {
+        .marker-cluster-custom {
           background: transparent !important;
           border: none !important;
         }
-        .cluster-marker-outer {
-          background: transparent !important;
-        }
-        .cluster-marker-inner:hover {
-          transform: scale(1.15);
-          box-shadow: 0 6px 16px rgba(220, 38, 38, 0.7), 0 3px 8px rgba(0,0,0,0.4) !important;
+        .marker-cluster-custom div:hover {
+          transform: scale(1.1);
+          box-shadow: 0 8px 20px rgba(220, 38, 38, 0.8), 0 4px 10px rgba(0, 0, 0, 0.5) !important;
         }
         .leaflet-tooltip {
           background: white !important;
