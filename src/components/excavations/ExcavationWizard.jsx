@@ -962,106 +962,108 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-3"
                 >
-                  <div className="space-y-4">
-                    {/* Schnellauswahl Sets */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <Label className="mb-2 block text-sm font-semibold">Schnellauswahl Sets</Label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            handleInputChange('surface_type', 'Platten');
-                            handleInputChange('surface_type_2', 'Pflaster');
-                          }}
-                          className="h-auto py-2 text-xs"
-                        >
-                          Platten/Pflaster
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            handleInputChange('surface_type', 'Asphalt');
-                            handleInputChange('surface_type_2', 'Platten');
-                          }}
-                          className="h-auto py-2 text-xs"
-                        >
-                          Asphalt/Platten
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            handleInputChange('surface_type', 'Asphalt');
-                            handleInputChange('surface_type_2', 'Pflaster');
-                          }}
-                          className="h-auto py-2 text-xs"
-                        >
-                          Asphalt/Pflaster
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            handleInputChange('surface_type', 'Naturstein');
-                            handleInputChange('surface_type_2', 'Pflaster');
-                          }}
-                          className="h-auto py-2 text-xs"
-                        >
-                          Naturstein/Pflaster
-                        </Button>
-                      </div>
+                  {/* Schnellauswahl Sets */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                    <Label className="mb-1.5 block text-xs font-semibold">Schnellauswahl</Label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleInputChange('surface_type', 'Platten');
+                          handleInputChange('surface_type_2', 'Pflaster');
+                        }}
+                        className="h-8 py-1 text-xs"
+                      >
+                        Platten/Pflaster
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleInputChange('surface_type', 'Asphalt');
+                          handleInputChange('surface_type_2', 'Platten');
+                        }}
+                        className="h-8 py-1 text-xs"
+                      >
+                        Asphalt/Platten
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleInputChange('surface_type', 'Asphalt');
+                          handleInputChange('surface_type_2', 'Pflaster');
+                        }}
+                        className="h-8 py-1 text-xs"
+                      >
+                        Asphalt/Pflaster
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          handleInputChange('surface_type', 'Naturstein');
+                          handleInputChange('surface_type_2', 'Pflaster');
+                        }}
+                        className="h-8 py-1 text-xs"
+                      >
+                        Naturstein/Pflaster
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Oberflächen */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="surface_type" className="text-xs">Oberfläche 1 *</Label>
+                      <Select 
+                        value={formData.surface_type} 
+                        onValueChange={(value) => handleInputChange('surface_type', value)}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Auswählen..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Naturstein">Naturstein</SelectItem>
+                          <SelectItem value="Beton">Beton</SelectItem>
+                          <SelectItem value="Platten">Platten</SelectItem>
+                          <SelectItem value="Pflaster">Pflaster</SelectItem>
+                          <SelectItem value="unbefestigt">Unbefestigt</SelectItem>
+                          <SelectItem value="Asphalt">Asphalt</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="surface_type">Oberfläche 1 *</Label>
-                        <Select 
-                          value={formData.surface_type} 
-                          onValueChange={(value) => handleInputChange('surface_type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Oberfläche auswählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Naturstein">Naturstein</SelectItem>
-                            <SelectItem value="Beton">Beton</SelectItem>
-                            <SelectItem value="Platten">Platten</SelectItem>
-                            <SelectItem value="Pflaster">Pflaster</SelectItem>
-                            <SelectItem value="unbefestigt">Unbefestigt</SelectItem>
-                            <SelectItem value="Asphalt">Asphalt</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="surface_type_2">Oberfläche 2 (optional)</Label>
-                        <Select 
-                          value={formData.surface_type_2 || "none"} 
-                          onValueChange={(value) => handleInputChange('surface_type_2', value === "none" ? null : value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Keine" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">Keine</SelectItem>
-                            <SelectItem value="Naturstein">Naturstein</SelectItem>
-                            <SelectItem value="Beton">Beton</SelectItem>
-                            <SelectItem value="Platten">Platten</SelectItem>
-                            <SelectItem value="Pflaster">Pflaster</SelectItem>
-                            <SelectItem value="unbefestigt">Unbefestigt</SelectItem>
-                            <SelectItem value="Asphalt">Asphalt</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="surface_type_2" className="text-xs">Oberfläche 2</Label>
+                      <Select 
+                        value={formData.surface_type_2 || "none"} 
+                        onValueChange={(value) => handleInputChange('surface_type_2', value === "none" ? null : value)}
+                      >
+                        <SelectTrigger className="h-9">
+                          <SelectValue placeholder="Keine" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Keine</SelectItem>
+                          <SelectItem value="Naturstein">Naturstein</SelectItem>
+                          <SelectItem value="Beton">Beton</SelectItem>
+                          <SelectItem value="Platten">Platten</SelectItem>
+                          <SelectItem value="Pflaster">Pflaster</SelectItem>
+                          <SelectItem value="unbefestigt">Unbefestigt</SelectItem>
+                          <SelectItem value="Asphalt">Asphalt</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
+                  </div>
 
+                  {/* Dicken inline */}
+                  <div className="grid grid-cols-2 gap-2">
                     {(formData.surface_type === 'Asphalt' || formData.surface_type_2 === 'Asphalt') && (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 space-y-2">
-                        <Label htmlFor="asphalt_thickness">Asphaltdicke (cm) *</Label>
+                      <div className="space-y-1">
+                        <Label htmlFor="asphalt_thickness" className="text-xs">Asphalt (cm) *</Label>
                         <Input
                           id="asphalt_thickness"
                           type="number"
@@ -1069,14 +1071,15 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           min="0"
                           value={formData.asphalt_thickness}
                           onChange={(e) => handleInputChange('asphalt_thickness', e.target.value)}
-                          placeholder="z.B. 5.0"
+                          placeholder="5.0"
+                          className="h-9"
                         />
                       </div>
                     )}
 
                     {(formData.surface_type === 'Beton' || formData.surface_type_2 === 'Beton') && (
-                      <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 space-y-2">
-                        <Label htmlFor="concrete_thickness">Betondicke (cm) *</Label>
+                      <div className="space-y-1">
+                        <Label htmlFor="concrete_thickness" className="text-xs">Beton (cm) *</Label>
                         <Input
                           id="concrete_thickness"
                           type="number"
@@ -1084,131 +1087,141 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           min="0"
                           value={formData.concrete_thickness}
                           onChange={(e) => handleInputChange('concrete_thickness', e.target.value)}
-                          placeholder="z.B. 10.0"
+                          placeholder="10.0"
+                          className="h-9"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Checkboxen kompakt */}
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="flex items-center space-x-1.5">
+                      <Checkbox
+                        id="concrete_base_used"
+                        checked={formData.concrete_base_used}
+                        onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
+                      />
+                      <Label htmlFor="concrete_base_used" className="cursor-pointer text-xs">Unterbeton</Label>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <Checkbox
+                        id="mortar_used"
+                        checked={formData.mortar_used}
+                        onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
+                      />
+                      <Label htmlFor="mortar_used" className="cursor-pointer text-xs">Mörtel</Label>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <Checkbox
+                        id="gravel_used"
+                        checked={formData.gravel_used}
+                        onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
+                      />
+                      <Label htmlFor="gravel_used" className="cursor-pointer text-xs">Splitt</Label>
+                    </div>
+                  </div>
+
+                  {/* Dicken für Checkboxen */}
+                  <div className="grid grid-cols-2 gap-2">
+                    {formData.concrete_base_used && (
+                      <div className="space-y-1">
+                        <Label htmlFor="concrete_base_thickness" className="text-xs">Unterbeton (cm) *</Label>
+                        <Input
+                          id="concrete_base_thickness"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={formData.concrete_base_thickness}
+                          onChange={(e) => handleInputChange('concrete_base_thickness', e.target.value)}
+                          placeholder="8.0"
+                          className="h-9"
                         />
                       </div>
                     )}
 
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="concrete_base_used"
-                            checked={formData.concrete_base_used}
-                            onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
-                          />
-                          <Label htmlFor="concrete_base_used" className="cursor-pointer">Unterbeton</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="mortar_used"
-                            checked={formData.mortar_used}
-                            onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
-                          />
-                          <Label htmlFor="mortar_used" className="cursor-pointer">Mörtel</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="gravel_used"
-                            checked={formData.gravel_used}
-                            onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
-                          />
-                          <Label htmlFor="gravel_used" className="cursor-pointer">Splitt</Label>
-                        </div>
+                    {formData.mortar_used && (
+                      <div className="space-y-1">
+                        <Label htmlFor="mortar_thickness" className="text-xs">Mörtel (cm) *</Label>
+                        <Input
+                          id="mortar_thickness"
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={formData.mortar_thickness}
+                          onChange={(e) => handleInputChange('mortar_thickness', e.target.value)}
+                          placeholder="3.0"
+                          className="h-9"
+                        />
                       </div>
+                    )}
+                  </div>
 
-                      {formData.concrete_base_used && (
-                        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 space-y-2">
-                          <Label htmlFor="concrete_base_thickness">Unterbetondicke (cm) *</Label>
-                          <Input
-                            id="concrete_base_thickness"
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            value={formData.concrete_base_thickness}
-                            onChange={(e) => handleInputChange('concrete_base_thickness', e.target.value)}
-                            placeholder="z.B. 8.0"
-                          />
-                        </div>
-                      )}
-
-                      {formData.mortar_used && (
-                        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 space-y-2">
-                          <Label htmlFor="mortar_thickness">Mörteldicke (cm) *</Label>
-                          <Input
-                            id="mortar_thickness"
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            value={formData.mortar_thickness}
-                            onChange={(e) => handleInputChange('mortar_thickness', e.target.value)}
-                            placeholder="z.B. 3.0"
-                          />
-                        </div>
-                      )}
+                  {/* Weitere Checkboxen */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center space-x-1.5">
+                      <Checkbox
+                        id="iron_plate_laid"
+                        checked={formData.iron_plate_laid}
+                        onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
+                      />
+                      <Label htmlFor="iron_plate_laid" className="cursor-pointer text-xs">Eisenplatte</Label>
                     </div>
+                    <div className="flex items-center space-x-1.5">
+                      <Checkbox
+                        id="excavated_material_left_onsite"
+                        checked={formData.excavated_material_left_onsite}
+                        onCheckedChange={(checked) => handleInputChange('excavated_material_left_onsite', checked)}
+                      />
+                      <Label htmlFor="excavated_material_left_onsite" className="cursor-pointer text-xs">Aushub vor Ort</Label>
+                    </div>
+                    <div className="flex items-center space-x-1.5 col-span-2">
+                      <Checkbox
+                        id="provisionally_filled"
+                        checked={formData.provisionally_filled}
+                        onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
+                      />
+                      <Label htmlFor="provisionally_filled" className="cursor-pointer text-xs">Grube bündig verfüllt</Label>
+                    </div>
+                  </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="iron_plate_laid"
-                          checked={formData.iron_plate_laid}
-                          onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
-                        />
-                        <Label htmlFor="iron_plate_laid" className="cursor-pointer">Eisenplatte vor Ort</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="excavated_material_left_onsite"
-                          checked={formData.excavated_material_left_onsite}
-                          onCheckedChange={(checked) => handleInputChange('excavated_material_left_onsite', checked)}
-                        />
-                        <Label htmlFor="excavated_material_left_onsite" className="cursor-pointer">Aushub vor Ort</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="provisionally_filled"
-                          checked={formData.provisionally_filled}
-                          onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
-                        />
-                        <Label htmlFor="provisionally_filled" className="cursor-pointer">Grube bündig verfüllt</Label>
-                      </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="curb_length">Bordstein (m)</Label>
-                        <Input
-                          id="curb_length"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.curb_length}
-                          onChange={(e) => handleInputChange('curb_length', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="edge_stone_length">Kantenstein (m)</Label>
-                        <Input
-                          id="edge_stone_length"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.edge_stone_length}
-                          onChange={(e) => handleInputChange('edge_stone_length', e.target.value)}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="gutter_length">Rinne (m)</Label>
-                        <Input
-                          id="gutter_length"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={formData.gutter_length}
-                          onChange={(e) => handleInputChange('gutter_length', e.target.value)}
-                        />
-                      </div>
+                  {/* Bordstein etc */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="space-y-1">
+                      <Label htmlFor="curb_length" className="text-xs">Bordstein (m)</Label>
+                      <Input
+                        id="curb_length"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.curb_length}
+                        onChange={(e) => handleInputChange('curb_length', e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="edge_stone_length" className="text-xs">Kantenstein (m)</Label>
+                      <Input
+                        id="edge_stone_length"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.edge_stone_length}
+                        onChange={(e) => handleInputChange('edge_stone_length', e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="gutter_length" className="text-xs">Rinne (m)</Label>
+                      <Input
+                        id="gutter_length"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.gutter_length}
+                        onChange={(e) => handleInputChange('gutter_length', e.target.value)}
+                        className="h-9"
+                      />
                     </div>
                   </div>
                 </motion.div>
