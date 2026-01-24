@@ -820,10 +820,10 @@ export default function BaustellenKartePage() {
                   )}
                 </div>
               </CardContent>
-              </Card>
-              </div>
-              )}
-              </div>
+            </Card>
+          </div>
+          )}
+        </div>
 
         {/* Interaktive Legende */}
         <Card className="card-elevation border-none mt-6">
