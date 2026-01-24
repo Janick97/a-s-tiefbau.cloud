@@ -145,7 +145,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
     asphalt_thickness: '',
     concrete_thickness: '',
     concrete_base_used: false,
+    concrete_base_thickness: '',
     mortar_used: false,
+    mortar_thickness: '',
     gravel_used: false,
     iron_plate_laid: false,
     curb_length: '',
@@ -334,6 +336,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         location_name: autoLocationName || formData.location_name,
         asphalt_thickness: formData.asphalt_thickness === '' ? null : parseFloat(formData.asphalt_thickness),
         concrete_thickness: formData.concrete_thickness === '' ? null : parseFloat(formData.concrete_thickness),
+        concrete_base_thickness: formData.concrete_base_thickness === '' ? null : parseFloat(formData.concrete_base_thickness),
+        mortar_thickness: formData.mortar_thickness === '' ? null : parseFloat(formData.mortar_thickness),
         surface_1_sqm: formData.surface_1_sqm === '' ? null : formData.surface_1_sqm,
         surface_2_sqm: formData.surface_2_sqm === '' ? null : formData.surface_2_sqm,
         curb_length: formData.curb_length === '' ? null : formData.curb_length,
@@ -1085,32 +1089,64 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="concrete_base_used"
-                          checked={formData.concrete_base_used}
-                          onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
-                        />
-                        <Label htmlFor="concrete_base_used" className="cursor-pointer">Unterbeton</Label>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="concrete_base_used"
+                            checked={formData.concrete_base_used}
+                            onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
+                          />
+                          <Label htmlFor="concrete_base_used" className="cursor-pointer">Unterbeton</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="mortar_used"
+                            checked={formData.mortar_used}
+                            onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
+                          />
+                          <Label htmlFor="mortar_used" className="cursor-pointer">Mörtel</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="gravel_used"
+                            checked={formData.gravel_used}
+                            onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
+                          />
+                          <Label htmlFor="gravel_used" className="cursor-pointer">Splitt</Label>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="mortar_used"
-                          checked={formData.mortar_used}
-                          onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
-                        />
-                        <Label htmlFor="mortar_used" className="cursor-pointer">Mörtel</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="gravel_used"
-                          checked={formData.gravel_used}
-                          onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
-                        />
-                        <Label htmlFor="gravel_used" className="cursor-pointer">Splitt</Label>
-                      </div>
-                      </div>
+
+                      {formData.concrete_base_used && (
+                        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 space-y-2">
+                          <Label htmlFor="concrete_base_thickness">Unterbetondicke (cm) *</Label>
+                          <Input
+                            id="concrete_base_thickness"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value={formData.concrete_base_thickness}
+                            onChange={(e) => handleInputChange('concrete_base_thickness', e.target.value)}
+                            placeholder="z.B. 8.0"
+                          />
+                        </div>
+                      )}
+
+                      {formData.mortar_used && (
+                        <div className="bg-gray-100 border border-gray-300 rounded-lg p-4 space-y-2">
+                          <Label htmlFor="mortar_thickness">Mörteldicke (cm) *</Label>
+                          <Input
+                            id="mortar_thickness"
+                            type="number"
+                            step="0.1"
+                            min="0"
+                            value={formData.mortar_thickness}
+                            onChange={(e) => handleInputChange('mortar_thickness', e.target.value)}
+                            placeholder="z.B. 3.0"
+                          />
+                        </div>
+                      )}
+                    </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="flex items-center space-x-2">
@@ -1326,9 +1362,15 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         {formData.concrete_thickness && (
                           <p><span className="font-medium">Betondicke:</span> {formData.concrete_thickness} cm</p>
                         )}
+                        {formData.concrete_base_thickness && (
+                          <p><span className="font-medium">Unterbetondicke:</span> {formData.concrete_base_thickness} cm</p>
+                        )}
+                        {formData.mortar_thickness && (
+                          <p><span className="font-medium">Mörteldicke:</span> {formData.mortar_thickness} cm</p>
+                        )}
                         <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.concrete_base_used && <Badge variant="outline">Unterbeton</Badge>}
-                          {formData.mortar_used && <Badge variant="outline">Mörtel</Badge>}
+                          {formData.concrete_base_used && <Badge variant="outline">Unterbeton {formData.concrete_base_thickness && `(${formData.concrete_base_thickness} cm)`}</Badge>}
+                          {formData.mortar_used && <Badge variant="outline">Mörtel {formData.mortar_thickness && `(${formData.mortar_thickness} cm)`}</Badge>}
                           {formData.gravel_used && <Badge variant="outline">Splitt</Badge>}
                           {formData.iron_plate_laid && <Badge variant="outline">Eisenplatte</Badge>}
                           {formData.excavated_material_left_onsite && <Badge variant="outline">Aushub vor Ort</Badge>}
