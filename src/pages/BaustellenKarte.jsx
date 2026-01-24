@@ -53,23 +53,51 @@ const createCustomIcon = (isBackfilled, isClosed) => {
 
 // Custom Cluster Icon
 const createClusterCustomIcon = function (cluster) {
+  const childCount = cluster.getChildCount();
+  let size = 50;
+  let fontSize = 18;
+  
+  // Größere Cluster = größeres Icon
+  if (childCount > 100) {
+    size = 70;
+    fontSize = 24;
+  } else if (childCount > 50) {
+    size = 60;
+    fontSize = 20;
+  }
+  
   return L.divIcon({
     html: `<div style="
       background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: ${size}px;
+      height: ${size}px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
       color: white;
       font-weight: bold;
-      font-size: 16px;
-      border: 3px solid white;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    ">${cluster.getChildCount()}</div>`,
+      font-size: ${fontSize}px;
+      border: 4px solid white;
+      box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4), 0 4px 8px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
+      animation: pulse-cluster 2s ease-in-out infinite;
+    ">
+      <div style="
+        font-size: ${fontSize}px;
+        line-height: 1;
+        margin-bottom: 2px;
+      ">${childCount}</div>
+      <div style="
+        font-size: ${fontSize * 0.4}px;
+        opacity: 0.9;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      ">Baustellen</div>
+    </div>`,
     className: 'custom-cluster-icon',
-    iconSize: L.point(40, 40, true),
+    iconSize: L.point(size, size, true),
   });
 };
 
@@ -285,6 +313,17 @@ export default function BaustellenKartePage() {
         .custom-cluster-icon {
           background: transparent !important;
           border: none !important;
+        }
+        .custom-cluster-icon:hover div {
+          transform: scale(1.1);
+        }
+        @keyframes pulse-cluster {
+          0%, 100% {
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.4), 0 4px 8px rgba(0,0,0,0.2);
+          }
+          50% {
+            box-shadow: 0 8px 30px rgba(249, 115, 22, 0.6), 0 6px 12px rgba(0,0,0,0.3);
+          }
         }
         .leaflet-tooltip {
           background: white !important;
