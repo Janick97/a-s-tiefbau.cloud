@@ -43,6 +43,7 @@ import {
 "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import NotificationCenter from "@/components/collaboration/NotificationCenter";
 
 // Navigationselemente - mit Verwaltungs-Untermenü
 const navigationItems = [
@@ -100,6 +101,11 @@ const navigationItems = [
   url: createPageUrl("Analytics"),
   icon: BarChart3,
   hasSubmenu: true
+},
+{
+  title: "Meine Aufgaben",
+  url: createPageUrl("Tasks"),
+  icon: ClipboardList
 },
 {
   title: "Projekt-Explorer",
@@ -678,16 +684,19 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
     <main className="flex-1 flex flex-col">
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3 shadow-sm no-print">
-        <div className="flex items-center gap-4">
-          <SidebarTrigger className="hover:bg-gray-100 p-3 rounded-xl transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center" />
-          <div className="hidden md:flex items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-            <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <SidebarTrigger className="hover:bg-gray-100 p-3 rounded-xl transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center" />
+            <div className="hidden md:flex items-center gap-2">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
+              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+            </div>
+            <div className="flex md:hidden items-center gap-2">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
+              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+            </div>
           </div>
-          <div className="flex md:hidden items-center gap-2">
-            <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-            <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
-          </div>
+          <NotificationCenter />
         </div>
       </header>
 

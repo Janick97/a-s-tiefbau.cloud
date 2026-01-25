@@ -35,6 +35,7 @@ import Projects from './pages/Projects';
 import Surface from './pages/Surface';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
+import Tasks from './pages/Tasks';
 import __Layout from './Layout.jsx';
 
 
@@ -76,6 +77,7 @@ export const PAGES = {
     "Surface": Surface,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
+    "Tasks": Tasks,
 }
 
 export const pagesConfig = {
