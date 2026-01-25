@@ -71,6 +71,7 @@ import MontageLeistungenManagement from "../components/projects/MontageLeistunge
 import ProjectHistory from "../components/projects/ProjectHistory";
 import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
 import { base44 } from "@/api/base44Client";
+import TaskManager from "../components/collaboration/TaskManager";
 
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
@@ -2652,6 +2653,7 @@ export default function ProjectDetailPage() {
     { id: 'timesheets', name: 'Stunden' },
     { id: 'montage', name: 'Montageleistungen' },
     { id: 'documents', name: 'Dokumente' },
+    { id: 'tasks', name: 'Aufgaben' },
     { id: 'history', name: 'Historie' },
   ];
 
@@ -3090,6 +3092,12 @@ export default function ProjectDetailPage() {
                     project={project}
                     loadData={loadProjectData}
                   />
+                </div>
+              )}
+
+              {activeTab === 'tasks' && (
+                <div className="p-2 sm:p-4 lg:p-6">
+                  <TaskManager projectId={project.id} />
                 </div>
               )}
 
