@@ -108,6 +108,11 @@ const navigationItems = [
   icon: ClipboardList
 },
 {
+  title: "Baustellen-Modus",
+  url: createPageUrl("BaustellenModus"),
+  icon: Construction
+},
+{
   title: "Projekt-Explorer",
   url: createPageUrl("ProjectExplorer"),
   icon: FolderOpen
@@ -143,6 +148,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       if (user.position === 'Bauleiter') {
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
+        item.title === 'Baustellen-Modus' ||
         item.title === 'Auswertungen';
       }
 
@@ -154,6 +160,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       if (user.position === 'Oberfläche') {
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
+        item.title === 'Baustellen-Modus' ||
         item.title === 'Auswertungen';
       }
 
