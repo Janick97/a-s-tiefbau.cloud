@@ -584,9 +584,8 @@ function ForemanProjectView({
         <ProjectChat projectId={project.id} />
       </div>
 
-      {/* Übersichten - Kompakt */}
+      {/* Leistungen Übersicht - Erweitert */}
       <div className="p-3 space-y-3">
-        {/* Leistungen Übersicht */}
         {excavations.length > 0 && (
           <Card>
             <CardHeader className="pb-2">
@@ -595,31 +594,89 @@ function ForemanProjectView({
                   <Shovel className="w-4 h-4" />
                   Leistungen ({excavations.length})
                 </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingExcavation(null);
+                    setShowExcavationForm(true);
+                    setActiveAction('excavation');
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  Neu
+                </Button>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {excavations.slice(0, 3).map((exc) => (
-                <div
-                  key={exc.id}
-                  onClick={() => handleExcavationClick(exc)}
-                  className="p-3 bg-gray-50 rounded-lg active:bg-gray-100 transition-colors"
-                >
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="font-medium text-sm text-gray-900 truncate flex-1">{exc.location_name}</p>
-                    {user?.position !== 'Bauleiter' && (
-                      <p className="text-sm font-bold text-green-700 ml-2">
-                        €{Math.round(exc.calculated_price || 0).toLocaleString('de-DE')}
-                      </p>
+            <CardContent className="space-y-2 max-h-96 overflow-y-auto">
+              {excavations.map((exc) => {
+                const priceItem = priceItems.find(p => p.id === exc.price_item_id);
+                return (
+                  <div
+                    key={exc.id}
+                    className="border-2 rounded-lg p-3 bg-white active:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-gray-900 truncate">{exc.location_name}</p>
+                        <p className="text-xs text-gray-600 truncate">{exc.street}, {exc.city}</p>
+                      </div>
+                      {exc.is_closed ? (
+                        <Badge className="bg-green-100 text-green-800 text-xs ml-2">Fertig</Badge>
+                      ) : exc.is_backfilled ? (
+                        <Badge className="bg-yellow-100 text-yellow-800 text-xs ml-2">Verfüllt</Badge>
+                      ) : (
+                        <Badge className="bg-orange-100 text-orange-800 text-xs ml-2">Offen</Badge>
+                      )}
+                    </div>
+                    
+                    {priceItem && (
+                      <div className="bg-gray-50 rounded p-2 mb-2">
+                        <p className="text-xs text-gray-600 truncate">{priceItem.description}</p>
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                          <span>L: {exc.excavation_length?.toFixed(1)}m</span>
+                          <span>B: {exc.excavation_width?.toFixed(1)}m</span>
+                          <span>T: {exc.excavation_depth?.toFixed(1)}m</span>
+                        </div>
+                      </div>
                     )}
+
+                    {exc.surface_type && (
+                      <div className="mb-2">
+                        <Badge variant="outline" className="text-xs mr-1">{exc.surface_type}</Badge>
+                        {exc.surface_type_2 && (
+                          <Badge variant="outline" className="text-xs">{exc.surface_type_2}</Badge>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleExcavationClick(exc)}
+                        className="flex-1 h-8 text-xs"
+                      >
+                        <Eye className="w-3 h-3 mr-1" />
+                        Details
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          setEditingExcavation(exc);
+                          setShowExcavationForm(true);
+                          setActiveAction('excavation');
+                        }}
+                        className="flex-1 h-8 text-xs bg-orange-600 hover:bg-orange-700"
+                      >
+                        <Edit className="w-3 h-3 mr-1" />
+                        Bearbeiten
+                      </Button>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-600 truncate">{exc.street}, {exc.city}</p>
-                </div>
-              ))}
-              {excavations.length > 3 && (
-                <Button variant="ghost" className="w-full text-sm" onClick={() => setActiveAction('excavationsList')}>
-                  +{excavations.length - 3} weitere anzeigen
-                </Button>
-              )}
+                );
+              })}
             </CardContent>
           </Card>
         )}
