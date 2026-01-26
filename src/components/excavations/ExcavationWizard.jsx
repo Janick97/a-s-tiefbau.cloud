@@ -184,6 +184,86 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
     loadUser();
   }, []);
 
+  // Initialize form with excavation data when editing
+  useEffect(() => {
+    if (excavation) {
+      setFormData({
+        project_id: excavation.project_id || defaultProjectId || '',
+        price_item_id: excavation.price_item_id || '',
+        quantity: excavation.quantity || 1,
+        location_name: excavation.location_name || '',
+        street: excavation.street || '',
+        house_number: excavation.house_number || '',
+        postal_code: excavation.postal_code || '',
+        city: excavation.city || '',
+        latitude: excavation.latitude || null,
+        longitude: excavation.longitude || null,
+        excavation_length: excavation.excavation_length || 0,
+        excavation_depth: excavation.excavation_depth || 0.6,
+        excavation_width: excavation.excavation_width || 0.3,
+        excavation_factor: excavation.excavation_factor || 1,
+        surface_type: excavation.surface_type || '',
+        surface_type_2: excavation.surface_type_2 || null,
+        surface_1_sqm: excavation.surface_1_sqm || '',
+        surface_2_sqm: excavation.surface_2_sqm || '',
+        asphalt_thickness: excavation.asphalt_thickness || '',
+        concrete_thickness: excavation.concrete_thickness || '',
+        concrete_base_used: excavation.concrete_base_used || false,
+        concrete_base_thickness: excavation.concrete_base_thickness || '',
+        mortar_used: excavation.mortar_used || false,
+        mortar_thickness: excavation.mortar_thickness || '',
+        gravel_used: excavation.gravel_used || false,
+        iron_plate_laid: excavation.iron_plate_laid || false,
+        curb_length: excavation.curb_length || '',
+        edge_stone_length: excavation.edge_stone_length || '',
+        gutter_length: excavation.gutter_length || '',
+        excavated_material_left_onsite: excavation.excavated_material_left_onsite || false,
+        provisionally_filled: excavation.provisionally_filled || false,
+        photos_before: excavation.photos_before || [],
+        photos_after: excavation.photos_after || [],
+        photos_environment: excavation.photos_environment || [],
+        photos_backfill: excavation.photos_backfill || [],
+        photos_surface: excavation.photos_surface || [],
+        foreman: excavation.foreman || '',
+        calculated_price: excavation.calculated_price || 0,
+        foreman_commission: excavation.foreman_commission || 0,
+        backfill_commission: excavation.backfill_commission || 0,
+        surface_commission: excavation.surface_commission || 0,
+        foreman_user_id: excavation.foreman_user_id || null,
+        notes: excavation.notes || '',
+        construction_justification: excavation.construction_justification || '',
+      });
+      
+      // Set service category based on price item
+      if (excavation.price_item_id) {
+        const detailDims = ['10001', '10002', '10003', '10004', '10005'];
+        const andrPos = ['10021010', '10010413', '10037473', '10037352', '10037463', '10037372', '10021040', '10037342', '10037363'];
+        
+        // We need to wait for priceItems to load to determine category
+        // This will be handled in a separate effect below
+      }
+    }
+  }, [excavation, defaultProjectId]);
+
+  // Determine service category when price items are loaded
+  useEffect(() => {
+    if (excavation && excavation.price_item_id && priceItems.length > 0) {
+      const priceItem = priceItems.find(p => p.id === excavation.price_item_id);
+      if (priceItem) {
+        const detailDims = ['10001', '10002', '10003', '10004', '10005'];
+        const andrPos = ['10021010', '10010413', '10037473', '10037352', '10037463', '10037372', '10021040', '10037342', '10037363'];
+        
+        if (detailDims.includes(priceItem.item_number)) {
+          setServiceCategory('grube');
+        } else if (priceItem.unit === 'M' && !andrPos.includes(priceItem.item_number)) {
+          setServiceCategory('graben');
+        } else {
+          setServiceCategory('andere');
+        }
+      }
+    }
+  }, [excavation, priceItems]);
+
   // Load dropdown data
   useEffect(() => {
     const loadDropdownData = async () => {
