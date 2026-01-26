@@ -1,5 +1,6 @@
 import Analytics from './pages/Analytics';
 import BaustellenKarte from './pages/BaustellenKarte';
+import BaustellenModus from './pages/BaustellenModus';
 import Dashboard from './pages/Dashboard';
 import Disposition from './pages/Disposition';
 import DispositionBauleiter from './pages/DispositionBauleiter';
@@ -33,16 +34,16 @@ import ProjectExplorer from './pages/ProjectExplorer';
 import ProjectStatus from './pages/ProjectStatus';
 import Projects from './pages/Projects';
 import Surface from './pages/Surface';
+import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
-import Tasks from './pages/Tasks';
-import BaustellenModus from './pages/BaustellenModus';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Analytics": Analytics,
     "BaustellenKarte": BaustellenKarte,
+    "BaustellenModus": BaustellenModus,
     "Dashboard": Dashboard,
     "Disposition": Disposition,
     "DispositionBauleiter": DispositionBauleiter,
@@ -76,10 +77,9 @@ export const PAGES = {
     "ProjectStatus": ProjectStatus,
     "Projects": Projects,
     "Surface": Surface,
+    "Tasks": Tasks,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
-    "Tasks": Tasks,
-    "BaustellenModus": BaustellenModus,
 }
 
 export const pagesConfig = {

@@ -341,18 +341,22 @@ export default function MyProjectsPage() {
             <Button
               variant={!showCompletedProjects ? "default" : "outline"}
               onClick={() => setShowCompletedProjects(false)}
-              className={!showCompletedProjects ? "bg-gradient-to-r from-orange-500 to-amber-600" : ""}
+              className={`flex-1 h-12 text-sm ${!showCompletedProjects ? "bg-gradient-to-r from-orange-500 to-amber-600" : ""}`}
             >
-              <Clock className="w-4 h-4 mr-2" />
-              Aktive Aufträge ({activeProjectsCount})
+              <Clock className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Aktive Aufträge</span>
+              <span className="sm:hidden">Aktiv</span>
+              <span className="ml-1">({activeProjectsCount})</span>
             </Button>
             <Button
               variant={showCompletedProjects ? "default" : "outline"}
               onClick={() => setShowCompletedProjects(true)}
-              className={showCompletedProjects ? "bg-gradient-to-r from-green-500 to-emerald-600" : ""}
+              className={`flex-1 h-12 text-sm ${showCompletedProjects ? "bg-gradient-to-r from-green-500 to-emerald-600" : ""}`}
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Abgeschlossen ({completedProjectsCount})
+              <CheckCircle className="w-4 h-4 mr-1 md:mr-2" />
+              <span className="hidden sm:inline">Abgeschlossen</span>
+              <span className="sm:hidden">Fertig</span>
+              <span className="ml-1">({completedProjectsCount})</span>
             </Button>
           </div>
         </motion.div>
