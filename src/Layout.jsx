@@ -22,7 +22,8 @@ import {
   ChevronDown,
   ChevronRight,
   Package,
-  Wrench } from
+  Wrench,
+  Users } from
 "lucide-react";
 import {
   Sidebar,
@@ -103,6 +104,11 @@ const navigationItems = [
   hasSubmenu: true
 },
 {
+  title: "Büro-User Auswertung",
+  url: createPageUrl("BueroUserAuswertung"),
+  icon: Users
+},
+{
   title: "Meine Aufgaben",
   url: createPageUrl("Tasks"),
   icon: ClipboardList
@@ -170,6 +176,10 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
       if (item.title === 'Auswertungen') {
         return user.role === 'admin' || user.position === 'Bauleiter' || user.position === 'Oberfläche';
+      }
+
+      if (item.title === 'Büro-User Auswertung') {
+        return user.role === 'admin' || user.position === 'Büro';
       }
 
       if (item.title === 'Meine Aufträge') {
