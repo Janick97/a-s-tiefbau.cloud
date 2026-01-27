@@ -161,6 +161,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
         item.title === 'Baustellen-Modus' ||
+        item.title === 'Offline-Projekte' ||
         item.title === 'Auswertungen';
       }
 
@@ -173,6 +174,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
         item.title === 'Baustellen-Modus' ||
+        item.title === 'Offline-Projekte' ||
         item.title === 'Auswertungen';
       }
 
