@@ -14,7 +14,7 @@ import {
   addToSyncQueue,
   savePhotoOffline,
   preloadProjectData
-} from '@/components/utils/offlineManager';
+} from '../components/utils/offlineManager';
 import { 
   ArrowLeft, 
   Camera, 
