@@ -23,7 +23,8 @@ import {
   ChevronRight,
   Package,
   Wrench,
-  Users } from
+  Users,
+  WifiOff } from
 "lucide-react";
 import {
   Sidebar,
@@ -117,6 +118,11 @@ const navigationItems = [
   title: "Baustellen-Modus",
   url: createPageUrl("BaustellenModus"),
   icon: Construction
+},
+{
+  title: "Offline-Projekte",
+  url: createPageUrl("OfflineProjectDetail"),
+  icon: WifiOff
 },
 {
   title: "Projekt-Explorer",

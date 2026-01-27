@@ -38,6 +38,7 @@ import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
 import BueroUserAuswertung from './pages/BueroUserAuswertung';
+import OfflineProjectDetail from './pages/OfflineProjectDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -82,6 +83,7 @@ export const PAGES = {
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
     "BueroUserAuswertung": BueroUserAuswertung,
+    "OfflineProjectDetail": OfflineProjectDetail,
 }
 
 export const pagesConfig = {
