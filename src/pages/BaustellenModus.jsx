@@ -405,39 +405,112 @@ export default function BaustellenModusPage() {
         </div>
       ) : (
         <>
-          {/* Haupt-Aktionen */}
-          <div className="p-4 space-y-3">
-            <Button
-              onClick={() => setActiveAction('photos')}
-              className="w-full h-20 text-lg font-bold bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 shadow-lg"
-            >
-              <Camera className="w-6 h-6 mr-3" />
-              Fotos hochladen
-            </Button>
+          {/* Kompakte Leistungsübersicht */}
+          <div className="p-3 space-y-2 max-h-[calc(100vh-280px)] overflow-y-auto">
+            {excavations.length === 0 ? (
+              <Card className="border-2 border-dashed">
+                <CardContent className="p-6 text-center">
+                  <Shovel className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <p className="text-gray-500 text-sm">Keine Leistungen vorhanden</p>
+                </CardContent>
+              </Card>
+            ) : (
+              excavations.map((exc) => (
+                <Card key={exc.id} className="border-2 hover:shadow-md transition-shadow">
+                  <CardContent className="p-3">
+                    <div className="flex justify-between items-start gap-2 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-900 text-sm truncate">{exc.location_name}</h4>
+                        <p className="text-xs text-gray-600 truncate flex items-center gap-1">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          {exc.street}, {exc.city}
+                        </p>
+                      </div>
+                      {exc.is_closed ? (
+                        <Badge className="bg-green-500 text-white text-xs flex-shrink-0">Fertig</Badge>
+                      ) : exc.is_backfilled ? (
+                        <Badge className="bg-yellow-500 text-white text-xs flex-shrink-0">Verfüllt</Badge>
+                      ) : (
+                        <Badge className="bg-orange-500 text-white text-xs flex-shrink-0">Offen</Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex gap-3 text-xs mb-3">
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Package className="w-3 h-3" />
+                        {exc.excavation_length?.toFixed(1)}×{exc.excavation_width?.toFixed(1)}×{exc.excavation_depth?.toFixed(1)}m
+                      </div>
+                      {exc.surface_type && (
+                        <Badge variant="outline" className="text-xs">
+                          <Layers className="w-3 h-3 mr-1" />
+                          {exc.surface_type}
+                        </Badge>
+                      )}
+                    </div>
 
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 text-xs"
+                        onClick={() => {
+                          setSelectedExcavation(exc);
+                          setPhotoType('before');
+                          setActiveAction('photos');
+                        }}
+                      >
+                        <Camera className="w-3 h-3 mr-1" />
+                        Vorher
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 text-xs"
+                        onClick={() => {
+                          setSelectedExcavation(exc);
+                          setPhotoType('after');
+                          setActiveAction('photos');
+                        }}
+                      >
+                        <Camera className="w-3 h-3 mr-1" />
+                        Nachher
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-10 text-xs"
+                        onClick={() => {
+                          setSelectedExcavation(exc);
+                          setPhotoType('environment');
+                          setActiveAction('photos');
+                        }}
+                      >
+                        <Camera className="w-3 h-3 mr-1" />
+                        Umfeld
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+
+          {/* Kompakte Quick-Actions am unteren Rand */}
+          <div className="fixed bottom-0 left-0 right-0 bg-white border-t-2 border-gray-200 p-2 flex gap-2 z-20">
             <Button
               onClick={() => setActiveAction('timesheet')}
-              className="w-full h-20 text-lg font-bold bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 shadow-lg"
+              className="flex-1 h-14 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
             >
-              <Clock className="w-6 h-6 mr-3" />
-              Arbeitszeit erfassen
+              <Clock className="w-5 h-5 mr-1" />
+              <span className="text-sm">Zeit</span>
             </Button>
 
             <Button
               onClick={() => setActiveAction('comment')}
-              className="w-full h-20 text-lg font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg"
+              className="flex-1 h-14 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
             >
-              <MessageSquare className="w-6 h-6 mr-3" />
-              Kommentar hinzufügen
-            </Button>
-
-            <Button
-              onClick={() => setActiveAction('excavations')}
-              variant="outline"
-              className="w-full h-16 text-lg font-bold border-2"
-            >
-              <Shovel className="w-5 h-5 mr-2" />
-              Leistungen anzeigen ({excavations.length})
+              <MessageSquare className="w-5 h-5 mr-1" />
+              <span className="text-sm">Kommentar</span>
             </Button>
           </div>
 
@@ -479,44 +552,76 @@ export default function BaustellenModusPage() {
                         </div>
                       </CardHeader>
                       <CardContent className="p-4 space-y-4">
-                        {/* Leistung auswählen */}
-                        <div>
-                          <Label>Leistung auswählen</Label>
-                          <Select 
-                            value={selectedExcavation?.id || ""} 
-                            onValueChange={(value) => {
-                              const exc = excavations.find(e => e.id === value);
-                              setSelectedExcavation(exc);
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Leistung wählen..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {excavations.map(exc => (
-                                <SelectItem key={exc.id} value={exc.id}>
-                                  {exc.location_name} - {exc.street}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        {/* Ausgewählte Leistung anzeigen */}
+                        {selectedExcavation && (
+                          <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-3 rounded-lg border-2 border-blue-200">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <p className="font-semibold text-sm text-blue-900">{selectedExcavation.location_name}</p>
+                                <p className="text-xs text-blue-700">{selectedExcavation.street}, {selectedExcavation.city}</p>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => setSelectedExcavation(null)}
+                                className="text-blue-700 hover:bg-blue-200/50"
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        )}
 
-                        {/* Foto-Typ */}
+                        {/* Foto-Typ Buttons */}
                         <div>
-                          <Label>Foto-Typ</Label>
-                          <Select value={photoType} onValueChange={setPhotoType}>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="before">Vorher</SelectItem>
-                              <SelectItem value="after">Nachher</SelectItem>
-                              <SelectItem value="environment">Umfeld</SelectItem>
-                              <SelectItem value="backfill">Verfüllung</SelectItem>
-                              <SelectItem value="surface">Oberfläche</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <Label className="mb-2 block">Foto-Typ</Label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={photoType === 'before' ? 'default' : 'outline'}
+                              onClick={() => setPhotoType('before')}
+                              className={photoType === 'before' ? 'bg-blue-600' : ''}
+                            >
+                              Vorher
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={photoType === 'after' ? 'default' : 'outline'}
+                              onClick={() => setPhotoType('after')}
+                              className={photoType === 'after' ? 'bg-blue-600' : ''}
+                            >
+                              Nachher
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={photoType === 'environment' ? 'default' : 'outline'}
+                              onClick={() => setPhotoType('environment')}
+                              className={photoType === 'environment' ? 'bg-blue-600' : ''}
+                            >
+                              Umfeld
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={photoType === 'backfill' ? 'default' : 'outline'}
+                              onClick={() => setPhotoType('backfill')}
+                              className={photoType === 'backfill' ? 'bg-blue-600' : ''}
+                            >
+                              Verfüllung
+                            </Button>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant={photoType === 'surface' ? 'default' : 'outline'}
+                              onClick={() => setPhotoType('surface')}
+                              className={photoType === 'surface' ? 'bg-blue-600' : ''}
+                            >
+                              Oberfläche
+                            </Button>
+                          </div>
                         </div>
 
                         {/* Foto-Vorschau */}
@@ -793,121 +898,11 @@ export default function BaustellenModusPage() {
             )}
           </AnimatePresence>
 
-          {/* Leistungen anzeigen Modal */}
-          <AnimatePresence>
-            {activeAction === 'excavations' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 overflow-y-auto"
-              >
-                <div className="min-h-screen p-4">
-                  <motion.div
-                    initial={{ y: 50, scale: 0.95 }}
-                    animate={{ y: 0, scale: 1 }}
-                    exit={{ y: 50, scale: 0.95 }}
-                    className="w-full max-w-2xl mx-auto my-8"
-                  >
-                    <Card>
-                      <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white sticky top-0 z-10">
-                        <div className="flex justify-between items-center">
-                          <CardTitle className="flex items-center gap-2">
-                            <Shovel className="w-5 h-5" />
-                            Leistungen ({excavations.length})
-                          </CardTitle>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setActiveAction(null)}
-                            className="text-white hover:bg-white/20"
-                          >
-                            <X className="w-5 h-5" />
-                          </Button>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4 space-y-3">
-                        {excavations.length === 0 ? (
-                          <div className="text-center py-12">
-                            <Shovel className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                            <p className="text-gray-500">Keine Leistungen vorhanden</p>
-                          </div>
-                        ) : (
-                          excavations.map((exc) => (
-                            <Card key={exc.id} className="border-2">
-                              <CardContent className="p-3">
-                                <div className="flex justify-between items-start mb-2">
-                                  <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900">{exc.location_name}</h4>
-                                    <p className="text-sm text-gray-600">{exc.street}, {exc.city}</p>
-                                  </div>
-                                  {exc.is_closed ? (
-                                    <Badge className="bg-green-100 text-green-800">Fertig</Badge>
-                                  ) : exc.is_backfilled ? (
-                                    <Badge className="bg-yellow-100 text-yellow-800">Verfüllt</Badge>
-                                  ) : (
-                                    <Badge className="bg-orange-100 text-orange-800">Offen</Badge>
-                                  )}
-                                </div>
-                                
-                                <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 mt-2">
-                                  <div>
-                                    <span className="text-gray-500">L:</span> {exc.excavation_length?.toFixed(1)}m
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-500">B:</span> {exc.excavation_width?.toFixed(1)}m
-                                  </div>
-                                  <div>
-                                    <span className="text-gray-500">T:</span> {exc.excavation_depth?.toFixed(1)}m
-                                  </div>
-                                </div>
 
-                                {exc.surface_type && (
-                                  <div className="mt-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {exc.surface_type}
-                                    </Badge>
-                                  </div>
-                                )}
-
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="w-full mt-3"
-                                  onClick={() => {
-                                    setSelectedExcavation(exc);
-                                    setActiveAction('photos');
-                                  }}
-                                >
-                                  <Camera className="w-4 h-4 mr-2" />
-                                  Fotos hinzufügen
-                                </Button>
-                              </CardContent>
-                            </Card>
-                          ))
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
         </>
       )}
 
-      {/* PWA Install Hinweis (falls nicht installiert) */}
-      {isOnline && (
-        <div className="fixed bottom-4 left-4 right-4 z-20">
-          <Card className="bg-gradient-to-r from-orange-500 to-amber-600 text-white border-none shadow-2xl">
-            <CardContent className="p-3 text-center">
-              <p className="text-sm font-medium">
-                💡 Tipp: Installieren Sie diese App auf Ihrem Startbildschirm für schnellen Zugriff!
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+
     </div>
   );
 }

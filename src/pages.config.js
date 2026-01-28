@@ -1,6 +1,7 @@
 import Analytics from './pages/Analytics';
 import BaustellenKarte from './pages/BaustellenKarte';
 import BaustellenModus from './pages/BaustellenModus';
+import BueroUserAuswertung from './pages/BueroUserAuswertung';
 import Dashboard from './pages/Dashboard';
 import Disposition from './pages/Disposition';
 import DispositionBauleiter from './pages/DispositionBauleiter';
@@ -24,6 +25,7 @@ import MontagePriceList from './pages/MontagePriceList';
 import MyMontageAuftraege from './pages/MyMontageAuftraege';
 import MyProjects from './pages/MyProjects';
 import MyProjectsOberflaeche from './pages/MyProjectsOberflaeche';
+import OfflineProjectDetail from './pages/OfflineProjectDetail';
 import OpenDocumentations from './pages/OpenDocumentations';
 import OpenMaterialBookings from './pages/OpenMaterialBookings';
 import PriceList from './pages/PriceList';
@@ -37,8 +39,6 @@ import Surface from './pages/Surface';
 import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
-import BueroUserAuswertung from './pages/BueroUserAuswertung';
-import OfflineProjectDetail from './pages/OfflineProjectDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -46,6 +46,7 @@ export const PAGES = {
     "Analytics": Analytics,
     "BaustellenKarte": BaustellenKarte,
     "BaustellenModus": BaustellenModus,
+    "BueroUserAuswertung": BueroUserAuswertung,
     "Dashboard": Dashboard,
     "Disposition": Disposition,
     "DispositionBauleiter": DispositionBauleiter,
@@ -69,6 +70,7 @@ export const PAGES = {
     "MyMontageAuftraege": MyMontageAuftraege,
     "MyProjects": MyProjects,
     "MyProjectsOberflaeche": MyProjectsOberflaeche,
+    "OfflineProjectDetail": OfflineProjectDetail,
     "OpenDocumentations": OpenDocumentations,
     "OpenMaterialBookings": OpenMaterialBookings,
     "PriceList": PriceList,
@@ -82,8 +84,6 @@ export const PAGES = {
     "Tasks": Tasks,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
-    "BueroUserAuswertung": BueroUserAuswertung,
-    "OfflineProjectDetail": OfflineProjectDetail,
 }
 
 export const pagesConfig = {
