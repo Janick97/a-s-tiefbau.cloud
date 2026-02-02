@@ -506,38 +506,46 @@ export default function ExcavationsManagement({
                       </div>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex flex-col items-center gap-1">
-                        <Checkbox
-                          checked={excavation.asphalt_trag_completed || false}
-                          onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
-                        />
-                        {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
-                          <div className="text-xs text-gray-700 text-center">
-                            <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
-                            {excavation.asphalt_trag_by && (
-                              <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <Checkbox
+                            checked={excavation.asphalt_trag_completed || false}
+                            onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
+                            className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
+                          />
+                          {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
+                            <div className="text-xs text-gray-700 text-center">
+                              <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
+                              {excavation.asphalt_trag_by && (
+                                <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center text-xs text-gray-400">-</div>
+                      )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex flex-col items-center gap-1">
-                        <Checkbox
-                          checked={excavation.asphalt_fein_completed || false}
-                          onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
-                        />
-                        {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
-                          <div className="text-xs text-gray-900 text-center">
-                            <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
-                            {excavation.asphalt_fein_by && (
-                              <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <Checkbox
+                            checked={excavation.asphalt_fein_completed || false}
+                            onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
+                            className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
+                          />
+                          {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
+                            <div className="text-xs text-gray-900 text-center">
+                              <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
+                              {excavation.asphalt_fein_by && (
+                                <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center text-xs text-gray-400">-</div>
+                      )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-center gap-1">
