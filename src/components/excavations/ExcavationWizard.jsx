@@ -159,6 +159,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
     photos_environment: [],
     photos_backfill: [],
     photos_surface: [],
+    photos_concrete_mortar: [],
+    photos_other: [],
     foreman: '',
     calculated_price: 0,
     foreman_commission: 0,
@@ -223,6 +225,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
         photos_environment: excavation.photos_environment || [],
         photos_backfill: excavation.photos_backfill || [],
         photos_surface: excavation.photos_surface || [],
+        photos_concrete_mortar: excavation.photos_concrete_mortar || [],
+        photos_other: excavation.photos_other || [],
         foreman: excavation.foreman || '',
         calculated_price: excavation.calculated_price || 0,
         foreman_commission: excavation.foreman_commission || 0,
@@ -540,6 +544,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
       photos_environment: [],
       photos_backfill: [],
       photos_surface: [],
+      photos_concrete_mortar: [],
+      photos_other: [],
       foreman: currentUser?.full_name || 'Nicht zugewiesen',
       calculated_price: 0,
       foreman_commission: 0,
@@ -1201,6 +1207,21 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       onImagesChange={(urls) => handleInputChange('photos_environment', urls)}
                     />
 
+                    {(formData.concrete_base_used || formData.mortar_used) && (
+                      <ImageUploadSection 
+                        title="Bilder Unterbeton/Mörtel"
+                        images={formData.photos_concrete_mortar}
+                        onImagesChange={(urls) => handleInputChange('photos_concrete_mortar', urls)}
+                      />
+                    )}
+
+                    <ImageUploadSection 
+                      title="Sonstige Bilder"
+                      images={formData.photos_other}
+                      onImagesChange={(urls) => handleInputChange('photos_other', urls)}
+                      maxFiles={50}
+                    />
+
                     <Card className="bg-gray-50/50">
                       <CardHeader>
                         <CardTitle className="text-base flex items-center gap-2">
@@ -1344,6 +1365,10 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         <p><span className="font-medium">Vorher-Fotos:</span> {formData.photos_before.length}</p>
                         <p><span className="font-medium">Zollstock-Fotos:</span> {formData.photos_after.length}</p>
                         <p><span className="font-medium">Umfeld-Fotos:</span> {formData.photos_environment.length}</p>
+                        {(formData.concrete_base_used || formData.mortar_used) && (
+                          <p><span className="font-medium">Unterbeton/Mörtel-Fotos:</span> {formData.photos_concrete_mortar.length}</p>
+                        )}
+                        <p><span className="font-medium">Sonstige Fotos:</span> {formData.photos_other.length}</p>
                         {formData.construction_justification && (
                           <div className="mt-2">
                             <p className="font-medium text-sm">Tiefbaubegründung:</p>
