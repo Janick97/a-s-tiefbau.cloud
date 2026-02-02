@@ -135,20 +135,7 @@ export default function MyProjectsOberflaechePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-2 md:p-4 pb-20">
       <div className="max-w-7xl mx-auto">
-        {/* Kompakter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-3 bg-white rounded-lg p-3 shadow-md"
-        >
-          <div>
-            <h1 className="text-lg md:text-xl font-bold text-gray-900">Meine Aufträge</h1>
-            <p className="text-xs text-gray-600">{projects.length} Aufträge</p>
-          </div>
-          <Button variant="outline" size="sm" onClick={loadData}>
-            <RefreshCw className="w-4 h-4" />
-          </Button>
-        </motion.div>
+
 
         {/* Kompakte Projekt-Liste */}
         {projects.length === 0 ? (

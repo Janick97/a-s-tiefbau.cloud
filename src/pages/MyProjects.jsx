@@ -238,27 +238,6 @@ export default function MyProjectsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-amber-50 p-2 md:p-4 pb-20">
       <div className="max-w-7xl mx-auto">
-        {/* Kompakter Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-3 bg-white rounded-lg p-3 shadow-md"
-        >
-          <div>
-            <h1 className="text-lg md:text-xl font-bold text-gray-900">Meine Aufträge</h1>
-            <p className="text-xs text-gray-600">{filteredProjects.length} Aufträge</p>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
-            >
-              <Eye className="w-4 h-4" />
-            </Button>
-          </div>
-        </motion.div>
-
         {/* Toggle aktiv/abgeschlossen */}
         <div className="flex gap-2 mb-3">
           <Button
@@ -280,47 +259,6 @@ export default function MyProjectsPage() {
             Fertig ({completedProjectsCount})
           </Button>
         </div>
-
-        {/* Kompakte Suche */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-3"
-        >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <Input
-              placeholder="Projekt suchen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-10"
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-2 mt-2">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle</SelectItem>
-                <SelectItem value="active">Aktiv</SelectItem>
-                <SelectItem value="completed">Abgeschlossen</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={closedFilter} onValueChange={setClosedFilter}>
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Schließung" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Alle</SelectItem>
-                <SelectItem value="open">Offen</SelectItem>
-                <SelectItem value="backfilled">Verfüllt</SelectItem>
-                <SelectItem value="closed">Geschlossen</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </motion.div>
 
 
 
