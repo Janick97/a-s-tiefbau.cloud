@@ -874,13 +874,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         </SelectTrigger>
                         <SelectContent className="max-h-[60vh]">
                           {filteredPriceItems.map(item => (
-                            <SelectItem key={item.id} value={item.id} className="py-2 text-xs">
-                              <div className="flex flex-col gap-0.5">
-                                <div className="font-semibold">{item.item_number}</div>
-                                <div className="line-clamp-2">{item.description}</div>
-                                <div className="font-semibold text-[10px]">
-                                 {item.unit}
-                                </div>
+                            <SelectItem key={item.id} value={item.id} className="py-1.5 text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold">{item.item_number}</span>
+                                <span className="text-[11px]">•</span>
+                                <span className="line-clamp-1 flex-1">{item.description}</span>
                               </div>
                             </SelectItem>
                           ))}
@@ -1067,22 +1065,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                         />
                       </div>
                     )}
-
-                    {(formData.surface_type === 'Beton' || formData.surface_type_2 === 'Beton') && (
-                      <div className="space-y-1">
-                        <Label htmlFor="concrete_thickness" className="text-xs">Beton (cm) *</Label>
-                        <Input
-                          id="concrete_thickness"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          value={formData.concrete_thickness}
-                          onChange={(e) => handleInputChange('concrete_thickness', e.target.value)}
-                          placeholder="10.0"
-                          className="h-9"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Checkboxen kompakt */}
@@ -1111,41 +1093,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       />
                       <Label htmlFor="gravel_used" className="cursor-pointer text-xs">Splitt</Label>
                     </div>
-                  </div>
-
-                  {/* Dicken für Checkboxen */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {formData.concrete_base_used && (
-                      <div className="space-y-1">
-                        <Label htmlFor="concrete_base_thickness" className="text-xs">Unterbeton (cm) *</Label>
-                        <Input
-                          id="concrete_base_thickness"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          value={formData.concrete_base_thickness}
-                          onChange={(e) => handleInputChange('concrete_base_thickness', e.target.value)}
-                          placeholder="8.0"
-                          className="h-9"
-                        />
-                      </div>
-                    )}
-
-                    {formData.mortar_used && (
-                      <div className="space-y-1">
-                        <Label htmlFor="mortar_thickness" className="text-xs">Mörtel (cm) *</Label>
-                        <Input
-                          id="mortar_thickness"
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          value={formData.mortar_thickness}
-                          onChange={(e) => handleInputChange('mortar_thickness', e.target.value)}
-                          placeholder="3.0"
-                          className="h-9"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Weitere Checkboxen */}
