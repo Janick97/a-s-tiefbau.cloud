@@ -57,36 +57,27 @@ const projectStatusColors = {
 
 export default function MyProjectsPage() {
   const [user, setUser] = useState(null);
-  const [projects, setProjects] = useState([]);
+  const [myProjects, setMyProjects] = useState([]);
   const [excavations, setExcavations] = useState([]);
   const [priceItems, setPriceItems] = useState([]);
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [projectStatusFilter, setProjectStatusFilter] = useState('all');
+  const [closedFilter, setClosedFilter] = useState('all');
   const [showCompletedProjects, setShowCompletedProjects] = useState(false);
-  const [expandedProjects, setExpandedProjects] = useState({});
-  const [confirmDialog, setConfirmDialog] = useState({
-    show: false,
-    projectId: null,
-    projectTitle: null
-  });
   const [completing, setCompleting] = useState(null);
-  const [closureDialog, setClosureDialog] = useState({ show: false, excavation: null });
-  const [backfillDialog, setBackfillDialog] = useState({ show: false, excavation: null });
+  const [viewMode, setViewMode] = useState('list');
 
   const filterProjects = useCallback(() => {
-    let filtered = [...projects];
+    let filtered = [...myProjects];
 
-    // Filter nach foreman_completed Status
     if (showCompletedProjects) {
       filtered = filtered.filter(project => project.foreman_completed === true);
     } else {
       filtered = filtered.filter(project => !project.foreman_completed);
     }
 
-    // Textsuche
     if (searchTerm) {
       filtered = filtered.filter(project =>
         project.project_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -97,18 +88,33 @@ export default function MyProjectsPage() {
       );
     }
 
-    // Status-Filter
     if (statusFilter !== 'all') {
       filtered = filtered.filter(project => project.status === statusFilter);
     }
 
-    // Projekt-Status-Filter
-    if (projectStatusFilter !== 'all') {
-      filtered = filtered.filter(project => project.project_status === projectStatusFilter);
+    if (closedFilter !== 'all') {
+      const projectExcs = filtered.map(p => ({
+        ...p,
+        excavations: excavations.filter(exc => exc.project_id === p.id)
+      }));
+      
+      if (closedFilter === 'open') {
+        filtered = projectExcs.filter(p => 
+          p.excavations.some(exc => !exc.is_closed && !exc.is_backfilled)
+        ).map(p => ({ ...p, excavations: undefined }));
+      } else if (closedFilter === 'backfilled') {
+        filtered = projectExcs.filter(p => 
+          p.excavations.some(exc => exc.is_backfilled && !exc.is_closed)
+        ).map(p => ({ ...p, excavations: undefined }));
+      } else if (closedFilter === 'closed') {
+        filtered = projectExcs.filter(p => 
+          p.excavations.some(exc => exc.is_closed)
+        ).map(p => ({ ...p, excavations: undefined }));
+      }
     }
 
     setFilteredProjects(filtered);
-  }, [projects, searchTerm, statusFilter, projectStatusFilter, showCompletedProjects]);
+  }, [myProjects, searchTerm, statusFilter, closedFilter, showCompletedProjects, excavations]);
 
   useEffect(() => {
     loadData();
@@ -133,18 +139,21 @@ export default function MyProjectsPage() {
       setPriceItems(Array.isArray(priceItemsData) ? priceItemsData : []);
 
       if (userData && userData.position === 'Bauleiter') {
-        const userAssignedProjects = (Array.isArray(projectsData) ? projectsData : []).filter(project =>
-          project.assigned_foreman_id === userData.id ||
-          project.assigned_foreman_name === userData.full_name ||
-          project.created_by === userData.email
-        );
-        setProjects(userAssignedProjects);
+        const userAssignedProjects = (Array.isArray(projectsData) ? projectsData : []).filter(project => {
+          if (project.assigned_bauleiter && Array.isArray(project.assigned_bauleiter)) {
+            return project.assigned_bauleiter.some(b => b.id === userData.id);
+          }
+          return project.assigned_foreman_id === userData.id ||
+                 project.assigned_foreman_name === userData.full_name ||
+                 project.created_by === userData.email;
+        });
+        setMyProjects(userAssignedProjects);
       } else {
-        setProjects([]);
+        setMyProjects([]);
       }
     } catch (error) {
       console.error("Fehler beim Laden der Projekte:", error);
-      setProjects([]);
+      setMyProjects([]);
       setExcavations([]);
       setPriceItems([]);
     }
@@ -174,100 +183,21 @@ export default function MyProjectsPage() {
     };
   };
 
-  const handleMarkAsCompleted = (project) => {
-    setConfirmDialog({
-      show: true,
-      projectId: project.id,
-      projectTitle: project.title
-    });
-  };
-
-  const confirmMarkAsCompleted = async () => {
-    const { projectId } = confirmDialog;
-    setConfirmDialog({ show: false, projectId: null, projectTitle: null });
-    setCompleting(projectId);
-
-    try {
-      await Project.update(projectId, {
-        foreman_completed: true,
-        foreman_completed_date: new Date().toISOString().split('T')[0]
-      });
-
-      // Reload data
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Markieren als erledigt:", error);
+  const handleCompleteProject = async (project) => {
+    if (confirm(`Auftrag "${project.project_number}" als erledigt markieren?`)) {
+      setCompleting(project.id);
+      try {
+        await Project.update(project.id, {
+          foreman_completed: true,
+          foreman_completed_date: new Date().toISOString().split('T')[0]
+        });
+        await loadData();
+      } catch (error) {
+        console.error("Fehler beim Markieren als erledigt:", error);
+        alert("Fehler beim Markieren des Auftrags");
+      }
+      setCompleting(null);
     }
-    setCompleting(null);
-  };
-
-  const cancelMarkAsCompleted = () => {
-    setConfirmDialog({ show: false, projectId: null, projectTitle: null });
-  };
-
-  const toggleProjectExpanded = (projectId) => {
-    setExpandedProjects(prev => ({
-      ...prev,
-      [projectId]: !prev[projectId]
-    }));
-  };
-
-  const handleClosureToggle = (excavation, checked) => {
-    if (checked) {
-      setClosureDialog({ show: true, excavation });
-    } else {
-      updateExcavationClosure(excavation.id, false, null, null);
-    }
-  };
-
-  const handleBackfillToggle = (excavation, checked) => {
-    if (checked) {
-      setBackfillDialog({ show: true, excavation });
-    } else {
-      updateExcavationBackfill(excavation.id, false, null, null);
-    }
-  };
-
-  const updateExcavationClosure = async (excavationId, is_closed, closed_date, closed_by) => {
-    try {
-      await Excavation.update(excavationId, { is_closed, closed_date, closed_by, closed_by_user_id: user?.id });
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren:", error);
-    }
-  };
-
-  const updateExcavationBackfill = async (excavationId, is_backfilled, backfilled_date, backfilled_by) => {
-    try {
-      await Excavation.update(excavationId, { is_backfilled, backfilled_date, backfilled_by, backfilled_by_user_id: user?.id });
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren:", error);
-    }
-  };
-
-  const confirmClosure = async () => {
-    if (!closureDialog.excavation) return;
-    const { excavation } = closureDialog;
-    await updateExcavationClosure(
-      excavation.id,
-      true,
-      new Date().toISOString().split('T')[0],
-      user?.full_name || 'Nicht angegeben'
-    );
-    setClosureDialog({ show: false, excavation: null });
-  };
-
-  const confirmBackfill = async () => {
-    if (!backfillDialog.excavation) return;
-    const { excavation } = backfillDialog;
-    await updateExcavationBackfill(
-      excavation.id,
-      true,
-      new Date().toISOString().split('T')[0],
-      user?.full_name || 'Nicht angegeben'
-    );
-    setBackfillDialog({ show: false, excavation: null });
   };
 
   const getPriceItemDescription = (priceItemId) => {
@@ -275,8 +205,8 @@ export default function MyProjectsPage() {
     return item ? `${item.item_number} - ${item.description}` : 'Position unbekannt';
   };
 
-  const activeProjectsCount = projects.filter(p => !p.foreman_completed).length;
-  const completedProjectsCount = projects.filter(p => p.foreman_completed).length;
+  const activeProjectsCount = myProjects.filter(p => !p.foreman_completed).length;
+  const completedProjectsCount = myProjects.filter(p => p.foreman_completed).length;
 
   if (isLoading) {
     return (
@@ -306,136 +236,178 @@ export default function MyProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-3 md:p-4 lg:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50 to-amber-50 p-2 md:p-4 pb-20">
       <div className="max-w-7xl mx-auto">
-        {/* Header - Tablet optimiert */}
-        <div className="relative mb-4 md:mb-6">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
-              Meine Aufträge
-            </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">
-              {filteredProjects.length} von {showCompletedProjects ? completedProjectsCount : activeProjectsCount} Aufträgen
-            </p>
-          </motion.div>
-          <button
-            onClick={loadData}
-            className="absolute top-0 right-0 p-2 hover:bg-white/50 rounded-lg transition-colors"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
-          </button>
-        </div>
-
-        {/* Toggle zwischen aktiven und abgeschlossenen Projekten */}
+        {/* Kompakter Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-4 md:mb-6"
+          className="flex justify-between items-center mb-3 bg-white rounded-lg p-3 shadow-md"
         >
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">Meine Aufträge</h1>
+            <p className="text-xs text-gray-600">{filteredProjects.length} Aufträge</p>
+          </div>
           <div className="flex gap-2">
             <Button
-              variant={!showCompletedProjects ? "default" : "outline"}
-              onClick={() => setShowCompletedProjects(false)}
-              className={`flex-1 h-12 text-sm ${!showCompletedProjects ? "bg-gradient-to-r from-orange-500 to-amber-600" : ""}`}
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}
             >
-              <Clock className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Aktive Aufträge</span>
-              <span className="sm:hidden">Aktiv</span>
-              <span className="ml-1">({activeProjectsCount})</span>
+              <Eye className="w-4 h-4" />
             </Button>
-            <Button
-              variant={showCompletedProjects ? "default" : "outline"}
-              onClick={() => setShowCompletedProjects(true)}
-              className={`flex-1 h-12 text-sm ${showCompletedProjects ? "bg-gradient-to-r from-green-500 to-emerald-600" : ""}`}
-            >
-              <CheckCircle className="w-4 h-4 mr-1 md:mr-2" />
-              <span className="hidden sm:inline">Abgeschlossen</span>
-              <span className="sm:hidden">Fertig</span>
-              <span className="ml-1">({completedProjectsCount})</span>
-            </Button>
+          </div>
+        </motion.div>
+
+        {/* Toggle aktiv/abgeschlossen */}
+        <div className="flex gap-2 mb-3">
+          <Button
+            size="sm"
+            variant={!showCompletedProjects ? "default" : "outline"}
+            onClick={() => setShowCompletedProjects(false)}
+            className={`flex-1 ${!showCompletedProjects ? "bg-orange-500" : ""}`}
+          >
+            <Clock className="w-3 h-3 mr-1" />
+            Aktiv ({activeProjectsCount})
+          </Button>
+          <Button
+            size="sm"
+            variant={showCompletedProjects ? "default" : "outline"}
+            onClick={() => setShowCompletedProjects(true)}
+            className={`flex-1 ${showCompletedProjects ? "bg-green-500" : ""}`}
+          >
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Fertig ({completedProjectsCount})
+          </Button>
+        </div>
+
+        {/* Kompakte Suche */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-3"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Projekt suchen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-10"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle</SelectItem>
+                <SelectItem value="active">Aktiv</SelectItem>
+                <SelectItem value="completed">Abgeschlossen</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={closedFilter} onValueChange={setClosedFilter}>
+              <SelectTrigger className="h-9 text-sm">
+                <SelectValue placeholder="Schließung" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Alle</SelectItem>
+                <SelectItem value="open">Offen</SelectItem>
+                <SelectItem value="backfilled">Verfüllt</SelectItem>
+                <SelectItem value="closed">Geschlossen</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </motion.div>
 
 
 
-        {/* Projects Grid - Tablet optimiert */}
+        {/* Kompakte Projekt-Liste */}
         {filteredProjects.length === 0 ? (
-          <Card className="card-elevation border-none">
+          <Card>
             <CardContent className="p-8 text-center">
-              {showCompletedProjects ? (
-                <>
-                  <CheckCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Noch keine abgeschlossenen Aufträge
-                  </h3>
-                  <p className="text-gray-600">
-                    Markieren Sie aktive Projekte als erledigt, um sie hier zu sehen.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {projects.length === 0 ? 'Keine Aufträge zugewiesen' : 'Keine Aufträge gefunden'}
-                  </h3>
-                  <p className="text-gray-600">
-                    {projects.length === 0
-                      ? 'Ihnen wurden noch keine Aufträge zugewiesen.'
-                      : 'Probieren Sie andere Suchkriterien.'
-                    }
-                  </p>
-                </>
-              )}
+              <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">Keine Aufträge gefunden</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="space-y-2"
+          >
             <AnimatePresence>
               {filteredProjects.map((project, index) => {
+                const projectExcavations = excavations.filter(exc => exc.project_id === project.id);
+                const openExcavations = projectExcavations.filter(exc => !exc.is_closed && !exc.is_backfilled).length;
+                const closedExcavations = projectExcavations.filter(exc => exc.is_closed).length;
+                const totalExcavations = projectExcavations.length;
+                const projectRevenue = calculateProjectRevenue(project.id);
+
                 return (
                   <motion.div
                     key={project.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.05 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.02 }}
                   >
-                    <Card className="card-elevation border-none hover:shadow-lg transition-all">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-4">
+                    <Card className="border-2 hover:shadow-lg transition-shadow">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-3">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-bold text-lg text-gray-900">
+                              <Badge className="bg-orange-500 text-white text-xs px-2 py-0">
                                 {project.project_number}
-                              </h3>
-                              <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
+                              </Badge>
+                              <Badge variant="outline" className="text-xs px-2 py-0">
+                                {project.sm_number}
+                              </Badge>
+                              {project.foreman_completed && (
+                                <Badge className="bg-green-500 text-white text-xs px-2 py-0">
+                                  <CheckCircle className="w-3 h-3" />
+                                </Badge>
+                              )}
                             </div>
-                            <p className="text-sm text-gray-600">
+                            <h3 className="font-semibold text-sm text-gray-900 truncate">
                               {project.title}
-                            </p>
+                            </h3>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {project.city}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Shovel className="w-3 h-3" />
+                                {totalExcavations} ({openExcavations} offen / {closedExcavations} fertig)
+                              </span>
+                            </div>
+                            {projectRevenue > 0 && (
+                              <div className="text-xs font-semibold text-green-600 mt-1">
+                                {projectRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                              </div>
+                            )}
                           </div>
+                          
                           <div className="flex flex-col gap-2 flex-shrink-0">
                             <Link to={createPageUrl(`ProjectDetail?id=${project.id}`)}>
-                              <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-10 px-8 w-full">
-                                Öffnen
+                              <Button size="sm" variant="outline" className="h-8 px-3">
+                                <Eye className="w-3 h-3" />
                               </Button>
                             </Link>
                             {!project.foreman_completed && (
                               <Button
-                                variant="outline"
-                                className="border-green-200 text-green-700 hover:bg-green-50 h-10 px-8 w-full"
-                                onClick={() => handleMarkAsCompleted(project)}
+                                size="sm"
+                                onClick={() => handleCompleteProject(project)}
                                 disabled={completing === project.id}
+                                className="h-8 px-3 bg-green-600 hover:bg-green-700"
                               >
                                 {completing === project.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <Loader2 className="w-3 h-3 animate-spin" />
                                 ) : (
-                                  'Erledigt'
+                                  <CheckCircle className="w-3 h-3" />
                                 )}
                               </Button>
                             )}
@@ -447,135 +419,11 @@ export default function MyProjectsPage() {
                 );
               })}
             </AnimatePresence>
-          </div>
+          </motion.div>
         )}
       </div>
 
-      {/* Bestätigungsdialog */}
-      <AnimatePresence>
-        {confirmDialog.show && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-            onClick={(e) => { if (e.target === e.currentTarget) cancelMarkAsCompleted(); }}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-md"
-            >
-              <Card className="card-elevation border-none">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Auftrag als erledigt markieren</h3>
-                      <p className="text-sm text-gray-600">Bestätigung erforderlich</p>
-                    </div>
-                  </div>
 
-                  <div className="mb-6">
-                    <p className="text-gray-700 mb-3">
-                      Möchten Sie den folgenden Auftrag wirklich als erledigt markieren?
-                    </p>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="font-semibold text-gray-900">{confirmDialog.projectTitle}</p>
-                    </div>
-                    <div className="mt-3 bg-green-50 border border-green-200 rounded-lg p-3">
-                      <p className="text-sm text-green-800">
-                        ✓ Der Auftrag wird als erledigt markiert und erscheint in Ihrer Liste der abgeschlossenen Aufträge.
-                      </p>
-                      <p className="text-sm text-green-800 mt-1">
-                        ✓ Der Administrator kann den Auftrag in der Disposition als erledigt sehen.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={cancelMarkAsCompleted}
-                      className="flex-1"
-                    >
-                      Abbrechen
-                    </Button>
-                    <Button
-                      onClick={confirmMarkAsCompleted}
-                      className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Bestätigen
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Closure Dialog */}
-      {closureDialog.show && (
-        <Dialog open={closureDialog.show} onOpenChange={() => setClosureDialog({ show: false, excavation: null })}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Leistung als geschlossen markieren</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <p className="text-sm text-gray-600">
-                Möchten Sie die Leistung "{closureDialog.excavation?.location_name}" als geschlossen markieren?
-              </p>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
-                ✓ Datum: {new Date().toLocaleDateString('de-DE')}<br/>
-                ✓ Von: {user?.full_name}
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setClosureDialog({ show: false, excavation: null })}>
-                Abbrechen
-              </Button>
-              <Button onClick={confirmClosure} className="bg-green-600 hover:bg-green-700">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Bestätigen
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Backfill Dialog */}
-      {backfillDialog.show && (
-        <Dialog open={backfillDialog.show} onOpenChange={() => setBackfillDialog({ show: false, excavation: null })}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Leistung als verfüllt markieren</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <p className="text-sm text-gray-600">
-                Möchten Sie die Leistung "{backfillDialog.excavation?.location_name}" als verfüllt markieren?
-              </p>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3 text-sm text-green-800">
-                ✓ Datum: {new Date().toLocaleDateString('de-DE')}<br/>
-                ✓ Von: {user?.full_name}
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setBackfillDialog({ show: false, excavation: null })}>
-                Abbrechen
-              </Button>
-              <Button onClick={confirmBackfill} className="bg-green-600 hover:bg-green-700">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Bestätigen
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
