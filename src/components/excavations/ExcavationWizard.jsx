@@ -1067,59 +1067,58 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                     )}
                   </div>
 
-                  {/* Checkboxen kompakt */}
-                  <div className="grid grid-cols-3 gap-2 text-xs">
-                    <div className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id="concrete_base_used"
-                        checked={formData.concrete_base_used}
-                        onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
-                      />
-                      <Label htmlFor="concrete_base_used" className="cursor-pointer text-xs">Unterbeton</Label>
-                    </div>
-                    <div className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id="mortar_used"
-                        checked={formData.mortar_used}
-                        onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
-                      />
-                      <Label htmlFor="mortar_used" className="cursor-pointer text-xs">Mörtel</Label>
-                    </div>
-                    <div className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id="gravel_used"
-                        checked={formData.gravel_used}
-                        onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
-                      />
-                      <Label htmlFor="gravel_used" className="cursor-pointer text-xs">Splitt</Label>
-                    </div>
-                  </div>
-
-                  {/* Weitere Checkboxen */}
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id="iron_plate_laid"
-                        checked={formData.iron_plate_laid}
-                        onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
-                      />
-                      <Label htmlFor="iron_plate_laid" className="cursor-pointer text-xs">Eisenplatte</Label>
-                    </div>
-                    <div className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id="excavated_material_left_onsite"
-                        checked={formData.excavated_material_left_onsite}
-                        onCheckedChange={(checked) => handleInputChange('excavated_material_left_onsite', checked)}
-                      />
-                      <Label htmlFor="excavated_material_left_onsite" className="cursor-pointer text-xs">Aushub vor Ort</Label>
-                    </div>
-                    <div className="flex items-center space-x-1.5 col-span-2">
-                      <Checkbox
-                        id="provisionally_filled"
-                        checked={formData.provisionally_filled}
-                        onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
-                      />
-                      <Label htmlFor="provisionally_filled" className="cursor-pointer text-xs">Grube bündig verfüllt</Label>
+                  {/* Zusätzliche Angaben */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <h4 className="font-semibold text-gray-700 mb-3 text-xs">Zusätzliche Angaben</h4>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="concrete_base_used"
+                          checked={formData.concrete_base_used}
+                          onCheckedChange={(checked) => handleInputChange('concrete_base_used', checked)}
+                        />
+                        <Label htmlFor="concrete_base_used" className="cursor-pointer text-xs">Unterbeton</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="mortar_used"
+                          checked={formData.mortar_used}
+                          onCheckedChange={(checked) => handleInputChange('mortar_used', checked)}
+                        />
+                        <Label htmlFor="mortar_used" className="cursor-pointer text-xs">Mörtel</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="gravel_used"
+                          checked={formData.gravel_used}
+                          onCheckedChange={(checked) => handleInputChange('gravel_used', checked)}
+                        />
+                        <Label htmlFor="gravel_used" className="cursor-pointer text-xs">Splitt</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="iron_plate_laid"
+                          checked={formData.iron_plate_laid}
+                          onCheckedChange={(checked) => handleInputChange('iron_plate_laid', checked)}
+                        />
+                        <Label htmlFor="iron_plate_laid" className="cursor-pointer text-xs">Eisenplatte</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="excavated_material_left_onsite"
+                          checked={formData.excavated_material_left_onsite}
+                          onCheckedChange={(checked) => handleInputChange('excavated_material_left_onsite', checked)}
+                        />
+                        <Label htmlFor="excavated_material_left_onsite" className="cursor-pointer text-xs">Aushub vor Ort</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="provisionally_filled"
+                          checked={formData.provisionally_filled}
+                          onCheckedChange={(checked) => handleInputChange('provisionally_filled', checked)}
+                        />
+                        <Label htmlFor="provisionally_filled" className="cursor-pointer text-xs">Grube bündig verfüllt</Label>
+                      </div>
                     </div>
                   </div>
 
