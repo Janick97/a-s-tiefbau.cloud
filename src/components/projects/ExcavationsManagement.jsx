@@ -491,21 +491,26 @@ export default function ExcavationsManagement({
                       </Badge>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      <div className="flex flex-col items-center gap-1">
-                        <Checkbox
-                          checked={excavation.is_closed || false}
-                          onCheckedChange={(checked) => handleClosureToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                        />
-                        {excavation.is_closed && excavation.closed_date && (
-                          <div className="text-xs text-green-600 text-center">
-                            <div>{new Date(excavation.closed_date).toLocaleDateString('de-DE')}</div>
-                            {excavation.closed_by && (
-                              <div className="text-green-700 font-medium">{excavation.closed_by}</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                      {(excavation.surface_type === 'Platten' || excavation.surface_type === 'Pflaster' || 
+                        excavation.surface_type_2 === 'Platten' || excavation.surface_type_2 === 'Pflaster') ? (
+                        <div className="flex flex-col items-center gap-1">
+                          <Checkbox
+                            checked={excavation.is_closed || false}
+                            onCheckedChange={(checked) => handleClosureToggle(excavation, checked)}
+                            className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                          />
+                          {excavation.is_closed && excavation.closed_date && (
+                            <div className="text-xs text-green-600 text-center">
+                              <div>{new Date(excavation.closed_date).toLocaleDateString('de-DE')}</div>
+                              {excavation.closed_by && (
+                                <div className="text-green-700 font-medium">{excavation.closed_by}</div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center text-xs text-gray-400">-</div>
+                      )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
