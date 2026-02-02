@@ -374,21 +374,6 @@ export default function MyProjectsPage() {
                             <h3 className="font-semibold text-sm text-gray-900 truncate">
                               {project.title}
                             </h3>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {project.city}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Shovel className="w-3 h-3" />
-                                {totalExcavations} ({openExcavations} offen / {closedExcavations} fertig)
-                              </span>
-                            </div>
-                            {projectRevenue > 0 && (
-                              <div className="text-xs font-semibold text-green-600 mt-1">
-                                {projectRevenue.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                              </div>
-                            )}
                           </div>
                           
                           <div className="flex flex-col gap-2 flex-shrink-0">

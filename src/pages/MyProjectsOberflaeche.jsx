@@ -194,16 +194,6 @@ export default function MyProjectsOberflaechePage() {
                             <h3 className="font-semibold text-sm text-gray-900 truncate">
                               {project.title}
                             </h3>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
-                              <span className="flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {project.city}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Package className="w-3 h-3" />
-                                {projectExcs.length} ({openExcs} offen / {closedExcs} fertig)
-                              </span>
-                            </div>
                           </div>
                           
                           <div className="flex flex-col gap-2 flex-shrink-0">
