@@ -862,14 +862,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-4">
-                    <h3 className="text-2xl font-bold text-gray-900">Details & Oberfläche</h3>
-                  </div>
-
                   <div className="space-y-4">
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <h4 className="font-semibold text-orange-900 mb-2 text-sm">Leistungsdetails</h4>
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="price_item_id">Position aus Preisliste *</Label>
                       <Select 
@@ -1011,10 +1004,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           onChange={(e) => handleInputChange('excavation_depth', parseFloat(e.target.value))}
                         />
                       </div>
-                    </div>
-
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-6">
-                      <h4 className="font-semibold text-blue-900 mb-2 text-sm">Oberfläche</h4>
                     </div>
 
                     {/* Oberflächen */}
