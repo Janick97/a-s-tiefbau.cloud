@@ -40,6 +40,9 @@ export default function ExcavationsManagement({
 }) {
   const [internalUser, setInternalUser] = useState(currentUser || null);
   const [bauleiterList, setBauleiterList] = useState([]);
+  const [filterLocation, setFilterLocation] = useState('');
+  const [filterPosition, setFilterPosition] = useState('');
+  const [filterCreatedDate, setFilterCreatedDate] = useState('');
 
   // Load user and bauleiter list if not provided
   useEffect(() => {
@@ -223,6 +226,25 @@ export default function ExcavationsManagement({
     return priceItemsMap.get(priceItemId);
   };
 
+  const filteredExcavations = useMemo(() => {
+    return excavations.filter(exc => {
+      const matchesLocation = !filterLocation || 
+        exc.location_name?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+        exc.street?.toLowerCase().includes(filterLocation.toLowerCase()) ||
+        exc.city?.toLowerCase().includes(filterLocation.toLowerCase());
+      
+      const priceItem = priceItemsMap.get(exc.price_item_id);
+      const matchesPosition = !filterPosition || 
+        priceItem?.item_number?.toLowerCase().includes(filterPosition.toLowerCase()) ||
+        priceItem?.description?.toLowerCase().includes(filterPosition.toLowerCase());
+      
+      const matchesDate = !filterCreatedDate || 
+        exc.created_date?.startsWith(filterCreatedDate);
+      
+      return matchesLocation && matchesPosition && matchesDate;
+    });
+  }, [excavations, filterLocation, filterPosition, filterCreatedDate, priceItemsMap]);
+
   const renderContent = () => {
     if (excavations.length === 0) {
       return (
@@ -248,18 +270,51 @@ export default function ExcavationsManagement({
                 <TableHead className="w-12">#</TableHead>
                 <TableHead className="w-20">Geschlossen</TableHead>
                 <TableHead className="w-20">Verfüllt</TableHead>
-                <TableHead>Standort</TableHead>
                 <TableHead>Position</TableHead>
                 <TableHead>Adresse</TableHead>
+                <TableHead>Erstellungsdatum</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Bauleiter</TableHead>
                 <TableHead className="text-right">Preis</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
+              <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2">
+                  <Input
+                    placeholder="Position filtern..."
+                    value={filterPosition}
+                    onChange={(e) => setFilterPosition(e.target.value)}
+                    className="h-8 text-xs"
+                  />
+                </TableHead>
+                <TableHead className="py-2">
+                  <Input
+                    placeholder="Adresse filtern..."
+                    value={filterLocation}
+                    onChange={(e) => setFilterLocation(e.target.value)}
+                    className="h-8 text-xs"
+                  />
+                </TableHead>
+                <TableHead className="py-2">
+                  <Input
+                    type="date"
+                    value={filterCreatedDate}
+                    onChange={(e) => setFilterCreatedDate(e.target.value)}
+                    className="h-8 text-xs"
+                  />
+                </TableHead>
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
               <AnimatePresence>
-                {excavations.map((excavation, index) => (
+                {filteredExcavations.map((excavation, index) => (
                   <motion.tr
                     key={excavation.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -310,9 +365,6 @@ export default function ExcavationsManagement({
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">
-                      {excavation.location_name}
-                    </TableCell>
                     <TableCell>
                       <span className="text-sm text-gray-600">
                         {getPriceItemDescription(excavation.price_item_id)}
@@ -325,6 +377,11 @@ export default function ExcavationsManagement({
                           {excavation.street} {excavation.house_number}, {excavation.city}
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-xs text-gray-600">
+                        {new Date(excavation.created_date).toLocaleDateString('de-DE')}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <Badge className={statusColors[excavation.status]}>
@@ -378,7 +435,7 @@ export default function ExcavationsManagement({
 
         {/* Mobile View: Cards */}
         <div className="md:hidden space-y-4">
-          {excavations.map((excavation, index) => {
+          {filteredExcavations.map((excavation, index) => {
             const priceItem = priceItemsMap.get(excavation.price_item_id);
             return (
               <motion.div
@@ -507,7 +564,7 @@ export default function ExcavationsManagement({
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h3 className="text-xl font-bold">Ausgrabungen ({excavations.length})</h3>
+        <h3 className="text-xl font-bold">Ausgrabungen ({filteredExcavations.length} von {excavations.length})</h3>
         {showAddButton && (
           <Button onClick={() => setShowForm(true)} className="w-full md:w-auto">
             <Plus className="w-4 h-4 mr-2" />
