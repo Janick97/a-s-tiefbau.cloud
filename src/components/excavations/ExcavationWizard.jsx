@@ -1404,38 +1404,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       )}
                     </CardContent>
                   </Card>
-
-                  {/* Speichern Button - direkt unter der Zusammenfassung */}
-                  <div className="flex justify-end gap-3 pt-4 border-t">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setCurrentStep(currentStep - 1)}
-                      disabled={isSubmitting}
-                      className="h-11 px-6"
-                    >
-                      <ChevronLeft className="w-4 h-4 mr-2" />
-                      Zurück
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="bg-green-600 hover:bg-green-700 h-11 px-8 text-base shadow-lg"
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Speichere...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="w-5 h-5 mr-2" />
-                          Leistung speichern
-                        </>
-                      )}
-                    </Button>
-                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
