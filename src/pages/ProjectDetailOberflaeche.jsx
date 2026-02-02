@@ -1225,6 +1225,9 @@ export default function ProjectDetailOberflaechePage() {
                 projectId={project.id}
                 project={project}
                 loadData={loadData}
+                excavations={excavations}
+                priceItems={priceItems}
+                user={user}
               />
             </motion.div>
           </motion.div>

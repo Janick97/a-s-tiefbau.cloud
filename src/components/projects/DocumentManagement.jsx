@@ -22,9 +22,11 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
-  Edit2
+  Edit2,
+  BookOpen
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
+import ProjectCoverSheet from "./ProjectCoverSheet";
 
 const folderOptions = [
   "Aufmaß",
@@ -39,7 +41,7 @@ const folderOptions = [
   "Chat-Dateien"
 ];
 
-export default function DocumentManagement({ projectId, project, loadData }) {
+export default function DocumentManagement({ projectId, project, loadData, excavations = [], priceItems = [], user = null }) {
   const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -61,6 +63,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewMainFolderDialog, setShowNewMainFolderDialog] = useState(false);
   const [newMainFolderName, setNewMainFolderName] = useState("");
+  const [activeTab, setActiveTab] = useState("documents");
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
@@ -406,11 +409,49 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     });
   };
 
+  // Check if user is Bauleiter or Oberfläche
+  const showDeckblattTab = user && (user.position === 'Bauleiter' || user.position === 'Oberfläche');
+
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h3 className="text-xl font-bold">Anlagenkorb ({documents.length})</h3>
-        <div className="flex gap-2 w-full sm:w-auto">
+      {/* Tab Navigation */}
+      {showDeckblattTab && (
+        <div className="flex gap-2 border-b pb-2">
+          <Button
+            variant={activeTab === "documents" ? "default" : "ghost"}
+            onClick={() => setActiveTab("documents")}
+            className="flex-1"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Dokumente
+          </Button>
+          <Button
+            variant={activeTab === "deckblatt" ? "default" : "ghost"}
+            onClick={() => setActiveTab("deckblatt")}
+            className="flex-1"
+          >
+            <BookOpen className="w-4 h-4 mr-2" />
+            Deckblatt
+          </Button>
+        </div>
+      )}
+
+      {activeTab === "deckblatt" && showDeckblattTab ? (
+        <div>
+          <ProjectCoverSheet
+            project={project}
+            excavations={excavations}
+            materials={[]}
+            timesheets={[]}
+            documents={documents}
+            priceItems={priceItems}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <h3 className="text-xl font-bold">Anlagenkorb ({documents.length})</h3>
+            <div className="flex gap-2 w-full sm:w-auto">
           <div className="relative flex-1 sm:flex-initial sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
@@ -1211,6 +1252,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </motion.div>
         )}
       </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }
