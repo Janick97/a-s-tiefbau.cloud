@@ -1263,126 +1263,178 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-4"
                 >
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Zusammenfassung</h3>
-                    <p className="text-gray-600">Überprüfen Sie Ihre Angaben</p>
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Check className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900">Zusammenfassung</h3>
+                        <p className="text-sm text-gray-600">Überprüfen Sie Ihre Angaben vor dem Speichern</p>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Leistungsart</CardTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Leistungsart & Standort */}
+                    <Card className="shadow-sm">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold text-gray-700">Leistungsart</CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <p className="font-medium capitalize">{serviceCategory}</p>
+                        <Badge className="bg-orange-500 text-white capitalize text-xs">{serviceCategory}</Badge>
                       </CardContent>
                     </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Standort</CardTitle>
+                    <Card className="shadow-sm">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-semibold text-gray-700">Standort</CardTitle>
                       </CardHeader>
-                      <CardContent className="space-y-2">
-                        <p><span className="font-medium">Straße:</span> {formData.street} {formData.house_number}</p>
-                        <p><span className="font-medium">Stadt:</span> {formData.city}</p>
+                      <CardContent className="space-y-1 text-sm">
+                        <p className="font-medium">{formData.street} {formData.house_number}</p>
+                        <p className="text-gray-600">{formData.city}</p>
                         {formData.latitude && formData.longitude && (
-                          <p className="text-sm text-green-600">✓ GPS erfasst</p>
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
+                            <MapPin className="w-3 h-3 mr-1" /> GPS erfasst
+                          </Badge>
                         )}
                       </CardContent>
                     </Card>
+                  </div>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Leistungsdetails</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        {selectedPriceItem && (
-                          <>
-                            <p><span className="font-medium">Position:</span> {selectedPriceItem.item_number}</p>
-                            <p className="text-sm text-gray-600">{selectedPriceItem.description}</p>
-                          </>
-                        )}
-                        <div className="grid grid-cols-3 gap-2 mt-2">
-                          <div>
-                            <p className="text-xs text-gray-600">Länge</p>
-                            <p className="font-medium">{formData.excavation_length} m</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Breite</p>
-                            <p className="font-medium">{formData.excavation_width} m</p>
-                          </div>
-                          <div>
-                            <p className="text-xs text-gray-600">Tiefe</p>
-                            <p className="font-medium">{formData.excavation_depth} m</p>
-                          </div>
+                  {/* Leistungsdetails */}
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold text-gray-700">Leistungsdetails</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {selectedPriceItem && (
+                        <div className="bg-blue-50 border border-blue-100 rounded p-2">
+                          <p className="text-xs text-blue-700 font-semibold">{selectedPriceItem.item_number}</p>
+                          <p className="text-xs text-gray-700 line-clamp-2">{selectedPriceItem.description}</p>
                         </div>
-                        {selectedCable && (
-                          <p className="text-sm mt-2"><span className="font-medium">Kabel:</span> {selectedCable.name}</p>
-                        )}
-
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Oberfläche</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <p><span className="font-medium">Oberfläche 1:</span> {formData.surface_type}</p>
-                        {formData.surface_type_2 && (
-                          <p><span className="font-medium">Oberfläche 2:</span> {formData.surface_type_2}</p>
-                        )}
-                        {formData.asphalt_thickness && (
-                          <p><span className="font-medium">Asphaltdicke:</span> {formData.asphalt_thickness} cm</p>
-                        )}
-                        {formData.concrete_thickness && (
-                          <p><span className="font-medium">Betondicke:</span> {formData.concrete_thickness} cm</p>
-                        )}
-                        {formData.concrete_base_thickness && (
-                          <p><span className="font-medium">Unterbetondicke:</span> {formData.concrete_base_thickness} cm</p>
-                        )}
-                        {formData.mortar_thickness && (
-                          <p><span className="font-medium">Mörteldicke:</span> {formData.mortar_thickness} cm</p>
-                        )}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {formData.concrete_base_used && <Badge variant="outline">Unterbeton {formData.concrete_base_thickness && `(${formData.concrete_base_thickness} cm)`}</Badge>}
-                          {formData.mortar_used && <Badge variant="outline">Mörtel {formData.mortar_thickness && `(${formData.mortar_thickness} cm)`}</Badge>}
-                          {formData.gravel_used && <Badge variant="outline">Splitt</Badge>}
-                          {formData.iron_plate_laid && <Badge variant="outline">Eisenplatte</Badge>}
-                          {formData.excavated_material_left_onsite && <Badge variant="outline">Aushub vor Ort</Badge>}
-                          {formData.provisionally_filled && <Badge variant="outline">Bündig verfüllt</Badge>}
+                      )}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div className="bg-gray-50 rounded p-2 text-center">
+                          <p className="text-[10px] text-gray-500 uppercase">Länge</p>
+                          <p className="text-sm font-bold text-gray-900">{formData.excavation_length} m</p>
                         </div>
-                        </CardContent>
-                        </Card>
+                        <div className="bg-gray-50 rounded p-2 text-center">
+                          <p className="text-[10px] text-gray-500 uppercase">Breite</p>
+                          <p className="text-sm font-bold text-gray-900">{formData.excavation_width} m</p>
+                        </div>
+                        <div className="bg-gray-50 rounded p-2 text-center">
+                          <p className="text-[10px] text-gray-500 uppercase">Tiefe</p>
+                          <p className="text-sm font-bold text-gray-900">{formData.excavation_depth} m</p>
+                        </div>
+                      </div>
+                      {selectedCable && (
+                        <Badge variant="outline" className="text-xs">{selectedCable.name}</Badge>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-base">Dokumentation</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <p><span className="font-medium">Vorher-Fotos:</span> {formData.photos_before.length}</p>
-                        <p><span className="font-medium">Zollstock-Fotos:</span> {formData.photos_after.length}</p>
-                        <p><span className="font-medium">Umfeld-Fotos:</span> {formData.photos_environment.length}</p>
+                  {/* Oberfläche */}
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold text-gray-700">Oberfläche</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <Badge variant="secondary">{formData.surface_type}</Badge>
+                        {formData.surface_type_2 && <Badge variant="secondary">{formData.surface_type_2}</Badge>}
+                        {formData.asphalt_thickness && <Badge variant="outline">Asphalt: {formData.asphalt_thickness} cm</Badge>}
+                      </div>
+                      {(formData.concrete_base_used || formData.mortar_used || formData.gravel_used || formData.iron_plate_laid || formData.excavated_material_left_onsite || formData.provisionally_filled) && (
+                        <div className="flex flex-wrap gap-1.5 text-[11px]">
+                          {formData.concrete_base_used && <Badge variant="outline" className="text-[10px]">Unterbeton</Badge>}
+                          {formData.mortar_used && <Badge variant="outline" className="text-[10px]">Mörtel</Badge>}
+                          {formData.gravel_used && <Badge variant="outline" className="text-[10px]">Splitt</Badge>}
+                          {formData.iron_plate_laid && <Badge variant="outline" className="text-[10px]">Eisenplatte</Badge>}
+                          {formData.excavated_material_left_onsite && <Badge variant="outline" className="text-[10px]">Aushub vor Ort</Badge>}
+                          {formData.provisionally_filled && <Badge variant="outline" className="text-[10px]">Bündig verfüllt</Badge>}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Dokumentation */}
+                  <Card className="shadow-sm">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-semibold text-gray-700">Dokumentation</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-3.5 h-3.5 text-gray-400" />
+                          <span>Vorher: <strong>{formData.photos_before.length}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-3.5 h-3.5 text-gray-400" />
+                          <span>Zollstock: <strong>{formData.photos_after.length}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-3.5 h-3.5 text-gray-400" />
+                          <span>Umfeld: <strong>{formData.photos_environment.length}</strong></span>
+                        </div>
                         {(formData.concrete_base_used || formData.mortar_used) && (
-                          <p><span className="font-medium">Unterbeton/Mörtel-Fotos:</span> {formData.photos_concrete_mortar.length}</p>
-                        )}
-                        <p><span className="font-medium">Sonstige Fotos:</span> {formData.photos_other.length}</p>
-                        {formData.construction_justification && (
-                          <div className="mt-2">
-                            <p className="font-medium text-sm">Tiefbaubegründung:</p>
-                            <p className="text-sm text-gray-600 mt-1">{formData.construction_justification}</p>
+                          <div className="flex items-center gap-2">
+                            <Camera className="w-3.5 h-3.5 text-gray-400" />
+                            <span>Unterbeton: <strong>{formData.photos_concrete_mortar.length}</strong></span>
                           </div>
                         )}
-                        {formData.notes && (
-                          <div className="mt-2">
-                            <p className="font-medium text-sm">Notizen:</p>
-                            <p className="text-sm text-gray-600 mt-1">{formData.notes}</p>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-3.5 h-3.5 text-gray-400" />
+                          <span>Sonstige: <strong>{formData.photos_other.length}</strong></span>
+                        </div>
+                      </div>
+                      {formData.construction_justification && (
+                        <div className="mt-3 bg-orange-50 border border-orange-100 rounded p-2">
+                          <p className="text-[11px] font-semibold text-orange-800 mb-1">Tiefbaubegründung:</p>
+                          <p className="text-xs text-gray-700 line-clamp-2">{formData.construction_justification}</p>
+                        </div>
+                      )}
+                      {formData.notes && (
+                        <div className="mt-2 bg-gray-50 border border-gray-100 rounded p-2">
+                          <p className="text-[11px] font-semibold text-gray-700 mb-1">Notizen:</p>
+                          <p className="text-xs text-gray-600 line-clamp-2">{formData.notes}</p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Speichern Button - direkt unter der Zusammenfassung */}
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurrentStep(currentStep - 1)}
+                      disabled={isSubmitting}
+                      className="h-11 px-6"
+                    >
+                      <ChevronLeft className="w-4 h-4 mr-2" />
+                      Zurück
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                      className="bg-green-600 hover:bg-green-700 h-11 px-8 text-base shadow-lg"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Speichere...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-5 h-5 mr-2" />
+                          Leistung speichern
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </motion.div>
               )}
