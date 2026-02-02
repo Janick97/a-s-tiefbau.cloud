@@ -1226,8 +1226,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       />
                     </div>
                   </div>
-                </motion.div>
-              )}
+                  </div>
+                  </motion.div>
+                  )}
 
               {/* Schritt 4: Fotos & Notizen */}
               {currentStep === 4 && (
