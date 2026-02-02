@@ -161,7 +161,10 @@ export default function MyProjectsOberflaechePage() {
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ delay: index * 0.02 }}
                   >
-                    <Card className="border-2 hover:shadow-lg transition-shadow">
+                    <Card 
+                      className="border-2 hover:shadow-lg transition-shadow cursor-pointer"
+                      onClick={() => window.location.href = createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}
+                    >
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
                           <div className="flex-1 min-w-0">
@@ -182,23 +185,21 @@ export default function MyProjectsOberflaechePage() {
                               {project.title}
                             </h3>
                           </div>
-                          
-                          <div className="flex flex-col gap-2 flex-shrink-0">
-                            <Link to={createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}>
-                              <Button size="sm" variant="outline" className="h-8 px-3">
-                                <Eye className="w-3 h-3" />
-                              </Button>
-                            </Link>
-                            {!project.foreman_completed && (
+
+                          {!project.foreman_completed && (
+                            <div className="flex-shrink-0">
                               <Button
                                 size="sm"
-                                onClick={() => handleCompleteProject(project)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCompleteProject(project);
+                                }}
                                 className="h-8 px-3 bg-green-600 hover:bg-green-700"
                               >
                                 <CheckCircle className="w-3 h-3" />
                               </Button>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
                       </CardContent>
                     </Card>
