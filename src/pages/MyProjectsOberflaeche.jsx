@@ -113,81 +113,121 @@ export default function MyProjectsOberflaechePage() {
     );
   }
 
+  const handleCompleteProject = async (project) => {
+    if (confirm(`Wollen Sie den Auftrag "${project.project_number}" als erledigt markieren?`)) {
+      try {
+        await Project.update(project.id, {
+          foreman_completed: true,
+          foreman_completed_date: new Date().toISOString()
+        });
+        await loadData();
+      } catch (error) {
+        console.error("Fehler beim Abschließen:", error);
+        alert("Fehler beim Abschließen des Auftrags");
+      }
+    }
+  };
+
+  const getProjectExcavations = (projectId) => {
+    return excavations.filter(exc => exc.project_id === projectId);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-3 md:p-4 lg:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-2 md:p-4 pb-20">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+        {/* Kompakter Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-4 md:mb-6"
+          className="flex justify-between items-center mb-3 bg-white rounded-lg p-3 shadow-md"
         >
           <div>
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
-              Meine Aufträge
-            </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">
-              {projects.length} Aufträge
-            </p>
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">Meine Aufträge</h1>
+            <p className="text-xs text-gray-600">{projects.length} Aufträge</p>
           </div>
-          <button
-            onClick={loadData}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
-          </button>
+          <Button variant="outline" size="sm" onClick={loadData}>
+            <RefreshCw className="w-4 h-4" />
+          </Button>
         </motion.div>
 
-        {/* Projects Grid */}
+        {/* Kompakte Projekt-Liste */}
         {projects.length === 0 ? (
-          <Card className="card-elevation border-none">
+          <Card>
             <CardContent className="p-8 text-center">
-              <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Keine Aufträge gefunden
-              </h3>
-              <p className="text-gray-600">
-                Sie haben noch keine zugewiesenen Aufträge.
-              </p>
+              <FolderOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">Keine Aufträge gefunden</p>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2">
             <AnimatePresence>
-              {projects.map((project, index) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Card className="card-elevation border-none hover:shadow-lg transition-all">
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-bold text-lg text-gray-900">
-                              {project.project_number}
+              {projects.map((project, index) => {
+                const projectExcs = getProjectExcavations(project.id);
+                const openExcs = projectExcs.filter(exc => !exc.is_closed && !exc.is_backfilled).length;
+                const closedExcs = projectExcs.filter(exc => exc.is_closed).length;
+
+                return (
+                  <motion.div
+                    key={project.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.02 }}
+                  >
+                    <Card className="border-2 hover:shadow-lg transition-shadow">
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge className="bg-orange-500 text-white text-xs px-2 py-0">
+                                {project.project_number}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs px-2 py-0">
+                                {project.sm_number}
+                              </Badge>
+                              {project.foreman_completed && (
+                                <Badge className="bg-green-500 text-white text-xs px-2 py-0">
+                                  <CheckCircle className="w-3 h-3" />
+                                </Badge>
+                              )}
+                            </div>
+                            <h3 className="font-semibold text-sm text-gray-900 truncate">
+                              {project.title}
                             </h3>
-                            <Badge className="text-xs" variant="outline">SM: {project.sm_number}</Badge>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {project.city}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Package className="w-3 h-3" />
+                                {projectExcs.length} ({openExcs} offen / {closedExcs} fertig)
+                              </span>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {project.title}
-                          </p>
+                          
+                          <div className="flex flex-col gap-2 flex-shrink-0">
+                            <Link to={createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}>
+                              <Button size="sm" variant="outline" className="h-8 px-3">
+                                <Eye className="w-3 h-3" />
+                              </Button>
+                            </Link>
+                            {!project.foreman_completed && (
+                              <Button
+                                size="sm"
+                                onClick={() => handleCompleteProject(project)}
+                                className="h-8 px-3 bg-green-600 hover:bg-green-700"
+                              >
+                                <CheckCircle className="w-3 h-3" />
+                              </Button>
+                            )}
+                          </div>
                         </div>
-                        <Link to={createPageUrl(`ProjectDetailOberflaeche?id=${project.id}`)}>
-                          <Button className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 h-12 px-6">
-                            Öffnen
-                            <ArrowLeft className="w-4 h-4 ml-2 rotate-180" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </div>
         )}
