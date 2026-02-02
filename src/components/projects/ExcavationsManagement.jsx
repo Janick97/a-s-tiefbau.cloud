@@ -42,7 +42,8 @@ export default function ExcavationsManagement({
   const [bauleiterList, setBauleiterList] = useState([]);
   const [filterLocation, setFilterLocation] = useState('');
   const [filterPosition, setFilterPosition] = useState('');
-  const [filterCreatedDate, setFilterCreatedDate] = useState('');
+  const [filterDateFrom, setFilterDateFrom] = useState('');
+  const [filterDateTo, setFilterDateTo] = useState('');
 
   // Load user and bauleiter list if not provided
   useEffect(() => {
@@ -226,24 +227,60 @@ export default function ExcavationsManagement({
     return priceItemsMap.get(priceItemId);
   };
 
+  // Einzigartige Werte für Filter-Dropdowns
+  const uniqueLocations = useMemo(() => {
+    const locations = new Set();
+    excavations.forEach(exc => {
+      if (exc.street && exc.city) {
+        locations.add(`${exc.street}, ${exc.city}`);
+      }
+    });
+    return Array.from(locations).sort();
+  }, [excavations]);
+
+  const uniquePositions = useMemo(() => {
+    const positions = new Set();
+    excavations.forEach(exc => {
+      const priceItem = priceItemsMap.get(exc.price_item_id);
+      if (priceItem) {
+        positions.add(`${priceItem.item_number} - ${priceItem.description}`);
+      }
+    });
+    return Array.from(positions).sort();
+  }, [excavations, priceItemsMap]);
+
   const filteredExcavations = useMemo(() => {
     return excavations.filter(exc => {
-      const matchesLocation = !filterLocation || 
-        exc.location_name?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-        exc.street?.toLowerCase().includes(filterLocation.toLowerCase()) ||
-        exc.city?.toLowerCase().includes(filterLocation.toLowerCase());
+      // Location Filter
+      const excLocation = `${exc.street}, ${exc.city}`;
+      const matchesLocation = !filterLocation || excLocation === filterLocation;
       
+      // Position Filter
       const priceItem = priceItemsMap.get(exc.price_item_id);
-      const matchesPosition = !filterPosition || 
-        priceItem?.item_number?.toLowerCase().includes(filterPosition.toLowerCase()) ||
-        priceItem?.description?.toLowerCase().includes(filterPosition.toLowerCase());
+      const excPosition = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : '';
+      const matchesPosition = !filterPosition || excPosition === filterPosition;
       
-      const matchesDate = !filterCreatedDate || 
-        exc.created_date?.startsWith(filterCreatedDate);
+      // Date Range Filter
+      let matchesDate = true;
+      if (filterDateFrom || filterDateTo) {
+        const excDate = exc.created_date ? new Date(exc.created_date.split('T')[0]) : null;
+        if (excDate) {
+          if (filterDateFrom) {
+            const fromDate = new Date(filterDateFrom);
+            if (excDate < fromDate) matchesDate = false;
+          }
+          if (filterDateTo) {
+            const toDate = new Date(filterDateTo);
+            if (excDate > toDate) matchesDate = false;
+          }
+        } else {
+          matchesDate = false;
+        }
+      }
       
       return matchesLocation && matchesPosition && matchesDate;
     });
-  }, [excavations, filterLocation, filterPosition, filterCreatedDate, priceItemsMap]);
+  }, [excavations, filterLocation, filterPosition, filterDateFrom, filterDateTo, priceItemsMap]);
 
   const renderContent = () => {
     if (excavations.length === 0) {
@@ -275,7 +312,6 @@ export default function ExcavationsManagement({
                 <TableHead>Erstellungsdatum</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Bauleiter</TableHead>
-                <TableHead className="text-right">Preis</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
               <TableRow className="bg-gray-50 hover:bg-gray-50">
@@ -283,30 +319,49 @@ export default function ExcavationsManagement({
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2">
-                  <Input
-                    placeholder="Position filtern..."
-                    value={filterPosition}
-                    onChange={(e) => setFilterPosition(e.target.value)}
-                    className="h-8 text-xs"
-                  />
+                  <Select value={filterPosition} onValueChange={setFilterPosition}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Alle Positionen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>Alle Positionen</SelectItem>
+                      {uniquePositions.map((pos) => (
+                        <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </TableHead>
                 <TableHead className="py-2">
-                  <Input
-                    placeholder="Adresse filtern..."
-                    value={filterLocation}
-                    onChange={(e) => setFilterLocation(e.target.value)}
-                    className="h-8 text-xs"
-                  />
+                  <Select value={filterLocation} onValueChange={setFilterLocation}>
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Alle Adressen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>Alle Adressen</SelectItem>
+                      {uniqueLocations.map((loc) => (
+                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </TableHead>
                 <TableHead className="py-2">
-                  <Input
-                    type="date"
-                    value={filterCreatedDate}
-                    onChange={(e) => setFilterCreatedDate(e.target.value)}
-                    className="h-8 text-xs"
-                  />
+                  <div className="flex gap-1">
+                    <Input
+                      type="date"
+                      placeholder="Von"
+                      value={filterDateFrom}
+                      onChange={(e) => setFilterDateFrom(e.target.value)}
+                      className="h-8 text-xs"
+                    />
+                    <Input
+                      type="date"
+                      placeholder="Bis"
+                      value={filterDateTo}
+                      onChange={(e) => setFilterDateTo(e.target.value)}
+                      className="h-8 text-xs"
+                    />
+                  </div>
                 </TableHead>
-                <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
@@ -392,14 +447,6 @@ export default function ExcavationsManagement({
                       <span className="text-sm text-gray-600">
                         {excavation.foreman}
                       </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Euro className="w-4 h-4 text-green-500" />
-                        <span className="font-semibold text-green-600">
-                          €{(excavation.calculated_price || 0).toLocaleString('de-DE')}
-                        </span>
-                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
