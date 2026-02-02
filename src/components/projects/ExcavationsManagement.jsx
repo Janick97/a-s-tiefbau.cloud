@@ -408,15 +408,18 @@ export default function ExcavationsManagement({
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
                 <TableHead className="w-20">Geschlossen</TableHead>
+                <TableHead className="w-20">Asphalt Trag</TableHead>
+                <TableHead className="w-20">Asphalt Fein</TableHead>
                 <TableHead className="w-20">Verfüllt</TableHead>
                 <TableHead>Position</TableHead>
                 <TableHead>Adresse</TableHead>
                 <TableHead>Erstellungsdatum</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Bauleiter</TableHead>
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
               <TableRow className="bg-gray-50 hover:bg-gray-50">
+                <TableHead className="py-2"></TableHead>
+                <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
@@ -464,7 +467,6 @@ export default function ExcavationsManagement({
                     />
                   </div>
                 </TableHead>
-                <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
               </TableRow>
