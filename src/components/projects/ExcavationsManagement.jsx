@@ -76,6 +76,10 @@ export default function ExcavationsManagement({
   const [closureDialogData, setClosureDialogData] = useState(null);
   const [showBackfillDialog, setShowBackfillDialog] = useState(false);
   const [backfillDialogData, setBackfillDialogData] = useState(null);
+  const [showAsphaltTragDialog, setShowAsphaltTragDialog] = useState(false);
+  const [asphaltTragDialogData, setAsphaltTragDialogData] = useState(null);
+  const [showAsphaltFeinDialog, setShowAsphaltFeinDialog] = useState(false);
+  const [asphaltFeinDialogData, setAsphaltFeinDialogData] = useState(null);
 
   const priceItemsMap = useMemo(() => {
     return new Map(priceItems.map(item => [item.id, item]));
@@ -216,6 +220,104 @@ export default function ExcavationsManagement({
 
   const toggleBackfilled = (excavation) => {
     handleBackfillToggle(excavation, !excavation.is_backfilled);
+  };
+
+  const handleAsphaltTragToggle = async (excavation, isChecked) => {
+    if (isChecked) {
+      setAsphaltTragDialogData({
+        excavation,
+        date: new Date().toISOString().split('T')[0],
+        selectedUserId: null
+      });
+      setShowAsphaltTragDialog(true);
+    } else {
+      try {
+        await Excavation.update(excavation.id, {
+          asphalt_trag_completed: false,
+          asphalt_trag_date: null,
+          asphalt_trag_by: null,
+          asphalt_trag_by_user_id: null,
+          asphalt_trag_commission: null
+        });
+        loadData();
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren:", error);
+      }
+    }
+  };
+
+  const handleAsphaltTragSubmit = async () => {
+    const selectedUser = bauleiterList.find(u => u.id === asphaltTragDialogData.selectedUserId);
+    if (!selectedUser) {
+      alert("Bitte wählen Sie einen Bauleiter aus.");
+      return;
+    }
+
+    const tragCommission = (asphaltTragDialogData.excavation.calculated_price || 0) * 0.15;
+
+    try {
+      await Excavation.update(asphaltTragDialogData.excavation.id, {
+        asphalt_trag_completed: true,
+        asphalt_trag_date: asphaltTragDialogData.date,
+        asphalt_trag_by: selectedUser.full_name,
+        asphalt_trag_by_user_id: selectedUser.id,
+        asphalt_trag_commission: tragCommission
+      });
+      setShowAsphaltTragDialog(false);
+      setAsphaltTragDialogData(null);
+      loadData();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+    }
+  };
+
+  const handleAsphaltFeinToggle = async (excavation, isChecked) => {
+    if (isChecked) {
+      setAsphaltFeinDialogData({
+        excavation,
+        date: new Date().toISOString().split('T')[0],
+        selectedUserId: null
+      });
+      setShowAsphaltFeinDialog(true);
+    } else {
+      try {
+        await Excavation.update(excavation.id, {
+          asphalt_fein_completed: false,
+          asphalt_fein_date: null,
+          asphalt_fein_by: null,
+          asphalt_fein_by_user_id: null,
+          asphalt_fein_commission: null
+        });
+        loadData();
+      } catch (error) {
+        console.error("Fehler beim Aktualisieren:", error);
+      }
+    }
+  };
+
+  const handleAsphaltFeinSubmit = async () => {
+    const selectedUser = bauleiterList.find(u => u.id === asphaltFeinDialogData.selectedUserId);
+    if (!selectedUser) {
+      alert("Bitte wählen Sie einen Bauleiter aus.");
+      return;
+    }
+
+    const feinCommission = (asphaltFeinDialogData.excavation.calculated_price || 0) * 0.15;
+
+    try {
+      await Excavation.update(asphaltFeinDialogData.excavation.id, {
+        asphalt_fein_completed: true,
+        asphalt_fein_date: asphaltFeinDialogData.date,
+        asphalt_fein_by: selectedUser.full_name,
+        asphalt_fein_by_user_id: selectedUser.id,
+        asphalt_fein_commission: feinCommission
+      });
+      setShowAsphaltFeinDialog(false);
+      setAsphaltFeinDialogData(null);
+      loadData();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+    }
   };
 
   const getPriceItemDescription = (priceItemId) => {
@@ -406,15 +508,49 @@ export default function ExcavationsManagement({
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-center gap-1">
                         <Checkbox
+                          checked={excavation.asphalt_trag_completed || false}
+                          onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
+                          className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
+                        />
+                        {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
+                          <div className="text-xs text-gray-700 text-center">
+                            <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
+                            {excavation.asphalt_trag_by && (
+                              <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col items-center gap-1">
+                        <Checkbox
+                          checked={excavation.asphalt_fein_completed || false}
+                          onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
+                          className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
+                        />
+                        {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
+                          <div className="text-xs text-gray-900 text-center">
+                            <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
+                            {excavation.asphalt_fein_by && (
+                              <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <div className="flex flex-col items-center gap-1">
+                        <Checkbox
                           checked={excavation.is_backfilled || false}
                           onCheckedChange={(checked) => handleBackfillToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                          className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
                         />
                         {excavation.is_backfilled && excavation.backfilled_date && (
-                          <div className="text-xs text-green-600 text-center">
+                          <div className="text-xs text-orange-600 text-center">
                             <div>{new Date(excavation.backfilled_date).toLocaleDateString('de-DE')}</div>
                             {excavation.backfilled_by && (
-                              <div className="text-green-700 font-medium">{excavation.backfilled_by}</div>
+                              <div className="text-orange-700 font-medium">{excavation.backfilled_by}</div>
                             )}
                           </div>
                         )}
@@ -437,11 +573,6 @@ export default function ExcavationsManagement({
                       <span className="text-xs text-gray-600">
                         {new Date(excavation.created_date).toLocaleDateString('de-DE')}
                       </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[excavation.status]}>
-                        {statusLabels[excavation.status]}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <span className="text-sm text-gray-600">
@@ -814,6 +945,190 @@ export default function ExcavationsManagement({
                 <Button onClick={handleBackfillSubmit} className="bg-orange-600 hover:bg-orange-700">
                   <Package className="w-4 h-4 mr-2" />
                   Als verfüllt markieren
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Asphalt Trag Dialog */}
+      {showAsphaltTragDialog && asphaltTragDialogData && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAsphaltTragDialog(false); }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="w-full max-w-md"
+          >
+            <Card className="card-elevation border-none">
+              <CardHeader className="bg-gray-700 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Asphalt Tragschicht fertigstellen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    <strong>{asphaltTragDialogData.excavation.location_name}</strong>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {getPriceItemDescription(asphaltTragDialogData.excavation.price_item_id)}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asphalt_trag_date">Datum der Fertigstellung</Label>
+                  <Input
+                    id="asphalt_trag_date"
+                    type="date"
+                    value={asphaltTragDialogData.date}
+                    onChange={(e) => setAsphaltTragDialogData(prev => ({
+                      ...prev,
+                      date: e.target.value
+                    }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asphalt_trag_by">Fertiggestellt durch</Label>
+                  <Select
+                    value={asphaltTragDialogData.selectedUserId || ''}
+                    onValueChange={(value) => setAsphaltTragDialogData(prev => ({
+                      ...prev,
+                      selectedUserId: value
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bauleiterList.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {asphaltTragDialogData.selectedUserId && (
+                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
+                    <p className="text-sm text-gray-800">
+                      <strong>Provision:</strong> 15% = €{((asphaltTragDialogData.excavation.calculated_price || 0) * 0.15).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-gray-700 mt-1">
+                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === asphaltTragDialogData.selectedUserId)?.full_name} gebucht.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
+                <Button variant="outline" onClick={() => setShowAsphaltTragDialog(false)}>
+                  Abbrechen
+                </Button>
+                <Button onClick={handleAsphaltTragSubmit} className="bg-gray-700 hover:bg-gray-800">
+                  <CheckSquare className="w-4 h-4 mr-2" />
+                  Fertigstellen
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Asphalt Fein Dialog */}
+      {showAsphaltFeinDialog && asphaltFeinDialogData && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowAsphaltFeinDialog(false); }}
+        >
+          <motion.div
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+            className="w-full max-w-md"
+          >
+            <Card className="card-elevation border-none">
+              <CardHeader className="bg-gray-900 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  Asphalt Feinschicht fertigstellen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-gray-600 mb-4">
+                    <strong>{asphaltFeinDialogData.excavation.location_name}</strong>
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {getPriceItemDescription(asphaltFeinDialogData.excavation.price_item_id)}
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asphalt_fein_date">Datum der Fertigstellung</Label>
+                  <Input
+                    id="asphalt_fein_date"
+                    type="date"
+                    value={asphaltFeinDialogData.date}
+                    onChange={(e) => setAsphaltFeinDialogData(prev => ({
+                      ...prev,
+                      date: e.target.value
+                    }))}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="asphalt_fein_by">Fertiggestellt durch</Label>
+                  <Select
+                    value={asphaltFeinDialogData.selectedUserId || ''}
+                    onValueChange={(value) => setAsphaltFeinDialogData(prev => ({
+                      ...prev,
+                      selectedUserId: value
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {bauleiterList.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {asphaltFeinDialogData.selectedUserId && (
+                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
+                    <p className="text-sm text-gray-800">
+                      <strong>Provision:</strong> 15% = €{((asphaltFeinDialogData.excavation.calculated_price || 0) * 0.15).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-gray-700 mt-1">
+                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === asphaltFeinDialogData.selectedUserId)?.full_name} gebucht.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
+                <Button variant="outline" onClick={() => setShowAsphaltFeinDialog(false)}>
+                  Abbrechen
+                </Button>
+                <Button onClick={handleAsphaltFeinSubmit} className="bg-gray-900 hover:bg-black">
+                  <CheckSquare className="w-4 h-4 mr-2" />
+                  Fertigstellen
                 </Button>
               </CardFooter>
             </Card>
