@@ -893,13 +893,6 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           ))}
                         </SelectContent>
                       </Select>
-                      {selectedPriceItem && (
-                        <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded border">
-                          <div className="font-medium text-gray-900">{selectedPriceItem.item_number}</div>
-                          <div className="mt-1">{selectedPriceItem.description}</div>
-                          <div className="mt-1 text-green-700 font-semibold">{selectedPriceItem.unit}</div>
-                        </div>
-                      )}
                     </div>
 
                     {serviceCategory === 'andere' && (
