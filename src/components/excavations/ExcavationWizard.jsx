@@ -860,16 +860,16 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-6"
+                  className="space-y-3"
                 >
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price_item_id">Position aus Preisliste *</Label>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="price_item_id" className="text-xs">Position aus Preisliste *</Label>
                       <Select 
                         value={formData.price_item_id} 
                         onValueChange={(value) => handleInputChange('price_item_id', value)}
                       >
-                        <SelectTrigger className="h-auto min-h-[44px]">
+                        <SelectTrigger className="h-9">
                           <SelectValue placeholder="Position auswählen..." />
                         </SelectTrigger>
                         <SelectContent className="max-h-[60vh]">
@@ -887,8 +887,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                     </div>
 
                     {serviceCategory === 'andere' && (
-                      <div className="space-y-2">
-                        <Label htmlFor="quantity">Menge *</Label>
+                      <div className="space-y-1">
+                        <Label htmlFor="quantity" className="text-xs">Menge *</Label>
                         <Input
                           id="quantity"
                           type="number"
@@ -897,18 +897,19 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           value={formData.quantity}
                           onChange={(e) => handleInputChange('quantity', parseFloat(e.target.value))}
                           required
+                          className="h-9"
                         />
                       </div>
                     )}
 
                     {serviceCategory === 'graben' && (
                       <Card className="bg-blue-50/50 border-blue-200">
-                        <CardHeader className="pb-3">
-                          <CardTitle className="text-sm">Kabelverlegung (optional)</CardTitle>
+                        <CardHeader className="pb-2 pt-3">
+                          <CardTitle className="text-xs">Kabelverlegung (optional)</CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-3">
-                          <div className="space-y-2">
-                            <Label>Kabel auswählen</Label>
+                        <CardContent className="space-y-2 pb-3">
+                          <div className="space-y-1">
+                            <Label className="text-xs">Kabel auswählen</Label>
                             <Select 
                               value={selectedCable?.id || ''} 
                               onValueChange={(value) => {
@@ -916,7 +917,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                                 setSelectedCable(cable || null);
                               }}
                             >
-                              <SelectTrigger>
+                              <SelectTrigger className="h-9">
                                 <SelectValue placeholder="Optional: Kabel auswählen..." />
                               </SelectTrigger>
                               <SelectContent className="max-h-[300px]">
@@ -942,22 +943,24 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           </div>
 
                           {selectedCable && (
-                            <div className="space-y-2">
-                              <Label>Verlegeart</Label>
+                            <div className="space-y-1">
+                              <Label className="text-xs">Verlegeart</Label>
                               <div className="grid grid-cols-2 gap-2">
                                 <Button
                                   type="button"
+                                  size="sm"
                                   variant={cableLayingMethod === 'auslegen' ? 'default' : 'outline'}
                                   onClick={() => setCableLayingMethod('auslegen')}
-                                  className={cableLayingMethod === 'auslegen' ? 'bg-blue-500' : ''}
+                                  className={cableLayingMethod === 'auslegen' ? 'bg-blue-500 h-8' : 'h-8'}
                                 >
                                   Auslegen
                                 </Button>
                                 <Button
                                   type="button"
+                                  size="sm"
                                   variant={cableLayingMethod === 'einziehen' ? 'default' : 'outline'}
                                   onClick={() => setCableLayingMethod('einziehen')}
-                                  className={cableLayingMethod === 'einziehen' ? 'bg-blue-500' : ''}
+                                  className={cableLayingMethod === 'einziehen' ? 'bg-blue-500 h-8' : 'h-8'}
                                 >
                                   Einziehen
                                 </Button>
@@ -968,9 +971,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       </Card>
                     )}
 
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="excavation_length">Länge (m)</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="excavation_length" className="text-xs">Länge (m)</Label>
                         <Input
                           id="excavation_length"
                           type="number"
@@ -978,10 +981,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           min="0"
                           value={formData.excavation_length}
                           onChange={(e) => handleInputChange('excavation_length', parseFloat(e.target.value))}
+                          className="h-9"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="excavation_width">Breite (m)</Label>
+                      <div className="space-y-1">
+                        <Label htmlFor="excavation_width" className="text-xs">Breite (m)</Label>
                         <Input
                           id="excavation_width"
                           type="number"
@@ -989,10 +993,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           min="0"
                           value={formData.excavation_width}
                           onChange={(e) => handleInputChange('excavation_width', parseFloat(e.target.value))}
+                          className="h-9"
                         />
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="excavation_depth">Tiefe (m)</Label>
+                      <div className="space-y-1">
+                        <Label htmlFor="excavation_depth" className="text-xs">Tiefe (m)</Label>
                         <Input
                           id="excavation_depth"
                           type="number"
@@ -1000,6 +1005,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                           min="0"
                           value={formData.excavation_depth}
                           onChange={(e) => handleInputChange('excavation_depth', parseFloat(e.target.value))}
+                          className="h-9"
                         />
                       </div>
                     </div>
@@ -1068,9 +1074,9 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   </div>
 
                   {/* Zusätzliche Angaben */}
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                    <h4 className="font-semibold text-gray-700 mb-3 text-xs">Zusätzliche Angaben</h4>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 text-xs">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-2.5">
+                    <h4 className="font-semibold text-gray-700 mb-2 text-[11px]">Zusätzliche Angaben</h4>
+                    <div className="grid grid-cols-2 gap-x-3 gap-y-2 text-xs">
                       <div className="flex items-center space-x-2">
                         <Checkbox
                           id="concrete_base_used"
