@@ -357,7 +357,7 @@ export default function DashboardPage() {
           {/* Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <NavigationCard
-              title="Meine Projekte"
+              title="Meine Aufträge"
               description="Alle Ihnen zugewiesenen Bauprojekte anzeigen und verwalten"
               icon={FolderOpen}
               color="from-blue-500 to-blue-600"
