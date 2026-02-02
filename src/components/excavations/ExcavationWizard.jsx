@@ -1018,7 +1018,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                     </div>
 
                     {/* Oberflächen */}
-                  <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label htmlFor="surface_type" className="text-xs">Oberfläche 1 *</Label>
                       <Select 
