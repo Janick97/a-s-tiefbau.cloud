@@ -101,10 +101,9 @@ function ImageUploadSection({ title, description, images = [], onImagesChange, m
 const WIZARD_STEPS = [
   { id: 1, title: 'Leistungsart', icon: Shovel },
   { id: 2, title: 'Standort', icon: MapPin },
-  { id: 3, title: 'Leistungsdetails', icon: Info },
-  { id: 4, title: 'Oberfläche', icon: Check },
-  { id: 5, title: 'Fotos & Notizen', icon: Camera },
-  { id: 6, title: 'Zusammenfassung', icon: Check },
+  { id: 3, title: 'Details & Oberfläche', icon: Info },
+  { id: 4, title: 'Fotos & Notizen', icon: Camera },
+  { id: 5, title: 'Zusammenfassung', icon: Check },
 ];
 
 export default function ExcavationWizard({ excavation, projects = [], defaultProjectId, onSubmit, onCancel }) {
@@ -649,10 +648,8 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
       case 2:
         return formData.street && formData.city;
       case 3:
-        return formData.price_item_id !== '';
+        return formData.price_item_id !== '' && formData.surface_type !== '';
       case 4:
-        return formData.surface_type !== '';
-      case 5:
         return true;
       default:
         return true;
@@ -856,7 +853,7 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                 </motion.div>
               )}
 
-              {/* Schritt 3: Leistungsdetails */}
+              {/* Schritt 3: Details & Oberfläche */}
               {currentStep === 3 && (
                 <motion.div
                   key="step3"
@@ -865,11 +862,14 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                   exit={{ opacity: 0 }}
                   className="space-y-6"
                 >
-                  <div className="text-center mb-6">
-                    <h3 className="text-2xl font-bold text-gray-900">Leistungsdetails erfassen</h3>
+                  <div className="text-center mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900">Details & Oberfläche</h3>
                   </div>
 
                   <div className="space-y-4">
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <h4 className="font-semibold text-orange-900 mb-2 text-sm">Leistungsdetails</h4>
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="price_item_id">Position aus Preisliste *</Label>
                       <Select 
@@ -1013,71 +1013,11 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                       </div>
                     </div>
 
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-6">
+                      <h4 className="font-semibold text-blue-900 mb-2 text-sm">Oberfläche</h4>
                     </div>
-                </motion.div>
-              )}
 
-              {/* Schritt 4: Oberfläche */}
-              {currentStep === 4 && (
-                <motion.div
-                  key="step4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="space-y-3"
-                >
-                  {/* Schnellauswahl Sets */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
-                    <Label className="mb-1.5 block text-xs font-semibold">Schnellauswahl</Label>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          handleInputChange('surface_type', 'Platten');
-                          handleInputChange('surface_type_2', 'Pflaster');
-                        }}
-                        className="h-8 py-1 text-xs"
-                      >
-                        Platten/Pflaster
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          handleInputChange('surface_type', 'Asphalt');
-                          handleInputChange('surface_type_2', 'Platten');
-                        }}
-                        className="h-8 py-1 text-xs"
-                      >
-                        Asphalt/Platten
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          handleInputChange('surface_type', 'Asphalt');
-                          handleInputChange('surface_type_2', 'Pflaster');
-                        }}
-                        className="h-8 py-1 text-xs"
-                      >
-                        Asphalt/Pflaster
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          handleInputChange('surface_type', 'Naturstein');
-                          handleInputChange('surface_type_2', 'Pflaster');
-                        }}
-                        className="h-8 py-1 text-xs"
-                      >
-                        Naturstein/Pflaster
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Oberflächen */}
+                    {/* Oberflächen */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label htmlFor="surface_type" className="text-xs">Oberfläche 1 *</Label>
@@ -1289,10 +1229,10 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                 </motion.div>
               )}
 
-              {/* Schritt 5: Fotos & Notizen */}
-              {currentStep === 5 && (
+              {/* Schritt 4: Fotos & Notizen */}
+              {currentStep === 4 && (
                 <motion.div
-                  key="step5"
+                  key="step4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -1353,10 +1293,10 @@ export default function ExcavationWizard({ excavation, projects = [], defaultPro
                 </motion.div>
               )}
 
-              {/* Schritt 6: Zusammenfassung */}
-              {currentStep === 6 && (
+              {/* Schritt 5: Zusammenfassung */}
+              {currentStep === 5 && (
                 <motion.div
-                  key="step6"
+                  key="step5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
