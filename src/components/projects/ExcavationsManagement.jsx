@@ -407,9 +407,9 @@ export default function ExcavationsManagement({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-12">#</TableHead>
-                <TableHead className="w-20">Geschlossen</TableHead>
-                <TableHead className="w-20">Asphalt Trag</TableHead>
+                <TableHead className="w-20">Platten/Pflaster</TableHead>
                 <TableHead className="w-20">Asphalt Fein</TableHead>
+                <TableHead className="w-20">Asphalt Trag</TableHead>
                 <TableHead className="w-20">Verfüllt</TableHead>
                 <TableHead>Position</TableHead>
                 <TableHead>Adresse</TableHead>
@@ -511,15 +511,15 @@ export default function ExcavationsManagement({
                       {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
                         <div className="flex flex-col items-center gap-1">
                           <Checkbox
-                            checked={excavation.asphalt_trag_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
+                            checked={excavation.asphalt_fein_completed || false}
+                            onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
+                            className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
                           />
-                          {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
-                            <div className="text-xs text-gray-700 text-center">
-                              <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_trag_by && (
-                                <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
+                          {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
+                            <div className="text-xs text-gray-900 text-center">
+                              <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
+                              {excavation.asphalt_fein_by && (
+                                <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
                               )}
                             </div>
                           )}
@@ -532,15 +532,15 @@ export default function ExcavationsManagement({
                       {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
                         <div className="flex flex-col items-center gap-1">
                           <Checkbox
-                            checked={excavation.asphalt_fein_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
+                            checked={excavation.asphalt_trag_completed || false}
+                            onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
+                            className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
                           />
-                          {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
-                            <div className="text-xs text-gray-900 text-center">
-                              <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_fein_by && (
-                                <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
+                          {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
+                            <div className="text-xs text-gray-700 text-center">
+                              <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
+                              {excavation.asphalt_trag_by && (
+                                <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
                               )}
                             </div>
                           )}
