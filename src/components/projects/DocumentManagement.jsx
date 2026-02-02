@@ -22,13 +22,9 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
-  Edit2,
-  Loader2
+  Edit2
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
-import ProjectCoverSheet from "./ProjectCoverSheet";
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 
 const folderOptions = [
   "Aufmaß",
@@ -43,7 +39,7 @@ const folderOptions = [
   "Chat-Dateien"
 ];
 
-export default function DocumentManagement({ projectId, project, loadData, excavations = [], priceItems = [], user = null }) {
+export default function DocumentManagement({ projectId, project, loadData }) {
   const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -65,10 +61,7 @@ export default function DocumentManagement({ projectId, project, loadData, excav
   const [searchQuery, setSearchQuery] = useState("");
   const [showNewMainFolderDialog, setShowNewMainFolderDialog] = useState(false);
   const [newMainFolderName, setNewMainFolderName] = useState("");
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
   
-  const coverSheetRef = React.useRef(null);
-
   const [uploadForm, setUploadForm] = useState({
     files: [],
     folder: "Bilder",
@@ -413,137 +406,11 @@ export default function DocumentManagement({ projectId, project, loadData, excav
     });
   };
 
-  const handleExportCoverSheetPdf = async () => {
-    if (!coverSheetRef.current) {
-      alert("Fehler: Deckblatt-Komponente konnte nicht gefunden werden.");
-      return;
-    }
-
-    setIsExportingPdf(true);
-
-    try {
-      const element = coverSheetRef.current;
-      const originalStyles = {
-        position: element.style.position,
-        left: element.style.left,
-        top: element.style.top,
-        zIndex: element.style.zIndex,
-        width: element.style.width,
-        visibility: element.style.visibility,
-        overflow: element.style.overflow
-      };
-
-      element.style.position = 'fixed';
-      element.style.left = '0';
-      element.style.top = '0';
-      element.style.zIndex = '9999';
-      element.style.width = '297mm';
-      element.style.visibility = 'visible';
-      element.style.overflow = 'visible';
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const images = element.getElementsByTagName('img');
-      await Promise.all(
-        Array.from(images).map(img => {
-          if (img.complete) return Promise.resolve();
-          return new Promise(resolve => {
-            img.onload = resolve;
-            img.onerror = resolve;
-            setTimeout(resolve, 2500);
-          });
-        })
-      );
-
-      const canvas = await html2canvas(element, {
-        scale: 4,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-        foreignObjectRendering: false,
-        imageTimeout: 0,
-        onclone: (clonedDoc) => {
-          const clonedElement = clonedDoc.body.querySelector('[style*="position: fixed"]');
-          if (clonedElement) {
-            clonedElement.style.transform = 'none';
-            clonedElement.style.overflow = 'visible';
-          }
-        }
-      });
-
-      Object.keys(originalStyles).forEach(key => {
-        element.style[key] = originalStyles[key];
-      });
-
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const pdf = new jsPDF('l', 'mm', 'a4');
-
-      const pdfWidth = 297;
-      const pdfHeight = 210;
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight, undefined, 'FAST');
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
-        heightLeft -= pdfHeight;
-      }
-
-      pdf.save(`Deckblatt_${project.project_number}.pdf`);
-
-    } catch (error) {
-      console.error("Fehler beim Erstellen des Deckblatt-PDFs:", error);
-      alert("Fehler beim Erstellen des Deckblatt-PDFs. Bitte versuchen Sie es erneut.");
-
-      if (coverSheetRef.current) {
-        coverSheetRef.current.style.position = 'absolute';
-        coverSheetRef.current.style.left = '-9999px';
-        coverSheetRef.current.style.visibility = 'hidden';
-      }
-    } finally {
-      setIsExportingPdf(false);
-    }
-  };
-
-  // Check if user is Bauleiter or Oberfläche
-  const showDeckblattExport = user && (user.position === 'Bauleiter' || user.position === 'Oberfläche');
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <h3 className="text-xl font-bold">Anlagenkorb ({documents.length})</h3>
         <div className="flex gap-2 w-full sm:w-auto">
-          {showDeckblattExport && (
-            <Button 
-              onClick={handleExportCoverSheetPdf} 
-              variant="outline"
-              disabled={isExportingPdf}
-              className="flex-shrink-0 bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100"
-            >
-              {isExportingPdf ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Export läuft...
-                </>
-              ) : (
-                <>
-                  <FileText className="w-4 h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Deckblatt Export</span>
-                  <span className="sm:hidden">Deckblatt</span>
-                </>
-              )}
-            </Button>
-          )}
           <div className="relative flex-1 sm:flex-initial sm:w-64">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
@@ -1340,64 +1207,6 @@ export default function DocumentManagement({ projectId, project, loadData, excav
                   </Button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Deckblatt - versteckt für PDF Export */}
-      {showDeckblattExport && (
-        <div style={{ position: 'absolute', left: '-9999px', top: 0, visibility: 'hidden' }} ref={coverSheetRef}>
-          <ProjectCoverSheet
-            project={project}
-            excavations={excavations}
-            materials={[]}
-            timesheets={[]}
-            documents={documents}
-            priceItems={priceItems}
-          />
-        </div>
-      )}
-
-      {/* Export Progress Dialog */}
-      <AnimatePresence>
-        {isExportingPdf && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200]"
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-md mx-4"
-            >
-              <Card className="card-elevation border-none">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <FileText className="w-8 h-8 text-white animate-pulse" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
-                    Deckblatt wird erstellt...
-                  </h3>
-                  <p className="text-gray-600 mb-4">
-                    Bitte warten Sie einen Moment
-                  </p>
-                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <motion.div
-                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-orange-500 to-amber-600"
-                      initial={{ width: '0%' }}
-                      animate={{ width: '100%' }}
-                      transition={{ duration: 2, ease: "easeInOut" }}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-500 mt-3">
-                    Das PDF wird automatisch heruntergeladen
-                  </p>
-                </CardContent>
-              </Card>
             </motion.div>
           </motion.div>
         )}

@@ -2016,9 +2016,6 @@ function ForemanProjectView({
                 projectId={project.id}
                 project={project}
                 loadData={loadData}
-                excavations={excavations}
-                priceItems={priceItems}
-                user={user}
               />
             </motion.div>
           </motion.div>
@@ -3151,9 +3148,6 @@ export default function ProjectDetailPage() {
                     projectId={project.id}
                     project={project}
                     loadData={loadProjectData}
-                    excavations={excavations}
-                    priceItems={priceItems}
-                    user={user}
                   />
                 </div>
               )}
