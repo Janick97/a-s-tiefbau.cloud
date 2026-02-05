@@ -24,7 +24,8 @@ import {
   Package,
   Wrench,
   Users,
-  WifiOff } from
+  WifiOff,
+  Network } from
 "lucide-react";
 import {
   Sidebar,
@@ -128,6 +129,11 @@ const navigationItems = [
   title: "Projekt-Explorer",
   url: createPageUrl("ProjectExplorer"),
   icon: FolderOpen
+},
+{
+  title: "FTTH Visioplan",
+  url: createPageUrl("FTTHVisioplan"),
+  icon: Network
 }];
 
 
