@@ -1,0 +1,261 @@
+import React, { useState, useRef, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+
+export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight }) {
+  const svgRef = useRef(null);
+  const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Automatisches Lichtpfad-Tracking: Alle Verbindungen bis zum HVT markieren
+  const getLightPathConnections = () => {
+    const lightNVTs = nodes.filter(n => n.node_type === 'NVT' && n.status === 'LICHT');
+    const lightPaths = new Set();
+
+    lightNVTs.forEach(nvt => {
+      const visited = new Set();
+      const findPathToHVT = (currentNodeId) => {
+        if (visited.has(currentNodeId)) return;
+        visited.add(currentNodeId);
+
+        const currentNode = nodes.find(n => n.id === currentNodeId);
+        if (!currentNode) return;
+        if (currentNode.node_type === 'HVT') return;
+
+        const incomingConnections = connections.filter(c => c.to_node_id === currentNodeId);
+        incomingConnections.forEach(conn => {
+          lightPaths.add(conn.id);
+          findPathToHVT(conn.from_node_id);
+        });
+      };
+
+      findPathToHVT(nvt.id);
+    });
+
+    return lightPaths;
+  };
+
+  const lightPathConnections = getLightPathConnections();
+
+  // Zoom & Pan Funktionen
+  const handleWheel = (e) => {
+    e.preventDefault();
+    const delta = e.deltaY * -0.001;
+    const newScale = Math.min(Math.max(0.3, transform.scale + delta), 3);
+    setTransform(prev => ({ ...prev, scale: newScale }));
+  };
+
+  const handleMouseDown = (e) => {
+    if (e.target.tagName === 'svg' || e.target.tagName === 'rect' && e.target.id === 'background') {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - transform.x, y: e.clientY - transform.y });
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (isDragging) {
+      setTransform(prev => ({
+        ...prev,
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      }));
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, dragStart]);
+
+  // Filtere Verbindungen
+  const visibleConnections = showOnlyLight 
+    ? connections.filter(c => lightPathConnections.has(c.id))
+    : connections;
+
+  const getConnectionColor = (connection) => {
+    if (lightPathConnections.has(connection.id)) return '#10b981'; // Grün für Lichtpfad
+    if (connection.status === 'STÖRUNG') return '#ef4444';
+    if (connection.status === 'GEPLANT') return '#eab308';
+    return '#9ca3af'; // Grau für DUNKEL
+  };
+
+  const getConnectionStyle = (connection) => {
+    const style = {
+      stroke: getConnectionColor(connection),
+      strokeWidth: 2,
+      fill: 'none'
+    };
+
+    if (connection.status === 'GEPLANT') {
+      style.strokeDasharray = '5,5';
+    }
+
+    return style;
+  };
+
+  const getNodeColor = (node) => {
+    if (node.status === 'LICHT') return '#10b981';
+    if (node.status === 'STÖRUNG') return '#ef4444';
+    return '#3b82f6';
+  };
+
+  return (
+    <div 
+      className="relative w-full h-[600px] bg-gray-50 rounded-lg border overflow-hidden cursor-move"
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+    >
+      <svg
+        ref={svgRef}
+        className="w-full h-full"
+        viewBox="0 0 1200 800"
+        style={{
+          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+          transition: isDragging ? 'none' : 'transform 0.1s'
+        }}
+      >
+        <rect id="background" width="1200" height="800" fill="transparent" />
+
+        {/* Verbindungen zeichnen */}
+        <g className="connections">
+          {visibleConnections.map(conn => {
+            const fromNode = nodes.find(n => n.id === conn.from_node_id);
+            const toNode = nodes.find(n => n.id === conn.to_node_id);
+            if (!fromNode || !toNode) return null;
+
+            const isLight = lightPathConnections.has(conn.id);
+            const isStörung = conn.status === 'STÖRUNG';
+
+            return (
+              <g key={conn.id}>
+                <line
+                  x1={fromNode.position_x}
+                  y1={fromNode.position_y}
+                  x2={toNode.position_x}
+                  y2={toNode.position_y}
+                  {...getConnectionStyle(conn)}
+                  className={`cursor-pointer transition-all hover:stroke-[4] ${
+                    isLight ? 'animate-pulse' : ''
+                  } ${isStörung ? 'animate-ping' : ''}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onConnectionClick(conn);
+                  }}
+                />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Knoten zeichnen */}
+        <g className="nodes">
+          {nodes.map(node => {
+            const color = getNodeColor(node);
+            
+            return (
+              <g
+                key={node.id}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNodeClick(node);
+                }}
+              >
+                {node.node_type === 'HVT' && (
+                  <>
+                    <rect
+                      x={node.position_x - 40}
+                      y={node.position_y - 30}
+                      width="80"
+                      height="60"
+                      fill={color}
+                      stroke="#1f2937"
+                      strokeWidth="2"
+                      rx="4"
+                    />
+                    <text
+                      x={node.position_x}
+                      y={node.position_y}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      fill="white"
+                      fontSize="12"
+                      fontWeight="bold"
+                    >
+                      {node.node_name}
+                    </text>
+                  </>
+                )}
+                
+                {node.node_type === 'MUFFE' && (
+                  <>
+                    <circle
+                      cx={node.position_x}
+                      cy={node.position_y}
+                      r="20"
+                      fill={color}
+                      stroke="#1f2937"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={node.position_x}
+                      y={node.position_y + 35}
+                      textAnchor="middle"
+                      fontSize="11"
+                      fill="#374151"
+                      fontWeight="500"
+                    >
+                      {node.node_name}
+                    </text>
+                  </>
+                )}
+                
+                {node.node_type === 'NVT' && (
+                  <>
+                    <rect
+                      x={node.position_x - 15}
+                      y={node.position_y - 15}
+                      width="30"
+                      height="30"
+                      fill={color}
+                      stroke="#1f2937"
+                      strokeWidth="2"
+                      rx="2"
+                      className={node.status === 'LICHT' ? 'animate-pulse' : ''}
+                    />
+                    <text
+                      x={node.position_x}
+                      y={node.position_y + 25}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fill="#374151"
+                      fontWeight="500"
+                    >
+                      {node.node_name}
+                    </text>
+                  </>
+                )}
+              </g>
+            );
+          })}
+        </g>
+      </svg>
+
+      {/* Zoom-Info */}
+      <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg shadow-lg text-xs">
+        Zoom: {Math.round(transform.scale * 100)}%
+      </div>
+    </div>
+  );
+}

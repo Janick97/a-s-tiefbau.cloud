@@ -88,6 +88,7 @@ import Surface from './pages/Surface';
 import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
+import FTTHVisioplan from './pages/FTTHVisioplan';
 import __Layout from './Layout.jsx';
 
 
@@ -133,6 +134,7 @@ export const PAGES = {
     "Tasks": Tasks,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
+    "FTTHVisioplan": FTTHVisioplan,
 }
 
 export const pagesConfig = {
