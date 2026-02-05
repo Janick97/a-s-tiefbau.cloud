@@ -7,17 +7,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Lightbulb, Network, AlertTriangle, ZoomIn, ZoomOut } from "lucide-react";
+import { Lightbulb, Network, AlertTriangle, ZoomIn, ZoomOut, Plus } from "lucide-react";
 
 import VisioCanvas from "@/components/visio/VisioCanvas";
 import NodeInfoPanel from "@/components/visio/NodeInfoPanel";
 import ConnectionInfoPanel from "@/components/visio/ConnectionInfoPanel";
+import AddNodeDialog from "@/components/visio/AddNodeDialog";
+import AddConnectionDialog from "@/components/visio/AddConnectionDialog";
 
 export default function FTTHVisioplanPage() {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedConnection, setSelectedConnection] = useState(null);
   const [showOnlyLight, setShowOnlyLight] = useState(false);
+  const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
+  const [showAddConnectionDialog, setShowAddConnectionDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -56,6 +60,24 @@ export default function FTTHVisioplanPage() {
     onSuccess: () => {
       queryClient.invalidateQueries(['visio-nodes']);
       setSelectedNode(null);
+    }
+  });
+
+  // Knoten erstellen Mutation
+  const createNodeMutation = useMutation({
+    mutationFn: (nodeData) => base44.entities.VisioNode.create(nodeData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['visio-nodes']);
+      setShowAddNodeDialog(false);
+    }
+  });
+
+  // Verbindung erstellen Mutation
+  const createConnectionMutation = useMutation({
+    mutationFn: (connectionData) => base44.entities.VisioConnection.create(connectionData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['visio-connections']);
+      setShowAddConnectionDialog(false);
     }
   });
 
@@ -111,6 +133,23 @@ export default function FTTHVisioplanPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            {selectedProjectId && (
+              <>
+                <Button
+                  onClick={() => setShowAddNodeDialog(true)}
+                  className="bg-blue-600 hover:bg-blue-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Knoten
+                </Button>
+                <Button
+                  onClick={() => setShowAddConnectionDialog(true)}
+                  className="bg-purple-600 hover:bg-purple-700">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Verbindung
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -272,6 +311,22 @@ export default function FTTHVisioplanPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Dialoge */}
+        <AddNodeDialog
+          open={showAddNodeDialog}
+          onClose={() => setShowAddNodeDialog(false)}
+          onSubmit={(nodeData) => createNodeMutation.mutate(nodeData)}
+          projectId={selectedProjectId}
+        />
+
+        <AddConnectionDialog
+          open={showAddConnectionDialog}
+          onClose={() => setShowAddConnectionDialog(false)}
+          onSubmit={(connectionData) => createConnectionMutation.mutate(connectionData)}
+          projectId={selectedProjectId}
+          nodes={nodes}
+        />
       </div>
     </div>
   );
