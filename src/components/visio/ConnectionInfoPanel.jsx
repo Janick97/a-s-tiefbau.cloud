@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 
-export default function ConnectionInfoPanel({ connection, nodes, onClose }) {
+export default function ConnectionInfoPanel({ connection, nodes, onClose, onDelete }) {
   if (!connection) return null;
 
   const fromNode = nodes.find(n => n.id === connection.from_node_id);

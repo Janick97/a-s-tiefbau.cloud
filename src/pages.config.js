@@ -58,6 +58,7 @@ import DispositionMonteur from './pages/DispositionMonteur';
 import DispositionMonteurDetail from './pages/DispositionMonteurDetail';
 import ExcavationDetail from './pages/ExcavationDetail';
 import Excavations from './pages/Excavations';
+import FTTHVisioplan from './pages/FTTHVisioplan';
 import Home from './pages/Home';
 import ImportProjects from './pages/ImportProjects';
 import KolonnenBildschirmView from './pages/KolonnenBildschirmView';
@@ -88,7 +89,6 @@ import Surface from './pages/Surface';
 import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
-import FTTHVisioplan from './pages/FTTHVisioplan';
 import __Layout from './Layout.jsx';
 
 
@@ -104,6 +104,7 @@ export const PAGES = {
     "DispositionMonteurDetail": DispositionMonteurDetail,
     "ExcavationDetail": ExcavationDetail,
     "Excavations": Excavations,
+    "FTTHVisioplan": FTTHVisioplan,
     "Home": Home,
     "ImportProjects": ImportProjects,
     "KolonnenBildschirmView": KolonnenBildschirmView,
@@ -134,7 +135,6 @@ export const PAGES = {
     "Tasks": Tasks,
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
-    "FTTHVisioplan": FTTHVisioplan,
 }
 
 export const pagesConfig = {

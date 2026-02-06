@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X } from "lucide-react";
 
-export default function NodeInfoPanel({ node, connections, onClose, onStatusChange }) {
+export default function NodeInfoPanel({ node, connections, onClose, onStatusChange, onDelete }) {
   const [newStatus, setNewStatus] = React.useState(node?.status || 'DUNKEL');
 
   if (!node) return null;

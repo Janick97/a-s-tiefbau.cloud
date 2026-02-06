@@ -81,6 +81,24 @@ export default function FTTHVisioplanPage() {
     }
   });
 
+  // Knoten löschen Mutation
+  const deleteNodeMutation = useMutation({
+    mutationFn: (nodeId) => base44.entities.VisioNode.delete(nodeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['visio-nodes']);
+      setSelectedNode(null);
+    }
+  });
+
+  // Verbindung löschen Mutation
+  const deleteConnectionMutation = useMutation({
+    mutationFn: (connectionId) => base44.entities.VisioConnection.delete(connectionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['visio-connections']);
+      setSelectedConnection(null);
+    }
+  });
+
   const handleNodeClick = (node) => {
     setSelectedNode(node);
     setSelectedConnection(null);
@@ -281,6 +299,7 @@ export default function FTTHVisioplanPage() {
                 connections={connections}
                 onClose={() => setSelectedNode(null)}
                 onStatusChange={handleStatusChange}
+                onDelete={(nodeId) => deleteNodeMutation.mutate(nodeId)}
               />
             )}
 
@@ -289,6 +308,7 @@ export default function FTTHVisioplanPage() {
                 connection={selectedConnection}
                 nodes={nodes}
                 onClose={() => setSelectedConnection(null)}
+                onDelete={(connectionId) => deleteConnectionMutation.mutate(connectionId)}
               />
             )}
           </div>
