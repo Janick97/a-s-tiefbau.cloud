@@ -136,6 +136,9 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
   };
 
   const getNodeColor = (node) => {
+    if (highlightedNodes.length > 0 && highlightedNodes.includes(node.id)) {
+      return '#f59e0b'; // Orange für hervorgehobene Knoten
+    }
     if (node.status === 'LICHT') return '#10b981';
     if (node.status === 'STÖRUNG') return '#ef4444';
     return '#3b82f6';
@@ -193,16 +196,18 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
           {nodes.map(node => {
             const displayNode = draggingNode && draggingNode.id === node.id ? draggingNode : node;
             const color = getNodeColor(displayNode);
+            const isHighlighted = highlightedNodes.length > 0 && highlightedNodes.includes(node.id);
             
             return (
               <g
                 key={node.id}
-                className="cursor-move hover:opacity-80 transition-opacity"
+                className={`cursor-move hover:opacity-80 transition-opacity ${isHighlighted ? 'animate-pulse' : ''}`}
                 onMouseDown={(e) => handleNodeMouseDown(e, node)}
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!draggingNode) onNodeClick(node);
                 }}
+                style={isHighlighted ? { filter: 'drop-shadow(0 0 8px #f59e0b)' } : {}}
               >
                 {displayNode.node_type === 'HVT' && (
                   <>
@@ -212,8 +217,8 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                       width="80"
                       height="60"
                       fill={color}
-                      stroke="#1f2937"
-                      strokeWidth="2"
+                      stroke={isHighlighted ? "#f59e0b" : "#1f2937"}
+                      strokeWidth={isHighlighted ? "3" : "2"}
                       rx="4"
                     />
                     <text
@@ -238,8 +243,8 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                       cy={displayNode.position_y}
                       r="20"
                       fill={color}
-                      stroke="#1f2937"
-                      strokeWidth="2"
+                      stroke={isHighlighted ? "#f59e0b" : "#1f2937"}
+                      strokeWidth={isHighlighted ? "3" : "2"}
                     />
                     <text
                       x={displayNode.position_x}
@@ -263,8 +268,8 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                       width="30"
                       height="30"
                       fill={color}
-                      stroke="#1f2937"
-                      strokeWidth="2"
+                      stroke={isHighlighted ? "#f59e0b" : "#1f2937"}
+                      strokeWidth={isHighlighted ? "3" : "2"}
                       rx="2"
                       className={displayNode.status === 'LICHT' ? 'animate-pulse' : ''}
                     />
