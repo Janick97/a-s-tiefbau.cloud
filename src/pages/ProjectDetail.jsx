@@ -42,7 +42,8 @@ import {
   Upload,
   Ruler,
   Image as ImageIcon,
-  Navigation
+  Navigation,
+  Network
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
