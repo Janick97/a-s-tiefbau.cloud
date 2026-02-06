@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X, Trash2 } from "lucide-react";
 
 export default function ConnectionInfoPanel({ connection, nodes, onClose, onDelete, onStatusChange }) {
-  const [newStatus, setNewStatus] = React.useState(connection?.status || 'STÖRUNG');
+  const [newStatus, setNewStatus] = React.useState(connection?.status || 'KEINE_VERBINDUNG');
   
   if (!connection) return null;
 
@@ -14,10 +14,8 @@ export default function ConnectionInfoPanel({ connection, nodes, onClose, onDele
   const toNode = nodes.find(n => n.id === connection.to_node_id);
 
   const statusColors = {
-    DUNKEL: 'bg-gray-500',
-    GEPLANT: 'bg-yellow-500',
-    LICHT: 'bg-green-500',
-    STÖRUNG: 'bg-red-500'
+    KEINE_VERBINDUNG: 'bg-red-500 text-white',
+    UNTER_LICHT: 'bg-green-500 text-white shadow-lg shadow-green-500/50'
   };
 
   return (
