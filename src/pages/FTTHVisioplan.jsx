@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +17,7 @@ import AddNodeDialog from "@/components/visio/AddNodeDialog";
 import AddConnectionDialog from "@/components/visio/AddConnectionDialog";
 
 export default function FTTHVisioplanPage() {
+  const location = useLocation();
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedConnection, setSelectedConnection] = useState(null);
@@ -43,12 +45,17 @@ export default function FTTHVisioplanPage() {
     queryFn: () => base44.entities.VisioConnection.list()
   });
 
-  // Automatisch erstes Projekt auswählen
+  // Automatisch Projekt aus URL-Parameter oder erstes Projekt auswählen
   useEffect(() => {
-    if (projects.length > 0 && !selectedProjectId) {
+    const urlParams = new URLSearchParams(location.search);
+    const projectIdFromUrl = urlParams.get("project");
+    
+    if (projectIdFromUrl && projects.length > 0) {
+      setSelectedProjectId(projectIdFromUrl);
+    } else if (projects.length > 0 && !selectedProjectId) {
       setSelectedProjectId(projects[0].id);
     }
-  }, [projects, selectedProjectId]);
+  }, [projects, selectedProjectId, location.search]);
 
   // Gefilterte Daten für aktuelles Projekt
   const nodes = allNodes.filter(n => n.project_id === selectedProjectId);

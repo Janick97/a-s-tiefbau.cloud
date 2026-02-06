@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem, ExcavationClosure } from "@/entities/all";
+import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem, ExcavationClosure, VisioNode } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { SendEmail } from "@/integrations/Core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -2054,6 +2054,7 @@ export default function ProjectDetailPage() {
   const [montagePreisItems, setMontagePreisItems] = useState([]);
   const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
   const [currentProjectForCoverSheet, setCurrentProjectForCoverSheet] = useState(null);
+  const [hasVisioplan, setHasVisioplan] = useState(false);
 
   const coverSheetRef = useRef(null);
   const servicesOverviewRef = useRef(null);
@@ -2181,6 +2182,15 @@ export default function ProjectDetailPage() {
       setDocuments(Array.isArray(documentsData) ? documentsData : []);
       setMontageLeistungen(Array.isArray(montageLeistungenData) ? montageLeistungenData : []);
       setMontagePreisItems(Array.isArray(montagePreisItemsData) ? montagePreisItemsData : []);
+
+      // Check if Visioplan exists for this project
+      try {
+        const visioNodes = await VisioNode.filter({ project_id: projectData.id }).catch(() => []);
+        setHasVisioplan(Array.isArray(visioNodes) && visioNodes.length > 0);
+      } catch (error) {
+        console.error("Fehler beim Prüfen des Visioplans:", error);
+        setHasVisioplan(false);
+      }
 
     } catch (err) {
       console.error("Fehler beim Laden der Projektdetails:", err);
@@ -2838,6 +2848,18 @@ export default function ProjectDetailPage() {
                   <Mail className="w-4 h-4 mr-2" />
                   Kann zu verschicken
                 </Button>
+
+                {hasVisioplan && (
+                  <Link to={createPageUrl(`FTTHVisioplan?project=${project.id}`)}>
+                    <Button 
+                      variant="outline" 
+                      className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
+                    >
+                      <Network className="w-4 h-4 mr-2" />
+                      Visioplan öffnen
+                    </Button>
+                  </Link>
+                )}
 
                 <Button variant="outline" onClick={handleExportServicesOverviewPdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
                   <FileText className="w-4 h-4 mr-2" />
