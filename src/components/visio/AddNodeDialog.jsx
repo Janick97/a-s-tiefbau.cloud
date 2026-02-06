@@ -51,7 +51,9 @@ export default function AddNodeDialog({ open, onClose, onSubmit, projectId }) {
                 <SelectContent>
                   <SelectItem value="HVT">HVT (Hauptverteiler)</SelectItem>
                   <SelectItem value="MUFFE">Muffe</SelectItem>
-                  <SelectItem value="NVT">NVT (Nahverteiler)</SelectItem>
+                  <SelectItem value="Ü-MUFFE">Ü-Muffe</SelectItem>
+                  <SelectItem value="NVT">NVT (Netzverteiler)</SelectItem>
+                  <SelectItem value="KÜG">KÜG</SelectItem>
                 </SelectContent>
               </Select>
             </div>

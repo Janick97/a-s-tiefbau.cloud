@@ -177,6 +177,13 @@ export default function FTTHVisioplanPage() {
                 <Plus className="w-4 h-4 mr-2" />
                 Verbindung
               </Button>
+              <Button
+                onClick={handleDownloadVisioplan}
+                variant="outline"
+                className="bg-white">
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
             </div>
           )}
         </div>
