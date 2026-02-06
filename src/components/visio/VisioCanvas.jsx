@@ -297,6 +297,31 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                   </>
                 )}
                 
+                {displayNode.node_type === 'Ü-MUFFE' && (
+                  <>
+                    <circle
+                      cx={displayNode.position_x}
+                      cy={displayNode.position_y}
+                      r="22"
+                      fill={color}
+                      stroke={isHighlighted ? "#f59e0b" : "#1f2937"}
+                      strokeWidth={isHighlighted ? "3" : "2"}
+                      strokeDasharray="5,3"
+                    />
+                    <text
+                      x={displayNode.position_x}
+                      y={displayNode.position_y + 35}
+                      textAnchor="middle"
+                      fontSize="11"
+                      fill="#374151"
+                      fontWeight="500"
+                      className="pointer-events-none"
+                    >
+                      {displayNode.node_name}
+                    </text>
+                  </>
+                )}
+                
                 {displayNode.node_type === 'NVT' && (
                   <>
                     <rect
@@ -315,6 +340,32 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                       y={displayNode.position_y + 25}
                       textAnchor="middle"
                       fontSize="10"
+                      fill="#374151"
+                      fontWeight="500"
+                      className="pointer-events-none"
+                    >
+                      {displayNode.node_name}
+                    </text>
+                  </>
+                )}
+                
+                {displayNode.node_type === 'KÜG' && (
+                  <>
+                    <rect
+                      x={displayNode.position_x - 18}
+                      y={displayNode.position_y - 18}
+                      width="36"
+                      height="36"
+                      fill={color}
+                      stroke={isHighlighted ? "#f59e0b" : "#1f2937"}
+                      strokeWidth={isHighlighted ? "3" : "2"}
+                      rx="5"
+                    />
+                    <text
+                      x={displayNode.position_x}
+                      y={displayNode.position_y + 30}
+                      textAnchor="middle"
+                      fontSize="11"
                       fill="#374151"
                       fontWeight="500"
                       className="pointer-events-none"

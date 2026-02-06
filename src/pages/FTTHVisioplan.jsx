@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Lightbulb, Network, AlertTriangle, ZoomIn, ZoomOut, Plus } from "lucide-react";
+import { Lightbulb, Network, AlertTriangle, ZoomIn, ZoomOut, Plus, Download } from "lucide-react";
+import html2canvas from "html2canvas";
 
 import VisioCanvas from "@/components/visio/VisioCanvas";
 import NodeInfoPanel from "@/components/visio/NodeInfoPanel";
@@ -136,6 +137,28 @@ export default function FTTHVisioplanPage() {
 
   const handleStatusChange = (nodeId, newStatus) => {
     updateNodeMutation.mutate({ nodeId, status: newStatus });
+  };
+
+  const handleDownloadVisioplan = async () => {
+    const canvasElement = document.querySelector('.relative.w-full.h-\\[600px\\]');
+    if (!canvasElement) return;
+
+    try {
+      const canvas = await html2canvas(canvasElement, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false
+      });
+      
+      const link = document.createElement('a');
+      const currentProject = projects.find(p => p.id === selectedProjectId);
+      link.download = `Visioplan_${currentProject?.project_number || 'Export'}_${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+    } catch (error) {
+      console.error('Download fehlgeschlagen:', error);
+      alert('Fehler beim Download des Visioplans');
+    }
   };
 
   // Statistiken berechnen
