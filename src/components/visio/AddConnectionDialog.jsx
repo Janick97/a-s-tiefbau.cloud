@@ -12,7 +12,7 @@ export default function AddConnectionDialog({ open, onClose, onSubmit, projectId
     to_node_id: "",
     cable_type: "",
     length_meters: 0,
-    status: "DUNKEL",
+    status: "STÖRUNG",
     notes: ""
   });
 
@@ -27,7 +27,7 @@ export default function AddConnectionDialog({ open, onClose, onSubmit, projectId
       to_node_id: "",
       cable_type: "",
       length_meters: 0,
-      status: "DUNKEL",
+      status: "STÖRUNG",
       notes: ""
     });
   };
