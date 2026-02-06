@@ -56,23 +56,24 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
   };
 
   const handleMouseMove = (e) => {
-    if (isDragging) {
+    if (draggingNode) {
+      const svg = svgRef.current;
+      const rect = svg.getBoundingClientRect();
+      
+      // Berechne die Mausposition relativ zum SVG unter Berücksichtigung der Transformation
+      const x = (e.clientX - rect.left - transform.x) / transform.scale;
+      const y = (e.clientY - rect.top - transform.y) / transform.scale;
+      
+      setDraggingNode(prev => ({
+        ...prev,
+        position_x: x,
+        position_y: y
+      }));
+    } else if (isDragging) {
       setTransform(prev => ({
         ...prev,
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y
-      }));
-    } else if (draggingNode) {
-      const svg = svgRef.current;
-      const pt = svg.createSVGPoint();
-      pt.x = e.clientX;
-      pt.y = e.clientY;
-      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
-      
-      setDraggingNode(prev => ({
-        ...prev,
-        position_x: svgP.x,
-        position_y: svgP.y
       }));
     }
   };
@@ -92,7 +93,7 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
   };
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDragging || draggingNode) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -100,7 +101,7 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
         window.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, dragStart]);
+  }, [isDragging, draggingNode, dragStart, transform]);
 
   // Filtere Verbindungen
   const visibleConnections = showOnlyLight 
