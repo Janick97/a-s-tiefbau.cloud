@@ -2788,6 +2788,19 @@ export default function ProjectDetailPage() {
                 Kann zu
               </Button>
 
+              {hasVisioplan && (
+                <Link to={createPageUrl(`FTTHVisioplan?project=${project.id}`)}>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0 bg-indigo-50 text-indigo-700"
+                  >
+                    <Network className="w-3 h-3 mr-1" />
+                    Visio
+                  </Button>
+                </Link>
+              )}
+
               <Button variant="ghost" size="sm" onClick={handleExportCoverSheetPdf} className="no-print h-7 px-2 text-xs whitespace-nowrap flex-shrink-0">
                 <FileText className="w-3 h-3 mr-1" />
                 PDF
@@ -2850,7 +2863,7 @@ export default function ProjectDetailPage() {
                   Kann zu verschicken
                 </Button>
 
-                {hasVisioplan && (
+                {hasVisioplan ? (
                   <Link to={createPageUrl(`FTTHVisioplan?project=${project.id}`)}>
                     <Button 
                       variant="outline" 
@@ -2860,6 +2873,15 @@ export default function ProjectDetailPage() {
                       Visioplan öffnen
                     </Button>
                   </Link>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    disabled
+                    className="opacity-50 cursor-not-allowed"
+                  >
+                    <Network className="w-4 h-4 mr-2" />
+                    Kein Visioplan vorhanden
+                  </Button>
                 )}
 
                 <Button variant="outline" onClick={handleExportServicesOverviewPdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
