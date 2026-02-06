@@ -2,9 +2,12 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { X, Trash2 } from "lucide-react";
 
-export default function ConnectionInfoPanel({ connection, nodes, onClose, onDelete }) {
+export default function ConnectionInfoPanel({ connection, nodes, onClose, onDelete, onStatusChange }) {
+  const [newStatus, setNewStatus] = React.useState(connection?.status || 'STÖRUNG');
+  
   if (!connection) return null;
 
   const fromNode = nodes.find(n => n.id === connection.from_node_id);
@@ -48,8 +51,30 @@ export default function ConnectionInfoPanel({ connection, nodes, onClose, onDele
         )}
 
         <div>
-          <p className="text-sm text-gray-500 mb-1">Status</p>
-          <Badge className={statusColors[connection.status]}>{connection.status}</Badge>
+          <p className="text-sm text-gray-500 mb-2">Status ändern</p>
+          <div className="flex gap-2">
+            <Select value={newStatus} onValueChange={setNewStatus}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="DUNKEL">DUNKEL</SelectItem>
+                <SelectItem value="GEPLANT">GEPLANT</SelectItem>
+                <SelectItem value="LICHT">LICHT</SelectItem>
+                <SelectItem value="STÖRUNG">STÖRUNG</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              size="sm"
+              onClick={() => onStatusChange(connection.id, newStatus)}
+              disabled={newStatus === connection.status}
+            >
+              Ändern
+            </Button>
+          </div>
+          <div className="mt-2">
+            <Badge className={statusColors[connection.status]}>{connection.status}</Badge>
+          </div>
         </div>
 
         <div className="pt-2 border-t">

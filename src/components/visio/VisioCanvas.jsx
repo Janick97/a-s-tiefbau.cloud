@@ -2,11 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight }) {
+export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight, onNodeMove }) {
   const svgRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [draggingNode, setDraggingNode] = useState(null);
+  const [nodeDragStart, setNodeDragStart] = useState({ x: 0, y: 0 });
 
   // Automatisches Lichtpfad-Tracking: Alle Verbindungen bis zum HVT markieren
   const getLightPathConnections = () => {
@@ -60,11 +62,33 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
         x: e.clientX - dragStart.x,
         y: e.clientY - dragStart.y
       }));
+    } else if (draggingNode) {
+      const svg = svgRef.current;
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
+      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+      
+      setDraggingNode(prev => ({
+        ...prev,
+        position_x: svgP.x,
+        position_y: svgP.y
+      }));
     }
   };
 
   const handleMouseUp = () => {
+    if (draggingNode && onNodeMove) {
+      onNodeMove(draggingNode.id, draggingNode.position_x, draggingNode.position_y);
+    }
     setIsDragging(false);
+    setDraggingNode(null);
+  };
+
+  const handleNodeMouseDown = (e, node) => {
+    e.stopPropagation();
+    setDraggingNode(node);
+    setNodeDragStart({ x: node.position_x, y: node.position_y });
   };
 
   useEffect(() => {
@@ -161,22 +185,24 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
         {/* Knoten zeichnen */}
         <g className="nodes">
           {nodes.map(node => {
-            const color = getNodeColor(node);
+            const displayNode = draggingNode && draggingNode.id === node.id ? draggingNode : node;
+            const color = getNodeColor(displayNode);
             
             return (
               <g
                 key={node.id}
-                className="cursor-pointer hover:opacity-80 transition-opacity"
+                className="cursor-move hover:opacity-80 transition-opacity"
+                onMouseDown={(e) => handleNodeMouseDown(e, node)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  onNodeClick(node);
+                  if (!draggingNode) onNodeClick(node);
                 }}
               >
-                {node.node_type === 'HVT' && (
+                {displayNode.node_type === 'HVT' && (
                   <>
                     <rect
-                      x={node.position_x - 40}
-                      y={node.position_y - 30}
+                      x={displayNode.position_x - 40}
+                      y={displayNode.position_y - 30}
                       width="80"
                       height="60"
                       fill={color}
@@ -185,64 +211,67 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                       rx="4"
                     />
                     <text
-                      x={node.position_x}
-                      y={node.position_y}
+                      x={displayNode.position_x}
+                      y={displayNode.position_y}
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fill="white"
                       fontSize="12"
                       fontWeight="bold"
+                      className="pointer-events-none"
                     >
-                      {node.node_name}
+                      {displayNode.node_name}
                     </text>
                   </>
                 )}
                 
-                {node.node_type === 'MUFFE' && (
+                {displayNode.node_type === 'MUFFE' && (
                   <>
                     <circle
-                      cx={node.position_x}
-                      cy={node.position_y}
+                      cx={displayNode.position_x}
+                      cy={displayNode.position_y}
                       r="20"
                       fill={color}
                       stroke="#1f2937"
                       strokeWidth="2"
                     />
                     <text
-                      x={node.position_x}
-                      y={node.position_y + 35}
+                      x={displayNode.position_x}
+                      y={displayNode.position_y + 35}
                       textAnchor="middle"
                       fontSize="11"
                       fill="#374151"
                       fontWeight="500"
+                      className="pointer-events-none"
                     >
-                      {node.node_name}
+                      {displayNode.node_name}
                     </text>
                   </>
                 )}
                 
-                {node.node_type === 'NVT' && (
+                {displayNode.node_type === 'NVT' && (
                   <>
                     <rect
-                      x={node.position_x - 15}
-                      y={node.position_y - 15}
+                      x={displayNode.position_x - 15}
+                      y={displayNode.position_y - 15}
                       width="30"
                       height="30"
                       fill={color}
                       stroke="#1f2937"
                       strokeWidth="2"
                       rx="2"
-                      className={node.status === 'LICHT' ? 'animate-pulse' : ''}
+                      className={displayNode.status === 'LICHT' ? 'animate-pulse' : ''}
                     />
                     <text
-                      x={node.position_x}
-                      y={node.position_y + 25}
+                      x={displayNode.position_x}
+                      y={displayNode.position_y + 25}
                       textAnchor="middle"
                       fontSize="10"
                       fill="#374151"
                       fontWeight="500"
+                      className="pointer-events-none"
                     >
-                      {node.node_name}
+                      {displayNode.node_name}
                     </text>
                   </>
                 )}

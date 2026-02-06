@@ -106,6 +106,22 @@ export default function FTTHVisioplanPage() {
     }
   });
 
+  // Knoten Position ändern
+  const handleNodeMove = async (nodeId, newX, newY) => {
+    await base44.entities.VisioNode.update(nodeId, {
+      position_x: newX,
+      position_y: newY
+    });
+    queryClient.invalidateQueries(['visio-nodes']);
+  };
+
+  // Verbindung Status ändern
+  const handleConnectionStatusChange = async (connectionId, newStatus) => {
+    await base44.entities.VisioConnection.update(connectionId, { status: newStatus });
+    queryClient.invalidateQueries(['visio-connections']);
+    setSelectedConnection(null);
+  };
+
   const handleNodeClick = (node) => {
     setSelectedNode(node);
     setSelectedConnection(null);
@@ -298,6 +314,7 @@ export default function FTTHVisioplanPage() {
               onNodeClick={handleNodeClick}
               onConnectionClick={handleConnectionClick}
               showOnlyLight={showOnlyLight}
+              onNodeMove={handleNodeMove}
             />
 
             {selectedNode && (
@@ -316,6 +333,7 @@ export default function FTTHVisioplanPage() {
                 nodes={nodes}
                 onClose={() => setSelectedConnection(null)}
                 onDelete={(connectionId) => deleteConnectionMutation.mutate(connectionId)}
+                onStatusChange={handleConnectionStatusChange}
               />
             )}
           </div>
