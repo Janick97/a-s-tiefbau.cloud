@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 
 export default function NodeInfoPanel({ node, connections, onClose, onStatusChange, onDelete }) {
   const [newStatus, setNewStatus] = React.useState(node?.status || 'DUNKEL');
@@ -30,9 +30,18 @@ export default function NodeInfoPanel({ node, connections, onClose, onStatusChan
     <Card className="absolute top-4 right-4 w-80 shadow-2xl z-10">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">Knotendetails</CardTitle>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon" onClick={() => {
+            if (confirm('Möchten Sie diesen Knoten wirklich löschen?')) {
+              onDelete(node.id);
+            }
+          }} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+            <Trash2 className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>

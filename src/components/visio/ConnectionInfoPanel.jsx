@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 
 export default function ConnectionInfoPanel({ connection, nodes, onClose, onDelete }) {
   if (!connection) return null;
@@ -21,9 +21,18 @@ export default function ConnectionInfoPanel({ connection, nodes, onClose, onDele
     <Card className="absolute top-4 left-4 w-80 shadow-2xl z-10">
       <CardHeader className="flex flex-row items-center justify-between pb-3">
         <CardTitle className="text-lg">Verbindungsdetails</CardTitle>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="icon" onClick={() => {
+            if (confirm('Möchten Sie diese Verbindung wirklich löschen?')) {
+              onDelete(connection.id);
+            }
+          }} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+            <Trash2 className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div>
