@@ -7,13 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Search, X, Filter } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
-export default function SearchPanel({ nodes, connections, onHighlight, onClearHighlight }) {
+export default function SearchPanel({ nodes, connections, onHighlight, onClearHighlight, projects, selectedProjectId, onProjectChange }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [nodeTypeFilter, setNodeTypeFilter] = useState("ALL");
   const [nodeStatusFilter, setNodeStatusFilter] = useState("ALL");
   const [connectionStatusFilter, setConnectionStatusFilter] = useState("ALL");
   const [cableTypeFilter, setCableTypeFilter] = useState("ALL");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [results, setResults] = useState({ nodes: [], connections: [] });
 
   // Eindeutige Kabeltypen extrahieren
@@ -65,7 +65,7 @@ export default function SearchPanel({ nodes, connections, onHighlight, onClearHi
   };
 
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Search className="w-5 h-5" />
@@ -73,16 +73,34 @@ export default function SearchPanel({ nodes, connections, onHighlight, onClearHi
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Input
-            placeholder="Suche nach Name, Typ, Kabeltyp..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          <Button onClick={handleSearch}>
-            <Search className="w-4 h-4" />
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="md:col-span-1">
+            <label className="text-sm font-medium mb-2 block">Projekt</label>
+            <Select value={selectedProjectId || ''} onValueChange={onProjectChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Projekt auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map(p => (
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.project_number} - {p.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="md:col-span-2 flex gap-2">
+            <Input
+              placeholder="Suche nach Name, Typ, Kabeltyp..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            <Button onClick={handleSearch}>
+              <Search className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
 
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>

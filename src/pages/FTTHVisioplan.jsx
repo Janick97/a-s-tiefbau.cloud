@@ -163,37 +163,22 @@ export default function FTTHVisioplanPage() {
             <p className="text-gray-600 mt-1">Digitaler Netzplan für Glasfaser-Projekte</p>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Select value={selectedProjectId || ''} onValueChange={setSelectedProjectId}>
-              <SelectTrigger className="w-64">
-                <SelectValue placeholder="Projekt auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map(p => (
-                  <SelectItem key={p.id} value={p.id}>
-                    {p.project_number} - {p.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {selectedProjectId && (
-              <>
-                <Button
-                  onClick={() => setShowAddNodeDialog(true)}
-                  className="bg-blue-600 hover:bg-blue-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Knoten
-                </Button>
-                <Button
-                  onClick={() => setShowAddConnectionDialog(true)}
-                  className="bg-purple-600 hover:bg-purple-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Verbindung
-                </Button>
-              </>
-            )}
-          </div>
+          {selectedProjectId && (
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => setShowAddNodeDialog(true)}
+                className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Knoten
+              </Button>
+              <Button
+                onClick={() => setShowAddConnectionDialog(true)}
+                className="bg-purple-600 hover:bg-purple-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Verbindung
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Statistik-Karten */}
@@ -291,16 +276,6 @@ export default function FTTHVisioplanPage() {
           </CardContent>
         </Card>
 
-        {/* Suchpanel */}
-        {selectedProjectId && nodes.length > 0 && (
-          <SearchPanel
-            nodes={nodes}
-            connections={connections}
-            onHighlight={(elements) => setHighlightedElements(elements)}
-            onClearHighlight={() => setHighlightedElements({ nodeIds: [], connectionIds: [] })}
-          />
-        )}
-
         {/* Canvas */}
         {isLoading ? (
           <Card>
@@ -370,6 +345,17 @@ export default function FTTHVisioplanPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Suchpanel */}
+        <SearchPanel
+          nodes={nodes}
+          connections={connections}
+          projects={projects}
+          selectedProjectId={selectedProjectId}
+          onProjectChange={setSelectedProjectId}
+          onHighlight={(elements) => setHighlightedElements(elements)}
+          onClearHighlight={() => setHighlightedElements({ nodeIds: [], connectionIds: [] })}
+        />
 
         {/* Dialoge */}
         <AddNodeDialog
