@@ -58,10 +58,8 @@ export default function ConnectionInfoPanel({ connection, nodes, onClose, onDele
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="DUNKEL">DUNKEL</SelectItem>
-                <SelectItem value="GEPLANT">GEPLANT</SelectItem>
-                <SelectItem value="LICHT">LICHT</SelectItem>
-                <SelectItem value="STÖRUNG">STÖRUNG</SelectItem>
+                <SelectItem value="KEINE_VERBINDUNG">Keine Verbindung</SelectItem>
+                <SelectItem value="UNTER_LICHT">Unter Licht</SelectItem>
               </SelectContent>
             </Select>
             <Button 

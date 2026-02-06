@@ -58,16 +58,17 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
   const handleMouseMove = (e) => {
     if (draggingNode) {
       const svg = svgRef.current;
-      const rect = svg.getBoundingClientRect();
+      const pt = svg.createSVGPoint();
+      pt.x = e.clientX;
+      pt.y = e.clientY;
       
-      // Berechne die Mausposition relativ zum SVG unter Berücksichtigung der Transformation
-      const x = (e.clientX - rect.left - transform.x) / transform.scale;
-      const y = (e.clientY - rect.top - transform.y) / transform.scale;
+      // Transformiere Bildschirmkoordinaten zu SVG-Koordinaten
+      const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
       
       setDraggingNode(prev => ({
         ...prev,
-        position_x: x,
-        position_y: y
+        position_x: svgP.x,
+        position_y: svgP.y
       }));
     } else if (isDragging) {
       setTransform(prev => ({
@@ -109,21 +110,19 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
     : connections;
 
   const getConnectionColor = (connection) => {
-    if (lightPathConnections.has(connection.id)) return '#10b981'; // Grün für Lichtpfad
-    if (connection.status === 'STÖRUNG') return '#ef4444';
-    if (connection.status === 'GEPLANT') return '#eab308';
-    return '#9ca3af'; // Grau für DUNKEL
+    if (connection.status === 'UNTER_LICHT') return '#10b981'; // Stark grün
+    return '#ef4444'; // Rot für KEINE_VERBINDUNG
   };
 
   const getConnectionStyle = (connection) => {
     const style = {
       stroke: getConnectionColor(connection),
-      strokeWidth: 2,
+      strokeWidth: connection.status === 'UNTER_LICHT' ? 3 : 2,
       fill: 'none'
     };
 
-    if (connection.status === 'GEPLANT') {
-      style.strokeDasharray = '5,5';
+    if (connection.status === 'UNTER_LICHT') {
+      style.filter = 'drop-shadow(0 0 4px #10b981)';
     }
 
     return style;
@@ -159,8 +158,7 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
             const toNode = nodes.find(n => n.id === conn.to_node_id);
             if (!fromNode || !toNode) return null;
 
-            const isLight = lightPathConnections.has(conn.id);
-            const isStörung = conn.status === 'STÖRUNG';
+            const isUnterLicht = conn.status === 'UNTER_LICHT';
 
             return (
               <g key={conn.id}>
@@ -171,8 +169,8 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                   y2={toNode.position_y}
                   {...getConnectionStyle(conn)}
                   className={`cursor-pointer transition-all hover:stroke-[4] ${
-                    isLight ? 'animate-pulse' : ''
-                  } ${isStörung ? 'animate-ping' : ''}`}
+                    isUnterLicht ? 'animate-pulse' : ''
+                  }`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onConnectionClick(conn);
