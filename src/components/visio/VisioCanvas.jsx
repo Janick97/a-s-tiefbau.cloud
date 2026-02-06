@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight, onNodeMove }) {
+export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight, onNodeMove, highlightedNodes = [], highlightedConnections = [] }) {
   const svgRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
@@ -110,18 +110,25 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
     : connections;
 
   const getConnectionColor = (connection) => {
+    if (highlightedConnections.length > 0 && highlightedConnections.includes(connection.id)) {
+      return '#f59e0b'; // Orange für hervorgehobene Verbindungen
+    }
     if (connection.status === 'UNTER_LICHT') return '#10b981'; // Stark grün
     return '#ef4444'; // Rot für KEINE_VERBINDUNG
   };
 
   const getConnectionStyle = (connection) => {
+    const isHighlighted = highlightedConnections.length > 0 && highlightedConnections.includes(connection.id);
+    
     const style = {
       stroke: getConnectionColor(connection),
-      strokeWidth: connection.status === 'UNTER_LICHT' ? 3 : 2,
+      strokeWidth: isHighlighted ? 4 : (connection.status === 'UNTER_LICHT' ? 3 : 2),
       fill: 'none'
     };
 
-    if (connection.status === 'UNTER_LICHT') {
+    if (isHighlighted) {
+      style.filter = 'drop-shadow(0 0 6px #f59e0b)';
+    } else if (connection.status === 'UNTER_LICHT') {
       style.filter = 'drop-shadow(0 0 4px #10b981)';
     }
 

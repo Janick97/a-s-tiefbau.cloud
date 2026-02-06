@@ -15,6 +15,7 @@ import NodeInfoPanel from "@/components/visio/NodeInfoPanel";
 import ConnectionInfoPanel from "@/components/visio/ConnectionInfoPanel";
 import AddNodeDialog from "@/components/visio/AddNodeDialog";
 import AddConnectionDialog from "@/components/visio/AddConnectionDialog";
+import SearchPanel from "@/components/visio/SearchPanel";
 
 export default function FTTHVisioplanPage() {
   const location = useLocation();
@@ -24,6 +25,7 @@ export default function FTTHVisioplanPage() {
   const [showOnlyLight, setShowOnlyLight] = useState(false);
   const [showAddNodeDialog, setShowAddNodeDialog] = useState(false);
   const [showAddConnectionDialog, setShowAddConnectionDialog] = useState(false);
+  const [highlightedElements, setHighlightedElements] = useState({ nodeIds: [], connectionIds: [] });
 
   const queryClient = useQueryClient();
 
@@ -289,6 +291,16 @@ export default function FTTHVisioplanPage() {
           </CardContent>
         </Card>
 
+        {/* Suchpanel */}
+        {selectedProjectId && nodes.length > 0 && (
+          <SearchPanel
+            nodes={nodes}
+            connections={connections}
+            onHighlight={(elements) => setHighlightedElements(elements)}
+            onClearHighlight={() => setHighlightedElements({ nodeIds: [], connectionIds: [] })}
+          />
+        )}
+
         {/* Canvas */}
         {isLoading ? (
           <Card>
@@ -315,6 +327,8 @@ export default function FTTHVisioplanPage() {
               onConnectionClick={handleConnectionClick}
               showOnlyLight={showOnlyLight}
               onNodeMove={handleNodeMove}
+              highlightedNodes={highlightedElements.nodeIds}
+              highlightedConnections={highlightedElements.connectionIds}
             />
 
             {selectedNode && (
