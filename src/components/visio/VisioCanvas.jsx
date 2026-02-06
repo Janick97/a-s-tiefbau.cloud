@@ -10,36 +10,6 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
   const [draggingNode, setDraggingNode] = useState(null);
   const [nodeDragStart, setNodeDragStart] = useState({ x: 0, y: 0 });
 
-  // Automatisches Lichtpfad-Tracking: Alle Verbindungen bis zum HVT markieren
-  const getLightPathConnections = () => {
-    const lightNVTs = nodes.filter(n => n.node_type === 'NVT' && n.status === 'LICHT');
-    const lightPaths = new Set();
-
-    lightNVTs.forEach(nvt => {
-      const visited = new Set();
-      const findPathToHVT = (currentNodeId) => {
-        if (visited.has(currentNodeId)) return;
-        visited.add(currentNodeId);
-
-        const currentNode = nodes.find(n => n.id === currentNodeId);
-        if (!currentNode) return;
-        if (currentNode.node_type === 'HVT') return;
-
-        const incomingConnections = connections.filter(c => c.to_node_id === currentNodeId);
-        incomingConnections.forEach(conn => {
-          lightPaths.add(conn.id);
-          findPathToHVT(conn.from_node_id);
-        });
-      };
-
-      findPathToHVT(nvt.id);
-    });
-
-    return lightPaths;
-  };
-
-  const lightPathConnections = getLightPathConnections();
-
   // Zoom & Pan Funktionen
   const handleWheel = (e) => {
     e.preventDefault();
@@ -104,9 +74,9 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
     }
   }, [isDragging, draggingNode, dragStart, transform]);
 
-  // Filtere Verbindungen
+  // Filtere Verbindungen - zeige nur Verbindungen mit Status "UNTER_LICHT"
   const visibleConnections = showOnlyLight 
-    ? connections.filter(c => lightPathConnections.has(c.id))
+    ? connections.filter(c => c.status === 'UNTER_LICHT')
     : connections;
 
   const getConnectionColor = (connection) => {

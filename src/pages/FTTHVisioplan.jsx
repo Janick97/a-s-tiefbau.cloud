@@ -168,7 +168,8 @@ export default function FTTHVisioplanPage() {
     muffeCount: nodes.filter(n => n.node_type === 'MUFFE').length,
     nvtCount: nodes.filter(n => n.node_type === 'NVT').length,
     nvtLicht: nodes.filter(n => n.node_type === 'NVT' && n.status === 'LICHT').length,
-    störungen: nodes.filter(n => n.status === 'STÖRUNG').length + connections.filter(c => c.status === 'STÖRUNG').length
+    störungen: nodes.filter(n => n.status === 'STÖRUNG').length + connections.filter(c => c.status === 'STÖRUNG').length,
+    totalCableLength: connections.reduce((sum, conn) => sum + (conn.length_meters || 0), 0)
   };
 
   const isLoading = projectsLoading || nodesLoading || connectionsLoading;
@@ -212,7 +213,7 @@ export default function FTTHVisioplanPage() {
         </div>
 
         {/* Statistik-Karten */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
@@ -254,6 +255,15 @@ export default function FTTHVisioplanPage() {
               <div className="text-center">
                 <p className="text-2xl font-bold text-gray-600">{connections.length}</p>
                 <p className="text-xs text-gray-600 mt-1">Verbindungen</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-teal-600">{stats.totalCableLength.toFixed(0)}m</p>
+                <p className="text-xs text-gray-600 mt-1">Kabellänge</p>
               </div>
             </CardContent>
           </Card>
