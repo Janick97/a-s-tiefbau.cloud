@@ -80,12 +80,18 @@ export default function AddConnectionDialog({ open, onClose, onSubmit, projectId
 
             <div className="space-y-2">
               <Label>Kabeltyp *</Label>
-              <Input
+              <Select
                 required
-                placeholder="z.B. 6R/22, 12R/44"
                 value={formData.cable_type}
-                onChange={(e) => setFormData({ ...formData, cable_type: e.target.value })}
-              />
+                onValueChange={(value) => setFormData({ ...formData, cable_type: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Kabeltyp wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2x12 Minikabel">2x12 Minikabel</SelectItem>
+                  <SelectItem value="8x12 Minikabel">8x12 Minikabel</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -107,10 +113,8 @@ export default function AddConnectionDialog({ open, onClose, onSubmit, projectId
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="DUNKEL">Dunkel</SelectItem>
-                  <SelectItem value="GEPLANT">Geplant</SelectItem>
-                  <SelectItem value="LICHT">Licht</SelectItem>
-                  <SelectItem value="STÖRUNG">Störung</SelectItem>
+                  <SelectItem value="KEINE_VERBINDUNG">Keine Verbindung</SelectItem>
+                  <SelectItem value="UNTER_LICHT">Unter Licht</SelectItem>
                 </SelectContent>
               </Select>
             </div>

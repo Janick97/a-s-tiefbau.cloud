@@ -170,6 +170,10 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
 
             const isUnterLicht = conn.status === 'UNTER_LICHT';
 
+            // Berechne Mittelpunkt für Label
+            const midX = (fromNode.position_x + toNode.position_x) / 2;
+            const midY = (fromNode.position_y + toNode.position_y) / 2;
+            
             return (
               <g key={conn.id}>
                 <line
@@ -186,6 +190,39 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
                     onConnectionClick(conn);
                   }}
                 />
+                {/* Label mit Kabeltyp und Länge */}
+                <text
+                  x={midX}
+                  y={midY - 5}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#374151"
+                  fontWeight="600"
+                  className="pointer-events-none"
+                  style={{ 
+                    textShadow: '0 0 3px white, 0 0 3px white, 0 0 3px white',
+                    paintOrder: 'stroke fill'
+                  }}
+                >
+                  {conn.cable_type}
+                </text>
+                {conn.length_meters > 0 && (
+                  <text
+                    x={midX}
+                    y={midY + 8}
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="#6b7280"
+                    fontWeight="500"
+                    className="pointer-events-none"
+                    style={{ 
+                      textShadow: '0 0 3px white, 0 0 3px white, 0 0 3px white',
+                      paintOrder: 'stroke fill'
+                    }}
+                  >
+                    {conn.length_meters}m
+                  </text>
+                )}
               </g>
             );
           })}
