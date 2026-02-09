@@ -90,6 +90,7 @@ import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
 import TeamPerformanceHistory from './pages/TeamPerformanceHistory';
+import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -137,6 +138,7 @@ export const PAGES = {
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
     "TeamPerformanceHistory": TeamPerformanceHistory,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {

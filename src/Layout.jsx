@@ -111,6 +111,11 @@ const navigationItems = [
   icon: Users
 },
 {
+  title: "Berichte",
+  url: createPageUrl("Reports"),
+  icon: FileText
+},
+{
   title: "Meine Aufgaben",
   url: createPageUrl("Tasks"),
   icon: ClipboardList
