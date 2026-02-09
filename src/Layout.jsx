@@ -134,6 +134,12 @@ const navigationItems = [
   title: "FTTH Visioplan",
   url: createPageUrl("FTTHVisioplan"),
   icon: Network
+},
+{
+  title: "Leistungs-Historie",
+  url: createPageUrl("TeamPerformanceHistory"),
+  icon: BarChart3,
+  hasSubmenu: false
 }];
 
 
