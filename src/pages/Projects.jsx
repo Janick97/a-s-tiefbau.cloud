@@ -951,46 +951,46 @@ export default function ProjectsPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className={`h-12 hover:bg-orange-50/70 transition-colors group cursor-pointer ${
+              className={`h-9 hover:bg-orange-50/70 transition-colors group cursor-pointer ${
                 isFollowUp ? 'bg-gray-50' : (isEvenRow ? 'bg-white' : 'bg-gray-50')
               }`}
               onClick={() => window.open(createPageUrl(`ProjectDetail?id=${project.id}`), '_self')}
             >
-              <TableCell className="py-2 w-40" onClick={(e) => e.stopPropagation()}>
-                <div className="flex items-center gap-2">
-                    {isFollowUp && <CornerDownRight className="w-4 h-4 text-gray-400" />}
-                    <span className="font-mono bg-orange-50 text-orange-700 px-2 py-1 rounded font-bold text-sm whitespace-nowrap">
+              <TableCell className="py-1 px-2 w-32" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1">
+                    {isFollowUp && <CornerDownRight className="w-3 h-3 text-gray-400" />}
+                    <span className="font-mono bg-orange-50 text-orange-700 px-1.5 py-0.5 rounded font-bold text-xs whitespace-nowrap">
                         {project.project_number}
                     </span>
                 </div>
               </TableCell>
-              <TableCell className="py-2 w-32">
+              <TableCell className="py-1 px-2 w-28">
                 <span className="text-gray-700 text-xs truncate block">
-                  {project.order_type || 'Nicht angegeben'}
+                  {project.order_type || '-'}
                 </span>
               </TableCell>
-              <TableCell className="py-2 w-28">
+              <TableCell className="py-1 px-2 w-24">
                  <span className="text-gray-700 text-xs truncate block">
-                    {project.sm_number || 'Nicht angegeben'}
+                    {project.sm_number || '-'}
                   </span>
               </TableCell>
-              <TableCell className="py-2 w-32">
+              <TableCell className="py-1 px-2 w-28">
                 <span className="text-gray-700 text-xs truncate block font-medium">
-                  {project.city || 'Nicht angegeben'}
+                  {project.city || '-'}
                 </span>
               </TableCell>
-              <TableCell className="py-2 w-48">
+              <TableCell className="py-1 px-2 w-36">
                  <span className="text-gray-700 text-xs truncate block">
-                    {project.street || 'Nicht angegeben'}
+                    {project.street || '-'}
                   </span>
               </TableCell>
-              <TableCell className="py-2 w-36">
+              <TableCell className="py-1 px-2 w-28">
                 <span className="text-gray-700 text-xs truncate block">
-                  {project.contact_person || 'Nicht angegeben'}
+                  {project.contact_person || '-'}
                 </span>
               </TableCell>
               <TableCell 
-                className="py-2 w-56"
+                className="py-1 px-2 w-44"
                 onClick={(e) => handleVaoClick(e, project)}
               >
                 <button 
@@ -1001,15 +1001,15 @@ export default function ProjectsPage() {
                 >
                   <div className="flex flex-col gap-0.5">
                     <div className="flex items-center gap-1">
-                      <span className="truncate">{vaoInfo.text}</span>
-                      {!isVaoInherited && <Edit className="w-3 h-3 inline-block flex-shrink-0" />}
+                      <span className="truncate text-xs">{vaoInfo.text}</span>
+                      {!isVaoInherited && <Edit className="w-2.5 h-2.5 inline-block flex-shrink-0" />}
                     </div>
                     {(vaoInfo.dateFrom || vaoInfo.dateTo) && (
-                      <div className="flex items-center gap-1 text-xs">
-                        <Calendar className="w-3 h-3 flex-shrink-0" />
-                        <span className="font-mono">
+                      <div className="flex items-center gap-0.5 text-xs">
+                        <Calendar className="w-2.5 h-2.5 flex-shrink-0" />
+                        <span className="font-mono text-xs">
                           {vaoInfo.dateFrom && vaoInfo.dateTo ? (
-                            `${vaoInfo.dateFrom} - ${vaoInfo.dateTo}`
+                            `${vaoInfo.dateFrom}-${vaoInfo.dateTo}`
                           ) : vaoInfo.dateFrom ? (
                             `ab ${vaoInfo.dateFrom}`
                           ) : (
@@ -1017,7 +1017,7 @@ export default function ProjectsPage() {
                           )}
                         </span>
                         {vaoInfo.daysInfo && (
-                          <span className="font-semibold ml-1">({vaoInfo.daysInfo})</span>
+                          <span className="font-semibold text-xs">({vaoInfo.daysInfo})</span>
                         )}
                       </div>
                     )}
@@ -1029,14 +1029,14 @@ export default function ProjectsPage() {
                   </div>
                 </button>
               </TableCell>
-              <TableCell className="py-2 w-24 text-center" onClick={(e) => e.stopPropagation()}>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-center gap-2">
+              <TableCell className="py-1 px-2 w-20 text-center" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-1">
                     <span className="text-xs text-gray-600">BA</span>
                     {project.ba_status ? (
                       <div 
                         onClick={() => handleCheckboxChange(project.id, 'ba_status', null)}
-                        className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-all ${
+                        className={`w-4 h-4 rounded-full border cursor-pointer transition-all ${
                           project.ba_status === 'rot' ? 'bg-red-500 border-red-600' :
                           project.ba_status === 'gelb' ? 'bg-yellow-500 border-yellow-600' :
                           'bg-green-500 border-green-600'
@@ -1049,23 +1049,23 @@ export default function ProjectsPage() {
                         onValueChange={(value) => handleCheckboxChange(project.id, 'ba_status', value)}
                         disabled={updatingProject === project.id}
                       >
-                        <SelectTrigger className="h-6 w-16 text-xs p-0 border-dashed">
+                        <SelectTrigger className="h-5 w-12 text-xs p-0 border-dashed">
                           <SelectValue placeholder="-" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="rot">🔴 Rot</SelectItem>
-                          <SelectItem value="gelb">🟡 Gelb</SelectItem>
-                          <SelectItem value="grün">🟢 Grün</SelectItem>
+                          <SelectItem value="rot">🔴</SelectItem>
+                          <SelectItem value="gelb">🟡</SelectItem>
+                          <SelectItem value="grün">🟢</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <span className="text-xs text-gray-600">FA</span>
                     {project.fa_status ? (
                       <div 
                         onClick={() => handleCheckboxChange(project.id, 'fa_status', null)}
-                        className={`w-6 h-6 rounded-full border-2 cursor-pointer transition-all ${
+                        className={`w-4 h-4 rounded-full border cursor-pointer transition-all ${
                           project.fa_status === 'rot' ? 'bg-red-500 border-red-600' :
                           project.fa_status === 'gelb' ? 'bg-yellow-500 border-yellow-600' :
                           'bg-green-500 border-green-600'
@@ -1078,98 +1078,98 @@ export default function ProjectsPage() {
                         onValueChange={(value) => handleCheckboxChange(project.id, 'fa_status', value)}
                         disabled={updatingProject === project.id}
                       >
-                        <SelectTrigger className="h-6 w-16 text-xs p-0 border-dashed">
+                        <SelectTrigger className="h-5 w-12 text-xs p-0 border-dashed">
                           <SelectValue placeholder="-" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="rot">🔴 Rot</SelectItem>
-                          <SelectItem value="gelb">🟡 Gelb</SelectItem>
-                          <SelectItem value="grün">🟢 Grün</SelectItem>
+                          <SelectItem value="rot">🔴</SelectItem>
+                          <SelectItem value="gelb">🟡</SelectItem>
+                          <SelectItem value="grün">🟢</SelectItem>
                         </SelectContent>
                       </Select>
                     )}
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="py-2 w-48">
-                <div className="text-xs space-y-1">
+              <TableCell className="py-1 px-2 w-36">
+                <div className="text-xs space-y-0.5">
                   {project.start_date && (
-                    <div className="flex items-center gap-1 text-blue-600">
-                      <Calendar className="w-3 h-3" />
-                      <span>Eingang: {new Date(project.start_date).toLocaleDateString('de-DE')}</span>
+                    <div className="flex items-center gap-0.5 text-blue-600">
+                      <Calendar className="w-2.5 h-2.5" />
+                      <span className="text-xs">E: {new Date(project.start_date).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>
                     </div>
                   )}
                   {project.end_date && (
-                    <div className="flex items-center gap-1 text-green-600">
-                      <Calendar className="w-3 h-3" />
-                      <span>Fertig: {new Date(project.end_date).toLocaleDateString('de-DE')}</span>
+                    <div className="flex items-center gap-0.5 text-green-600">
+                      <Calendar className="w-2.5 h-2.5" />
+                      <span className="text-xs">F: {new Date(project.end_date).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>
                     </div>
                   )}
                   {project.grube_auf_datum && (
-                    <div className="flex items-center gap-1 text-orange-600">
-                      <Shovel className="w-3 h-3" />
-                      <span>Grube auf: {new Date(project.grube_auf_datum).toLocaleDateString('de-DE')}</span>
+                    <div className="flex items-center gap-0.5 text-orange-600">
+                      <Shovel className="w-2.5 h-2.5" />
+                      <span className="text-xs">G: {new Date(project.grube_auf_datum).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>
                     </div>
                   )}
                   {project.kann_zu_meldung_datum && (
-                    <div className="flex items-center gap-1 text-purple-600">
-                      <CheckCircle className="w-3 h-3" />
-                      <span>Kann zu: {new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE')}</span>
+                    <div className="flex items-center gap-0.5 text-purple-600">
+                      <CheckCircle className="w-2.5 h-2.5" />
+                      <span className="text-xs">K: {new Date(project.kann_zu_meldung_datum).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>
                     </div>
                   )}
                 </div>
               </TableCell>
-              <TableCell className="py-2 w-64" onClick={(e) => e.stopPropagation()}>
+              <TableCell className="py-1 px-2 w-52" onClick={(e) => e.stopPropagation()}>
                 <Select
                   value={project.project_status || ''}
                   onValueChange={(value) => handleStatusChange(project.id, value)}
                   disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'project_status')}
                 >
-                  <SelectTrigger className={`w-full h-8 text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100'}`}>
-                    <SelectValue placeholder="Status wählen"/>
+                  <SelectTrigger className={`w-full h-7 text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100'}`}>
+                    <SelectValue placeholder="Status"/>
                   </SelectTrigger>
                   <SelectContent>
-                    {projectStatusOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                    {projectStatusOptions.map(opt => <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </TableCell>
-              <TableCell className="py-2 text-center w-24" onClick={(e) => e.stopPropagation()}>
+              <TableCell className="py-1 px-2 text-center w-16" onClick={(e) => e.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={project.material_booking_completed || false}
                   onChange={(e) => handleCheckboxChange(project.id, 'material_booking_completed', e.target.checked)}
                   disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'material_booking_completed')}
-                  className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
+                  className="w-3.5 h-3.5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                 />
               </TableCell>
-              <TableCell className="py-2 text-center w-28" onClick={(e) => e.stopPropagation()}>
+              <TableCell className="py-1 px-2 text-center w-16" onClick={(e) => e.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={project.documentation_completed || false}
                   onChange={(e) => handleCheckboxChange(project.id, 'documentation_completed', e.target.checked)}
                   disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'documentation_completed')}
-                  className="w-4 h-4 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
+                  className="w-3.5 h-3.5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500"
                 />
               </TableCell>
-              <TableCell className="py-2 text-center w-24" onClick={(e) => e.stopPropagation()}>
-                <div className="flex flex-col items-center gap-1">
-                  <div className="flex items-center gap-1">
+              <TableCell className="py-1 px-2 text-center w-16" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-col items-center gap-0.5">
+                  <div className="flex items-center gap-0.5">
                     <input
                       type="checkbox"
                       checked={project.ev_ta || false}
                       onChange={(e) => handleCheckboxChange(project.id, 'ev_ta', e.target.checked)}
                       disabled={updatingProject === project.id}
-                      className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-xs text-gray-600">TA</span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-0.5">
                     <input
                       type="checkbox"
                       checked={project.ev_sa || false}
                       onChange={(e) => handleCheckboxChange(project.id, 'ev_sa', e.target.checked)}
                       disabled={updatingProject === project.id}
-                      className="w-3.5 h-3.5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
                     />
                     <span className="text-xs text-gray-600">SA</span>
                   </div>
@@ -1184,22 +1184,22 @@ export default function ProjectsPage() {
         <Card className="card-elevation border-none hidden md:block">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <Table className="min-w-[1400px]">
+              <Table className="min-w-[1200px]">
               <TableHeader>
-                <TableRow className="h-10">
-                  <TableHead className="py-2 w-40">Projektnummer</TableHead>
-                  <TableHead className="py-2 w-32">Auftragsart</TableHead>
-                  <TableHead className="py-2 w-28">SM</TableHead>
-                  <TableHead className="py-2 w-32">Stadt</TableHead>
-                  <TableHead className="py-2 w-48">Straße</TableHead>
-                  <TableHead className="py-2 w-36">Ansprechpartner</TableHead>
-                  <TableHead className="py-2 w-56">VAO-Status</TableHead>
-                  <TableHead className="py-2 w-24 text-center">BA/FA</TableHead>
-                  <TableHead className="py-2 w-48">Termine</TableHead>
-                  <TableHead className="py-2 w-64">Status</TableHead>
-                  <TableHead className="py-2 w-24 text-center">Material</TableHead>
-                  <TableHead className="py-2 w-28 text-center">Dokumentation</TableHead>
-                  <TableHead className="py-2 w-24 text-center">EV</TableHead>
+                <TableRow className="h-8">
+                  <TableHead className="py-1 px-2 w-32 text-xs">Projekt-Nr.</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs">Auftragsart</TableHead>
+                  <TableHead className="py-1 px-2 w-24 text-xs">SM</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs">Stadt</TableHead>
+                  <TableHead className="py-1 px-2 w-36 text-xs">Straße</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs">Ansprechp.</TableHead>
+                  <TableHead className="py-1 px-2 w-44 text-xs">VAO</TableHead>
+                  <TableHead className="py-1 px-2 w-20 text-center text-xs">BA/FA</TableHead>
+                  <TableHead className="py-1 px-2 w-36 text-xs">Termine</TableHead>
+                  <TableHead className="py-1 px-2 w-52 text-xs">Status</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs">Mat.</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs">Dok.</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs">EV</TableHead>
                 </TableRow>
                 <TableRow className="bg-gray-50/50">
                    <TableCell className="p-1">
