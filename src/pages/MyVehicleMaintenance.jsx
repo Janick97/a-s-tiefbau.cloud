@@ -78,8 +78,13 @@ export default function MyVehicleMaintenancePage() {
   };
 
   const handleSubmit = async () => {
-    if (photos.length === 0) {
-      alert("Bitte laden Sie mindestens ein Foto hoch");
+    if (photos.length < 4) {
+      alert("Bitte laden Sie mindestens 4 Fotos hoch (Außen, Cockpit, Fußraum, Armaturenbrett)");
+      return;
+    }
+    
+    if (!vehicleInfo || vehicleInfo.trim() === '') {
+      alert("Bitte geben Sie das Kennzeichen ein");
       return;
     }
 
@@ -192,24 +197,59 @@ export default function MyVehicleMaintenancePage() {
                 Neue Dokumentation einreichen
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
+              {/* Requirements Checklist */}
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  Erforderliche Fotos
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="flex items-center gap-2 text-sm text-blue-800">
+                    <Check className="w-4 h-4" />
+                    <span>Außenansicht</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-800">
+                    <Check className="w-4 h-4" />
+                    <span>Cockpit</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-800">
+                    <Check className="w-4 h-4" />
+                    <span>Fußraum</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-blue-800">
+                    <Check className="w-4 h-4" />
+                    <span>Armaturenbrett</span>
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <Label>Fahrzeuginfo (optional)</Label>
+                <Label>Kennzeichen *</Label>
                 <Input
                   value={vehicleInfo}
                   onChange={(e) => setVehicleInfo(e.target.value)}
-                  placeholder="z.B. Kennzeichen, Fahrzeugtyp"
+                  placeholder="z.B. DN-AB 1234"
+                  className="text-lg font-medium"
                 />
               </div>
 
               <div>
-                <Label>Fotos hochladen *</Label>
+                <Label className="mb-2 block">
+                  Fotos hochladen * 
+                  <span className="text-sm text-gray-600 font-normal ml-2">
+                    (Mindestens 4 Fotos: Außen, Cockpit, Fußraum, Armaturenbrett)
+                  </span>
+                </Label>
                 <div className="mt-2">
                   <label className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
                     <div className="flex flex-col items-center space-y-2">
                       <Upload className="w-8 h-8 text-gray-600" />
                       <span className="text-sm text-gray-600">
-                        {isUploading ? "Hochladen..." : "Fotos auswählen"}
+                        {isUploading ? "Hochladen..." : "Fotos auswählen oder hier ablegen"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Mehrere Fotos möglich
                       </span>
                     </div>
                     <input
@@ -258,7 +298,7 @@ export default function MyVehicleMaintenancePage() {
 
               <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting || photos.length === 0}
+                disabled={isSubmitting || photos.length < 4 || !vehicleInfo}
                 className="w-full"
                 size="lg"
               >
@@ -270,7 +310,7 @@ export default function MyVehicleMaintenancePage() {
                 ) : (
                   <>
                     <Check className="w-4 h-4 mr-2" />
-                    Dokumentation einreichen
+                    Dokumentation einreichen ({photos.length}/4 Fotos)
                   </>
                 )}
               </Button>
