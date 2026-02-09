@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Project, User, Excavation } from "@/entities/all";
+import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import AdminDashboard from "@/components/dashboard/AdminDashboard";
+import BauleiterDashboard from "@/components/dashboard/BauleiterDashboard";
+import OberflaecheDashboard from "@/components/dashboard/OberflaecheDashboard";
 import {
   FolderOpen,
   BarChart3,
@@ -238,8 +241,16 @@ export default function DashboardPage() {
   const [user, setUser] = useState(null);
   const [projects, setProjects] = useState([]);
   const [excavations, setExcavations] = useState([]);
+  const [montageAuftraege, setMontageAuftraege] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [tasks, setTasks] = useState([]);
+  const [sollwert, setSollwert] = useState(null);
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [widgetSettings, setWidgetSettings] = useState(() => {
+    const saved = localStorage.getItem('dashboardWidgets');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   useEffect(() => {
     loadData();
@@ -248,22 +259,36 @@ export default function DashboardPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [userData, projectsData, excavationsData] = await Promise.all([
+      const [userData, projectsData, excavationsData, montageData, usersData, tasksData, sollwerteData] = await Promise.all([
         User.me().catch(() => null),
         Project.list("-created_date", DASHBOARD_PROJECT_LIMIT).catch(() => []),
-        Excavation.list("-created_date", DASHBOARD_EXCAVATION_LIMIT).catch(() => [])
+        Excavation.list("-created_date", DASHBOARD_EXCAVATION_LIMIT).catch(() => []),
+        MontageAuftrag.list().catch(() => []),
+        User.list().catch(() => []),
+        Task.list().catch(() => []),
+        KolonnenSollwert.list().catch(() => [])
       ]);
 
       setUser(userData);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
+      setMontageAuftraege(Array.isArray(montageData) ? montageData : []);
+      setUsers(Array.isArray(usersData) ? usersData : []);
+      setTasks(Array.isArray(tasksData) ? tasksData : []);
 
-      if (userData && userData.position === 'Bauleiter') {
-        const userAssignedProjects = projectsData.filter(project => 
-          project.assigned_foreman_id === userData.id ||
-          project.assigned_foreman_name === userData.full_name ||
-          project.created_by === userData.email
-        );
+      if (userData && (userData.position === 'Bauleiter' || userData.position === 'Oberfläche')) {
+        const currentMonth = new Date().toISOString().substring(0, 7);
+        const userSollwert = sollwerteData.find(s => s.user_id === userData.id && s.month === currentMonth);
+        setSollwert(userSollwert);
+
+        const userAssignedProjects = projectsData.filter(project => {
+          if (project.assigned_bauleiter && Array.isArray(project.assigned_bauleiter)) {
+            return project.assigned_bauleiter.some(bl => bl.id === userData.id);
+          }
+          return project.assigned_foreman_id === userData.id ||
+                 project.assigned_foreman_name === userData.full_name ||
+                 project.created_by === userData.email;
+        });
         setAssignedProjects(userAssignedProjects);
       }
 
@@ -271,9 +296,23 @@ export default function DashboardPage() {
       console.error("Fehler beim Laden der Dashboard-Daten:", error);
       setProjects([]);
       setExcavations([]);
+      setMontageAuftraege([]);
+      setUsers([]);
+      setTasks([]);
       setAssignedProjects([]);
     }
     setIsLoading(false);
+  };
+
+  const handleToggleWidget = (widgetId) => {
+    setWidgetSettings(prev => {
+      const newSettings = {
+        ...prev,
+        [widgetId]: !prev[widgetId]
+      };
+      localStorage.setItem('dashboardWidgets', JSON.stringify(newSettings));
+      return newSettings;
+    });
   };
 
   const generalStats = React.useMemo(() => {
@@ -342,7 +381,7 @@ export default function DashboardPage() {
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
                   Willkommen, {user.full_name}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre wichtigsten Bereiche</p>
+                <p className="text-sm md:text-base text-gray-600">Ihr persönliches Dashboard</p>
               </div>
               <button
                 onClick={loadData}
@@ -354,25 +393,15 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <NavigationCard
-              title="Meine Aufträge"
-              description="Alle Ihnen zugewiesenen Bauprojekte anzeigen und verwalten"
-              icon={FolderOpen}
-              color="from-blue-500 to-blue-600"
-              link={createPageUrl("MyProjects")}
-              stats={assignedProjects.length}
-            />
-
-            <NavigationCard
-              title="Mein Profil"
-              description="Persönliche Einstellungen und Informationen bearbeiten"
-              icon={UserIcon}
-              color="from-orange-500 to-amber-600"
-              link={createPageUrl("Profile")}
-            />
-          </div>
+          <BauleiterDashboard 
+            projects={projects}
+            excavations={excavations}
+            user={user}
+            tasks={tasks}
+            sollwert={sollwert}
+            widgetSettings={widgetSettings}
+            onToggleWidget={handleToggleWidget}
+          />
         </div>
       </div>
     );
@@ -446,7 +475,7 @@ export default function DashboardPage() {
                 <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
                   Willkommen, {user.full_name}
                 </h1>
-                <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf Ihre Oberflächen-Arbeiten</p>
+                <p className="text-sm md:text-base text-gray-600">Ihr persönliches Dashboard</p>
               </div>
               <button
                 onClick={loadData}
@@ -458,32 +487,14 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <NavigationCard
-              title="Meine Aufträge"
-              description="Alle Ihnen zugewiesenen Aufträge anzeigen"
-              icon={FolderOpen}
-              color="from-blue-500 to-blue-600"
-              link={createPageUrl("MyProjectsOberflaeche")}
-            />
-
-            <NavigationCard
-              title="Auswertungen"
-              description="Ihre persönliche Leistungsstatistik"
-              icon={BarChart3}
-              color="from-purple-500 to-purple-600"
-              link={createPageUrl("Analytics")}
-            />
-
-            <NavigationCard
-              title="Mein Profil"
-              description="Persönliche Einstellungen bearbeiten"
-              icon={UserIcon}
-              color="from-orange-500 to-amber-600"
-              link={createPageUrl("Profile")}
-            />
-          </div>
+          <OberflaecheDashboard 
+            excavations={excavations}
+            user={user}
+            tasks={tasks}
+            sollwert={sollwert}
+            widgetSettings={widgetSettings}
+            onToggleWidget={handleToggleWidget}
+          />
         </div>
       </div>
     );
@@ -501,7 +512,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-              <p className="text-sm md:text-base text-gray-600">Schnellzugriff auf alle Bereiche der Anwendung</p>
+              <p className="text-sm md:text-base text-gray-600">Ihr persönlicher Überblick</p>
             </div>
             <button
               onClick={loadData}
@@ -516,187 +527,17 @@ export default function DashboardPage() {
         {/* Datum, Uhrzeit & Wetter Widget */}
         <DateTimeWeatherWidget />
 
-        {/* Hauptstatistiken */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <StatsCard
-            title="Projekte Gesamt"
-            value={generalStats.totalProjects}
-            icon={FolderOpen}
-            color="from-blue-500 to-blue-600"
-          />
-          <StatsCard
-            title="Aktive Projekte"
-            value={generalStats.activeProjects}
-            icon={CheckSquare}
-            color="from-green-500 to-green-600"
-          />
-          <StatsCard
-            title="Offene Material"
-            value={generalStats.openMaterialBookings}
-            icon={Package}
-            color="from-orange-500 to-amber-600"
-          />
-          <StatsCard
-            title="Offene Doku"
-            value={generalStats.openDocumentations}
-            icon={FileText}
-            color="from-purple-500 to-purple-600"
-          />
-        </div>
+        <AdminDashboard 
+          projects={projects}
+          excavations={excavations}
+          montageAuftraege={montageAuftraege}
+          users={users}
+          tasks={tasks}
+          widgetSettings={widgetSettings}
+          onToggleWidget={handleToggleWidget}
+        />
 
-        {/* Navigation Sections */}
-        <div className="space-y-8">
-          {/* Projektverwaltung */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FolderOpen className="w-6 h-6 text-orange-600" />
-              Projektverwaltung
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <NavigationCard
-                title="Auftragsübersicht"
-                description="Alle Projekte anzeigen, erstellen und bearbeiten"
-                icon={FolderOpen}
-                color="from-blue-500 to-blue-600"
-                link={createPageUrl("Projects")}
-                stats={generalStats.totalProjects}
-              />
 
-              <NavigationCard
-                title="Baustellenkarte"
-                description="Geografische Übersicht aller Baustellen"
-                icon={MapPin}
-                color="from-green-500 to-emerald-600"
-                link={createPageUrl("BaustellenKarte")}
-              />
-
-              <NavigationCard
-                title="Disposition"
-                description="Termine und Planung für alle Bauleiter"
-                icon={Calendar}
-                color="from-purple-500 to-purple-600"
-                link={createPageUrl("Disposition")}
-              />
-
-              <NavigationCard
-                title="Projekt-Status"
-                description="Übersicht nach Workflow-Status"
-                icon={ListRestart}
-                color="from-cyan-500 to-cyan-600"
-                link={createPageUrl("ProjectStatus")}
-              />
-
-              <NavigationCard
-                title="VAO-Überwachung"
-                description="Ablaufende Verkehrsanordnungen überwachen"
-                icon={AlertCircle}
-                color="from-red-500 to-red-600"
-                link={createPageUrl("VAOMonitoring")}
-              />
-
-              <NavigationCard
-                title="Projekt Import"
-                description="Projekte aus CSV-Datei importieren"
-                icon={Upload}
-                color="from-indigo-500 to-indigo-600"
-                link={createPageUrl("ImportProjects")}
-              />
-            </div>
-          </div>
-
-          {/* Leistungserfassung */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Construction className="w-6 h-6 text-orange-600" />
-              Leistungserfassung
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <NavigationCard
-                title="Ausgrabungen"
-                description="Gruben und Gräben verwalten und erfassen"
-                icon={Construction}
-                color="from-orange-500 to-amber-600"
-                link={createPageUrl("Excavations")}
-              />
-
-              <NavigationCard
-                title="Oberfläche"
-                description="Oberflächenarbeiten nach Kategorien"
-                icon={Layers}
-                color="from-teal-500 to-teal-600"
-                link={createPageUrl("Surface")}
-              />
-
-              <NavigationCard
-                title="Preisliste"
-                description="Preispositionen verwalten"
-                icon={Settings}
-                color="from-gray-500 to-gray-600"
-                link={createPageUrl("PriceList")}
-              />
-            </div>
-          </div>
-
-          {/* Montage & Status */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Construction className="w-6 h-6 text-orange-600" />
-              Montage & Abrechnung
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <NavigationCard
-                title="Montageaufträge"
-                description="Alle Montageaufträge verwalten"
-                icon={Construction}
-                color="from-blue-500 to-blue-600"
-                link={createPageUrl("MontageAuftraege")}
-              />
-
-              <NavigationCard
-                title="Offene Materialbuchungen"
-                description="Projekte ohne Materialbuchung"
-                icon={Package}
-                color="from-orange-500 to-amber-600"
-                link={createPageUrl("OpenMaterialBookings")}
-                stats={generalStats.openMaterialBookings}
-              />
-
-              <NavigationCard
-                title="Offene Dokumentationen"
-                description="Projekte ohne Dokumentation"
-                icon={FileText}
-                color="from-blue-500 to-blue-600"
-                link={createPageUrl("OpenDocumentations")}
-                stats={generalStats.openDocumentations}
-              />
-            </div>
-          </div>
-
-          {/* Auswertungen & Verwaltung */}
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 className="w-6 h-6 text-orange-600" />
-              Auswertungen & Verwaltung
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              <NavigationCard
-                title="Auswertungen"
-                description="Statistiken und Berichte"
-                icon={BarChart3}
-                color="from-purple-500 to-purple-600"
-                link={createPageUrl("Analytics")}
-              />
-
-              <NavigationCard
-                title="Mein Profil"
-                description="Persönliche Einstellungen"
-                icon={UserIcon}
-                color="from-gray-500 to-gray-600"
-                link={createPageUrl("Profile")}
-              />
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
