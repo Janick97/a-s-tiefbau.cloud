@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Project, Excavation, User, PriceItem } from "@/entities/all";
+import { Project, Excavation, User, PriceItem, KolonnenSollwert } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { Calendar, Loader2, AlertCircle, Users, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { Calendar, Loader2, AlertCircle, Users, TrendingDown, TrendingUp, Minus, Filter } from "lucide-react";
 
 const KOLONNEN_AUSGABEN = -20000; // -20.000€ = -100%
 
@@ -12,7 +14,10 @@ export default function KolonnenUebersichtPage() {
   const [excavations, setExcavations] = useState([]);
   const [priceItems, setPriceItems] = useState([]);
   const [users, setUsers] = useState([]);
+  const [sollwerte, setSollwerte] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [teamType, setTeamType] = useState('all');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,19 +30,21 @@ export default function KolonnenUebersichtPage() {
     setError(null);
     
     try {
-      const [excavationsData, priceData, usersData] = await Promise.all([
+      const [excavationsData, priceData, usersData, sollwerteData] = await Promise.all([
         Excavation.list("-created_date").catch(() => []),
         PriceItem.list().catch(() => []),
-        User.list().catch(() => [])
+        User.list().catch(() => []),
+        KolonnenSollwert.list().catch(() => [])
       ]);
       
       setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
       setPriceItems(Array.isArray(priceData) ? priceData : []);
+      setSollwerte(Array.isArray(sollwerteData) ? sollwerteData : []);
       
-      const bauleiterUsers = Array.isArray(usersData) 
-        ? usersData.filter(u => u.position === 'Bauleiter')
+      const teamUsers = Array.isArray(usersData) 
+        ? usersData.filter(u => u.position === 'Bauleiter' || u.position === 'Oberfläche')
         : [];
-      setUsers(bauleiterUsers);
+      setUsers(teamUsers);
     } catch (error) {
       console.error("Fehler beim Laden:", error);
       setError(`Laden fehlgeschlagen: ${error.message || 'Unbekannter Fehler'}`);
@@ -71,13 +78,54 @@ export default function KolonnenUebersichtPage() {
 
   const filteredExcavations = filterExcavationsByMonth(excavations, selectedMonth);
 
+  const filteredUsers = useMemo(() => {
+    let filtered = users;
+    
+    if (teamType === 'bauleiter') {
+      filtered = users.filter(u => u.position === 'Bauleiter');
+    } else if (teamType === 'oberflaeche') {
+      filtered = users.filter(u => u.position === 'Oberfläche');
+    }
+    
+    if (selectedUserIds.length > 0) {
+      filtered = filtered.filter(u => selectedUserIds.includes(u.id));
+    }
+    
+    return filtered;
+  }, [users, teamType, selectedUserIds]);
+
+  const userOptions = useMemo(() => {
+    let relevantUsers = users;
+    if (teamType === 'bauleiter') {
+      relevantUsers = users.filter(u => u.position === 'Bauleiter');
+    } else if (teamType === 'oberflaeche') {
+      relevantUsers = users.filter(u => u.position === 'Oberfläche');
+    }
+    return relevantUsers.map(u => ({ value: u.id, label: u.full_name }));
+  }, [users, teamType]);
+
   const kolonnenPerformance = useMemo(() => {
     const priceItemsMap = new Map((Array.isArray(priceItems) ? priceItems : []).map(p => [p.id, p]));
     
-    return users.map(bauleiter => {
-      const foremanName = bauleiter.full_name;
-      const foremanId = bauleiter.id;
-      const foremanEmail = bauleiter.email;
+    return filteredUsers.map(member => {
+      const memberName = member.full_name;
+      const memberId = member.id;
+      const memberEmail = member.email;
+      const memberPosition = member.position;
+      
+      // Sollwert für diesen Mitarbeiter und Monat
+      const sollwert = sollwerte.find(s => s.user_id === memberId && s.month === selectedMonth);
+      const targetAmount = sollwert ? Math.abs(sollwert.sollwert) : KOLONNEN_AUSGABEN;
+
+      let totalRevenue = 0;
+      let grubenCount = 0;
+      let grabenMeter = 0;
+      let totalJobs = 0;
+
+      if (memberPosition === 'Bauleiter') {
+        const foremanName = memberName;
+        const foremanId = memberId;
+        const foremanEmail = memberEmail;
       
       const foremanExcavations = filteredExcavations.filter(exc => {
         if (!exc) return false;
@@ -133,40 +181,51 @@ export default function KolonnenUebersichtPage() {
         return matches.some(match => match === true);
       });
       
-      const totalRevenue = foremanExcavations.reduce((sum, exc) => sum + (exc?.foreman_commission || 0), 0);
+        totalRevenue = foremanExcavations.reduce((sum, exc) => sum + (exc?.foreman_commission || 0), 0);
+        totalJobs = foremanExcavations.length;
+
+        foremanExcavations.forEach(exc => {
+          if (!exc || !exc.price_item_id) return;
+          const priceItem = priceItemsMap.get(exc.price_item_id);
+          if (!priceItem) return;
+
+          if (['10001', '10002', '10003', '10004', '10005'].includes(priceItem.item_number)) {
+            grubenCount += 1;
+          }
+          else if (priceItem.unit === 'M') {
+            grabenMeter += parseFloat(exc.quantity || 0);
+          }
+        });
+      } else if (memberPosition === 'Oberfläche') {
+        const backfilledExcavations = filteredExcavations.filter(exc => 
+          exc && exc.backfilled_by_user_id === memberId
+        );
+        const closedExcavations = filteredExcavations.filter(exc => 
+          exc && exc.closed_by_user_id === memberId
+        );
+        
+        const backfillRevenue = backfilledExcavations.reduce((sum, exc) => sum + (exc.backfill_commission || 0), 0);
+        const surfaceRevenue = closedExcavations.reduce((sum, exc) => sum + (exc.surface_commission || 0), 0);
+        totalRevenue = backfillRevenue + surfaceRevenue;
+        totalJobs = backfilledExcavations.length + closedExcavations.length;
+      }
       
-      // Berechne Prozentsatz basierend auf Ausgaben
-      // -20.000€ = -100%
-      // 0€ = 0%
-      const ausgabenPercentage = (totalRevenue / KOLONNEN_AUSGABEN) * 100;
-
-      let grubenCount = 0;
-      let grabenMeter = 0;
-
-      foremanExcavations.forEach(exc => {
-        if (!exc || !exc.price_item_id) return;
-        const priceItem = priceItemsMap.get(exc.price_item_id);
-        if (!priceItem) return;
-
-        if (['10001', '10002', '10003', '10004', '10005'].includes(priceItem.item_number)) {
-          grubenCount += 1;
-        }
-        else if (priceItem.unit === 'M') {
-          grabenMeter += parseFloat(exc.quantity || 0);
-        }
-      });
+      // Berechne Prozentsatz basierend auf individuellem Sollwert
+      const ausgabenPercentage = (totalRevenue / targetAmount) * 100;
 
       return {
-        id: foremanId,
-        name: foremanName,
+        id: memberId,
+        name: memberName,
+        position: memberPosition,
         revenue: totalRevenue,
+        target: targetAmount,
         ausgabenPercentage: Math.abs(ausgabenPercentage),
         grubenCount,
         grabenMeter: Math.round(grabenMeter),
-        totalJobs: foremanExcavations.length
+        totalJobs
       };
     }).sort((a, b) => b.revenue - a.revenue);
-  }, [filteredExcavations, priceItems, users]);
+  }, [filteredExcavations, priceItems, filteredUsers, sollwerte, selectedMonth]);
 
   const getMonthOptions = () => {
     const options = [];
@@ -217,29 +276,60 @@ export default function KolonnenUebersichtPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 lg:mb-8 gap-4"
+          className="flex flex-col gap-4 mb-6 lg:mb-8"
         >
-          <div>
-            <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-              Kolonnen-Übersicht
-            </h1>
-            <p className="text-sm md:text-base text-gray-600">
-              Alle Kolonnen im Vergleich - {selectedMonthName}
-            </p>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                Kolonnen-Übersicht
+              </h1>
+              <p className="text-sm md:text-base text-gray-600">
+                Team-Performance im Vergleich - {selectedMonthName}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Select value={teamType} onValueChange={setTeamType}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Positionen</SelectItem>
+                  <SelectItem value="bauleiter">Nur Bauleiter</SelectItem>
+                  <SelectItem value="oberflaeche">Nur Oberfläche</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <Calendar className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {getMonthOptions().map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-full sm:w-48">
-              <Calendar className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {getMonthOptions().map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+          <Card className="card-elevation border-none">
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <Label className="text-sm font-semibold text-gray-700">Mitarbeiter auswählen</Label>
+                <MultiSelect
+                  options={userOptions}
+                  value={selectedUserIds}
+                  onValueChange={setSelectedUserIds}
+                  placeholder="Alle anzeigen"
+                  searchPlaceholder="Mitarbeiter suchen..."
+                />
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Info Card */}
@@ -250,9 +340,10 @@ export default function KolonnenUebersichtPage() {
                 <Users className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">Ausgaben-Skala</h3>
+                <h3 className="font-semibold text-gray-900 mb-1">Performance-Skala</h3>
                 <p className="text-sm text-gray-600">
-                  Die Skala zeigt die Kolonnenausgaben pro Tiefbau. <strong>-20.000€ entspricht -100%</strong>, <strong>0€ = 0%</strong> (Nullpunkt), 
+                  Die Skala zeigt die Performance basierend auf individuellen Sollwerten. 
+                  <strong>Sollwert = -100%</strong>, <strong>0€ = 0%</strong> (Nullpunkt), 
                   darüber hinaus wird Plus-Bereich angezeigt. Links = Minus, Rechts = Plus.
                 </p>
               </div>
@@ -264,9 +355,9 @@ export default function KolonnenUebersichtPage() {
           <Card className="card-elevation border-none">
             <CardContent className="p-12 text-center">
               <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-medium text-gray-500 mb-2">Keine Kolonnen gefunden</h3>
+              <h3 className="text-lg font-medium text-gray-500 mb-2">Keine Daten gefunden</h3>
               <p className="text-gray-400">
-                Für {selectedMonthName} sind keine Bauleiter-Daten verfügbar.
+                Für {selectedMonthName} sind keine Team-Daten verfügbar.
               </p>
             </CardContent>
           </Card>
@@ -292,7 +383,12 @@ export default function KolonnenUebersichtPage() {
                           {kolonne.name}
                         </CardTitle>
                         <div className="text-xs text-gray-600">
-                          {kolonne.totalJobs} Aufträge
+                          <span className={`px-2 py-0.5 rounded-full ${
+                            kolonne.position === 'Bauleiter' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                          }`}>
+                            {kolonne.position}
+                          </span>
+                          <span className="ml-2">{kolonne.totalJobs} Aufträge</span>
                         </div>
                       </div>
                       {index < 3 && (
@@ -311,7 +407,7 @@ export default function KolonnenUebersichtPage() {
                     {/* Ausgaben/Einnahmen Skala */}
                     <div className="bg-white/50 rounded-lg p-3 border border-gray-200">
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-sm font-medium text-gray-600">Performance</span>
+                        <span className="text-sm font-medium text-gray-600">Performance vs. Soll</span>
                         <span className="text-lg font-bold">
                           {kolonne.ausgabenPercentage > 100 ? (
                             <span className="text-green-600">+{Math.round(kolonne.ausgabenPercentage - 100)}%</span>
@@ -328,9 +424,9 @@ export default function KolonnenUebersichtPage() {
                           <div className="absolute left-1/2 top-0 bottom-0 w-1 bg-gray-700 z-20"></div>
                           
                           {/* Roter Bereich (Minus) - von links bis zur aktuellen Position */}
-                          {kolonne.ausgabenPercentage < 100 && (
+                          {kolonne.ausgabenPercentage <= 100 && (
                             <div 
-                              className="absolute left-0 top-0 bottom-0 bg-red-500"
+                              className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-red-600 to-red-500"
                               style={{ 
                                 width: `${50 - (kolonne.ausgabenPercentage / 2)}%`
                               }}
@@ -338,9 +434,9 @@ export default function KolonnenUebersichtPage() {
                           )}
                           
                           {/* Grüner Bereich (Plus) - von der Mitte nach rechts */}
-                          {kolonne.ausgabenPercentage > 100 && (
+                          {kolonne.ausgabenPercentage >= 100 && (
                             <div 
-                              className="absolute left-1/2 top-0 bottom-0 bg-green-500"
+                              className="absolute left-1/2 top-0 bottom-0 bg-gradient-to-r from-green-500 to-green-600"
                               style={{ 
                                 width: `${Math.min((kolonne.ausgabenPercentage - 100), 100) / 2}%`
                               }}
@@ -356,17 +452,38 @@ export default function KolonnenUebersichtPage() {
                       </div>
                     </div>
 
-                    {/* Details */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-blue-50 rounded-lg p-3 text-center">
-                        <div className="text-2xl font-bold text-blue-600">{kolonne.grubenCount}</div>
-                        <div className="text-xs text-gray-600">Gruben</div>
+                    {/* Sollwert Anzeige */}
+                    <div className="bg-white/70 rounded-lg p-3 border border-gray-200">
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-gray-600">Soll-Ausgaben:</span>
+                        <span className="font-bold text-gray-900">€{Math.abs(kolonne.target).toLocaleString('de-DE')}</span>
                       </div>
-                      <div className="bg-green-50 rounded-lg p-3 text-center">
-                        <div className="text-2xl font-bold text-green-600">{kolonne.grabenMeter}m</div>
-                        <div className="text-xs text-gray-600">Graben</div>
+                      <div className="flex justify-between items-center text-sm mt-1">
+                        <span className="text-gray-600">Ist-Provision:</span>
+                        <span className="font-bold text-green-600">€{Math.abs(kolonne.revenue).toLocaleString('de-DE')}</span>
                       </div>
                     </div>
+
+                    {/* Details */}
+                    {kolonne.position === 'Bauleiter' && (
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-blue-50 rounded-lg p-3 text-center">
+                          <div className="text-2xl font-bold text-blue-600">{kolonne.grubenCount}</div>
+                          <div className="text-xs text-gray-600">Gruben</div>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-3 text-center">
+                          <div className="text-2xl font-bold text-green-600">{kolonne.grabenMeter}m</div>
+                          <div className="text-xs text-gray-600">Graben</div>
+                        </div>
+                      </div>
+                    )}
+
+                    {kolonne.position === 'Oberfläche' && (
+                      <div className="text-center bg-green-50 rounded-lg p-3">
+                        <div className="text-2xl font-bold text-green-600">{kolonne.totalJobs}</div>
+                        <div className="text-xs text-gray-600">Abgeschlossene Arbeiten</div>
+                      </div>
+                    )}
 
                     {/* Performance Indikator */}
                     <div className={`text-center py-2 rounded-lg font-semibold text-sm ${
