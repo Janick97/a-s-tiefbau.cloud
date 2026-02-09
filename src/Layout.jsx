@@ -121,6 +121,16 @@ const navigationItems = [
   icon: ClipboardList
 },
 {
+  title: "Fahrzeugpflege",
+  url: createPageUrl("MyVehicleMaintenance"),
+  icon: Construction
+},
+{
+  title: "Fahrzeugpflege Kontrolle",
+  url: createPageUrl("VehicleMaintenanceOverview"),
+  icon: Settings
+},
+{
   title: "Baustellen-Modus",
   url: createPageUrl("BaustellenModus"),
   icon: Construction
@@ -198,6 +208,14 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       }
 
       if (item.title === 'Büro-User Auswertung') {
+        return user.role === 'admin' || user.position === 'Büro';
+      }
+
+      if (item.title === 'Fahrzeugpflege') {
+        return user.position === 'Bauleiter' || user.position === 'Oberfläche' || user.position === 'Monteur';
+      }
+
+      if (item.title === 'Fahrzeugpflege Kontrolle') {
         return user.role === 'admin' || user.position === 'Büro';
       }
 
