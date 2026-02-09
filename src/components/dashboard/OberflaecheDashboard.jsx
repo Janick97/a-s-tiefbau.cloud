@@ -13,9 +13,13 @@ import {
   Clock,
   Settings,
   TrendingUp,
-  Calendar
+  Calendar,
+  Zap,
+  BarChart3,
+  FolderOpen
 } from "lucide-react";
 import { motion } from "framer-motion";
+import WeatherWidget from "./WeatherWidget";
 
 export default function OberflaecheDashboard({ 
   excavations, 
@@ -86,11 +90,25 @@ export default function OberflaecheDashboard({
     );
   }, [tasks, user]);
 
+  const recentWork = useMemo(() => {
+    const allWork = [...myWork.backfilled, ...myWork.closed]
+      .sort((a, b) => {
+        const dateA = new Date(a.backfilled_date || a.closed_date || a.created_date);
+        const dateB = new Date(b.backfilled_date || b.closed_date || b.created_date);
+        return dateB - dateA;
+      })
+      .slice(0, 5);
+    return allWork;
+  }, [myWork]);
+
   const widgets = [
-    { id: 'performance', title: 'Meine Performance', default: true },
-    { id: 'stats', title: 'Übersicht', default: true },
-    { id: 'waiting', title: 'Wartend auf Oberfläche', default: true },
-    { id: 'tasks', title: 'Aufgaben', default: true }
+    { id: 'performance', title: 'Performance', default: true },
+    { id: 'stats', title: 'Statistiken', default: true },
+    { id: 'waiting', title: 'Wartend', default: true },
+    { id: 'tasks', title: 'Aufgaben', default: true },
+    { id: 'recentWork', title: 'Letzte Arbeiten', default: false },
+    { id: 'quickActions', title: 'Schnellzugriff', default: false },
+    { id: 'weather', title: 'Wetter', default: false }
   ];
 
   const isWidgetVisible = (widgetId) => {
@@ -307,6 +325,82 @@ export default function OberflaecheDashboard({
             </CardContent>
           </Card>
         )}
+
+        {/* Recent Work */}
+        {isWidgetVisible('recentWork') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Layers className="w-5 h-5" />
+                Letzte Arbeiten
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentWork.map(work => (
+                  <div key={work.id} className="p-3 bg-gray-50 rounded-lg">
+                    <p className="font-medium text-sm text-gray-900">{work.location_name}</p>
+                    <p className="text-xs text-gray-600">{work.street} - {work.city}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <Badge variant={work.is_closed ? 'default' : 'outline'} className="text-xs">
+                        {work.is_closed ? 'Geschlossen' : 'Verfüllt'}
+                      </Badge>
+                      <span className="text-xs text-gray-600">
+                        €{((work.backfill_commission || 0) + (work.surface_commission || 0)).toLocaleString('de-DE')}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {recentWork.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">Keine Arbeiten</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Quick Actions */}
+        {isWidgetVisible('quickActions') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Schnellzugriff
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                <Link to={createPageUrl('MyProjectsOberflaeche')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    <span className="text-xs">Projekte</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Surface')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <Layers className="w-5 h-5" />
+                    <span className="text-xs">Oberfläche</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Analytics')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    <span className="text-xs">Auswertung</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Tasks')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="text-xs">Aufgaben</span>
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weather Widget */}
+        {isWidgetVisible('weather') && <WeatherWidget />}
       </div>
     </div>
   );

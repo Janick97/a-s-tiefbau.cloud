@@ -17,9 +17,13 @@ import {
   FileText,
   Settings,
   DollarSign,
-  Activity
+  Activity,
+  Zap,
+  Clock,
+  BarChart3
 } from "lucide-react";
 import { motion } from "framer-motion";
+import WeatherWidget from "./WeatherWidget";
 
 export default function AdminDashboard({ 
   projects, 
@@ -108,12 +112,53 @@ export default function AdminDashboard({
     return issues;
   }, [stats]);
 
+  const upcomingDeadlines = useMemo(() => {
+    const deadlines = [];
+    const now = new Date();
+    
+    projects.forEach(project => {
+      if (project.vao_valid_to) {
+        const daysRemaining = Math.ceil((new Date(project.vao_valid_to) - now) / (1000 * 60 * 60 * 24));
+        if (daysRemaining > 0 && daysRemaining <= 14) {
+          deadlines.push({
+            type: 'VAO',
+            project: project.project_number,
+            date: project.vao_valid_to,
+            daysRemaining,
+            urgent: daysRemaining <= 7
+          });
+        }
+      }
+    });
+
+    return deadlines.sort((a, b) => a.daysRemaining - b.daysRemaining).slice(0, 5);
+  }, [projects]);
+
+  const recentActivities = useMemo(() => {
+    const activities = [];
+    
+    excavations.slice(0, 5).forEach(exc => {
+      activities.push({
+        type: 'excavation',
+        title: `Neue Ausgrabung: ${exc.location_name}`,
+        date: exc.created_date,
+        icon: Construction
+      });
+    });
+
+    return activities.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+  }, [excavations]);
+
   const widgets = [
-    { id: 'stats', title: 'Übersicht', default: true },
-    { id: 'projects', title: 'Aktuelle Projekte', default: true },
+    { id: 'stats', title: 'Statistiken', default: true },
+    { id: 'projects', title: 'Projekte', default: true },
     { id: 'issues', title: 'Kritische Punkte', default: true },
-    { id: 'team', title: 'Team-Übersicht', default: true },
-    { id: 'revenue', title: 'Umsatz', default: true }
+    { id: 'team', title: 'Team', default: true },
+    { id: 'revenue', title: 'Umsatz', default: true },
+    { id: 'deadlines', title: 'Termine', default: false },
+    { id: 'activities', title: 'Aktivitäten', default: false },
+    { id: 'quickActions', title: 'Schnellzugriff', default: false },
+    { id: 'weather', title: 'Wetter', default: false }
   ];
 
   const isWidgetVisible = (widgetId) => {
@@ -337,6 +382,125 @@ export default function AdminDashboard({
             </CardContent>
           </Card>
         )}
+
+        {/* Quick Actions */}
+        {isWidgetVisible('quickActions') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Schnellzugriff
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                <Link to={createPageUrl('Projects')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    <span className="text-xs">Projekte</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Excavations')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <Construction className="w-5 h-5" />
+                    <span className="text-xs">Ausgrabungen</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('MontageAuftraege')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <Package className="w-5 h-5" />
+                    <span className="text-xs">Montage</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Analytics')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    <span className="text-xs">Auswertungen</span>
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Upcoming Deadlines */}
+        {isWidgetVisible('deadlines') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="w-5 h-5" />
+                Kommende Termine
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {upcomingDeadlines.map((deadline, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`p-3 rounded-lg ${
+                      deadline.urgent ? 'bg-red-50 border border-red-200' : 'bg-gray-50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <Badge variant={deadline.urgent ? 'destructive' : 'outline'} className="text-xs">
+                          {deadline.type}
+                        </Badge>
+                        <p className="text-sm font-medium text-gray-900 mt-1">
+                          {deadline.project}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {new Date(deadline.date).toLocaleDateString('de-DE')}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className={`text-lg font-bold ${deadline.urgent ? 'text-red-600' : 'text-orange-600'}`}>
+                          {deadline.daysRemaining}
+                        </p>
+                        <p className="text-xs text-gray-600">Tage</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {upcomingDeadlines.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">Keine anstehenden Termine</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Recent Activities */}
+        {isWidgetVisible('activities') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="w-5 h-5" />
+                Letzte Aktivitäten
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentActivities.map((activity, idx) => (
+                  <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <activity.icon className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                      <p className="text-xs text-gray-600">
+                        {new Date(activity.date).toLocaleDateString('de-DE')}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weather Widget */}
+        {isWidgetVisible('weather') && <WeatherWidget />}
       </div>
     </div>
   );

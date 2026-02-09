@@ -15,9 +15,14 @@ import {
   Target,
   Award,
   Clock,
-  Settings
+  Settings,
+  Zap,
+  Package,
+  FileText,
+  BarChart3
 } from "lucide-react";
 import { motion } from "framer-motion";
+import WeatherWidget from "./WeatherWidget";
 
 export default function BauleiterDashboard({ 
   projects, 
@@ -129,12 +134,21 @@ export default function BauleiterDashboard({
     return deadlines.sort((a, b) => a.daysRemaining - b.daysRemaining);
   }, [myActiveProjects, myTasks]);
 
+  const recentExcavations = useMemo(() => {
+    return myExcavations
+      .sort((a, b) => new Date(b.created_date) - new Date(a.created_date))
+      .slice(0, 5);
+  }, [myExcavations]);
+
   const widgets = [
-    { id: 'performance', title: 'Meine Performance', default: true },
-    { id: 'stats', title: 'Übersicht', default: true },
-    { id: 'projects', title: 'Aktuelle Projekte', default: true },
+    { id: 'performance', title: 'Performance', default: true },
+    { id: 'stats', title: 'Statistiken', default: true },
+    { id: 'projects', title: 'Projekte', default: true },
     { id: 'deadlines', title: 'Termine', default: true },
-    { id: 'tasks', title: 'Aufgaben', default: true }
+    { id: 'tasks', title: 'Aufgaben', default: true },
+    { id: 'excavations', title: 'Ausgrabungen', default: false },
+    { id: 'quickActions', title: 'Schnellzugriff', default: false },
+    { id: 'weather', title: 'Wetter', default: false }
   ];
 
   const isWidgetVisible = (widgetId) => {
@@ -390,6 +404,82 @@ export default function BauleiterDashboard({
             </CardContent>
           </Card>
         )}
+
+        {/* Recent Excavations */}
+        {isWidgetVisible('excavations') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Construction className="w-5 h-5" />
+                Letzte Ausgrabungen
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {recentExcavations.map(excavation => (
+                  <div key={excavation.id} className="p-3 bg-gray-50 rounded-lg">
+                    <p className="font-medium text-sm text-gray-900">{excavation.location_name}</p>
+                    <p className="text-xs text-gray-600">{excavation.street} - {excavation.city}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <Badge variant={excavation.is_closed ? 'default' : 'outline'} className="text-xs">
+                        {excavation.is_closed ? 'Geschlossen' : 'Offen'}
+                      </Badge>
+                      <span className="text-xs text-gray-600">
+                        €{(excavation.foreman_commission || 0).toLocaleString('de-DE')}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                {recentExcavations.length === 0 && (
+                  <p className="text-sm text-gray-500 text-center py-4">Keine Ausgrabungen</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Quick Actions */}
+        {isWidgetVisible('quickActions') && (
+          <Card className="card-elevation border-none">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5" />
+                Schnellzugriff
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3">
+                <Link to={createPageUrl('MyProjects')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <FolderOpen className="w-5 h-5" />
+                    <span className="text-xs">Projekte</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('BaustellenModus')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <Construction className="w-5 h-5" />
+                    <span className="text-xs">Baustelle</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Analytics')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <BarChart3 className="w-5 h-5" />
+                    <span className="text-xs">Auswertung</span>
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Tasks')}>
+                  <Button variant="outline" className="w-full h-20 flex flex-col gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    <span className="text-xs">Aufgaben</span>
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Weather Widget */}
+        {isWidgetVisible('weather') && <WeatherWidget />}
       </div>
     </div>
   );
