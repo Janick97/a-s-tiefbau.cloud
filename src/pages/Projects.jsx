@@ -7,13 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Search, FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ProjectForm from "../components/projects/ProjectForm";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const statusColors = {
   planning: "bg-blue-100 text-blue-800 border-blue-200",
@@ -87,8 +88,12 @@ export default function ProjectsPage() {
     vao_valid_to: '',
     vao_days_remaining: '',
     date_filter_type: 'all',
-    date_filter_value: ''
+    date_filter_value: '',
+    assigned_bauleiter: [],
+    foreman_completed: 'all',
+    is_follow_up: 'all'
   });
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [tempVaoDaysRemaining, setTempVaoDaysRemaining] = useState('');
   const [sortOrder, setSortOrder] = useState('desc');
   const [user, setUser] = useState(null);
@@ -670,7 +675,10 @@ export default function ProjectsPage() {
       vao_valid_to: '',
       vao_days_remaining: '',
       date_filter_type: 'all',
-      date_filter_value: ''
+      date_filter_value: '',
+      assigned_bauleiter: [],
+      foreman_completed: 'all',
+      is_follow_up: 'all'
     });
     setSearchTerm('');
     setTempVaoDaysRemaining('');
@@ -748,6 +756,47 @@ export default function ProjectsPage() {
       .filter(opt => opt.length > 0);
     return [...new Set(options)].sort().map(opt => ({ value: opt, label: opt }));
   }, [projects]);
+
+  const assignedBauleiterOptions = useMemo(() => {
+    const bauleiterSet = new Set();
+    projects.forEach(p => {
+      if (p.assigned_bauleiter && Array.isArray(p.assigned_bauleiter)) {
+        p.assigned_bauleiter.forEach(bl => {
+          if (bl.name) bauleiterSet.add(bl.name);
+        });
+      }
+      if (p.assigned_foreman_name) {
+        bauleiterSet.add(p.assigned_foreman_name);
+      }
+    });
+    return [...bauleiterSet].sort().map(name => ({ value: name, label: name }));
+  }, [projects]);
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filters.project_number.length > 0) count++;
+    if (filters.sm_number.length > 0) count++;
+    if (filters.order_type.length > 0) count++;
+    if (filters.contact_person.length > 0) count++;
+    if (filters.project_status.length > 0) count++;
+    if (filters.material_booking_completed !== 'all') count++;
+    if (filters.documentation_completed !== 'all') count++;
+    if (filters.ev_ta !== 'all') count++;
+    if (filters.ev_sa !== 'all') count++;
+    if (filters.ba_status.length > 0) count++;
+    if (filters.fa_status.length > 0) count++;
+    if (filters.city.length > 0) count++;
+    if (filters.street.length > 0) count++;
+    if (filters.vao_status.length > 0) count++;
+    if (filters.vao_valid_from) count++;
+    if (filters.vao_valid_to) count++;
+    if (filters.vao_days_remaining) count++;
+    if (filters.date_filter_type !== 'all') count++;
+    if (filters.assigned_bauleiter.length > 0) count++;
+    if (filters.foreman_completed !== 'all') count++;
+    if (filters.is_follow_up !== 'all') count++;
+    return count;
+  }, [filters]);
 
   // OPTIMIERUNG: Filtere und gruppiere Projekte effizienter
   const { mainProjects, followUpsByParent } = useMemo(() => {
@@ -852,8 +901,21 @@ export default function ProjectsPage() {
           }
         }
 
+        const matchesAssignedBauleiter = filters.assigned_bauleiter.length === 0 || 
+          (p.assigned_bauleiter && Array.isArray(p.assigned_bauleiter) && 
+           p.assigned_bauleiter.some(bl => filters.assigned_bauleiter.includes(bl.name))) ||
+          (p.assigned_foreman_name && filters.assigned_bauleiter.includes(p.assigned_foreman_name));
+
+        const matchesForemanCompleted = filters.foreman_completed === 'all' ||
+          (filters.foreman_completed === 'yes' && p.foreman_completed) ||
+          (filters.foreman_completed === 'no' && !p.foreman_completed);
+
+        const matchesIsFollowUp = filters.is_follow_up === 'all' ||
+          (filters.is_follow_up === 'yes' && p.is_follow_up) ||
+          (filters.is_follow_up === 'no' && !p.is_follow_up);
+
         return matchesSearch && matchesProjectNumber && matchesSmNumber && matchesOrderType && matchesContactPerson && matchesProjectStatus && 
-               matchesMaterial && matchesDocumentation && matchesEvTa && matchesEvSa && matchesBaStatus && matchesFaStatus && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter;
+               matchesMaterial && matchesDocumentation && matchesEvTa && matchesEvSa && matchesBaStatus && matchesFaStatus && matchesCity && matchesStreet && matchesVaoStatus && matchesVaoValidFrom && matchesVaoValidTo && matchesVaoDaysRemaining && matchesDateFilter && matchesAssignedBauleiter && matchesForemanCompleted && matchesIsFollowUp;
     });
 
     const projectMap = new Map(safeProjects.map(p => [p.id, p]));
@@ -1201,208 +1263,6 @@ export default function ProjectsPage() {
                   <TableHead className="py-1 px-2 w-16 text-center text-xs">Dok.</TableHead>
                   <TableHead className="py-1 px-2 w-16 text-center text-xs">EV</TableHead>
                 </TableRow>
-                <TableRow className="bg-gray-50/50">
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={projectNumberOptions}
-                       value={filters.project_number}
-                       onValueChange={(v) => handleFilterChange('project_number', v)}
-                       placeholder="Nr..."
-                       searchPlaceholder="Projektnummer suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={orderTypeOptions}
-                       value={filters.order_type}
-                       onValueChange={(v) => handleFilterChange('order_type', v)}
-                       placeholder="Filtern..."
-                       searchPlaceholder="Auftragsart suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={smNumberOptions}
-                       value={filters.sm_number}
-                       onValueChange={(v) => handleFilterChange('sm_number', v)}
-                       placeholder="SM..."
-                       searchPlaceholder="SM-Nummer suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={cityOptions}
-                       value={filters.city}
-                       onValueChange={(v) => handleFilterChange('city', v)}
-                       placeholder="Stadt..."
-                       searchPlaceholder="Stadt suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={streetOptions}
-                       value={filters.street}
-                       onValueChange={(v) => handleFilterChange('street', v)}
-                       placeholder="Straße..."
-                       searchPlaceholder="Straße suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={contactPersonOptions}
-                       value={filters.contact_person}
-                       onValueChange={(v) => handleFilterChange('contact_person', v)}
-                       placeholder="Filtern..."
-                       searchPlaceholder="Ansprechpartner suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <div className="space-y-1">
-                       <MultiSelect
-                         options={vaoStatusOptions}
-                         value={filters.vao_status}
-                         onValueChange={(v) => handleFilterChange('vao_status', v)}
-                         placeholder="VAO..."
-                         searchPlaceholder="VAO-Status suchen..."
-                         className="h-8 text-xs"
-                       />
-                       <div className="flex gap-1">
-                         <Input
-                           type="date"
-                           value={filters.vao_valid_from}
-                           onChange={(e) => handleFilterChange('vao_valid_from', e.target.value)}
-                           placeholder="Von..."
-                           className="h-7 text-xs"
-                         />
-                         <Input
-                           type="date"
-                           value={filters.vao_valid_to}
-                           onChange={(e) => handleFilterChange('vao_valid_to', e.target.value)}
-                           placeholder="Bis..."
-                           className="h-7 text-xs"
-                         />
-                       </div>
-                       <Input
-                         type="number"
-                         value={tempVaoDaysRemaining}
-                         onChange={(e) => setTempVaoDaysRemaining(e.target.value)}
-                         placeholder="Max. Resttage..."
-                         className="h-7 text-xs"
-                         min="0"
-                       />
-                     </div>
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <div className="space-y-1">
-                       <MultiSelect
-                         options={[
-                           { value: 'rot', label: '🔴 Rot' },
-                           { value: 'gelb', label: '🟡 Gelb' },
-                           { value: 'grün', label: '🟢 Grün' }
-                         ]}
-                         value={filters.ba_status}
-                         onValueChange={(v) => handleFilterChange('ba_status', v)}
-                         placeholder="BA..."
-                         searchPlaceholder="BA-Status..."
-                         className="h-7 text-xs"
-                       />
-                       <MultiSelect
-                         options={[
-                           { value: 'rot', label: '🔴 Rot' },
-                           { value: 'gelb', label: '🟡 Gelb' },
-                           { value: 'grün', label: '🟢 Grün' }
-                         ]}
-                         value={filters.fa_status}
-                         onValueChange={(v) => handleFilterChange('fa_status', v)}
-                         placeholder="FA..."
-                         searchPlaceholder="FA-Status..."
-                         className="h-7 text-xs"
-                       />
-                     </div>
-                   </TableCell>
-                   <TableCell className="p-1">
-                      <div className="space-y-1">
-                        <Select 
-                          value={filters.date_filter_type} 
-                          onValueChange={(v) => handleFilterChange('date_filter_type', v)}
-                        >
-                          <SelectTrigger className="h-7 text-xs">
-                            <SelectValue placeholder="Auswählen..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">Alle</SelectItem>
-                            <SelectItem value="grube_auf">Grube auf</SelectItem>
-                            <SelectItem value="kann_zu">Kann zu</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {filters.date_filter_type !== 'all' && (
-                          <Input
-                            type="date"
-                            value={filters.date_filter_value}
-                            onChange={(e) => handleFilterChange('date_filter_value', e.target.value)}
-                            placeholder="Datum..."
-                            className="h-7 text-xs"
-                          />
-                        )}
-                      </div>
-                    </TableCell>
-                   <TableCell className="p-1">
-                     <MultiSelect
-                       options={projectStatusOptions}
-                       value={filters.project_status}
-                       onValueChange={(v) => handleFilterChange('project_status', v)}
-                       placeholder="Filtern..."
-                       searchPlaceholder="Status suchen..."
-                       className="h-8 text-xs"
-                     />
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <Select value={filters.material_booking_completed} onValueChange={(v) => handleFilterChange('material_booking_completed', v)}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Filtern..."/></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Alle</SelectItem>
-                          <SelectItem value="yes">Ja</SelectItem>
-                          <SelectItem value="no">Nein</SelectItem>
-                        </SelectContent>
-                     </Select>
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <Select value={filters.documentation_completed} onValueChange={(v) => handleFilterChange('documentation_completed', v)}>
-                        <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Filtern..."/></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Alle</SelectItem>
-                          <SelectItem value="yes">Ja</SelectItem>
-                          <SelectItem value="no">Nein</SelectItem>
-                        </SelectContent>
-                     </Select>
-                   </TableCell>
-                   <TableCell className="p-1">
-                     <div className="space-y-1">
-                       <Select value={filters.ev_ta} onValueChange={(v) => handleFilterChange('ev_ta', v)}>
-                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="TA..."/></SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="all">Alle</SelectItem>
-                           <SelectItem value="yes">Ja</SelectItem>
-                           <SelectItem value="no">Nein</SelectItem>
-                         </SelectContent>
-                       </Select>
-                       <Select value={filters.ev_sa} onValueChange={(v) => handleFilterChange('ev_sa', v)}>
-                         <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="SA..."/></SelectTrigger>
-                         <SelectContent>
-                           <SelectItem value="all">Alle</SelectItem>
-                           <SelectItem value="yes">Ja</SelectItem>
-                           <SelectItem value="no">Nein</SelectItem>
-                         </SelectContent>
-                       </Select>
-                     </div>
-                   </TableCell>
-                </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
@@ -1585,101 +1445,408 @@ export default function ProjectsPage() {
 
         <Card className="card-elevation border-none mb-6">
           <CardContent className="p-4">
-            {/* Desktop Layout */}
-            <div className="hidden md:flex gap-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Suche nach Projektnummer, SM-Nummer, Stadt, Straße oder Kunde..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12"
-                />
+            <div className="flex flex-col gap-4">
+              {/* Suchleiste und Hauptaktionen */}
+              <div className="flex flex-col md:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    placeholder="Suche nach Projektnummer, SM-Nummer, Stadt, Straße oder Kunde..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-12"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    className={`h-12 whitespace-nowrap ${activeFiltersCount > 0 ? 'border-orange-500 bg-orange-50' : ''}`}
+                  >
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filter {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+                    {showAdvancedFilters ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                    className="h-12 whitespace-nowrap hidden md:flex"
+                  >
+                    {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => loadData(user)}
+                    className="h-12 whitespace-nowrap hidden md:flex"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleExportExcel}
+                    className="h-12 whitespace-nowrap hidden lg:flex bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+                  >
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    Excel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleExportPDF}
+                    className="h-12 whitespace-nowrap hidden lg:flex bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    PDF
+                  </Button>
+                </div>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-                className="h-12 whitespace-nowrap"
-                title={sortOrder === 'asc' ? 'Absteigend sortieren' : 'Aufsteigend sortieren'}
-              >
-                {sortOrder === 'asc' ? (
-                  <>
-                    <ArrowUp className="w-4 h-4 mr-2" />
-                    Aufsteigend
-                  </>
-                ) : (
-                  <>
-                    <ArrowDown className="w-4 h-4 mr-2" />
-                    Absteigend
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => loadData(user)}
-                className="h-12 whitespace-nowrap"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Aktualisieren
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleResetFilters}
-                className="h-12 whitespace-nowrap"
-              >
-                <ListRestart className="w-4 h-4 mr-2" />
-                Filter zurücksetzen
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleExportExcel}
-                className="h-12 whitespace-nowrap bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
-              >
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Excel
-              </Button>
-              <Button
-                variant="outline"
-                onClick={handleExportPDF}
-                className="h-12 whitespace-nowrap bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                PDF
-              </Button>
-            </div>
 
-            {/* Mobile Layout */}
-            <div className="md:hidden space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Projektnummer, SM, Stadt, Kunde..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 text-base"
-                />
-              </div>
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-                }}
-                className="w-full h-10"
-              >
-                {sortOrder === 'asc' ? (
-                  <>
-                    <ArrowUp className="w-4 h-4 mr-2" />
-                    Aufsteigend
-                  </>
-                ) : (
-                  <>
-                    <ArrowDown className="w-4 h-4 mr-2" />
-                    Absteigend
-                  </>
-                )}
-              </Button>
+              {/* Aktive Filter Badges */}
+              {activeFiltersCount > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {filters.project_number.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      Projekt-Nr: {filters.project_number.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('project_number', [])} />
+                    </Badge>
+                  )}
+                  {filters.sm_number.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      SM: {filters.sm_number.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('sm_number', [])} />
+                    </Badge>
+                  )}
+                  {filters.order_type.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      Auftragsart: {filters.order_type.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('order_type', [])} />
+                    </Badge>
+                  )}
+                  {filters.project_status.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      Status: {filters.project_status.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('project_status', [])} />
+                    </Badge>
+                  )}
+                  {filters.city.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      Stadt: {filters.city.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('city', [])} />
+                    </Badge>
+                  )}
+                  {filters.assigned_bauleiter.length > 0 && (
+                    <Badge variant="outline" className="gap-1">
+                      Bauleiter: {filters.assigned_bauleiter.length}
+                      <X className="w-3 h-3 cursor-pointer" onClick={() => handleFilterChange('assigned_bauleiter', [])} />
+                    </Badge>
+                  )}
+                  {activeFiltersCount > 0 && (
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={handleResetFilters}
+                      className="h-6 text-xs"
+                    >
+                      Alle zurücksetzen
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Erweiterte Filter */}
+              <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+                <CollapsibleContent>
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="border-t pt-4 space-y-4"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {/* Projekt-Identifikation */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Projektnummer</Label>
+                        <MultiSelect
+                          options={projectNumberOptions}
+                          value={filters.project_number}
+                          onValueChange={(v) => handleFilterChange('project_number', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">SM-Nummer</Label>
+                        <MultiSelect
+                          options={smNumberOptions}
+                          value={filters.sm_number}
+                          onValueChange={(v) => handleFilterChange('sm_number', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Auftragsart</Label>
+                        <MultiSelect
+                          options={orderTypeOptions}
+                          value={filters.order_type}
+                          onValueChange={(v) => handleFilterChange('order_type', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Projekt-Status</Label>
+                        <MultiSelect
+                          options={projectStatusOptions}
+                          value={filters.project_status}
+                          onValueChange={(v) => handleFilterChange('project_status', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      {/* Standort */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Stadt</Label>
+                        <MultiSelect
+                          options={cityOptions}
+                          value={filters.city}
+                          onValueChange={(v) => handleFilterChange('city', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Straße</Label>
+                        <MultiSelect
+                          options={streetOptions}
+                          value={filters.street}
+                          onValueChange={(v) => handleFilterChange('street', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Ansprechpartner</Label>
+                        <MultiSelect
+                          options={contactPersonOptions}
+                          value={filters.contact_person}
+                          onValueChange={(v) => handleFilterChange('contact_person', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      {/* Team & Zuweisungen */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Zugewiesener Bauleiter</Label>
+                        <MultiSelect
+                          options={assignedBauleiterOptions}
+                          value={filters.assigned_bauleiter}
+                          onValueChange={(v) => handleFilterChange('assigned_bauleiter', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      {/* VAO-Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">VAO-Status</Label>
+                        <MultiSelect
+                          options={vaoStatusOptions}
+                          value={filters.vao_status}
+                          onValueChange={(v) => handleFilterChange('vao_status', v)}
+                          placeholder="Auswählen..."
+                          searchPlaceholder="Suchen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">VAO gültig von</Label>
+                        <Input
+                          type="date"
+                          value={filters.vao_valid_from}
+                          onChange={(e) => handleFilterChange('vao_valid_from', e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">VAO gültig bis</Label>
+                        <Input
+                          type="date"
+                          value={filters.vao_valid_to}
+                          onChange={(e) => handleFilterChange('vao_valid_to', e.target.value)}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">VAO Resttage (max.)</Label>
+                        <Input
+                          type="number"
+                          value={tempVaoDaysRemaining}
+                          onChange={(e) => setTempVaoDaysRemaining(e.target.value)}
+                          placeholder="z.B. 7 für letzte Woche"
+                          min="0"
+                        />
+                      </div>
+
+                      {/* Status & Abschluss */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">BA-Status</Label>
+                        <MultiSelect
+                          options={[
+                            { value: 'rot', label: '🔴 Rot' },
+                            { value: 'gelb', label: '🟡 Gelb' },
+                            { value: 'grün', label: '🟢 Grün' }
+                          ]}
+                          value={filters.ba_status}
+                          onValueChange={(v) => handleFilterChange('ba_status', v)}
+                          placeholder="Auswählen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">FA-Status</Label>
+                        <MultiSelect
+                          options={[
+                            { value: 'rot', label: '🔴 Rot' },
+                            { value: 'gelb', label: '🟡 Gelb' },
+                            { value: 'grün', label: '🟢 Grün' }
+                          ]}
+                          value={filters.fa_status}
+                          onValueChange={(v) => handleFilterChange('fa_status', v)}
+                          placeholder="Auswählen..."
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Material gebucht</Label>
+                        <Select value={filters.material_booking_completed} onValueChange={(v) => handleFilterChange('material_booking_completed', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Dokumentation erledigt</Label>
+                        <Select value={filters.documentation_completed} onValueChange={(v) => handleFilterChange('documentation_completed', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Bauleiter abgeschlossen</Label>
+                        <Select value={filters.foreman_completed} onValueChange={(v) => handleFilterChange('foreman_completed', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">EV - TA</Label>
+                        <Select value={filters.ev_ta} onValueChange={(v) => handleFilterChange('ev_ta', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">EV - SA</Label>
+                        <Select value={filters.ev_sa} onValueChange={(v) => handleFilterChange('ev_sa', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Folgeauftrag</Label>
+                        <Select value={filters.is_follow_up} onValueChange={(v) => handleFilterChange('is_follow_up', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="yes">Ja</SelectItem>
+                            <SelectItem value="no">Nein</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Datums-Filter */}
+                      <div className="space-y-2">
+                        <Label className="text-xs font-semibold text-gray-700">Datum-Filter</Label>
+                        <Select value={filters.date_filter_type} onValueChange={(v) => handleFilterChange('date_filter_type', v)}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">Alle</SelectItem>
+                            <SelectItem value="grube_auf">Grube auf</SelectItem>
+                            <SelectItem value="kann_zu">Kann zu</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {filters.date_filter_type !== 'all' && (
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold text-gray-700">Datum</Label>
+                          <Input
+                            type="date"
+                            value={filters.date_filter_value}
+                            onChange={(e) => handleFilterChange('date_filter_value', e.target.value)}
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                      <Button
+                        variant="outline"
+                        onClick={handleResetFilters}
+                        size="sm"
+                      >
+                        <ListRestart className="w-4 h-4 mr-2" />
+                        Alle Filter zurücksetzen
+                      </Button>
+                    </div>
+                  </motion.div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
           </CardContent>
         </Card>

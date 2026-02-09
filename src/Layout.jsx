@@ -134,12 +134,6 @@ const navigationItems = [
   title: "FTTH Visioplan",
   url: createPageUrl("FTTHVisioplan"),
   icon: Network
-},
-{
-  title: "Leistungs-Historie",
-  url: createPageUrl("TeamPerformanceHistory"),
-  icon: BarChart3,
-  hasSubmenu: false
 }];
 
 
@@ -528,6 +522,17 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                         onClick={handleLinkClick}>
                                         <Settings className="w-4 h-4 mr-2" />
                                         Konfiguration
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <Link
+                                        to={createPageUrl("TeamPerformanceHistory")}
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-sm"
+                                        onClick={handleLinkClick}>
+                                        <BarChart3 className="w-4 h-4 mr-2" />
+                                        Leistungs-Historie
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
