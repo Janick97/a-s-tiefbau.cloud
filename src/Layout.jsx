@@ -116,11 +116,6 @@ const navigationItems = [
   icon: FileText
 },
 {
-  title: "Meine Aufgaben",
-  url: createPageUrl("Tasks"),
-  icon: ClipboardList
-},
-{
   title: "Fahrzeugpflege",
   url: createPageUrl("MyVehicleMaintenance"),
   icon: Construction
