@@ -94,8 +94,6 @@ const ProjectDetailSkeleton = () => (
   </div>
 );
 
-// ForemanProjectView wurde nach components/projects/ForemanProjectView.jsx ausgelagert
-// Dummy start marker - wird gleich vollständig ersetzt
 export default function ProjectDetailPage() {
   const location = useLocation();
   const [project, setProject] = useState(null);
