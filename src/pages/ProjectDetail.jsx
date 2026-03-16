@@ -1101,6 +1101,11 @@ export default function ProjectDetailPage() {
                       onCreateMontageAuftrag={handleCreateMontageAuftrag}
                       onAssignMonteur={handleAssignMonteur}
                     />
+                    <BauleiterZuweisungSection
+                      project={project}
+                      bauleiter={bauleiter}
+                      onAssignBauleiter={handleAssignBauleiter}
+                    />
                     <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
                     <StatusInfo project={project} />
                     
