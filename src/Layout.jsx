@@ -166,9 +166,8 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       if (user.position === 'Bauleiter') {
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
-        item.title === 'Baustellen-Modus' ||
-        item.title === 'Offline-Projekte' ||
-        item.title === 'Auswertungen';
+        item.title === 'Auswertungen' ||
+        item.title === 'Fahrzeugpflege';
       }
 
       if (user.position === 'Monteur') {
