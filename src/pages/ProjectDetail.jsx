@@ -92,21 +92,9 @@ const ProjectDetailSkeleton = () => (
   </div>
 );
 
-// Vereinfachte Bauleiter-Ansicht Komponente
-function ForemanProjectView({ 
-  project, 
-  excavations, 
-  pullingWorks, 
-  projectMaterials, 
-  timesheets,
-  documents,
-  priceItems, // Added for ExcavationForm
-  allMaterials, // Added for MaterialManagement
-  onExcavationSubmit,
-  onExcavationDelete,
-  loadData,
-  user
-}) {
+// ForemanProjectView wurde nach components/projects/ForemanProjectView.jsx ausgelagert
+// Dummy start marker - wird gleich vollständig ersetzt
+function __DUMMY_ForemanProjectView__REMOVE({
   const [activeAction, setActiveAction] = useState(null);
   const [showTiefbauMenu, setShowTiefbauMenu] = useState(false);
   const [showOberflaecheMenu, setShowOberflaecheMenu] = useState(false);
