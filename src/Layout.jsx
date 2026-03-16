@@ -178,9 +178,8 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       if (user.position === 'Oberfläche') {
         return item.title === 'Dashboard' ||
         item.title === 'Meine Aufträge' ||
-        item.title === 'Baustellen-Modus' ||
-        item.title === 'Offline-Projekte' ||
-        item.title === 'Auswertungen';
+        item.title === 'Auswertungen' ||
+        item.title === 'Fahrzeugpflege';
       }
 
       if (item.title === 'Dispo Tiefbau' || item.title === 'Dispo Montage') {
