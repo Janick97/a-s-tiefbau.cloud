@@ -126,16 +126,6 @@ const navigationItems = [
   icon: Settings
 },
 {
-  title: "Baustellen-Modus",
-  url: createPageUrl("BaustellenModus"),
-  icon: Construction
-},
-{
-  title: "Offline-Projekte",
-  url: createPageUrl("OfflineProjectDetail"),
-  icon: WifiOff
-},
-{
   title: "Projekt-Explorer",
   url: createPageUrl("ProjectExplorer"),
   icon: FolderOpen
