@@ -117,6 +117,7 @@ export default function ProjectDetailPage() {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [montageAuftrag, setMontageAuftrag] = useState(null);
   const [monteure, setMonteure] = useState([]);
+  const [bauleiter, setBauleiter] = useState([]);
   const [user, setUser] = useState(null);
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isExportingServicesOverview, setIsExportingServicesOverview] = useState(false);
