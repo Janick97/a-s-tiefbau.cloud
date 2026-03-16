@@ -195,9 +195,12 @@ export default function ProjectDetailPage() {
         const users = await User.list();
         const monteureList = users.filter(u => u.position === 'Monteur');
         setMonteure(monteureList);
+        const bauleiterList = users.filter(u => u.position === 'Bauleiter' || u.position === 'Oberfläche');
+        setBauleiter(bauleiterList);
       } catch (error) {
         console.error("Fehler beim Laden der Monteure:", error);
         setMonteure([]);
+        setBauleiter([]);
       }
 
       let relatedProjectIds = [projectId];
