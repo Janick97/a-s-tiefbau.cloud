@@ -705,6 +705,16 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleAssignBauleiter = async (bauleiterList) => {
+    try {
+      await Project.update(project.id, { assigned_bauleiter: bauleiterList });
+      await loadProjectData();
+    } catch (error) {
+      console.error("Fehler beim Zuweisen der Bauleiter:", error);
+      alert(`Fehler: ${error.message}`);
+    }
+  };
+
   const handleAssignMonteur = async (monteure) => {
     if (!montageAuftrag) return;
 
