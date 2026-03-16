@@ -51,6 +51,8 @@ import ProjectForm from "../components/projects/ProjectForm";
 import MaterialManagement from "../components/projects/MaterialManagement";
 import TimesheetManagement from "../components/projects/TimesheetManagement";
 import { Label } from "@/components/ui/label";
+import ForemanProjectView from "../components/projects/ForemanProjectView";
+import BauleiterZuweisungSection from "../components/projects/BauleiterZuweisungSection";
 
 import ProjectStatsCard from "../components/projects/ProjectStatsCard";
 import ProjectDetails from "../components/projects/ProjectDetails";
