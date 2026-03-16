@@ -1128,8 +1128,8 @@ export default function ProjectDetailPage() {
                       {/* Oberer Bereich - Projektdetails */}
                       <ProjectDetails project={project} />
 
-                      {/* Zweite Reihe - VAO, Status, Montage */}
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:items-stretch">
+                      {/* Zweite Reihe - VAO, Status, Montage, Bauleiter */}
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:items-stretch">
                         <div className="flex">
                           <VaoInfo project={project} vaoSourceProject={vaoSourceProject} />
                         </div>
@@ -1143,6 +1143,13 @@ export default function ProjectDetailPage() {
                             monteure={monteure}
                             onCreateMontageAuftrag={handleCreateMontageAuftrag}
                             onAssignMonteur={handleAssignMonteur}
+                          />
+                        </div>
+                        <div className="flex">
+                          <BauleiterZuweisungSection
+                            project={project}
+                            bauleiter={bauleiter}
+                            onAssignBauleiter={handleAssignBauleiter}
                           />
                         </div>
                       </div>
