@@ -777,13 +777,12 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <SidebarTrigger className="hover:bg-gray-100 p-3 rounded-xl transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center" />
-            <div className="hidden md:flex items-center gap-2">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
-            </div>
-            <div className="flex md:hidden items-center gap-2">
-              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-8" />
-              <h1 className="text-xl font-bold text-gray-900">Tiefbau.Cloud</h1>
+            <div className="flex items-center gap-3">
+              <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-10" />
+              <div>
+                <h2 className="font-bold text-gray-900 text-lg leading-tight">Tiefbau.Cloud</h2>
+                <p className="text-xs text-gray-500 leading-tight">Auftragsverwaltung</p>
+              </div>
             </div>
           </div>
           <NotificationCenter />
