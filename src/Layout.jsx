@@ -25,7 +25,9 @@ import {
   Wrench,
   Users,
   WifiOff,
-  Network } from
+  Network,
+  Fuel,
+  CalendarDays } from
 "lucide-react";
 import {
   Sidebar,

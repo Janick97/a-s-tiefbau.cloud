@@ -22,7 +22,9 @@ import {
   TrendingUp,
   Car,
   Upload,
-  ArrowRight
+  ArrowRight,
+  Fuel,
+  CalendarDays
 } from "lucide-react";
 import { motion } from "framer-motion";
 
