@@ -331,7 +331,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-gray-100">
         <Sidebar className="border-none shadow-lg no-print">
           <div className="sidebar-gradient h-full flex flex-col">
-            <SidebarHeader className="border-b border-gray-200 p-6 flex-shrink-0">
+            <SidebarHeader className="border-b border-gray-200 px-4 py-3 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-10" />
                 <div>
