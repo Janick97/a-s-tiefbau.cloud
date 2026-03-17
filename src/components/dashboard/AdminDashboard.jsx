@@ -83,6 +83,8 @@ export default function AdminDashboard({
         { title: "Materiallager", icon: Package, link: createPageUrl("MaterialInventory") },
         { title: "Montage-Preisliste", icon: Wrench, link: createPageUrl("MontagePriceList") },
         { title: "Montage-Lager", icon: Package, link: createPageUrl("MontageMaterialInventory") },
+        { title: "Tankstelle Verwaltung", icon: Fuel, link: "https://tankstelle.aunds.cloud/upload_remote/admin.html", external: true },
+        { title: "Kolonnenplanung", icon: CalendarDays, link: "https://kolonnenplanung.aunds.cloud/", external: true },
       ]
     },
     {
@@ -93,6 +95,7 @@ export default function AdminDashboard({
         { title: "Leistungs-Historie", icon: TrendingUp, link: createPageUrl("TeamPerformanceHistory") },
         { title: "Büro-Auswertung", icon: BarChart3, link: createPageUrl("BueroUserAuswertung") },
         { title: "Berichte", icon: FileText, link: createPageUrl("Reports") },
+        { title: "Tankstelle", icon: Fuel, link: "https://tankstelle.aunds.cloud/auswertung.html", external: true },
       ]
     },
     {
