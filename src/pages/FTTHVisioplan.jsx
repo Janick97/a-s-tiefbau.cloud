@@ -317,6 +317,7 @@ export default function FTTHVisioplanPage() {
           onClose={() => setShowAddNodeDialog(false)}
           onSubmit={(nodeData) => createNodeMutation.mutate(nodeData)}
           projectId={selectedProjectId}
+          existingNodes={nodes}
         />
         <AddConnectionDialog
           open={showAddConnectionDialog}
