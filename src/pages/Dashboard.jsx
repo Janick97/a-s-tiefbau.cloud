@@ -556,8 +556,8 @@ export default function DashboardPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-              <p className="text-sm md:text-base text-gray-600">Ihr persönlicher Überblick</p>
+              <h1 className="text-lg md:text-xl font-light tracking-wide text-gray-800 mb-0.5">Dashboard</h1>
+              <p className="text-xs text-gray-400 tracking-wider uppercase">Ihr persönlicher Überblick</p>
             </div>
             <div className="flex items-center gap-3">
               <AdminHeaderWidget />
