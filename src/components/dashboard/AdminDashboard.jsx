@@ -134,8 +134,8 @@ export default function AdminDashboard({
         <div key={section.label}>
           <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">{section.label}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {section.items.map((item) => (
-              <Link key={item.title} to={item.link}>
+            {section.items.map((item) => {
+              const CardInner = (
                 <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
                   <Card className="card-elevation border-none h-full cursor-pointer hover:shadow-md transition-shadow">
                     <CardContent className="p-4 flex flex-col items-center text-center gap-2">
@@ -153,8 +153,13 @@ export default function AdminDashboard({
                     </CardContent>
                   </Card>
                 </motion.div>
-              </Link>
-            ))}
+              );
+              return item.external ? (
+                <a key={item.title} href={item.link} target="_blank" rel="noopener noreferrer">{CardInner}</a>
+              ) : (
+                <Link key={item.title} to={item.link}>{CardInner}</Link>
+              );
+            })}
           </div>
         </div>
       ))}
