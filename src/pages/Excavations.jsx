@@ -23,6 +23,9 @@ export default function ExcavationsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [foremanFilter, setForemanFilter] = useState("all");
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
