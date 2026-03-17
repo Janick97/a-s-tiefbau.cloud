@@ -32,7 +32,7 @@ const statusLabels = {
   approved: "Genehmigt"
 };
 
-export default function ExcavationCard({ excavation, projectTitle, priceItem, onEdit, index }) {
+export default function ExcavationCard({ excavation, projectTitle, priceItem, onEdit, index, isSelected, onSelect, selectionMode }) {
   // Defensive Programmierung - alle Eingaben prüfen
   if (!excavation) {
     return null;
