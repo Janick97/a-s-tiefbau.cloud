@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Filter, Shovel, Users } from "lucide-react";
+import { Plus, Search, Filter, Shovel, Users, ArrowRight, CheckSquare, Square } from "lucide-react";
 import ExcavationForm from "../components/excavations/ExcavationForm";
 import ExcavationCard from "../components/excavations/ExcavationCard";
 import MoveExcavationsDialog from "../components/excavations/MoveExcavationsDialog";
