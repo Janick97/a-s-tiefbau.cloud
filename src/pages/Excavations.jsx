@@ -160,6 +160,9 @@ export default function ExcavationsPage() {
               priceItem={priceItemsMap.get(excavation.price_item_id)}
               onEdit={handleEdit}
               index={index}
+              selectionMode={selectionMode}
+              isSelected={selectedIds.includes(excavation.id)}
+              onSelect={handleSelectExcavation}
             />
           ))}
         </AnimatePresence>
