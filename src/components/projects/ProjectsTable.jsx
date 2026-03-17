@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, X, Search } from "lucide-react";
+import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, ChevronUp, X, Search } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const projectStatusColors = {
@@ -34,8 +34,34 @@ const projectStatusColors = {
   "Auftrag angelegt mit VAO von prj": "bg-blue-100 border-blue-200"
 };
 
-// Combobox-Style Single-Select mit Suchfeld und Radio-Buttons
-function ColFilter({ selected, onChange, options, placeholder, searchPlaceholder }) {
+// Native-style Text-Input-Filter mit Chevrons
+function TextColFilter({ value, onChange, placeholder }) {
+  return (
+    <div className="relative mt-1" onClick={e => e.stopPropagation()}>
+      <input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder || "Filter..."}
+        className={`w-full h-7 px-2 pr-6 text-xs rounded border transition-colors focus:outline-none focus:border-blue-400 ${
+          value ? "border-blue-400 bg-blue-50 text-blue-800" : "border-gray-300 bg-white text-gray-600"
+        }`}
+        onClick={e => e.stopPropagation()}
+      />
+      <div className="absolute right-1 top-1/2 -translate-y-1/2 flex flex-col pointer-events-none">
+        <ChevronUp className="w-2.5 h-2.5 text-gray-400" />
+        <ChevronDown className="w-2.5 h-2.5 text-gray-400 -mt-0.5" />
+      </div>
+      {value && (
+        <button onClick={e => { e.stopPropagation(); onChange(""); }} className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
+          <X className="w-3 h-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Dropdown-Filter mit Suchfeld und Radio-Buttons (native select style)
+function ColFilter({ selected, onChange, options, placeholder, searchPlaceholder, renderOption }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef(null);
@@ -60,34 +86,32 @@ function ColFilter({ selected, onChange, options, placeholder, searchPlaceholder
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className={`w-full flex items-center justify-between gap-1 h-6 px-1.5 rounded border text-xs transition-colors ${
+        className={`w-full flex items-center justify-between h-7 px-2 rounded border text-xs transition-colors ${
           isActive
-            ? "bg-orange-100 border-orange-400 text-orange-700 font-semibold"
-            : "bg-white border-gray-200 text-gray-500 hover:border-orange-300"
+            ? "border-blue-400 bg-blue-50 text-blue-800"
+            : "border-gray-300 bg-white text-gray-500 hover:border-gray-400"
         }`}
       >
-        <span className="truncate max-w-[80%]">{isActive ? selected : (placeholder || "Alle")}</span>
-        <div className="flex items-center gap-0.5 flex-shrink-0">
-          {isActive && (
-            <span onClick={e => { e.stopPropagation(); onChange(""); setSearch(""); }} className="hover:text-red-500 cursor-pointer">
-              <X className="w-3 h-3" />
-            </span>
-          )}
-          <ChevronDown className="w-3 h-3" />
+        <span className="truncate max-w-[75%] text-left">
+          {isActive ? selected : (placeholder || "Alle")}
+        </span>
+        <div className="flex flex-col flex-shrink-0 ml-1">
+          <ChevronUp className="w-2.5 h-2.5 text-gray-400" />
+          <ChevronDown className="w-2.5 h-2.5 text-gray-400 -mt-0.5" />
         </div>
       </button>
 
       {open && (
-        <div className="absolute top-7 left-0 z-[100] w-72 bg-white border border-gray-200 rounded-lg shadow-xl">
-          <div className="p-2 border-b border-gray-100">
+        <div className="absolute top-8 left-0 z-[100] w-72 bg-white border border-gray-200 rounded shadow-xl">
+          <div className="p-1.5 border-b border-gray-100">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
               <input
                 autoFocus
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder={searchPlaceholder || `${placeholder || 'Eintrag'} suchen...`}
-                className="w-full h-7 pl-6 pr-2 text-xs border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+                placeholder={searchPlaceholder || "Suchen..."}
+                className="w-full h-7 pl-6 pr-2 text-xs border border-gray-200 rounded focus:outline-none focus:border-blue-400"
               />
             </div>
           </div>
@@ -99,87 +123,186 @@ function ColFilter({ selected, onChange, options, placeholder, searchPlaceholder
                 <label
                   key={opt}
                   onClick={() => select(opt)}
-                  className={`flex items-center gap-2 px-3 py-2 hover:bg-orange-50 cursor-pointer ${selected === opt ? 'bg-orange-50' : ''}`}
+                  className={`flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer ${selected === opt ? 'bg-blue-50' : ''}`}
                 >
-                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected === opt ? 'border-orange-500 bg-orange-500' : 'border-gray-300'}`}>
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected === opt ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
                     {selected === opt && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
-                  <span className="text-xs text-gray-700 whitespace-normal leading-tight">{opt}</span>
+                  {renderOption ? renderOption(opt) : <span className="text-xs text-gray-700 whitespace-normal leading-tight">{opt}</span>}
                 </label>
               ))
             )}
           </div>
+          {isActive && (
+            <div className="border-t border-gray-100 p-1.5">
+              <button onClick={() => { onChange(""); setOpen(false); }} className="w-full text-xs text-gray-500 hover:text-red-500 text-center py-0.5">
+                Auswahl aufheben
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-// Einfacher Text-Filter
-function TextColFilter({ value, onChange, placeholder }) {
+// Ja/Nein Filter als kleines Dropdown
+function BoolColFilter({ value, onChange, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const label = value === 'yes' ? 'Ja' : value === 'no' ? 'Nein' : 'Alle';
+  const isActive = value !== "";
+
   return (
-    <div className="relative mt-1">
-      <input
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder || "Filter..."}
-        className={`w-full h-6 px-1.5 pr-5 text-xs rounded border transition-colors focus:outline-none ${
-          value ? "bg-orange-100 border-orange-400 text-orange-700 font-semibold" : "bg-white border-gray-200 text-gray-500 focus:border-orange-400"
+    <div ref={ref} className="relative mt-1" onClick={e => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between h-7 px-2 rounded border text-xs ${
+          isActive ? "border-blue-400 bg-blue-50 text-blue-800" : "border-gray-300 bg-white text-gray-500 hover:border-gray-400"
         }`}
-        onClick={e => e.stopPropagation()}
-      />
-      {value && (
-        <button onClick={e => { e.stopPropagation(); onChange(""); }} className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-red-500">
-          <X className="w-3 h-3" />
-        </button>
+      >
+        <span>{label}</span>
+        <div className="flex flex-col flex-shrink-0 ml-1">
+          <ChevronUp className="w-2.5 h-2.5 text-gray-400" />
+          <ChevronDown className="w-2.5 h-2.5 text-gray-400 -mt-0.5" />
+        </div>
+      </button>
+      {open && (
+        <div className="absolute top-8 left-0 z-[100] w-28 bg-white border border-gray-200 rounded shadow-xl py-1">
+          {[{ val: "", label: "Alle" }, { val: "yes", label: "Ja" }, { val: "no", label: "Nein" }].map(o => (
+            <label
+              key={o.val}
+              onClick={() => { onChange(o.val); setOpen(false); }}
+              className={`flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-xs ${value === o.val ? 'bg-blue-50' : ''}`}
+            >
+              <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${value === o.val ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+                {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+              </div>
+              {o.label}
+            </label>
+          ))}
+        </div>
       )}
     </div>
   );
 }
 
-// Ja/Nein Filter für Checkboxen
-function BoolColFilter({ value, onChange, placeholder }) {
+// BA/FA Farb-Filter als Dropdown
+function ColorColFilter({ value, onChange, label }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
   const options = [
-    { label: "✅ Ja", val: "yes" },
-    { label: "❌ Nein", val: "no" },
+    { val: "rot", label: "Rot", circle: "bg-red-500" },
+    { val: "gelb", label: "Gelb", circle: "bg-yellow-400" },
+    { val: "grün", label: "Grün", circle: "bg-green-500" },
   ];
+  const isActive = value !== "";
+  const selected = options.find(o => o.val === value);
+
   return (
-    <div className="mt-1 flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
-      {options.map(o => (
-        <label key={o.val} className="flex items-center gap-1 cursor-pointer">
-          <div
-            onClick={() => onChange(value === o.val ? "" : o.val)}
-            className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 cursor-pointer ${value === o.val ? 'border-orange-500 bg-orange-500' : 'border-gray-300 bg-white'}`}
-          >
-            {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+    <div ref={ref} className="relative" onClick={e => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between h-7 px-2 rounded border text-xs ${
+          isActive ? "border-blue-400 bg-blue-50 text-blue-800" : "border-gray-300 bg-white text-gray-500 hover:border-gray-400"
+        }`}
+      >
+        <span className="flex items-center gap-1">
+          {selected && <span className={`w-2.5 h-2.5 rounded-full ${selected.circle} flex-shrink-0`} />}
+          {selected ? selected.label : `${label}...`}
+        </span>
+        <div className="flex flex-col flex-shrink-0 ml-1">
+          <ChevronUp className="w-2.5 h-2.5 text-gray-400" />
+          <ChevronDown className="w-2.5 h-2.5 text-gray-400 -mt-0.5" />
+        </div>
+      </button>
+      {open && (
+        <div className="absolute top-8 left-0 z-[100] w-44 bg-white border border-gray-200 rounded shadow-xl">
+          <div className="p-1.5 border-b border-gray-100">
+            <div className="flex items-center gap-1 px-1">
+              <Search className="w-3 h-3 text-gray-400" />
+              <span className="text-xs text-gray-400">{label}-Status...</span>
+            </div>
           </div>
-          <span className="text-xs text-gray-600">{o.label}</span>
-        </label>
-      ))}
+          <div className="py-1">
+            {options.map(o => (
+              <label
+                key={o.val}
+                onClick={() => { onChange(value === o.val ? "" : o.val); setOpen(false); }}
+                className={`flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer ${value === o.val ? 'bg-blue-50' : ''}`}
+              >
+                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${value === o.val ? 'border-blue-500 bg-blue-500' : 'border-gray-300'}`}>
+                  {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                </div>
+                <span className={`w-3 h-3 rounded-full ${o.circle} flex-shrink-0`} />
+                <span className="text-xs text-gray-700">{o.label}</span>
+              </label>
+            ))}
+          </div>
+          {isActive && (
+            <div className="border-t border-gray-100 p-1">
+              <button onClick={() => { onChange(""); setOpen(false); }} className="w-full text-xs text-gray-400 hover:text-red-500 text-center py-0.5">
+                Auswahl aufheben
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// BA/FA Farb-Filter mit Radio-Buttons
-function ColorFilter({ value, onChange }) {
-  const options = [
-    { label: "🔴 Rot", val: "rot" },
-    { label: "🟡 Gelb", val: "gelb" },
-    { label: "🟢 Grün", val: "grün" },
-  ];
+// VAO Filter: Dropdown + Von/Bis Datum + Max Resttage
+function VaoColFilter({ statusValue, onStatusChange, vaoFrom, onVaoFrom, vaoTo, onVaoTo, vaoDays, onVaoDays, options }) {
   return (
-    <div className="mt-1 flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
-      {options.map(o => (
-        <label key={o.val} className="flex items-center gap-1 cursor-pointer">
-          <div
-            onClick={() => onChange(value === o.val ? "" : o.val)}
-            className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 cursor-pointer ${value === o.val ? 'border-orange-500 bg-orange-500' : 'border-gray-300 bg-white'}`}
-          >
-            {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-          </div>
-          <span className="text-xs text-gray-600 whitespace-nowrap">{o.label}</span>
-        </label>
-      ))}
+    <div className="mt-1 space-y-1" onClick={e => e.stopPropagation()}>
+      <ColFilter
+        selected={statusValue}
+        onChange={onStatusChange}
+        options={options}
+        placeholder="VAO..."
+        searchPlaceholder="VAO-Status suchen..."
+      />
+      <div className="flex gap-1">
+        <input
+          type="date"
+          value={vaoFrom}
+          onChange={e => onVaoFrom(e.target.value)}
+          className={`flex-1 h-7 px-1.5 text-xs rounded border focus:outline-none focus:border-blue-400 ${vaoFrom ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white text-gray-500"}`}
+          placeholder="TT.mm.jjjj"
+        />
+        <input
+          type="date"
+          value={vaoTo}
+          onChange={e => onVaoTo(e.target.value)}
+          className={`flex-1 h-7 px-1.5 text-xs rounded border focus:outline-none focus:border-blue-400 ${vaoTo ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white text-gray-500"}`}
+          placeholder="TT.mm.jjjj"
+        />
+      </div>
+      <input
+        type="number"
+        value={vaoDays}
+        onChange={e => onVaoDays(e.target.value)}
+        placeholder="Max. Resttage..."
+        min="0"
+        className={`w-full h-7 px-2 text-xs rounded border focus:outline-none focus:border-blue-400 ${vaoDays ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white text-gray-500"}`}
+      />
     </div>
   );
 }
@@ -192,6 +315,9 @@ const EMPTY_FILTERS = {
   street: "",
   contact_person: "",
   vao_status: "",
+  vao_from: "",
+  vao_to: "",
+  vao_days: "",
   ba_status: "",
   fa_status: "",
   project_status: "",
@@ -224,6 +350,22 @@ export default function ProjectsTable({
     if (cf.city && (p.city || '') !== cf.city) return false;
     if (cf.contact_person && (p.contact_person || '') !== cf.contact_person) return false;
     if (cf.vao_status && (p.vao_status || '') !== cf.vao_status) return false;
+    if (cf.vao_from && !(p.vao_valid_from && new Date(p.vao_valid_from) >= new Date(cf.vao_from))) return false;
+    if (cf.vao_to && !(p.vao_valid_to && new Date(p.vao_valid_to) <= new Date(cf.vao_to))) return false;
+    if (cf.vao_days && cf.vao_days.trim() !== '') {
+      let effectiveProject = p;
+      if (p.vao_source_project_id) {
+        const src = allRows.find(r => r.id === p.vao_source_project_id);
+        if (src) effectiveProject = src;
+      }
+      if (effectiveProject.vao_valid_to) {
+        const validTo = new Date(effectiveProject.vao_valid_to);
+        validTo.setHours(23, 59, 59, 999);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const diffDays = Math.ceil((validTo - today) / (1000 * 60 * 60 * 24));
+        if (isNaN(parseInt(cf.vao_days)) || diffDays > parseInt(cf.vao_days)) return false;
+      } else return false;
+    }
     if (cf.ba_status && (p.ba_status || '') !== cf.ba_status) return false;
     if (cf.fa_status && (p.fa_status || '') !== cf.fa_status) return false;
     if (cf.project_status && (p.project_status || '') !== cf.project_status) return false;
@@ -380,8 +522,6 @@ export default function ProjectsTable({
   });
 
   const totalActive = filteredMain.length + Array.from(filteredFollowUps.values()).flat().length;
-
-  // Labels für aktive Filter-Badges
   const boolLabel = (val) => val === 'yes' ? '✅ Ja' : val === 'no' ? '❌ Nein' : '';
 
   return (
@@ -389,23 +529,26 @@ export default function ProjectsTable({
       <Card className="card-elevation border-none hidden md:block">
         <CardContent className="p-0">
           {hasColFilters && (
-            <div className="px-3 py-2 border-b border-orange-100 bg-orange-50/60 flex flex-wrap items-center gap-2">
+            <div className="px-3 py-2 border-b border-blue-100 bg-blue-50/60 flex flex-wrap items-center gap-2">
               <span className="text-xs text-gray-500 font-medium">Spaltenfilter aktiv:</span>
-              {colFilters.project_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Nr: {colFilters.project_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_number', '')} /></Badge>}
-              {colFilters.sm_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">SM: {colFilters.sm_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('sm_number', '')} /></Badge>}
-              {colFilters.street && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Straße: {colFilters.street}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('street', '')} /></Badge>}
-              {colFilters.order_type && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Art: {colFilters.order_type}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('order_type', '')} /></Badge>}
-              {colFilters.city && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Stadt: {colFilters.city}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('city', '')} /></Badge>}
-              {colFilters.contact_person && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Ansp.: {colFilters.contact_person}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('contact_person', '')} /></Badge>}
-              {colFilters.vao_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">VAO: {colFilters.vao_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_status', '')} /></Badge>}
-              {colFilters.ba_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">BA: {colFilters.ba_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ba_status', '')} /></Badge>}
-              {colFilters.fa_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">FA: {colFilters.fa_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('fa_status', '')} /></Badge>}
-              {colFilters.project_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Status: {colFilters.project_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_status', '')} /></Badge>}
-              {colFilters.material_booking_completed && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Mat.: {boolLabel(colFilters.material_booking_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('material_booking_completed', '')} /></Badge>}
-              {colFilters.documentation_completed && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Dok.: {boolLabel(colFilters.documentation_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('documentation_completed', '')} /></Badge>}
-              {colFilters.ev_ta && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">EV-TA: {boolLabel(colFilters.ev_ta)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_ta', '')} /></Badge>}
-              {colFilters.ev_sa && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">EV-SA: {boolLabel(colFilters.ev_sa)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_sa', '')} /></Badge>}
-              <button onClick={() => setColFilters(EMPTY_FILTERS)} className="ml-auto text-xs text-orange-600 hover:underline flex items-center gap-1">
+              {colFilters.project_number && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Nr: {colFilters.project_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_number', '')} /></Badge>}
+              {colFilters.sm_number && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">SM: {colFilters.sm_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('sm_number', '')} /></Badge>}
+              {colFilters.street && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Straße: {colFilters.street}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('street', '')} /></Badge>}
+              {colFilters.order_type && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Art: {colFilters.order_type}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('order_type', '')} /></Badge>}
+              {colFilters.city && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Stadt: {colFilters.city}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('city', '')} /></Badge>}
+              {colFilters.contact_person && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Ansp.: {colFilters.contact_person}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('contact_person', '')} /></Badge>}
+              {colFilters.vao_status && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">VAO: {colFilters.vao_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_status', '')} /></Badge>}
+              {colFilters.vao_from && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">VAO von: {colFilters.vao_from}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_from', '')} /></Badge>}
+              {colFilters.vao_to && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">VAO bis: {colFilters.vao_to}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_to', '')} /></Badge>}
+              {colFilters.vao_days && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Resttage ≤{colFilters.vao_days}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_days', '')} /></Badge>}
+              {colFilters.ba_status && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">BA: {colFilters.ba_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ba_status', '')} /></Badge>}
+              {colFilters.fa_status && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">FA: {colFilters.fa_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('fa_status', '')} /></Badge>}
+              {colFilters.project_status && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Status: {colFilters.project_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_status', '')} /></Badge>}
+              {colFilters.material_booking_completed && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Mat.: {boolLabel(colFilters.material_booking_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('material_booking_completed', '')} /></Badge>}
+              {colFilters.documentation_completed && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">Dok.: {boolLabel(colFilters.documentation_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('documentation_completed', '')} /></Badge>}
+              {colFilters.ev_ta && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">EV-TA: {boolLabel(colFilters.ev_ta)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_ta', '')} /></Badge>}
+              {colFilters.ev_sa && <Badge variant="outline" className="text-xs gap-1 bg-blue-100 border-blue-300 text-blue-700">EV-SA: {boolLabel(colFilters.ev_sa)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_sa', '')} /></Badge>}
+              <button onClick={() => setColFilters(EMPTY_FILTERS)} className="ml-auto text-xs text-blue-600 hover:underline flex items-center gap-1">
                 <X className="w-3 h-3" /> Alle leeren
               </button>
               <span className="text-xs text-gray-400">{totalActive} Treffer</span>
@@ -413,16 +556,16 @@ export default function ProjectsTable({
           )}
 
           <div className="overflow-x-auto">
-            <Table className="min-w-[1400px]">
+            <Table className="min-w-[1500px]">
               <TableHeader>
-                <TableRow className="bg-gray-50 border-b-2 border-gray-200 align-top">
+                <TableRow className="bg-white border-b border-gray-200 align-top">
                   <TableHead className="py-2 px-2 w-32 text-xs font-semibold text-gray-700 align-top">
-                    Projekt-Nr.
+                    Projektnummer
                     <TextColFilter value={colFilters.project_number} onChange={v => setColFilter('project_number', v)} placeholder="Nr..." />
                   </TableHead>
                   <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     Auftragsart
-                    <ColFilter selected={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} placeholder="Alle" searchPlaceholder="Auftragsart suchen..." />
+                    <ColFilter selected={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} placeholder="Filtern..." searchPlaceholder="Auftragsart suchen..." />
                   </TableHead>
                   <TableHead className="py-2 px-2 w-24 text-xs font-semibold text-gray-700 align-top">
                     SM
@@ -430,60 +573,57 @@ export default function ProjectsTable({
                   </TableHead>
                   <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
                     Stadt
-                    <ColFilter selected={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} placeholder="Alle" searchPlaceholder="Stadt suchen..." />
+                    <ColFilter selected={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} placeholder="Stadt..." searchPlaceholder="Stadt suchen..." />
                   </TableHead>
                   <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     Straße
                     <TextColFilter value={colFilters.street} onChange={v => setColFilter('street', v)} placeholder="Straße..." />
                   </TableHead>
                   <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
-                    Ansprechp.
-                    <ColFilter selected={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} placeholder="Alle" searchPlaceholder="Person suchen..." />
+                    Ansprechpartner
+                    <ColFilter selected={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} placeholder="Filtern..." searchPlaceholder="Person suchen..." />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-44 text-xs font-semibold text-gray-700 align-top">
-                    VAO
-                    <ColFilter selected={colFilters.vao_status} onChange={v => setColFilter('vao_status', v)} options={uniqueVaoStatus} placeholder="Alle" searchPlaceholder="VAO-Status suchen..." />
+                  <TableHead className="py-2 px-2 w-52 text-xs font-semibold text-gray-700 align-top">
+                    VAO-Status
+                    <VaoColFilter
+                      statusValue={colFilters.vao_status}
+                      onStatusChange={v => setColFilter('vao_status', v)}
+                      vaoFrom={colFilters.vao_from}
+                      onVaoFrom={v => setColFilter('vao_from', v)}
+                      vaoTo={colFilters.vao_to}
+                      onVaoTo={v => setColFilter('vao_to', v)}
+                      vaoDays={colFilters.vao_days}
+                      onVaoDays={v => setColFilter('vao_days', v)}
+                      options={uniqueVaoStatus}
+                    />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-32 text-xs font-semibold text-gray-700 align-top">
+                  <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     BA/FA
-                    <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500 w-5">BA</span>
-                        <ColorFilter value={colFilters.ba_status} onChange={v => setColFilter('ba_status', v)} />
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500 w-5">FA</span>
-                        <ColorFilter value={colFilters.fa_status} onChange={v => setColFilter('fa_status', v)} />
-                      </div>
+                    <div className="mt-1 space-y-1" onClick={e => e.stopPropagation()}>
+                      <ColorColFilter value={colFilters.ba_status} onChange={v => setColFilter('ba_status', v)} label="BA" />
+                      <ColorColFilter value={colFilters.fa_status} onChange={v => setColFilter('fa_status', v)} label="FA" />
                     </div>
                   </TableHead>
                   <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     Termine
-                    {/* Keine sinnvoller Spaltenfilter für Datumswerte in dieser Ansicht */}
                   </TableHead>
                   <TableHead className="py-2 px-2 w-52 text-xs font-semibold text-gray-700 align-top">
                     Status
-                    <ColFilter selected={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} placeholder="Alle" searchPlaceholder="Status suchen..." />
+                    <ColFilter selected={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} placeholder="Filtern..." searchPlaceholder="Status suchen..." />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-16 text-center text-xs font-semibold text-gray-700 align-top">
-                    Mat.
+                  <TableHead className="py-2 px-2 w-20 text-xs font-semibold text-gray-700 align-top">
+                    Material
                     <BoolColFilter value={colFilters.material_booking_completed} onChange={v => setColFilter('material_booking_completed', v)} />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-16 text-center text-xs font-semibold text-gray-700 align-top">
-                    Dok.
+                  <TableHead className="py-2 px-2 w-24 text-xs font-semibold text-gray-700 align-top">
+                    Dokumentation
                     <BoolColFilter value={colFilters.documentation_completed} onChange={v => setColFilter('documentation_completed', v)} />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
+                  <TableHead className="py-2 px-2 w-20 text-xs font-semibold text-gray-700 align-top">
                     EV
-                    <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-gray-500 w-5">TA</span>
-                        <BoolColFilter value={colFilters.ev_ta} onChange={v => setColFilter('ev_ta', v)} />
-                      </div>
-                      <div className="flex items-center gap-1 mt-1">
-                        <span className="text-xs text-gray-500 w-5">SA</span>
-                        <BoolColFilter value={colFilters.ev_sa} onChange={v => setColFilter('ev_sa', v)} />
-                      </div>
+                    <div className="mt-1 space-y-1" onClick={e => e.stopPropagation()}>
+                      <BoolColFilter value={colFilters.ev_ta} onChange={v => setColFilter('ev_ta', v)} />
+                      <BoolColFilter value={colFilters.ev_sa} onChange={v => setColFilter('ev_sa', v)} />
                     </div>
                   </TableHead>
                 </TableRow>
