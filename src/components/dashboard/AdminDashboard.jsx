@@ -105,7 +105,7 @@ export default function AdminDashboard({
         { title: "Projekt-Explorer", icon: MapPin, link: createPageUrl("ProjectExplorer") },
         { title: "Ausgrabungen", icon: Shovel, link: createPageUrl("Excavations") },
         { title: "Fahrzeugpflege", icon: Car, link: createPageUrl("VehicleMaintenanceOverview") },
-        { title: "Projekte importieren", icon: Upload, link: createPageUrl("ImportProjects") },
+
       ]
     }
   ];
