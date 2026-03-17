@@ -66,6 +66,7 @@ export default function AdminDashboard({
       label: "Aufträge & Baustelle",
       items: [
         { title: "Auftragsübersicht", icon: FolderOpen, link: createPageUrl("Projects"), count: stats.totalProjects },
+        { title: "Baustellenkarte", icon: MapPin, link: createPageUrl("BaustellenKarte") },
         { title: "Dispo Tiefbau", icon: ClipboardList, link: createPageUrl("Disposition") },
         { title: "Dispo Montage", icon: Construction, link: createPageUrl("DispositionMonteur") },
         { title: "Montageaufträge", icon: Package, link: createPageUrl("MontageAuftraege"), count: stats.openMontage },
