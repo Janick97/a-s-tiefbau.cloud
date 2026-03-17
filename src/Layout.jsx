@@ -678,6 +678,32 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <a
+                                        href="https://tankstelle.aunds.cloud/upload_remote/admin.html"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
+                                        onClick={handleLinkClick}>
+                                        <Fuel className="w-4 h-4 mr-2 flex-shrink-0" />
+                                        <span>Tankstelle Verwaltung</span>
+                                      </a>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <a
+                                        href="https://kolonnenplanung.aunds.cloud/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-white/70 hover:text-white hover:bg-white/10 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
+                                        onClick={handleLinkClick}>
+                                        <CalendarDays className="w-4 h-4 mr-2 flex-shrink-0" />
+                                        <span>Kolonnenplanung</span>
+                                      </a>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
                                 </SidebarMenuSub>
                               </CollapsibleContent>
                             </SidebarMenuItem>
