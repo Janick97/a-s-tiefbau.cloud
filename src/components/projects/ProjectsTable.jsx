@@ -160,26 +160,26 @@ function BoolColFilter({ value, onChange, placeholder }) {
   );
 }
 
-// BA/FA Farb-Filter
+// BA/FA Farb-Filter mit Radio-Buttons
 function ColorFilter({ value, onChange }) {
   const options = [
-    { label: "🔴", val: "rot" },
-    { label: "🟡", val: "gelb" },
-    { label: "🟢", val: "grün" },
+    { label: "🔴 Rot", val: "rot" },
+    { label: "🟡 Gelb", val: "gelb" },
+    { label: "🟢 Grün", val: "grün" },
   ];
   return (
-    <div className="mt-1 flex gap-1" onClick={e => e.stopPropagation()}>
+    <div className="mt-1 flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
       {options.map(o => (
-        <button
-          key={o.val}
-          onClick={() => onChange(value === o.val ? "" : o.val)}
-          className={`text-sm leading-none rounded border px-0.5 py-0.5 transition-all ${value === o.val ? 'border-orange-400 bg-orange-100 scale-110' : 'border-gray-200 bg-white opacity-60 hover:opacity-100'}`}
-          title={o.val}
-        >
-          {o.label}
-        </button>
+        <label key={o.val} className="flex items-center gap-1 cursor-pointer">
+          <div
+            onClick={() => onChange(value === o.val ? "" : o.val)}
+            className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 cursor-pointer ${value === o.val ? 'border-orange-500 bg-orange-500' : 'border-gray-300 bg-white'}`}
+          >
+            {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+          </div>
+          <span className="text-xs text-gray-600 whitespace-nowrap">{o.label}</span>
+        </label>
       ))}
-      {value && <button onClick={() => onChange("")} className="text-gray-400 hover:text-red-400 ml-0.5"><X className="w-3 h-3" /></button>}
     </div>
   );
 }
