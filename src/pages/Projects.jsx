@@ -986,6 +986,14 @@ export default function ProjectsPage() {
         <Card className="card-elevation border-none mb-6">
           <CardContent className="p-4">
             <div className="flex flex-col gap-4">
+              {/* Schnellfilter */}
+              <QuickFilters
+                currentFilters={filters}
+                currentSearch={searchTerm}
+                onApply={handleQuickFilterApply}
+                userId={user?.id}
+              />
+
               {/* Suchleiste und Hauptaktionen */}
               <div className="flex flex-col md:flex-row gap-3">
                 <div className="relative flex-1">
