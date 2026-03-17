@@ -78,6 +78,30 @@ export default function ExcavationsPage() {
     setShowForm(true);
   };
 
+  const toggleSelectionMode = () => {
+    setSelectionMode(prev => !prev);
+    setSelectedIds([]);
+  };
+
+  const handleSelectExcavation = (excavation) => {
+    setSelectedIds(prev =>
+      prev.includes(excavation.id)
+        ? prev.filter(id => id !== excavation.id)
+        : [...prev, excavation.id]
+    );
+  };
+
+  const handleMoveExcavations = async (targetProjectId) => {
+    await Promise.all(
+      selectedIds.map(id => Excavation.update(id, { project_id: targetProjectId }))
+    );
+    setShowMoveDialog(false);
+    setSelectionMode(false);
+    setSelectedIds([]);
+    const excavationsData = await Excavation.list("-created_date").catch(() => []);
+    setExcavations(Array.isArray(excavationsData) ? excavationsData : []);
+  };
+
   const projectsMap = useMemo(() => new Map((Array.isArray(projects) ? projects : []).map(p => [p.id, p])), [projects]);
   const priceItemsMap = useMemo(() => new Map((Array.isArray(priceItems) ? priceItems : []).map(p => [p.id, p])), [priceItems]);
 
