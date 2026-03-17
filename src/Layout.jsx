@@ -359,10 +359,10 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
-                                  className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                                  className={`ripple-effect hover:bg-white/20 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
                                   location.pathname.includes('Disposition') ?
-                                  'bg-white/15 text-white shadow-lg' :
-                                  'text-white/80'}`
+                                  'bg-white/20 text-white shadow-lg' :
+                                  'text-white'}`
                                   }>
 
                                   <item.icon className="w-5 h-5" />
@@ -420,10 +420,10 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
-                                  className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                                  className={`ripple-effect hover:bg-white/20 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
                                   location.pathname.includes('DispositionMonteur') ?
-                                  'bg-white/15 text-white shadow-lg' :
-                                  'text-white/80'}`
+                                  'bg-white/20 text-white shadow-lg' :
+                                  'text-white'}`
                                   }>
 
                                   <item.icon className="w-5 h-5" />
@@ -481,11 +481,11 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
-                                  className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                                  className={`ripple-effect hover:bg-white/20 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
                                   location.pathname.includes('Analytics') ||
                                   location.pathname.includes('KolonnenUebersicht') ?
-                                  'bg-white/15 text-white shadow-lg' :
-                                  'text-white/80'}`
+                                  'bg-white/20 text-white shadow-lg' :
+                                  'text-white'}`
                                   }>
 
                                   <item.icon className="w-5 h-5" />
@@ -575,15 +575,15 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                             <SidebarMenuItem>
                               <CollapsibleTrigger asChild>
                                 <SidebarMenuButton
-                                  className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                                  className={`ripple-effect hover:bg-white/20 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
                                   location.pathname.includes('Excavations') ||
                                   location.pathname.includes('PriceList') ||
                                   location.pathname.includes('VAOMonitoring') ||
                                   location.pathname.includes('OpenMaterialBookings') ||
                                   location.pathname.includes('OpenDocumentations') ||
                                   location.pathname.includes('MaterialInventory') ?
-                                  'bg-white/15 text-white shadow-lg' :
-                                  'text-white/80'}`
+                                  'bg-white/20 text-white shadow-lg' :
+                                  'text-white'}`
                                   }>
 
                                   <item.icon className="w-5 h-5" />
@@ -731,10 +731,10 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                         <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton
                             asChild
-                            className={`ripple-effect hover:bg-white/10 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
+                            className={`ripple-effect hover:bg-white/20 hover:text-white transition-all duration-300 rounded-xl py-3 px-4 ${
                             location.pathname === item.url ?
-                            'bg-white/15 text-white shadow-lg' :
-                            'text-white/80'}`
+                            'bg-white/20 text-white shadow-lg' :
+                            'text-white'}`
                             }>
 
                             <Link to={item.url} className="flex items-center gap-3" onClick={handleLinkClick}>
