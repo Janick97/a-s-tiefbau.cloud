@@ -99,6 +99,25 @@ export default function ExcavationsManagement({
     setShowForm(true);
   };
 
+  const toggleSelectionMode = () => {
+    setSelectionMode(prev => !prev);
+    setSelectedIds([]);
+  };
+
+  const handleSelectExcavation = (id) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleMoveExcavations = async (targetProjectId) => {
+    await Promise.all(selectedIds.map(id => Excavation.update(id, { project_id: targetProjectId })));
+    setShowMoveDialog(false);
+    setSelectionMode(false);
+    setSelectedIds([]);
+    loadData();
+  };
+
   const handleEdit = (excavation) => {
     setEditingExcavation(excavation);
     setShowForm(true);
