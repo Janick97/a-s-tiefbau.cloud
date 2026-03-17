@@ -802,12 +802,33 @@ export default function ExcavationsManagement({
             </Button>
           )}
         </div>
-        {showAddButton && (
-          <Button onClick={() => setShowForm(true)} className="w-full md:w-auto">
-            <Plus className="w-4 h-4 mr-2" />
-            Neue Ausgrabung
+        <div className="flex gap-2 w-full md:w-auto">
+          {selectionMode && selectedIds.length > 0 && (
+            <Button
+              size="sm"
+              onClick={() => setShowMoveDialog(true)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <ArrowRight className="w-4 h-4 mr-2" />
+              {selectedIds.length} verschieben
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant={selectionMode ? "outline" : "secondary"}
+            onClick={toggleSelectionMode}
+            className={selectionMode ? "border-orange-400 text-orange-600" : ""}
+          >
+            {selectionMode ? <Square className="w-4 h-4 mr-2" /> : <CheckSquare className="w-4 h-4 mr-2" />}
+            {selectionMode ? "Abbrechen" : "Auswählen"}
           </Button>
-        )}
+          {showAddButton && (
+            <Button onClick={() => setShowForm(true)} className="w-full md:w-auto">
+              <Plus className="w-4 h-4 mr-2" />
+              Neue Ausgrabung
+            </Button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
