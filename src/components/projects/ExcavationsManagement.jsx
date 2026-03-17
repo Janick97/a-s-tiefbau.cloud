@@ -447,6 +447,7 @@ export default function ExcavationsManagement({
                 <TableHead className="text-right">Aktionen</TableHead>
               </TableRow>
               <TableRow className="bg-gray-50 hover:bg-gray-50">
+                {selectionMode && <TableHead className="py-2"></TableHead>}
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
                 <TableHead className="py-2"></TableHead>
