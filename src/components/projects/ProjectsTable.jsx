@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle } from "lucide-react";
+import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, ChevronUp, X } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const projectStatusColors = {
@@ -34,38 +34,103 @@ const projectStatusColors = {
   "Auftrag angelegt mit VAO von prj": "bg-blue-100 border-blue-200"
 };
 
+// Kleine Input-Komponente für Spaltenfilter
+function ColFilter({ value, onChange, placeholder }) {
+  return (
+    <div className="relative mt-1">
+      <Input
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder || "Filter..."}
+        className="h-6 text-xs px-1.5 pr-5 border-gray-200 bg-white focus:border-orange-400"
+        onClick={e => e.stopPropagation()}
+      />
+      {value && (
+        <button
+          onClick={e => { e.stopPropagation(); onChange(""); }}
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Select-Filter für Spalten
+function ColSelectFilter({ value, onChange, options, placeholder }) {
+  return (
+    <div className="mt-1" onClick={e => e.stopPropagation()}>
+      <Select value={value || "__all__"} onValueChange={v => onChange(v === "__all__" ? "" : v)}>
+        <SelectTrigger className="h-6 text-xs px-1.5 border-gray-200 bg-white focus:border-orange-400">
+          <SelectValue placeholder={placeholder || "Alle"} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="__all__">Alle</SelectItem>
+          {options.map(opt => (
+            <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
 export default function ProjectsTable({
   isLoading, error, mainProjects, followUpsByParent,
   getVAOInfo, handleVaoClick, updatingVao, handleCheckboxChange,
   updatingProject, confirmDialog, handleStatusChange, projectStatusOptions
 }) {
+  // Spalten-Filter State
+  const [colFilters, setColFilters] = useState({
+    project_number: "",
+    order_type: "",
+    sm_number: "",
+    city: "",
+    street: "",
+    contact_person: "",
+    project_status: "",
+  });
+
+  const setColFilter = (col, val) => setColFilters(prev => ({ ...prev, [col]: val }));
+
+  const hasColFilters = Object.values(colFilters).some(v => v !== "");
+
+  // Alle Projekte aus mainProjects + followUps zusammenführen für unique-Optionen
+  const allRows = [...mainProjects, ...Array.from(followUpsByParent.values()).flat()];
+  const unique = (field) => [...new Set(allRows.map(p => p[field]).filter(Boolean))].sort();
+
+  // Spaltenfilter anwenden
+  const applyColFilters = (project) => {
+    const cf = colFilters;
+    if (cf.project_number && !(project.project_number || '').toLowerCase().includes(cf.project_number.toLowerCase())) return false;
+    if (cf.order_type && (project.order_type || '') !== cf.order_type) return false;
+    if (cf.sm_number && !(project.sm_number || '').toLowerCase().includes(cf.sm_number.toLowerCase())) return false;
+    if (cf.city && (project.city || '') !== cf.city) return false;
+    if (cf.street && !(project.street || '').toLowerCase().includes(cf.street.toLowerCase())) return false;
+    if (cf.contact_person && (project.contact_person || '') !== cf.contact_person) return false;
+    if (cf.project_status && (project.project_status || '') !== cf.project_status) return false;
+    return true;
+  };
+
+  // Gefilterte mainProjects + followUps
+  const filteredMain = mainProjects.filter(applyColFilters);
+  // Für followUps: entweder parent sichtbar und child passt, oder child passt direkt
+  const filteredFollowUps = new Map();
+  followUpsByParent.forEach((children, parentId) => {
+    const filtered = children.filter(applyColFilters);
+    if (filtered.length > 0) filteredFollowUps.set(parentId, filtered);
+  });
+
   if (isLoading) {
     return (
       <Card className="card-elevation border-none">
         <CardContent className="p-0">
           <Table>
-            <TableHeader>
-              <TableRow className="h-10">
-                <TableHead className="py-2">Projektnummer</TableHead>
-                <TableHead className="py-2">Auftragsart</TableHead>
-                <TableHead className="py-2">SM</TableHead>
-                <TableHead className="py-2">Stadt</TableHead>
-                <TableHead className="py-2">Straße</TableHead>
-                <TableHead className="py-2">Ansprechpartner</TableHead>
-                <TableHead className="py-2">VAO-Status</TableHead>
-                <TableHead className="py-2 text-center">BA/FA</TableHead>
-                <TableHead className="py-2">Termine</TableHead>
-                <TableHead className="py-2 text-center">Status</TableHead>
-                <TableHead className="py-2 text-center">Material</TableHead>
-                <TableHead className="py-2 text-center">Dokumentation</TableHead>
-              </TableRow>
-            </TableHeader>
             <TableBody>
               {Array(5).fill(0).map((_, i) => (
                 <TableRow key={i} className="h-12">
-                  <TableCell className="py-2" colSpan={13}>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
+                  <TableCell className="py-2" colSpan={13}><Skeleton className="h-4 w-full" /></TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -198,40 +263,78 @@ export default function ProjectsTable({
           <div className="overflow-x-auto">
             <Table className="min-w-[1200px]">
               <TableHeader>
-                <TableRow className="h-8">
-                  <TableHead className="py-1 px-2 w-32 text-xs">Projekt-Nr.</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs">Auftragsart</TableHead>
-                  <TableHead className="py-1 px-2 w-24 text-xs">SM</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs">Stadt</TableHead>
-                  <TableHead className="py-1 px-2 w-36 text-xs">Straße</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs">Ansprechp.</TableHead>
-                  <TableHead className="py-1 px-2 w-44 text-xs">VAO</TableHead>
-                  <TableHead className="py-1 px-2 w-20 text-center text-xs">BA/FA</TableHead>
-                  <TableHead className="py-1 px-2 w-36 text-xs">Termine</TableHead>
-                  <TableHead className="py-1 px-2 w-52 text-xs">Status</TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs">Mat.</TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs">Dok.</TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs">EV</TableHead>
+                {/* Spalten-Titel Zeile */}
+                <TableRow className="h-8 bg-gray-50">
+                  <TableHead className="py-1 px-2 w-32 text-xs font-semibold text-gray-700">Projekt-Nr.</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Auftragsart</TableHead>
+                  <TableHead className="py-1 px-2 w-24 text-xs font-semibold text-gray-700">SM</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Stadt</TableHead>
+                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">Straße</TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Ansprechp.</TableHead>
+                  <TableHead className="py-1 px-2 w-44 text-xs font-semibold text-gray-700">VAO</TableHead>
+                  <TableHead className="py-1 px-2 w-20 text-center text-xs font-semibold text-gray-700">BA/FA</TableHead>
+                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">Termine</TableHead>
+                  <TableHead className="py-1 px-2 w-52 text-xs font-semibold text-gray-700">Status</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Mat.</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Dok.</TableHead>
+                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">EV</TableHead>
+                </TableRow>
+                {/* Spalten-Filter Zeile */}
+                <TableRow className="bg-orange-50/40 border-b border-orange-100">
+                  <TableHead className="py-1 px-2 w-32">
+                    <ColFilter value={colFilters.project_number} onChange={v => setColFilter('project_number', v)} placeholder="Nr..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28">
+                    <ColSelectFilter value={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-24">
+                    <ColFilter value={colFilters.sm_number} onChange={v => setColFilter('sm_number', v)} placeholder="SM..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28">
+                    <ColSelectFilter value={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-36">
+                    <ColFilter value={colFilters.street} onChange={v => setColFilter('street', v)} placeholder="Straße..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28">
+                    <ColSelectFilter value={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-44">
+                    {/* VAO hat keinen einfachen Spaltenfilter */}
+                    {hasColFilters && (
+                      <button onClick={() => setColFilters({ project_number:"", order_type:"", sm_number:"", city:"", street:"", contact_person:"", project_status:"" })} className="text-xs text-orange-600 hover:underline flex items-center gap-1 mt-1">
+                        <X className="w-3 h-3" /> Leeren
+                      </button>
+                    )}
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-20"></TableHead>
+                  <TableHead className="py-1 px-2 w-36"></TableHead>
+                  <TableHead className="py-1 px-2 w-52">
+                    <ColSelectFilter value={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-16"></TableHead>
+                  <TableHead className="py-1 px-2 w-16"></TableHead>
+                  <TableHead className="py-1 px-2 w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <AnimatePresence>
-                  {mainProjects.length === 0 && followUpsByParent.size === 0 ? (
+                  {filteredMain.length === 0 && filteredFollowUps.size === 0 ? (
                     <TableRow>
                       <TableCell colSpan={13} className="h-64">
                         <div className="text-center py-16">
                           <FolderOpen className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                           <h3 className="text-xl font-medium text-gray-500 mb-2">Keine Projekte gefunden</h3>
-                          <p className="text-gray-400 mb-6">Versuchen Sie, Ihre Suche anzupassen oder ein neues Projekt zu erstellen.</p>
+                          <p className="text-gray-400">Versuchen Sie, Ihre Filter anzupassen.</p>
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : (
-                    mainProjects.map((project, mainIndex) => {
+                    filteredMain.map((project, mainIndex) => {
                       let rowIndex = mainIndex;
                       const rows = [<ProjectRow key={project.id} project={project} rowIndex={rowIndex} />];
-                      if (followUpsByParent.has(project.id)) {
-                        followUpsByParent.get(project.id).forEach(followUp => {
+                      if (filteredFollowUps.has(project.id)) {
+                        filteredFollowUps.get(project.id).forEach(followUp => {
                           rowIndex++;
                           rows.push(<ProjectRow key={followUp.id} project={followUp} isFollowUp={true} rowIndex={rowIndex} />);
                         });
@@ -250,32 +353,25 @@ export default function ProjectsTable({
       <div className="md:hidden space-y-4">
         <AnimatePresence>
           {[...mainProjects, ...Array.from(followUpsByParent.values()).flat()]
+            .filter(applyColFilters)
             .sort((a, b) => (a.project_number || '').localeCompare(b.project_number || ''))
-            .map((project, index) => {
-              const vaoInfo = getVAOInfo(project);
-              return (
-                <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ delay: index * 0.05 }}>
-                  <Card className="card-elevation border-l-4 border-orange-400" onClick={() => window.open(createPageUrl(`ProjectDetail?id=${project.id}`), '_self')}>
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold text-gray-800"><span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">{project.project_number}</span></p>
-                          <p className="text-sm text-gray-500">SM: {project.sm_number}</p>
-                        </div>
+            .map((project, index) => (
+              <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ delay: index * 0.05 }}>
+                <Card className="card-elevation border-l-4 border-orange-400" onClick={() => window.open(createPageUrl(`ProjectDetail?id=${project.id}`), '_self')}>
+                  <CardContent className="p-4 space-y-3">
+                    <p className="font-semibold text-gray-800"><span className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">{project.project_number}</span></p>
+                    <div className="border-t pt-3 space-y-2 text-sm">
+                      <div className="flex justify-between"><span className="text-gray-500">Stadt</span><span className="font-medium text-gray-800">{project.city || '-'}</span></div>
+                      <div className="flex justify-between"><span className="text-gray-500">Auftragsart</span><span className="font-medium text-gray-800">{project.order_type || '-'}</span></div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-500">Status</span>
+                        <span className={`font-medium text-gray-800 rounded px-2 py-1 text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100'}`}>{project.project_status || '-'}</span>
                       </div>
-                      <div className="border-t pt-3 space-y-2 text-sm">
-                        <div className="flex justify-between"><span className="text-gray-500">Stadt</span><span className="font-medium text-gray-800">{project.city || 'Nicht angegeben'}</span></div>
-                        <div className="flex justify-between"><span className="text-gray-500">Auftragsart</span><span className="font-medium text-gray-800">{project.order_type || 'Nicht angegeben'}</span></div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500">Status</span>
-                          <span className={`font-medium text-gray-800 rounded px-2 py-1 text-xs ${projectStatusColors[project.project_status] || 'bg-gray-100'}`}>{project.project_status || 'Nicht angegeben'}</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
         </AnimatePresence>
       </div>
     </>
