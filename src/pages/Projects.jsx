@@ -5,16 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet, RefreshCw, ArrowUpDown, ArrowUp, ArrowDown, Filter, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Search, Construction, FileText, ListRestart, AlertTriangle, Loader2, Download, FileSpreadsheet, RefreshCw, ArrowUp, ArrowDown, Filter, X, ChevronDown, ChevronUp, CheckCircle } from "lucide-react";
 import { createPageUrl } from "@/utils";
 import ProjectForm from "../components/projects/ProjectForm";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Label } from "@/components/ui/label";
-import { Combobox } from "@/components/ui/combobox";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import ProjectsTable from "@/components/projects/ProjectsTable";
+import QuickFilters from "@/components/projects/QuickFilters";
 
 const statusColors = {
   planning: "bg-blue-100 text-blue-800 border-blue-200",
