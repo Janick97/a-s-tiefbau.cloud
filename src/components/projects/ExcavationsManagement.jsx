@@ -1239,6 +1239,14 @@ export default function ExcavationsManagement({
         priceItem={getSelectedPriceItem(selectedExcavation?.price_item_id)}
         currentUser={internalUser}
       />
+
+      <MoveExcavationsDialog
+        open={showMoveDialog}
+        onClose={() => setShowMoveDialog(false)}
+        selectedExcavations={excavations.filter(e => selectedIds.includes(e.id))}
+        projects={allProjects.filter(p => p.id !== projectId)}
+        onMove={handleMoveExcavations}
+      />
     </div>
   );
 }
