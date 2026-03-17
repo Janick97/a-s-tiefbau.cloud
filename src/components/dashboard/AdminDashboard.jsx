@@ -138,19 +138,19 @@ export default function AdminDashboard({
             {section.items.map((item) => {
               const CardInner = (
                 <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }} className="h-full">
-                  <Card className="card-elevation border-none cursor-pointer hover:shadow-md transition-shadow h-[90px]">
+                  <Card className="card-elevation border-none cursor-pointer hover:shadow-md transition-all duration-200 h-[90px] group hover:bg-orange-500">
                     <CardContent className="p-3 flex flex-col items-center justify-center text-center gap-2 h-full">
                       <div className="relative flex-shrink-0">
-                        <div className="p-2 bg-gray-100 rounded-lg">
-                          <item.icon className="w-4 h-4 text-gray-600" />
+                        <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-white/20">
+                          <item.icon className="w-4 h-4 text-gray-600 group-hover:text-white" />
                         </div>
                         {item.count !== undefined && item.count > 0 && (
-                          <span className={`absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${item.countUrgent ? 'bg-red-500' : 'bg-orange-500'}`}>
+                          <span className={`absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${item.countUrgent ? 'bg-red-500' : 'bg-orange-500 group-hover:bg-white group-hover:text-orange-500'}`}>
                             {item.count > 9 ? '9+' : item.count}
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-medium text-gray-700 leading-tight line-clamp-2">{item.title}</span>
+                      <span className="text-xs font-medium text-gray-700 leading-tight line-clamp-2 group-hover:text-white">{item.title}</span>
                     </CardContent>
                   </Card>
                 </motion.div>
