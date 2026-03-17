@@ -444,7 +444,7 @@ export default function ProjectsTable({
                     VAO
                     <ColFilter selected={colFilters.vao_status} onChange={v => setColFilter('vao_status', v)} options={uniqueVaoStatus} placeholder="Alle" searchPlaceholder="VAO-Status suchen..." />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-24 text-center text-xs font-semibold text-gray-700 align-top">
+                  <TableHead className="py-2 px-2 w-32 text-xs font-semibold text-gray-700 align-top">
                     BA/FA
                     <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
