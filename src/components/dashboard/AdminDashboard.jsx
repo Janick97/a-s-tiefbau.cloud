@@ -54,10 +54,7 @@ export default function AdminDashboard({
     const list = [];
     if (stats.vaoWarnings > 0)
       list.push({ label: `${stats.vaoWarnings} VAO(s) laufen in ≤7 Tagen ab`, link: createPageUrl('VAOMonitoring'), urgent: true });
-    if (stats.projectsWithoutMaterial > 0)
-      list.push({ label: `${stats.projectsWithoutMaterial} Projekt(e) ohne Materialbuchung`, link: createPageUrl('OpenMaterialBookings'), urgent: false });
-    if (stats.projectsWithoutDocs > 0)
-      list.push({ label: `${stats.projectsWithoutDocs} Projekt(e) ohne Dokumentation`, link: createPageUrl('OpenDocumentations'), urgent: false });
+
     return list;
   }, [stats]);
 
