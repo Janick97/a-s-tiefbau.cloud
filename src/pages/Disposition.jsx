@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Project, User, MontageAuftrag } from '@/entities/all';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -14,21 +14,51 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
+const SESSION_KEY = 'disposition_state';
+
 export default function DispositionPage() {
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [assigning, setAssigning] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [assignmentFilter, setAssignmentFilter] = useState("all");
-  const [foremanFilter, setForemanFilter] = useState("all");
-  const [viewMode, setViewMode] = useState("kanban"); // 'kanban' or 'list'
+  const [searchTerm, setSearchTerm] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY))?.searchTerm || ""; } catch { return ""; }
+  });
+  const [statusFilter, setStatusFilter] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY))?.statusFilter || "all"; } catch { return "all"; }
+  });
+  const [assignmentFilter, setAssignmentFilter] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY))?.assignmentFilter || "all"; } catch { return "all"; }
+  });
+  const [foremanFilter, setForemanFilter] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY))?.foremanFilter || "all"; } catch { return "all"; }
+  });
+  const [viewMode, setViewMode] = useState(() => {
+    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY))?.viewMode || "kanban"; } catch { return "kanban"; }
+  });
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedBauleiter, setSelectedBauleiter] = useState([]);
   const [montageAuftraege, setMontageAuftraege] = useState([]);
+  const scrollRestoredRef = useRef(false);
+
+  // Speichere State in sessionStorage bei jeder Änderung
+  useEffect(() => {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ searchTerm, statusFilter, assignmentFilter, foremanFilter, viewMode }));
+  }, [searchTerm, statusFilter, assignmentFilter, foremanFilter, viewMode]);
+
+  // Scroll-Position speichern wenn Nutzer die Seite verlässt
+  useEffect(() => {
+    const handleScroll = () => {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY)) || {};
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...saved, scrollY: window.scrollY }));
+      } catch {}
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     loadData();
