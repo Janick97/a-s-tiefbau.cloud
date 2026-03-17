@@ -381,7 +381,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
 
                                         <ClipboardList className="w-4 h-4 mr-2" />
@@ -394,7 +394,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                       <SidebarMenuSubButton asChild>
                                         <Link
                                         to={createPageUrl(`DispositionBauleiter?id=${bl.id}`)}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
 
                                           <UserCircle className="w-4 h-4 mr-2" />
@@ -442,7 +442,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
 
                                         <Construction className="w-4 h-4 mr-2" />
@@ -455,7 +455,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                       <SidebarMenuSubButton asChild>
                                         <Link
                                         to={createPageUrl(`DispositionMonteurDetail?id=${monteur.id}`)}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
 
                                           <UserCircle className="w-4 h-4 mr-2" />
@@ -504,7 +504,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={item.url}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
 
                                         <BarChart3 className="w-4 h-4 mr-2" />
@@ -516,7 +516,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("KolonnenUebersicht")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
                                         <UsersIcon className="w-4 h-4 mr-2" />
                                         Kolonnen
@@ -527,7 +527,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("KolonnenKonfiguration")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
                                         <Settings className="w-4 h-4 mr-2" />
                                         Konfiguration
@@ -538,7 +538,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("TeamPerformanceHistory")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm"
                                         onClick={handleLinkClick}>
                                         <BarChart3 className="w-4 h-4 mr-2" />
                                         Leistungs-Historie
@@ -551,7 +551,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                         href="https://tankstelle.aunds.cloud/auswertung.html"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-sm flex items-center"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-sm flex items-center"
                                         onClick={handleLinkClick}>
                                         <Fuel className="w-4 h-4 mr-2" />
                                         Tankstelle
@@ -602,7 +602,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("Excavations")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Shovel className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -614,7 +614,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("PriceList")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Settings className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -626,7 +626,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("VAOMonitoring")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -638,7 +638,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("OpenMaterialBookings")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Construction className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -650,7 +650,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("OpenDocumentations")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <FileText className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -662,7 +662,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MaterialInventory")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -674,7 +674,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MontagePriceList")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Wrench className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -686,7 +686,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                     <SidebarMenuSubButton asChild>
                                       <Link
                                         to={createPageUrl("MontageMaterialInventory")}
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
                                         onClick={handleLinkClick}>
 
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
@@ -700,7 +700,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                         href="https://tankstelle.aunds.cloud/upload_remote/admin.html"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
                                         onClick={handleLinkClick}>
                                         <Fuel className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Tankstelle Verwaltung</span>
@@ -713,7 +713,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                         href="https://kolonnenplanung.aunds.cloud/"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="text-white/90 hover:text-white hover:bg-white/20 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words flex items-center"
                                         onClick={handleLinkClick}>
                                         <CalendarDays className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Kolonnenplanung</span>
