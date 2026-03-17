@@ -514,18 +514,18 @@ export default function DashboardPage() {
               <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
               <p className="text-sm md:text-base text-gray-600">Ihr persönlicher Überblick</p>
             </div>
-            <button
-              onClick={loadData}
-              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-              title="Aktualisieren"
-            >
-              <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
-            </button>
+            <div className="flex items-center gap-3">
+              <AdminHeaderWidget />
+              <button
+                onClick={loadData}
+                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+                title="Aktualisieren"
+              >
+                <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+              </button>
+            </div>
           </div>
         </motion.div>
-
-        {/* Datum, Uhrzeit & Wetter Widget */}
-        <DateTimeWeatherWidget />
 
         <AdminDashboard 
           projects={projects}
