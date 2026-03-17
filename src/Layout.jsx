@@ -331,19 +331,19 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-gray-100">
         <Sidebar className="border-none shadow-lg no-print">
           <div className="sidebar-gradient h-full flex flex-col">
-            <SidebarHeader className="border-b border-white/20 p-6 flex-shrink-0">
+            <SidebarHeader className="border-b border-gray-200 p-6 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-10" />
                 <div>
-                  <h2 className="font-bold text-white text-lg">Tiefbau.Cloud</h2>
-                  <p className="text-xs text-white/70">Auftragsverwaltung</p>
+                  <h2 className="font-bold text-gray-900 text-lg">Tiefbau.Cloud</h2>
+                  <p className="text-xs text-gray-500">Auftragsverwaltung</p>
                 </div>
               </div>
             </SidebarHeader>
 
             <SidebarContent className="p-4 flex-grow">
               <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-semibold text-white/80 uppercase tracking-wider px-2 py-3">
+                <SidebarGroupLabel className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2 py-3">
                   Navigation
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
@@ -751,17 +751,17 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
               </SidebarGroup>
             </SidebarContent>
 
-            <div className="p-4 mt-auto border-t border-white/20 flex-shrink-0">
+            <div className="p-4 mt-auto border-t border-gray-200 flex-shrink-0">
               {user ?
               <div className="flex items-center justify-between">
-                  <Link to={createPageUrl("Profile")} className="flex items-center gap-3 text-white/90 hover:text-white">
-                    <UserCircle className="w-8 h-8" />
+                  <Link to={createPageUrl("Profile")} className="flex items-center gap-3 text-gray-700 hover:text-gray-900">
+                    <UserCircle className="w-8 h-8 text-gray-500" />
                     <div className="text-sm">
-                      <p className="font-semibold">{user.full_name}</p>
-                      <p className="text-xs text-white/70">{user.email}</p>
+                      <p className="font-semibold text-gray-800">{user.full_name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
                     </div>
                   </Link>
-                  <Button variant="ghost" size="icon" onClick={handleLogout} className="text-white/70 hover:text-white hover:bg-white/10">
+                  <Button variant="ghost" size="icon" onClick={handleLogout} className="text-gray-500 hover:text-gray-800 hover:bg-gray-100">
                     <LogOut className="w-5 h-5" />
                   </Button>
                 </div> :
