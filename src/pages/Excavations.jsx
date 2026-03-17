@@ -259,6 +259,14 @@ export default function ExcavationsPage() {
 
         {renderContent()}
       </div>
+
+      <MoveExcavationsDialog
+        open={showMoveDialog}
+        onClose={() => setShowMoveDialog(false)}
+        selectedExcavations={excavations.filter(e => selectedIds.includes(e.id))}
+        projects={projects}
+        onMove={handleMoveExcavations}
+      />
     </div>
   );
 }
