@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Search, Filter, Shovel, Users } from "lucide-react";
 import ExcavationForm from "../components/excavations/ExcavationForm";
 import ExcavationCard from "../components/excavations/ExcavationCard";
+import MoveExcavationsDialog from "../components/excavations/MoveExcavationsDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ExcavationsPage() {
