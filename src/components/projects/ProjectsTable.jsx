@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, X, Search } from "lucide-react";
@@ -35,8 +34,8 @@ const projectStatusColors = {
   "Auftrag angelegt mit VAO von prj": "bg-blue-100 border-blue-200"
 };
 
-// Multi-Select Dropdown Filter für Spalten
-function MultiColFilter({ selected, onChange, options, placeholder }) {
+// Combobox-Style Single-Select mit Suchfeld und Radio-Buttons
+function ColFilter({ selected, onChange, options, placeholder, searchPlaceholder }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const ref = useRef(null);
@@ -47,12 +46,13 @@ function MultiColFilter({ selected, onChange, options, placeholder }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()));
-  const isActive = selected.length > 0;
+  const filtered = options.filter(o => String(o).toLowerCase().includes(search.toLowerCase()));
+  const isActive = selected !== "" && selected !== null && selected !== undefined;
 
-  const toggle = (val) => {
-    if (selected.includes(val)) onChange(selected.filter(v => v !== val));
-    else onChange([...selected, val]);
+  const select = (val) => {
+    onChange(val === selected ? "" : val);
+    setOpen(false);
+    setSearch("");
   };
 
   return (
@@ -66,15 +66,10 @@ function MultiColFilter({ selected, onChange, options, placeholder }) {
             : "bg-white border-gray-200 text-gray-500 hover:border-orange-300"
         }`}
       >
-        <span className="truncate">
-          {isActive ? `${selected.length} gewählt` : (placeholder || "Alle")}
-        </span>
+        <span className="truncate max-w-[80%]">{isActive ? selected : (placeholder || "Alle")}</span>
         <div className="flex items-center gap-0.5 flex-shrink-0">
           {isActive && (
-            <span
-              onClick={e => { e.stopPropagation(); onChange([]); }}
-              className="hover:text-red-500 cursor-pointer"
-            >
+            <span onClick={e => { e.stopPropagation(); onChange(""); setSearch(""); }} className="hover:text-red-500 cursor-pointer">
               <X className="w-3 h-3" />
             </span>
           )}
@@ -83,7 +78,7 @@ function MultiColFilter({ selected, onChange, options, placeholder }) {
       </button>
 
       {open && (
-        <div className="absolute top-7 left-0 z-50 w-56 bg-white border border-gray-200 rounded-lg shadow-xl">
+        <div className="absolute top-7 left-0 z-[100] w-56 bg-white border border-gray-200 rounded-lg shadow-xl">
           <div className="p-2 border-b border-gray-100">
             <div className="relative">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
@@ -91,7 +86,7 @@ function MultiColFilter({ selected, onChange, options, placeholder }) {
                 autoFocus
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Suchen..."
+                placeholder={searchPlaceholder || `${placeholder || 'Eintrag'} suchen...`}
                 className="w-full h-6 pl-6 pr-2 text-xs border border-gray-200 rounded focus:outline-none focus:border-orange-400"
               />
             </div>
@@ -101,32 +96,26 @@ function MultiColFilter({ selected, onChange, options, placeholder }) {
               <div className="text-xs text-gray-400 text-center py-3">Keine Ergebnisse</div>
             ) : (
               filtered.map(opt => (
-                <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-orange-50 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(opt)}
-                    onChange={() => toggle(opt)}
-                    className="w-3 h-3 text-orange-500 rounded"
-                  />
+                <label
+                  key={opt}
+                  onClick={() => select(opt)}
+                  className={`flex items-center gap-2 px-3 py-1.5 hover:bg-orange-50 cursor-pointer ${selected === opt ? 'bg-orange-50' : ''}`}
+                >
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${selected === opt ? 'border-orange-500 bg-orange-500' : 'border-gray-300'}`}>
+                    {selected === opt && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
                   <span className="text-xs text-gray-700 truncate">{opt}</span>
                 </label>
               ))
             )}
           </div>
-          {selected.length > 0 && (
-            <div className="p-2 border-t border-gray-100">
-              <button onClick={() => onChange([])} className="text-xs text-orange-600 hover:underline w-full text-center">
-                Alle abwählen
-              </button>
-            </div>
-          )}
         </div>
       )}
     </div>
   );
 }
 
-// Einfacher Text-Filter für freie Texteingabe
+// Einfacher Text-Filter
 function TextColFilter({ value, onChange, placeholder }) {
   return (
     <div className="relative mt-1">
@@ -140,10 +129,7 @@ function TextColFilter({ value, onChange, placeholder }) {
         onClick={e => e.stopPropagation()}
       />
       {value && (
-        <button
-          onClick={e => { e.stopPropagation(); onChange(""); }}
-          className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-red-500"
-        >
+        <button onClick={e => { e.stopPropagation(); onChange(""); }} className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-red-500">
           <X className="w-3 h-3" />
         </button>
       )}
@@ -151,14 +137,68 @@ function TextColFilter({ value, onChange, placeholder }) {
   );
 }
 
+// Ja/Nein Filter für Checkboxen
+function BoolColFilter({ value, onChange, placeholder }) {
+  const options = [
+    { label: "✅ Ja", val: "yes" },
+    { label: "❌ Nein", val: "no" },
+  ];
+  return (
+    <div className="mt-1 flex flex-col gap-0.5" onClick={e => e.stopPropagation()}>
+      {options.map(o => (
+        <label key={o.val} className="flex items-center gap-1 cursor-pointer">
+          <div
+            onClick={() => onChange(value === o.val ? "" : o.val)}
+            className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center flex-shrink-0 cursor-pointer ${value === o.val ? 'border-orange-500 bg-orange-500' : 'border-gray-300 bg-white'}`}
+          >
+            {value === o.val && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+          </div>
+          <span className="text-xs text-gray-600">{o.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+// BA/FA Farb-Filter
+function ColorFilter({ value, onChange }) {
+  const options = [
+    { label: "🔴", val: "rot" },
+    { label: "🟡", val: "gelb" },
+    { label: "🟢", val: "grün" },
+  ];
+  return (
+    <div className="mt-1 flex gap-1" onClick={e => e.stopPropagation()}>
+      {options.map(o => (
+        <button
+          key={o.val}
+          onClick={() => onChange(value === o.val ? "" : o.val)}
+          className={`text-sm leading-none rounded border px-0.5 py-0.5 transition-all ${value === o.val ? 'border-orange-400 bg-orange-100 scale-110' : 'border-gray-200 bg-white opacity-60 hover:opacity-100'}`}
+          title={o.val}
+        >
+          {o.label}
+        </button>
+      ))}
+      {value && <button onClick={() => onChange("")} className="text-gray-400 hover:text-red-400 ml-0.5"><X className="w-3 h-3" /></button>}
+    </div>
+  );
+}
+
 const EMPTY_FILTERS = {
   project_number: "",
-  order_type: [],
+  order_type: "",
   sm_number: "",
-  city: [],
+  city: "",
   street: "",
-  contact_person: [],
-  project_status: [],
+  contact_person: "",
+  vao_status: "",
+  ba_status: "",
+  fa_status: "",
+  project_status: "",
+  material_booking_completed: "",
+  documentation_completed: "",
+  ev_ta: "",
+  ev_sa: "",
 };
 
 export default function ProjectsTable({
@@ -167,26 +207,34 @@ export default function ProjectsTable({
   updatingProject, confirmDialog, handleStatusChange, projectStatusOptions
 }) {
   const [colFilters, setColFilters] = useState(EMPTY_FILTERS);
-
   const setColFilter = (col, val) => setColFilters(prev => ({ ...prev, [col]: val }));
 
-  const hasColFilters = colFilters.project_number !== "" ||
-    colFilters.sm_number !== "" || colFilters.street !== "" ||
-    colFilters.order_type.length > 0 || colFilters.city.length > 0 ||
-    colFilters.contact_person.length > 0 || colFilters.project_status.length > 0;
+  const hasColFilters = Object.values(colFilters).some(v => v !== "");
 
-  // Alle Projekte für unique-Options
   const allRows = [...mainProjects, ...Array.from(followUpsByParent.values()).flat()];
   const unique = (field) => [...new Set(allRows.map(p => p[field]).filter(Boolean))].sort();
+  const uniqueVaoStatus = [...new Set(allRows.map(p => p.vao_status).filter(Boolean))].sort();
 
   const applyColFilters = (p) => {
-    if (colFilters.project_number && !(p.project_number || '').toLowerCase().includes(colFilters.project_number.toLowerCase())) return false;
-    if (colFilters.sm_number && !(p.sm_number || '').toLowerCase().includes(colFilters.sm_number.toLowerCase())) return false;
-    if (colFilters.street && !(p.street || '').toLowerCase().includes(colFilters.street.toLowerCase())) return false;
-    if (colFilters.order_type.length > 0 && !colFilters.order_type.includes(p.order_type)) return false;
-    if (colFilters.city.length > 0 && !colFilters.city.includes(p.city)) return false;
-    if (colFilters.contact_person.length > 0 && !colFilters.contact_person.includes(p.contact_person)) return false;
-    if (colFilters.project_status.length > 0 && !colFilters.project_status.includes(p.project_status)) return false;
+    const cf = colFilters;
+    if (cf.project_number && !(p.project_number || '').toLowerCase().includes(cf.project_number.toLowerCase())) return false;
+    if (cf.sm_number && !(p.sm_number || '').toLowerCase().includes(cf.sm_number.toLowerCase())) return false;
+    if (cf.street && !(p.street || '').toLowerCase().includes(cf.street.toLowerCase())) return false;
+    if (cf.order_type && (p.order_type || '') !== cf.order_type) return false;
+    if (cf.city && (p.city || '') !== cf.city) return false;
+    if (cf.contact_person && (p.contact_person || '') !== cf.contact_person) return false;
+    if (cf.vao_status && (p.vao_status || '') !== cf.vao_status) return false;
+    if (cf.ba_status && (p.ba_status || '') !== cf.ba_status) return false;
+    if (cf.fa_status && (p.fa_status || '') !== cf.fa_status) return false;
+    if (cf.project_status && (p.project_status || '') !== cf.project_status) return false;
+    if (cf.material_booking_completed === 'yes' && !p.material_booking_completed) return false;
+    if (cf.material_booking_completed === 'no' && p.material_booking_completed) return false;
+    if (cf.documentation_completed === 'yes' && !p.documentation_completed) return false;
+    if (cf.documentation_completed === 'no' && p.documentation_completed) return false;
+    if (cf.ev_ta === 'yes' && !p.ev_ta) return false;
+    if (cf.ev_ta === 'no' && p.ev_ta) return false;
+    if (cf.ev_sa === 'yes' && !p.ev_sa) return false;
+    if (cf.ev_sa === 'no' && p.ev_sa) return false;
     return true;
   };
 
@@ -261,7 +309,7 @@ export default function ProjectsTable({
             </div>
           </button>
         </TableCell>
-        <TableCell className="py-1 px-2 w-20 text-center" onClick={e => e.stopPropagation()}>
+        <TableCell className="py-1 px-2 w-24 text-center" onClick={e => e.stopPropagation()}>
           <div className="flex flex-col items-center gap-1">
             <div className="flex items-center gap-1">
               <span className="text-xs text-gray-600">BA</span>
@@ -315,7 +363,7 @@ export default function ProjectsTable({
         <TableCell className="py-1 px-2 text-center w-16" onClick={e => e.stopPropagation()}>
           <input type="checkbox" checked={project.documentation_completed || false} onChange={e => handleCheckboxChange(project.id, 'documentation_completed', e.target.checked)} disabled={updatingProject === project.id || (confirmDialog.show && confirmDialog.projectId === project.id && confirmDialog.field === 'documentation_completed')} className="w-3.5 h-3.5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500" />
         </TableCell>
-        <TableCell className="py-1 px-2 text-center w-16" onClick={e => e.stopPropagation()}>
+        <TableCell className="py-1 px-2 text-center w-20" onClick={e => e.stopPropagation()}>
           <div className="flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-0.5">
               <input type="checkbox" checked={project.ev_ta || false} onChange={e => handleCheckboxChange(project.id, 'ev_ta', e.target.checked)} disabled={updatingProject === project.id} className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500" />
@@ -331,23 +379,32 @@ export default function ProjectsTable({
     );
   });
 
-  const totalActive = (filteredMain.length + Array.from(filteredFollowUps.values()).flat().length);
+  const totalActive = filteredMain.length + Array.from(filteredFollowUps.values()).flat().length;
+
+  // Labels für aktive Filter-Badges
+  const boolLabel = (val) => val === 'yes' ? '✅ Ja' : val === 'no' ? '❌ Nein' : '';
 
   return (
     <>
       <Card className="card-elevation border-none hidden md:block">
         <CardContent className="p-0">
-          {/* Aktive Filter-Badges + Reset */}
           {hasColFilters && (
             <div className="px-3 py-2 border-b border-orange-100 bg-orange-50/60 flex flex-wrap items-center gap-2">
-              <span className="text-xs text-gray-500 font-medium">Spaltenfilter:</span>
+              <span className="text-xs text-gray-500 font-medium">Spaltenfilter aktiv:</span>
               {colFilters.project_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Nr: {colFilters.project_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_number', '')} /></Badge>}
               {colFilters.sm_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">SM: {colFilters.sm_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('sm_number', '')} /></Badge>}
               {colFilters.street && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Straße: {colFilters.street}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('street', '')} /></Badge>}
-              {colFilters.order_type.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('order_type', colFilters.order_type.filter(x => x !== v))} /></Badge>)}
-              {colFilters.city.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('city', colFilters.city.filter(x => x !== v))} /></Badge>)}
-              {colFilters.contact_person.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('contact_person', colFilters.contact_person.filter(x => x !== v))} /></Badge>)}
-              {colFilters.project_status.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_status', colFilters.project_status.filter(x => x !== v))} /></Badge>)}
+              {colFilters.order_type && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Art: {colFilters.order_type}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('order_type', '')} /></Badge>}
+              {colFilters.city && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Stadt: {colFilters.city}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('city', '')} /></Badge>}
+              {colFilters.contact_person && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Ansp.: {colFilters.contact_person}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('contact_person', '')} /></Badge>}
+              {colFilters.vao_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">VAO: {colFilters.vao_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('vao_status', '')} /></Badge>}
+              {colFilters.ba_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">BA: {colFilters.ba_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ba_status', '')} /></Badge>}
+              {colFilters.fa_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">FA: {colFilters.fa_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('fa_status', '')} /></Badge>}
+              {colFilters.project_status && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Status: {colFilters.project_status}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_status', '')} /></Badge>}
+              {colFilters.material_booking_completed && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Mat.: {boolLabel(colFilters.material_booking_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('material_booking_completed', '')} /></Badge>}
+              {colFilters.documentation_completed && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Dok.: {boolLabel(colFilters.documentation_completed)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('documentation_completed', '')} /></Badge>}
+              {colFilters.ev_ta && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">EV-TA: {boolLabel(colFilters.ev_ta)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_ta', '')} /></Badge>}
+              {colFilters.ev_sa && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">EV-SA: {boolLabel(colFilters.ev_sa)}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('ev_sa', '')} /></Badge>}
               <button onClick={() => setColFilters(EMPTY_FILTERS)} className="ml-auto text-xs text-orange-600 hover:underline flex items-center gap-1">
                 <X className="w-3 h-3" /> Alle leeren
               </button>
@@ -356,44 +413,79 @@ export default function ProjectsTable({
           )}
 
           <div className="overflow-x-auto">
-            <Table className="min-w-[1200px]">
+            <Table className="min-w-[1400px]">
               <TableHeader>
-                {/* Spalten-Titel Zeile */}
-                <TableRow className="h-8 bg-gray-50 border-b border-gray-200">
-                  <TableHead className="py-1 px-2 w-32 text-xs font-semibold text-gray-700">
+                <TableRow className="bg-gray-50 border-b-2 border-gray-200 align-top">
+                  <TableHead className="py-2 px-2 w-32 text-xs font-semibold text-gray-700 align-top">
                     Projekt-Nr.
                     <TextColFilter value={colFilters.project_number} onChange={v => setColFilter('project_number', v)} placeholder="Nr..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     Auftragsart
-                    <MultiColFilter selected={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} placeholder="Alle" />
+                    <ColFilter selected={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} placeholder="Alle" searchPlaceholder="Auftragsart suchen..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-24 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-24 text-xs font-semibold text-gray-700 align-top">
                     SM
                     <TextColFilter value={colFilters.sm_number} onChange={v => setColFilter('sm_number', v)} placeholder="SM..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
                     Stadt
-                    <MultiColFilter selected={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} placeholder="Alle" />
+                    <ColFilter selected={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} placeholder="Alle" searchPlaceholder="Stadt suchen..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
                     Straße
                     <TextColFilter value={colFilters.street} onChange={v => setColFilter('street', v)} placeholder="Straße..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
                     Ansprechp.
-                    <MultiColFilter selected={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} placeholder="Alle" />
+                    <ColFilter selected={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} placeholder="Alle" searchPlaceholder="Person suchen..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-44 text-xs font-semibold text-gray-700">VAO</TableHead>
-                  <TableHead className="py-1 px-2 w-20 text-center text-xs font-semibold text-gray-700">BA/FA</TableHead>
-                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">Termine</TableHead>
-                  <TableHead className="py-1 px-2 w-52 text-xs font-semibold text-gray-700">
+                  <TableHead className="py-2 px-2 w-44 text-xs font-semibold text-gray-700 align-top">
+                    VAO
+                    <ColFilter selected={colFilters.vao_status} onChange={v => setColFilter('vao_status', v)} options={uniqueVaoStatus} placeholder="Alle" searchPlaceholder="VAO-Status suchen..." />
+                  </TableHead>
+                  <TableHead className="py-2 px-2 w-24 text-center text-xs font-semibold text-gray-700 align-top">
+                    BA/FA
+                    <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500 w-5">BA</span>
+                        <ColorFilter value={colFilters.ba_status} onChange={v => setColFilter('ba_status', v)} />
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500 w-5">FA</span>
+                        <ColorFilter value={colFilters.fa_status} onChange={v => setColFilter('fa_status', v)} />
+                      </div>
+                    </div>
+                  </TableHead>
+                  <TableHead className="py-2 px-2 w-36 text-xs font-semibold text-gray-700 align-top">
+                    Termine
+                    {/* Keine sinnvoller Spaltenfilter für Datumswerte in dieser Ansicht */}
+                  </TableHead>
+                  <TableHead className="py-2 px-2 w-52 text-xs font-semibold text-gray-700 align-top">
                     Status
-                    <MultiColFilter selected={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} placeholder="Alle" />
+                    <ColFilter selected={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} placeholder="Alle" searchPlaceholder="Status suchen..." />
                   </TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Mat.</TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Dok.</TableHead>
-                  <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">EV</TableHead>
+                  <TableHead className="py-2 px-2 w-16 text-center text-xs font-semibold text-gray-700 align-top">
+                    Mat.
+                    <BoolColFilter value={colFilters.material_booking_completed} onChange={v => setColFilter('material_booking_completed', v)} />
+                  </TableHead>
+                  <TableHead className="py-2 px-2 w-16 text-center text-xs font-semibold text-gray-700 align-top">
+                    Dok.
+                    <BoolColFilter value={colFilters.documentation_completed} onChange={v => setColFilter('documentation_completed', v)} />
+                  </TableHead>
+                  <TableHead className="py-2 px-2 w-20 text-center text-xs font-semibold text-gray-700 align-top">
+                    EV
+                    <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-gray-500 w-5">TA</span>
+                        <BoolColFilter value={colFilters.ev_ta} onChange={v => setColFilter('ev_ta', v)} />
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <span className="text-xs text-gray-500 w-5">SA</span>
+                        <BoolColFilter value={colFilters.ev_sa} onChange={v => setColFilter('ev_sa', v)} />
+                      </div>
+                    </div>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
