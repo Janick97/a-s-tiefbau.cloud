@@ -107,26 +107,6 @@ export default function AdminDashboard({
   return (
     <div className="space-y-6">
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: "Aktive Projekte", value: stats.activeProjects, sub: `von ${stats.totalProjects} gesamt` },
-          { label: "Montageaufträge offen", value: stats.openMontage },
-          { label: "Offene Aufgaben", value: stats.openTasks },
-          { label: "Gesamtumsatz", value: `€${Math.round(stats.totalRevenue / 1000)}k` },
-        ].map((kpi, i) => (
-          <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-            <Card className="card-elevation border-none">
-              <CardContent className="p-4">
-                <p className="text-xs text-gray-500 mb-1">{kpi.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{kpi.value}</p>
-                {kpi.sub && <p className="text-xs text-gray-400 mt-0.5">{kpi.sub}</p>}
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
       {/* Alerts */}
       {alerts.length > 0 && (
         <div className="space-y-2">
