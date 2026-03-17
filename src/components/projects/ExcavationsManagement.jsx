@@ -60,6 +60,10 @@ export default function ExcavationsManagement({
             u.position === 'Bauleiter' || u.position === 'Oberfläche'
           );
           setBauleiterList(bauleiterUsers);
+          
+          // Lade alle Projekte für den Move-Dialog
+          const projectsData = await Project.list("-created_date");
+          setAllProjects(Array.isArray(projectsData) ? projectsData : []);
         }
       } catch (error) {
         console.log("Fehler beim Laden:", error);
