@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Trash2 } from "lucide-react";
+import { X, Trash2, Pencil, Check } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function NodeInfoPanel({ node, connections, onClose, onStatusChange, onDelete }) {
-  const [newStatus, setNewStatus] = React.useState(node?.status || 'DUNKEL');
+  const [newStatus, setNewStatus] = useState(node?.status || 'DUNKEL');
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState(node?.node_name || '');
+  const queryClient = useQueryClient();
 
   if (!node) return null;
 
@@ -14,99 +20,92 @@ export default function NodeInfoPanel({ node, connections, onClose, onStatusChan
     c => c.from_node_id === node.id || c.to_node_id === node.id
   );
 
-  const statusColors = {
-    DUNKEL: 'bg-gray-500',
-    LICHT: 'bg-green-500',
-    STÖRUNG: 'bg-red-500'
-  };
+  const statusColors = { DUNKEL: 'bg-gray-500', LICHT: 'bg-green-500', STÖRUNG: 'bg-red-500' };
 
-  const typeLabels = {
-    HVT: 'Hauptverteiler',
-    MUFFE: 'Muffe',
-    NVT: 'Netzverteiler'
+  const handleSaveName = async () => {
+    if (!nameValue.trim() || nameValue === node.node_name) { setEditingName(false); return; }
+    await base44.entities.VisioNode.update(node.id, { node_name: nameValue.trim() });
+    queryClient.invalidateQueries(['visio-nodes']);
+    setEditingName(false);
   };
 
   return (
-    <Card className="absolute top-4 right-4 w-80 shadow-2xl z-10">
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="text-lg">Knotendetails</CardTitle>
-        <div className="flex gap-2">
-          <Button variant="ghost" size="icon" onClick={() => {
-            if (confirm('Möchten Sie diesen Knoten wirklich löschen?')) {
-              onDelete(node.id);
-            }
-          }} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+    <Card className="absolute top-4 right-4 w-72 shadow-2xl z-10">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 pt-3 px-4">
+        <Badge variant="outline" className="text-xs">{node.node_type}</Badge>
+        <div className="flex gap-1">
+          <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:bg-red-50"
+            onClick={() => { if (confirm('Knoten wirklich löschen?')) onDelete(node.id); }}>
             <Trash2 className="w-4 h-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 px-4 pb-4">
+        {/* Editierbarer Name */}
         <div>
-          <p className="text-sm text-gray-500 mb-1">Typ</p>
-          <Badge variant="outline" className="text-sm">{typeLabels[node.node_type]}</Badge>
+          <p className="text-xs text-gray-500 mb-1">Bezeichnung</p>
+          {editingName ? (
+            <div className="flex gap-1">
+              <Input
+                className="h-8 text-sm font-semibold"
+                value={nameValue}
+                onChange={e => setNameValue(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSaveName(); if (e.key === 'Escape') setEditingName(false); }}
+                autoFocus
+              />
+              <Button size="icon" className="h-8 w-8" onClick={handleSaveName}><Check className="w-4 h-4" /></Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 group">
+              <span className="font-bold text-base">{node.node_name}</span>
+              <button onClick={() => { setNameValue(node.node_name); setEditingName(true); }}
+                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 transition-opacity">
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
+        {/* Status */}
         <div>
-          <p className="text-sm text-gray-500 mb-1">Bezeichnung</p>
-          <p className="font-semibold text-lg">{node.node_name}</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-gray-500 mb-2">Status ändern</p>
+          <p className="text-xs text-gray-500 mb-1">Status</p>
           <div className="flex gap-2">
             <Select value={newStatus} onValueChange={setNewStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="h-8 text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="DUNKEL">DUNKEL</SelectItem>
-                <SelectItem value="LICHT">LICHT</SelectItem>
-                <SelectItem value="STÖRUNG">STÖRUNG</SelectItem>
+                <SelectItem value="DUNKEL">Dunkel</SelectItem>
+                <SelectItem value="LICHT">Licht</SelectItem>
+                <SelectItem value="STÖRUNG">Störung</SelectItem>
               </SelectContent>
             </Select>
-            <Button 
-              size="sm"
-              onClick={() => onStatusChange(node.id, newStatus)}
-              disabled={newStatus === node.status}
-            >
-              Ändern
+            <Button size="sm" className="h-8" onClick={() => onStatusChange(node.id, newStatus)} disabled={newStatus === node.status}>
+              OK
             </Button>
           </div>
-          <div className="mt-2">
-            <Badge className={statusColors[node.status]}>{node.status}</Badge>
-          </div>
         </div>
 
-        {node.additional_info && (
+        {/* Verbindungen */}
+        {connectedConnections.length > 0 && (
           <div>
-            <p className="text-sm text-gray-500 mb-1">Zusatzinfo</p>
-            <p className="text-sm">{node.additional_info}</p>
+            <p className="text-xs text-gray-500 mb-1">Verbindungen ({connectedConnections.length})</p>
+            <div className="space-y-1 max-h-32 overflow-y-auto">
+              {connectedConnections.map(conn => (
+                <div key={conn.id} className="flex items-center justify-between text-xs bg-gray-50 px-2 py-1.5 rounded">
+                  <span className="font-medium">{conn.cable_type}</span>
+                  <div className="flex items-center gap-1.5">
+                    {conn.length_meters > 0 && <span className="text-gray-500">{conn.length_meters}m</span>}
+                    <span className={`w-2 h-2 rounded-full ${conn.status === 'UNTER_LICHT' ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
-
-        <div>
-          <p className="text-sm text-gray-500 mb-2">Verbindungen ({connectedConnections.length})</p>
-          <div className="space-y-2 max-h-40 overflow-y-auto">
-            {connectedConnections.map(conn => (
-              <div key={conn.id} className="text-xs bg-gray-50 p-2 rounded">
-                <p className="font-medium">{conn.cable_type}</p>
-                {conn.length_meters && (
-                  <p className="text-gray-600">{conn.length_meters}m</p>
-                )}
-                <Badge className={`mt-1 ${statusColors[conn.status]} text-xs`}>
-                  {conn.status}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="text-xs text-gray-500 pt-2 border-t">
-          <p>Position: X={Math.round(node.position_x)}, Y={Math.round(node.position_y)}</p>
-        </div>
       </CardContent>
     </Card>
   );

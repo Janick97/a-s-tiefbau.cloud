@@ -1,141 +1,76 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+
+const CABLE_TYPES = ["2x12 Minikabel", "8x12 Minikabel", "6R/22", "12R/44"];
 
 export default function AddConnectionDialog({ open, onClose, onSubmit, projectId, nodes }) {
-  const [formData, setFormData] = useState({
-    from_node_id: "",
-    to_node_id: "",
-    cable_type: "",
-    length_meters: 0,
-    status: "KEINE_VERBINDUNG",
-    notes: ""
-  });
+  const [fromId, setFromId] = useState("");
+  const [toId, setToId] = useState("");
+  const [cableType, setCableType] = useState(CABLE_TYPES[0]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
+    if (!fromId || !toId || fromId === toId) return;
     onSubmit({
-      ...formData,
-      project_id: projectId
-    });
-    setFormData({
-      from_node_id: "",
-      to_node_id: "",
-      cable_type: "",
+      from_node_id: fromId,
+      to_node_id: toId,
+      cable_type: cableType,
       length_meters: 0,
       status: "KEINE_VERBINDUNG",
-      notes: ""
+      notes: "",
+      project_id: projectId
     });
+    setFromId(""); setToId(""); setCableType(CABLE_TYPES[0]);
+    onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Neue Verbindung hinzufügen</DialogTitle>
+          <DialogTitle>Verbindung erstellen</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Von Knoten *</Label>
-              <Select
-                required
-                value={formData.from_node_id}
-                onValueChange={(value) => setFormData({ ...formData, from_node_id: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Startknoten wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {nodes.map((node) => (
-                    <SelectItem key={node.id} value={node.id}>
-                      {node.node_type} - {node.node_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Zu Knoten *</Label>
-              <Select
-                required
-                value={formData.to_node_id}
-                onValueChange={(value) => setFormData({ ...formData, to_node_id: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Zielknoten wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {nodes.map((node) => (
-                    <SelectItem key={node.id} value={node.id}>
-                      {node.node_type} - {node.node_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Kabeltyp *</Label>
-              <Select
-                required
-                value={formData.cable_type}
-                onValueChange={(value) => setFormData({ ...formData, cable_type: value })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Kabeltyp wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2x12 Minikabel">2x12 Minikabel</SelectItem>
-                  <SelectItem value="8x12 Minikabel">8x12 Minikabel</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Länge (Meter)</Label>
-              <Input
-                type="number"
-                step="0.1"
-                value={formData.length_meters}
-                onChange={(e) => setFormData({ ...formData, length_meters: parseFloat(e.target.value) })}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="KEINE_VERBINDUNG">Keine Verbindung</SelectItem>
-                  <SelectItem value="UNTER_LICHT">Unter Licht</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Notizen</Label>
-              <Textarea
-                placeholder="Optionale Anmerkungen..."
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              />
-            </div>
+        <div className="space-y-3 py-2">
+          <div className="space-y-1">
+            <Label>Von</Label>
+            <Select value={fromId} onValueChange={setFromId}>
+              <SelectTrigger><SelectValue placeholder="Startknoten..." /></SelectTrigger>
+              <SelectContent>
+                {nodes.map(n => (
+                  <SelectItem key={n.id} value={n.id}>{n.node_type} – {n.node_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Abbrechen
-            </Button>
-            <Button type="submit">Verbindung erstellen</Button>
-          </DialogFooter>
-        </form>
+          <div className="space-y-1">
+            <Label>Nach</Label>
+            <Select value={toId} onValueChange={setToId}>
+              <SelectTrigger><SelectValue placeholder="Zielknoten..." /></SelectTrigger>
+              <SelectContent>
+                {nodes.filter(n => n.id !== fromId).map(n => (
+                  <SelectItem key={n.id} value={n.id}>{n.node_type} – {n.node_name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label>Kabeltyp</Label>
+            <Select value={cableType} onValueChange={setCableType}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {CABLE_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Abbrechen</Button>
+          <Button onClick={handleSubmit} disabled={!fromId || !toId || fromId === toId}>
+            Erstellen
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

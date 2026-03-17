@@ -1,125 +1,52 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 
-export default function AddNodeDialog({ open, onClose, onSubmit, projectId }) {
-  const [formData, setFormData] = useState({
-    node_type: "MUFFE",
-    node_name: "",
-    position_x: 400,
-    position_y: 300,
-    status: "DUNKEL",
-    additional_info: ""
-  });
+const NODE_TYPES = [
+  { type: "HVT", label: "HVT", desc: "Hauptverteiler", color: "bg-blue-100 border-blue-300 text-blue-800" },
+  { type: "MUFFE", label: "Muffe", desc: "Kabelmuffe", color: "bg-purple-100 border-purple-300 text-purple-800" },
+  { type: "Ü-MUFFE", label: "Ü-Muffe", desc: "Übergangsmuffe", color: "bg-indigo-100 border-indigo-300 text-indigo-800" },
+  { type: "NVT", label: "NVT", desc: "Netzverteiler", color: "bg-green-100 border-green-300 text-green-800" },
+  { type: "KÜG", label: "KÜG", desc: "Kabelübergabe", color: "bg-orange-100 border-orange-300 text-orange-800" },
+];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+export default function AddNodeDialog({ open, onClose, onSubmit, projectId, existingNodes = [] }) {
+  const getNextName = (type) => {
+    const count = existingNodes.filter(n => n.node_type === type).length + 1;
+    return `${type}-${String(count).padStart(3, '0')}`;
+  };
+
+  const handleSelect = (type) => {
     onSubmit({
-      ...formData,
+      node_type: type,
+      node_name: getNextName(type),
+      position_x: 200 + Math.random() * 400,
+      position_y: 150 + Math.random() * 300,
+      status: "DUNKEL",
+      additional_info: "",
       project_id: projectId
     });
-    setFormData({
-      node_type: "MUFFE",
-      node_name: "",
-      position_x: 400,
-      position_y: 300,
-      status: "DUNKEL",
-      additional_info: ""
-    });
+    onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Neuen Knoten hinzufügen</DialogTitle>
+          <DialogTitle>Welchen Knotentyp?</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Knotentyp</Label>
-              <Select
-                value={formData.node_type}
-                onValueChange={(value) => setFormData({ ...formData, node_type: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="HVT">HVT (Hauptverteiler)</SelectItem>
-                  <SelectItem value="MUFFE">Muffe</SelectItem>
-                  <SelectItem value="Ü-MUFFE">Ü-Muffe</SelectItem>
-                  <SelectItem value="NVT">NVT (Netzverteiler)</SelectItem>
-                  <SelectItem value="KÜG">KÜG</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Knotenname *</Label>
-              <Input
-                required
-                placeholder="z.B. HVT-001, M-034, NVT-112"
-                value={formData.node_name}
-                onChange={(e) => setFormData({ ...formData, node_name: e.target.value })}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Position X</Label>
-                <Input
-                  type="number"
-                  value={formData.position_x}
-                  onChange={(e) => setFormData({ ...formData, position_x: parseFloat(e.target.value) })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Position Y</Label>
-                <Input
-                  type="number"
-                  value={formData.position_y}
-                  onChange={(e) => setFormData({ ...formData, position_y: parseFloat(e.target.value) })}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DUNKEL">Dunkel</SelectItem>
-                  <SelectItem value="LICHT">Licht</SelectItem>
-                  <SelectItem value="STÖRUNG">Störung</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Zusätzliche Informationen</Label>
-              <Textarea
-                placeholder="Optionale Details..."
-                value={formData.additional_info}
-                onChange={(e) => setFormData({ ...formData, additional_info: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Abbrechen
-            </Button>
-            <Button type="submit">Knoten erstellen</Button>
-          </DialogFooter>
-        </form>
+        <div className="grid grid-cols-1 gap-2 py-2">
+          {NODE_TYPES.map(({ type, label, desc, color }) => (
+            <button
+              key={type}
+              onClick={() => handleSelect(type)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg border-2 text-left hover:scale-[1.02] transition-transform ${color}`}
+            >
+              <span className="font-bold text-base w-16">{label}</span>
+              <span className="text-sm opacity-70">{desc}</span>
+            </button>
+          ))}
+        </div>
       </DialogContent>
     </Dialog>
   );
