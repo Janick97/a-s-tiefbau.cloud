@@ -473,7 +473,7 @@ export default function ProjectsTable({
                     Dok.
                     <BoolColFilter value={colFilters.documentation_completed} onChange={v => setColFilter('documentation_completed', v)} />
                   </TableHead>
-                  <TableHead className="py-2 px-2 w-20 text-center text-xs font-semibold text-gray-700 align-top">
+                  <TableHead className="py-2 px-2 w-28 text-xs font-semibold text-gray-700 align-top">
                     EV
                     <div className="flex flex-col gap-1 mt-1" onClick={e => e.stopPropagation()}>
                       <div className="flex items-center gap-1">
