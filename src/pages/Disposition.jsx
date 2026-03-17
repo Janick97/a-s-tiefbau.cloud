@@ -87,6 +87,17 @@ export default function DispositionPage() {
       console.error('Fehler beim Laden der Daten:', error);
     }
     setIsLoading(false);
+
+    // Scroll-Position wiederherstellen (einmalig nach dem ersten Laden)
+    if (!scrollRestoredRef.current) {
+      scrollRestoredRef.current = true;
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+        if (saved?.scrollY) {
+          setTimeout(() => window.scrollTo({ top: saved.scrollY, behavior: 'instant' }), 100);
+        }
+      } catch {}
+    }
   };
 
   const handleAssignForeman = async (projectId, userId) => {
