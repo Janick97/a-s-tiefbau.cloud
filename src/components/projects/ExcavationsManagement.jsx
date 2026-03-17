@@ -512,9 +512,18 @@ export default function ExcavationsManagement({
                     transition={{ delay: index * 0.05 }}
                     className={`hover:bg-gray-50 cursor-pointer transition-colors ${
                       excavation.is_closed && excavation.is_backfilled ? 'bg-green-50 hover:bg-green-100' : ''
-                    }`}
-                    onClick={() => handleViewDetail(excavation)}
+                    } ${selectionMode && selectedIds.includes(excavation.id) ? 'bg-blue-50 hover:bg-blue-100' : ''}`}
+                    onClick={() => selectionMode ? handleSelectExcavation(excavation.id) : handleViewDetail(excavation)}
                   >
+                    {selectionMode && (
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={selectedIds.includes(excavation.id)}
+                          onCheckedChange={() => handleSelectExcavation(excavation.id)}
+                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                        />
+                      </TableCell>
+                    )}
                     <TableCell>
                       <Badge variant="outline" className="font-mono text-xs">
                         #{index + 1}
