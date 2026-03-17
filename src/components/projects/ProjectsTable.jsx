@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, ChevronUp, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FolderOpen, Shovel, Calendar, Edit, CornerDownRight, CheckCircle, ChevronDown, X, Search } from "lucide-react";
 import { createPageUrl } from "@/utils";
 
 const projectStatusColors = {
@@ -34,21 +35,114 @@ const projectStatusColors = {
   "Auftrag angelegt mit VAO von prj": "bg-blue-100 border-blue-200"
 };
 
-// Kleine Input-Komponente für Spaltenfilter
-function ColFilter({ value, onChange, placeholder }) {
+// Multi-Select Dropdown Filter für Spalten
+function MultiColFilter({ selected, onChange, options, placeholder }) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const filtered = options.filter(o => o.toLowerCase().includes(search.toLowerCase()));
+  const isActive = selected.length > 0;
+
+  const toggle = (val) => {
+    if (selected.includes(val)) onChange(selected.filter(v => v !== val));
+    else onChange([...selected, val]);
+  };
+
+  return (
+    <div ref={ref} className="relative mt-1" onClick={e => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        className={`w-full flex items-center justify-between gap-1 h-6 px-1.5 rounded border text-xs transition-colors ${
+          isActive
+            ? "bg-orange-100 border-orange-400 text-orange-700 font-semibold"
+            : "bg-white border-gray-200 text-gray-500 hover:border-orange-300"
+        }`}
+      >
+        <span className="truncate">
+          {isActive ? `${selected.length} gewählt` : (placeholder || "Alle")}
+        </span>
+        <div className="flex items-center gap-0.5 flex-shrink-0">
+          {isActive && (
+            <span
+              onClick={e => { e.stopPropagation(); onChange([]); }}
+              className="hover:text-red-500 cursor-pointer"
+            >
+              <X className="w-3 h-3" />
+            </span>
+          )}
+          <ChevronDown className="w-3 h-3" />
+        </div>
+      </button>
+
+      {open && (
+        <div className="absolute top-7 left-0 z-50 w-56 bg-white border border-gray-200 rounded-lg shadow-xl">
+          <div className="p-2 border-b border-gray-100">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400" />
+              <input
+                autoFocus
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Suchen..."
+                className="w-full h-6 pl-6 pr-2 text-xs border border-gray-200 rounded focus:outline-none focus:border-orange-400"
+              />
+            </div>
+          </div>
+          <div className="max-h-52 overflow-y-auto py-1">
+            {filtered.length === 0 ? (
+              <div className="text-xs text-gray-400 text-center py-3">Keine Ergebnisse</div>
+            ) : (
+              filtered.map(opt => (
+                <label key={opt} className="flex items-center gap-2 px-3 py-1.5 hover:bg-orange-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selected.includes(opt)}
+                    onChange={() => toggle(opt)}
+                    className="w-3 h-3 text-orange-500 rounded"
+                  />
+                  <span className="text-xs text-gray-700 truncate">{opt}</span>
+                </label>
+              ))
+            )}
+          </div>
+          {selected.length > 0 && (
+            <div className="p-2 border-t border-gray-100">
+              <button onClick={() => onChange([])} className="text-xs text-orange-600 hover:underline w-full text-center">
+                Alle abwählen
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Einfacher Text-Filter für freie Texteingabe
+function TextColFilter({ value, onChange, placeholder }) {
   return (
     <div className="relative mt-1">
-      <Input
+      <input
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder || "Filter..."}
-        className="h-6 text-xs px-1.5 pr-5 border-gray-200 bg-white focus:border-orange-400"
+        className={`w-full h-6 px-1.5 pr-5 text-xs rounded border transition-colors focus:outline-none ${
+          value ? "bg-orange-100 border-orange-400 text-orange-700 font-semibold" : "bg-white border-gray-200 text-gray-500 focus:border-orange-400"
+        }`}
         onClick={e => e.stopPropagation()}
       />
       {value && (
         <button
           onClick={e => { e.stopPropagation(); onChange(""); }}
-          className="absolute right-1 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-orange-400 hover:text-red-500"
         >
           <X className="w-3 h-3" />
         </button>
@@ -57,65 +151,46 @@ function ColFilter({ value, onChange, placeholder }) {
   );
 }
 
-// Select-Filter für Spalten
-function ColSelectFilter({ value, onChange, options, placeholder }) {
-  return (
-    <div className="mt-1" onClick={e => e.stopPropagation()}>
-      <Select value={value || "__all__"} onValueChange={v => onChange(v === "__all__" ? "" : v)}>
-        <SelectTrigger className="h-6 text-xs px-1.5 border-gray-200 bg-white focus:border-orange-400">
-          <SelectValue placeholder={placeholder || "Alle"} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="__all__">Alle</SelectItem>
-          {options.map(opt => (
-            <SelectItem key={opt} value={opt} className="text-xs">{opt}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
-  );
-}
+const EMPTY_FILTERS = {
+  project_number: "",
+  order_type: [],
+  sm_number: "",
+  city: [],
+  street: "",
+  contact_person: [],
+  project_status: [],
+};
 
 export default function ProjectsTable({
   isLoading, error, mainProjects, followUpsByParent,
   getVAOInfo, handleVaoClick, updatingVao, handleCheckboxChange,
   updatingProject, confirmDialog, handleStatusChange, projectStatusOptions
 }) {
-  // Spalten-Filter State
-  const [colFilters, setColFilters] = useState({
-    project_number: "",
-    order_type: "",
-    sm_number: "",
-    city: "",
-    street: "",
-    contact_person: "",
-    project_status: "",
-  });
+  const [colFilters, setColFilters] = useState(EMPTY_FILTERS);
 
   const setColFilter = (col, val) => setColFilters(prev => ({ ...prev, [col]: val }));
 
-  const hasColFilters = Object.values(colFilters).some(v => v !== "");
+  const hasColFilters = colFilters.project_number !== "" ||
+    colFilters.sm_number !== "" || colFilters.street !== "" ||
+    colFilters.order_type.length > 0 || colFilters.city.length > 0 ||
+    colFilters.contact_person.length > 0 || colFilters.project_status.length > 0;
 
-  // Alle Projekte aus mainProjects + followUps zusammenführen für unique-Optionen
+  // Alle Projekte für unique-Options
   const allRows = [...mainProjects, ...Array.from(followUpsByParent.values()).flat()];
   const unique = (field) => [...new Set(allRows.map(p => p[field]).filter(Boolean))].sort();
 
-  // Spaltenfilter anwenden
-  const applyColFilters = (project) => {
-    const cf = colFilters;
-    if (cf.project_number && !(project.project_number || '').toLowerCase().includes(cf.project_number.toLowerCase())) return false;
-    if (cf.order_type && (project.order_type || '') !== cf.order_type) return false;
-    if (cf.sm_number && !(project.sm_number || '').toLowerCase().includes(cf.sm_number.toLowerCase())) return false;
-    if (cf.city && (project.city || '') !== cf.city) return false;
-    if (cf.street && !(project.street || '').toLowerCase().includes(cf.street.toLowerCase())) return false;
-    if (cf.contact_person && (project.contact_person || '') !== cf.contact_person) return false;
-    if (cf.project_status && (project.project_status || '') !== cf.project_status) return false;
+  const applyColFilters = (p) => {
+    if (colFilters.project_number && !(p.project_number || '').toLowerCase().includes(colFilters.project_number.toLowerCase())) return false;
+    if (colFilters.sm_number && !(p.sm_number || '').toLowerCase().includes(colFilters.sm_number.toLowerCase())) return false;
+    if (colFilters.street && !(p.street || '').toLowerCase().includes(colFilters.street.toLowerCase())) return false;
+    if (colFilters.order_type.length > 0 && !colFilters.order_type.includes(p.order_type)) return false;
+    if (colFilters.city.length > 0 && !colFilters.city.includes(p.city)) return false;
+    if (colFilters.contact_person.length > 0 && !colFilters.contact_person.includes(p.contact_person)) return false;
+    if (colFilters.project_status.length > 0 && !colFilters.project_status.includes(p.project_status)) return false;
     return true;
   };
 
-  // Gefilterte mainProjects + followUps
   const filteredMain = mainProjects.filter(applyColFilters);
-  // Für followUps: entweder parent sichtbar und child passt, oder child passt direkt
   const filteredFollowUps = new Map();
   followUpsByParent.forEach((children, parentId) => {
     const filtered = children.filter(applyColFilters);
@@ -256,65 +331,69 @@ export default function ProjectsTable({
     );
   });
 
+  const totalActive = (filteredMain.length + Array.from(filteredFollowUps.values()).flat().length);
+
   return (
     <>
       <Card className="card-elevation border-none hidden md:block">
         <CardContent className="p-0">
+          {/* Aktive Filter-Badges + Reset */}
+          {hasColFilters && (
+            <div className="px-3 py-2 border-b border-orange-100 bg-orange-50/60 flex flex-wrap items-center gap-2">
+              <span className="text-xs text-gray-500 font-medium">Spaltenfilter:</span>
+              {colFilters.project_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Nr: {colFilters.project_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_number', '')} /></Badge>}
+              {colFilters.sm_number && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">SM: {colFilters.sm_number}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('sm_number', '')} /></Badge>}
+              {colFilters.street && <Badge variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">Straße: {colFilters.street}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('street', '')} /></Badge>}
+              {colFilters.order_type.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('order_type', colFilters.order_type.filter(x => x !== v))} /></Badge>)}
+              {colFilters.city.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('city', colFilters.city.filter(x => x !== v))} /></Badge>)}
+              {colFilters.contact_person.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('contact_person', colFilters.contact_person.filter(x => x !== v))} /></Badge>)}
+              {colFilters.project_status.map(v => <Badge key={v} variant="outline" className="text-xs gap-1 bg-orange-100 border-orange-300 text-orange-700">{v}<X className="w-3 h-3 cursor-pointer" onClick={() => setColFilter('project_status', colFilters.project_status.filter(x => x !== v))} /></Badge>)}
+              <button onClick={() => setColFilters(EMPTY_FILTERS)} className="ml-auto text-xs text-orange-600 hover:underline flex items-center gap-1">
+                <X className="w-3 h-3" /> Alle leeren
+              </button>
+              <span className="text-xs text-gray-400">{totalActive} Treffer</span>
+            </div>
+          )}
+
           <div className="overflow-x-auto">
             <Table className="min-w-[1200px]">
               <TableHeader>
                 {/* Spalten-Titel Zeile */}
-                <TableRow className="h-8 bg-gray-50">
-                  <TableHead className="py-1 px-2 w-32 text-xs font-semibold text-gray-700">Projekt-Nr.</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Auftragsart</TableHead>
-                  <TableHead className="py-1 px-2 w-24 text-xs font-semibold text-gray-700">SM</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Stadt</TableHead>
-                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">Straße</TableHead>
-                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">Ansprechp.</TableHead>
+                <TableRow className="h-8 bg-gray-50 border-b border-gray-200">
+                  <TableHead className="py-1 px-2 w-32 text-xs font-semibold text-gray-700">
+                    Projekt-Nr.
+                    <TextColFilter value={colFilters.project_number} onChange={v => setColFilter('project_number', v)} placeholder="Nr..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                    Auftragsart
+                    <MultiColFilter selected={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} placeholder="Alle" />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-24 text-xs font-semibold text-gray-700">
+                    SM
+                    <TextColFilter value={colFilters.sm_number} onChange={v => setColFilter('sm_number', v)} placeholder="SM..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                    Stadt
+                    <MultiColFilter selected={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} placeholder="Alle" />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">
+                    Straße
+                    <TextColFilter value={colFilters.street} onChange={v => setColFilter('street', v)} placeholder="Straße..." />
+                  </TableHead>
+                  <TableHead className="py-1 px-2 w-28 text-xs font-semibold text-gray-700">
+                    Ansprechp.
+                    <MultiColFilter selected={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} placeholder="Alle" />
+                  </TableHead>
                   <TableHead className="py-1 px-2 w-44 text-xs font-semibold text-gray-700">VAO</TableHead>
                   <TableHead className="py-1 px-2 w-20 text-center text-xs font-semibold text-gray-700">BA/FA</TableHead>
                   <TableHead className="py-1 px-2 w-36 text-xs font-semibold text-gray-700">Termine</TableHead>
-                  <TableHead className="py-1 px-2 w-52 text-xs font-semibold text-gray-700">Status</TableHead>
+                  <TableHead className="py-1 px-2 w-52 text-xs font-semibold text-gray-700">
+                    Status
+                    <MultiColFilter selected={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} placeholder="Alle" />
+                  </TableHead>
                   <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Mat.</TableHead>
                   <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">Dok.</TableHead>
                   <TableHead className="py-1 px-2 w-16 text-center text-xs font-semibold text-gray-700">EV</TableHead>
-                </TableRow>
-                {/* Spalten-Filter Zeile */}
-                <TableRow className="bg-orange-50/40 border-b border-orange-100">
-                  <TableHead className="py-1 px-2 w-32">
-                    <ColFilter value={colFilters.project_number} onChange={v => setColFilter('project_number', v)} placeholder="Nr..." />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-28">
-                    <ColSelectFilter value={colFilters.order_type} onChange={v => setColFilter('order_type', v)} options={unique('order_type')} />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-24">
-                    <ColFilter value={colFilters.sm_number} onChange={v => setColFilter('sm_number', v)} placeholder="SM..." />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-28">
-                    <ColSelectFilter value={colFilters.city} onChange={v => setColFilter('city', v)} options={unique('city')} />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-36">
-                    <ColFilter value={colFilters.street} onChange={v => setColFilter('street', v)} placeholder="Straße..." />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-28">
-                    <ColSelectFilter value={colFilters.contact_person} onChange={v => setColFilter('contact_person', v)} options={unique('contact_person')} />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-44">
-                    {/* VAO hat keinen einfachen Spaltenfilter */}
-                    {hasColFilters && (
-                      <button onClick={() => setColFilters({ project_number:"", order_type:"", sm_number:"", city:"", street:"", contact_person:"", project_status:"" })} className="text-xs text-orange-600 hover:underline flex items-center gap-1 mt-1">
-                        <X className="w-3 h-3" /> Leeren
-                      </button>
-                    )}
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-20"></TableHead>
-                  <TableHead className="py-1 px-2 w-36"></TableHead>
-                  <TableHead className="py-1 px-2 w-52">
-                    <ColSelectFilter value={colFilters.project_status} onChange={v => setColFilter('project_status', v)} options={unique('project_status')} />
-                  </TableHead>
-                  <TableHead className="py-1 px-2 w-16"></TableHead>
-                  <TableHead className="py-1 px-2 w-16"></TableHead>
-                  <TableHead className="py-1 px-2 w-16"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
