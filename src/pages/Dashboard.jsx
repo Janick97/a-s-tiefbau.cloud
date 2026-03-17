@@ -79,7 +79,52 @@ function NavigationCard({ title, description, icon: Icon, color, link, stats }) 
   );
 }
 
-// Uhrzeit & Wetter Widget
+// Kompaktes Header-Widget: Uhrzeit + Wetter
+function AdminHeaderWidget() {
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [weather, setWeather] = useState(null);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    loadWeather();
+    const weatherTimer = setInterval(loadWeather, 30 * 60 * 1000);
+    return () => { clearInterval(timer); clearInterval(weatherTimer); };
+  }, []);
+
+  const loadWeather = async () => {
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: "Aktuelles Wetter in 52353 Düren, Deutschland. Temperatur in Celsius und kurze Beschreibung.",
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            temperature: { type: "number" },
+            description: { type: "string" }
+          }
+        }
+      });
+      setWeather(response);
+    } catch (e) {
+      setWeather(null);
+    }
+  };
+
+  return (
+    <div className="hidden md:flex items-center gap-3 text-sm text-gray-600">
+      {weather && (
+        <span className="text-gray-500">
+          {Math.round(weather.temperature)}°C · {weather.description}
+        </span>
+      )}
+      <span className="font-medium text-gray-700 tabular-nums">
+        {currentTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
+      </span>
+    </div>
+  );
+}
+
+// Uhrzeit & Wetter Widget (groß – nicht mehr genutzt im Admin)
 function DateTimeWeatherWidget() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [weather, setWeather] = useState(null);
