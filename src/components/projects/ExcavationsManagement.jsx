@@ -434,6 +434,7 @@ export default function ExcavationsManagement({
           <Table>
             <TableHeader>
               <TableRow>
+                {selectionMode && <TableHead className="w-10"></TableHead>}
                 <TableHead className="w-12">#</TableHead>
                 <TableHead className="w-20">Platten/Pflaster</TableHead>
                 <TableHead className="w-20">Asphalt Fein</TableHead>
