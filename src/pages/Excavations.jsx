@@ -175,9 +175,28 @@ export default function ExcavationsPage() {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Ausgrabungen</h1>
             <p className="text-gray-600">Gruben und Gräben verwalten</p>
           </div>
-          <Button onClick={handleAddNew} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-lg">
-            <Plus className="w-5 h-5 mr-2" /> Neue Ausgrabung
-          </Button>
+          <div className="flex gap-2">
+            {selectionMode && selectedIds.length > 0 && (
+              <Button
+                onClick={() => setShowMoveDialog(true)}
+                className="bg-blue-600 hover:bg-blue-700 shadow-lg"
+              >
+                <ArrowRight className="w-5 h-5 mr-2" />
+                {selectedIds.length} verschieben
+              </Button>
+            )}
+            <Button
+              variant={selectionMode ? "outline" : "secondary"}
+              onClick={toggleSelectionMode}
+              className={selectionMode ? "border-orange-400 text-orange-600" : ""}
+            >
+              {selectionMode ? <Square className="w-5 h-5 mr-2" /> : <CheckSquare className="w-5 h-5 mr-2" />}
+              {selectionMode ? "Abbrechen" : "Auswählen"}
+            </Button>
+            <Button onClick={handleAddNew} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 shadow-lg">
+              <Plus className="w-5 h-5 mr-2" /> Neue Ausgrabung
+            </Button>
+          </div>
         </header>
 
         <AnimatePresence>
