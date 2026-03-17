@@ -73,6 +73,10 @@ export default function ExcavationsManagement({
   const [showDetail, setShowDetail] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [selectedExcavation, setSelectedExcavation] = useState(null);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [showMoveDialog, setShowMoveDialog] = useState(false);
+  const [allProjects, setAllProjects] = useState([]);
   const [showClosureDialog, setShowClosureDialog] = useState(false);
   const [closureDialogData, setClosureDialogData] = useState(null);
   const [showBackfillDialog, setShowBackfillDialog] = useState(false);
