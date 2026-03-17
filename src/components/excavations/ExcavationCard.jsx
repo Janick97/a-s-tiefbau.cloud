@@ -74,9 +74,23 @@ export default function ExcavationCard({ excavation, projectTitle, priceItem, on
       transition={{ delay: (index || 0) * 0.1 }}
       whileHover={{ y: -4, scale: 1.02 }}
     >
-      <Link to={createPageUrl(`ExcavationDetail?id=${safeExcavation.id}`)}>
-        <Card className="card-elevation border-none h-full overflow-hidden group cursor-pointer">
+      <Link
+        to={selectionMode ? "#" : createPageUrl(`ExcavationDetail?id=${safeExcavation.id}`)}
+        onClick={selectionMode ? (e) => { e.preventDefault(); onSelect && onSelect(excavation); } : undefined}
+      >
+        <Card className={`card-elevation border-none h-full overflow-hidden group cursor-pointer transition-all ${isSelected ? 'ring-2 ring-orange-500' : ''}`}>
           <div className="h-2 bg-gradient-to-r from-orange-500 to-amber-600" />
+          {selectionMode && (
+            <div className="absolute top-3 left-3 z-10">
+              <input
+                type="checkbox"
+                checked={!!isSelected}
+                onChange={() => onSelect && onSelect(excavation)}
+                onClick={(e) => e.stopPropagation()}
+                className="w-5 h-5 rounded accent-orange-500 cursor-pointer"
+              />
+            </div>
+          )}
 
           <CardHeader className="pb-3">
             <div className="flex justify-between items-start mb-2">
