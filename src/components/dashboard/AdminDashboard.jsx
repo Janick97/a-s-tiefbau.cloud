@@ -136,12 +136,12 @@ export default function AdminDashboard({
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {section.items.map((item) => {
               const CardInner = (
-                <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }}>
-                  <Card className="card-elevation border-none h-full cursor-pointer hover:shadow-md transition-shadow">
-                    <CardContent className="p-4 flex flex-col items-center text-center gap-2">
-                      <div className="relative">
-                        <div className="p-2.5 bg-gray-100 rounded-xl">
-                          <item.icon className="w-5 h-5 text-gray-600" />
+                <motion.div whileHover={{ y: -2 }} transition={{ duration: 0.15 }} className="h-full">
+                  <Card className="card-elevation border-none cursor-pointer hover:shadow-md transition-shadow h-[90px]">
+                    <CardContent className="p-3 flex flex-col items-center justify-center text-center gap-2 h-full">
+                      <div className="relative flex-shrink-0">
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <item.icon className="w-4 h-4 text-gray-600" />
                         </div>
                         {item.count !== undefined && item.count > 0 && (
                           <span className={`absolute -top-1.5 -right-1.5 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${item.countUrgent ? 'bg-red-500' : 'bg-orange-500'}`}>
@@ -149,7 +149,7 @@ export default function AdminDashboard({
                           </span>
                         )}
                       </div>
-                      <span className="text-xs font-medium text-gray-700 leading-tight">{item.title}</span>
+                      <span className="text-xs font-medium text-gray-700 leading-tight line-clamp-2">{item.title}</span>
                     </CardContent>
                   </Card>
                 </motion.div>

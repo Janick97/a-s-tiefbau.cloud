@@ -342,7 +342,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
             <SidebarContent className="p-4 flex-grow">
               <SidebarGroup>
-                <SidebarGroupLabel className="text-xs font-semibold text-white/60 uppercase tracking-wider px-2 py-3">
+                <SidebarGroupLabel className="text-xs font-semibold text-white/80 uppercase tracking-wider px-2 py-3">
                   Navigation
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
