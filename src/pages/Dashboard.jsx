@@ -533,8 +533,6 @@ export default function DashboardPage() {
           montageAuftraege={montageAuftraege}
           users={users}
           tasks={tasks}
-          widgetSettings={widgetSettings}
-          onToggleWidget={handleToggleWidget}
         />
 
 
