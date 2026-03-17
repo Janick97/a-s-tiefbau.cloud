@@ -255,7 +255,8 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
           }
 
           .sidebar-gradient {
-            background: linear-gradient(135deg, hsl(30, 95%, 53%) 0%, hsl(25, 95%, 50%) 100%);
+            background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+            border-right: 1px solid #e5e7eb;
           }
 
           .card-elevation {
