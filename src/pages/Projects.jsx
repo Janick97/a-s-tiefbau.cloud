@@ -1391,7 +1391,20 @@ export default function ProjectsPage() {
           </CardContent>
         </Card>
 
-        {renderContent()}
+        <ProjectsTable
+          isLoading={isLoading}
+          error={error}
+          mainProjects={mainProjects}
+          followUpsByParent={followUpsByParent}
+          getVAOInfo={getVAOInfo}
+          handleVaoClick={handleVaoClick}
+          updatingVao={updatingVao}
+          handleCheckboxChange={handleCheckboxChange}
+          updatingProject={updatingProject}
+          confirmDialog={confirmDialog}
+          handleStatusChange={handleStatusChange}
+          projectStatusOptions={projectStatusOptions}
+        />
 
         <AnimatePresence>
           {showProjectForm && (
