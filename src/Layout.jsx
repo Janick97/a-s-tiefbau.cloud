@@ -332,13 +332,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
         <Sidebar className="border-none shadow-lg no-print">
           <div className="sidebar-gradient h-full flex flex-col">
             <SidebarHeader className="border-b border-gray-200 px-4 py-3 flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png" alt="Logo" className="h-10" />
-                <div>
-                  <h2 className="font-bold text-gray-900 text-lg">Tiefbau.Cloud</h2>
-                  <p className="text-xs text-gray-500">Auftragsverwaltung</p>
-                </div>
-              </div>
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Navigation</span>
             </SidebarHeader>
 
             <SidebarContent className="p-4 flex-grow">
