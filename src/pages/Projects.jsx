@@ -459,9 +459,24 @@ export default function ProjectsPage() {
     pdf.text('Status', 190, 33);
     pdf.text('VAO', 240, 33);
     
-    let y = 40;
-    const rowHeight = 6;
+    let y = 42;
+    const rowHeight = 9;
     const pageHeight = 195;
+
+    const drawTableHeader = () => {
+      pdf.setFillColor(250, 250, 250);
+      pdf.rect(10, 28, 277, 8, 'F');
+      pdf.setFontSize(8);
+      pdf.setFont(undefined, 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('Projekt-Nr.', 12, 33);
+      pdf.text('SM-Nr.', 45, 33);
+      pdf.text('Kunde', 70, 33);
+      pdf.text('Stadt', 115, 33);
+      pdf.text('Straße', 145, 33);
+      pdf.text('Status', 190, 33);
+      pdf.text('VAO', 240, 33);
+    };
     
     pdf.setFont(undefined, 'normal');
     pdf.setFontSize(7);
@@ -481,21 +496,9 @@ export default function ProjectsPage() {
         pdf.setFont(undefined, 'normal');
         pdf.text(`Seite ${pdf.internal.pages.length - 1}`, 14, 19);
         
-        // Tabellenkopf
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFillColor(250, 250, 250);
-        pdf.rect(10, 28, 277, 8, 'F');
-        pdf.setFontSize(8);
-        pdf.setFont(undefined, 'bold');
-        pdf.text('Projekt-Nr.', 12, 33);
-        pdf.text('SM-Nr.', 45, 33);
-        pdf.text('Kunde', 70, 33);
-        pdf.text('Stadt', 115, 33);
-        pdf.text('Straße', 145, 33);
-        pdf.text('Status', 190, 33);
-        pdf.text('VAO', 240, 33);
+        drawTableHeader();
         
-        y = 40;
+        y = 42;
         pdf.setFont(undefined, 'normal');
         pdf.setFontSize(7);
       }
@@ -503,7 +506,7 @@ export default function ProjectsPage() {
       // Zebrastreifen
       if (index % 2 === 0) {
         pdf.setFillColor(252, 252, 252);
-        pdf.rect(10, y - 4, 277, rowHeight, 'F');
+        pdf.rect(10, y - 5, 277, rowHeight, 'F');
       }
       
       const vaoInfo = getVAOInfo(p);
@@ -522,19 +525,33 @@ export default function ProjectsPage() {
       pdf.setFontSize(6);
       pdf.text(statusText, 190, y);
       
+      // VAO: Status + Datum
       pdf.setFontSize(7);
-      const vaoText = vaoInfo.daysInfo 
-        ? `${vaoInfo.text} (${vaoInfo.daysInfo})`.substring(0, 30)
-        : (vaoInfo.text || '-').substring(0, 30);
-      
       if (vaoInfo.color === 'text-red-600') {
         pdf.setTextColor(220, 38, 38);
       } else if (vaoInfo.color === 'text-orange-600') {
         pdf.setTextColor(234, 88, 12);
       } else if (vaoInfo.color === 'text-green-600') {
         pdf.setTextColor(22, 163, 74);
+      } else {
+        pdf.setTextColor(80, 80, 80);
       }
-      pdf.text(vaoText, 240, y);
+
+      const vaoStatusLine = vaoInfo.daysInfo
+        ? `${vaoInfo.text} (${vaoInfo.daysInfo})`.substring(0, 35)
+        : (vaoInfo.text || '-').substring(0, 35);
+      pdf.text(vaoStatusLine, 240, y);
+
+      // Datumszeile direkt darunter
+      if (vaoInfo.dateFrom || vaoInfo.dateTo) {
+        pdf.setFontSize(6);
+        const dateLine = [
+          vaoInfo.dateFrom ? `von ${vaoInfo.dateFrom}` : '',
+          vaoInfo.dateTo ? `bis ${vaoInfo.dateTo}` : ''
+        ].filter(Boolean).join('  ');
+        pdf.text(dateLine.substring(0, 35), 240, y + 4);
+      }
+
       pdf.setTextColor(0, 0, 0);
       
       y += rowHeight;
