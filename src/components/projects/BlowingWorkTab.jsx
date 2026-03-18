@@ -73,6 +73,11 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                         <Badge className="bg-teal-600 text-white text-sm px-3 py-1">
                           {(rec.meters_blown || 0).toFixed(1)} m eingeblasen
                         </Badge>
+                        {(rec.point_a || rec.point_b) && (
+                          <span className="text-sm font-semibold text-gray-800">
+                            {rec.point_a} → {rec.point_b}
+                          </span>
+                        )}
                         <span className="text-sm font-medium text-gray-700">{rec.cable_type}</span>
                         <div className="flex items-center gap-1.5">
                           <div
