@@ -128,22 +128,22 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 p-4 text-white">
-          <div className="flex items-center justify-between mb-3">
+        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 p-3 sm:p-4 text-white flex-shrink-0">
+          <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-2">
-              <Wind className="w-5 h-5" />
-              <h2 className="text-lg font-bold">{isEdit ? "Einblasen bearbeiten" : "Einblasarbeiten"}</h2>
+              <Wind className="w-4 h-4 sm:w-5 sm:h-5" />
+              <h2 className="text-base sm:text-lg font-bold">{isEdit ? "Einblasen bearbeiten" : "Einblasarbeiten"}</h2>
             </div>
-            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
-              <X className="w-5 h-5" />
+            <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20 h-8 w-8">
+              <X className="w-4 h-4" />
             </Button>
           </div>
           {/* Step indicators */}
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             {STEPS.map(s => (
               <div
                 key={s.id}
-                className={`flex-1 text-center py-1 px-2 rounded-lg text-xs font-medium transition-all ${
+                className={`flex-1 text-center py-1 px-1 rounded-lg text-xs font-medium transition-all ${
                   step === s.id
                     ? "bg-white text-teal-700"
                     : step > s.id
@@ -152,14 +152,14 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                 }`}
               >
                 {step > s.id ? <Check className="w-3 h-3 inline" /> : s.id}
-                <span className="ml-1 hidden sm:inline">{s.title}</span>
+                <span className="ml-0.5 hidden sm:inline">{s.title}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Step Content */}
-        <div className="p-5 min-h-[280px]">
+        <div className="p-4 sm:p-5 overflow-y-auto flex-1 min-h-[240px]">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
