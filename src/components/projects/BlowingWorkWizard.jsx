@@ -266,13 +266,13 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                         <button
                           key={color.name}
                           onClick={() => setData(d => ({ ...d, snr_color: color.name }))}
-                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
+                          className={`flex flex-col items-center gap-1 p-2 sm:p-3 rounded-xl border-2 transition-all ${
                             data.snr_color === color.name
                               ? "border-teal-500 bg-teal-50"
                               : "border-gray-200 hover:border-gray-300"
                           }`}
                         >
-                          <div className="relative w-8 h-8 rounded-full border-2 border-gray-300 shadow overflow-hidden"
+                          <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-gray-300 shadow overflow-hidden"
                             style={{ backgroundColor: color.hex }}>
                             {color.striped && (
                               <div className="absolute inset-0 flex items-center justify-center">
@@ -280,7 +280,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                               </div>
                             )}
                           </div>
-                          <span className="text-xs font-medium text-gray-700 text-center leading-tight">{color.name}</span>
+                          <span className="text-[10px] sm:text-xs font-medium text-gray-700 text-center leading-tight">{color.name}</span>
                           {data.snr_color === color.name && <Check className="w-3 h-3 text-teal-600" />}
                         </button>
                       ))}
