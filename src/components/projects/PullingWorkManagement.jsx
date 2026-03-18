@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { PullingWork, Material } from "@/entities/all"; // Added Material
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,8 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Cable, MapPin } from "lucide-react";
-import PullingWorkForm from "./PullingWorkForm";
-import PullingWorkDetail from "./PullingWorkDetail"; // Added PullingWorkDetail
+import PullingWorkWizard from "./PullingWorkWizard";
+import PullingWorkDetail from "./PullingWorkDetail";
 
 const statusColors = {
   planned: "bg-blue-100 text-blue-800",
