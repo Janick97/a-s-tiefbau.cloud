@@ -678,7 +678,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               
               {/* Unterordner Liste - nur wenn aufgeklappt */}
               {isMainExpanded && subfolders.length > 0 && (
-                <div className="px-6 pb-3 border-b">
+                <div className="px-3 sm:px-6 pb-3 border-b">
                   <div className="space-y-2">
                     {subfolders.map(subfolder => {
                       const subDocs = groupedDocuments[subfolder] || [];
