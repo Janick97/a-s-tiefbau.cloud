@@ -873,6 +873,15 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="h-7 w-7 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600"
+                            onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }}
+                            title="Verschieben"
+                          >
+                            <FolderInput className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             className="h-7 w-7 p-0 bg-red-100 hover:bg-red-200 text-red-600"
                             onClick={() => handleDeleteDocument(doc.id)}
                             title="Löschen"
