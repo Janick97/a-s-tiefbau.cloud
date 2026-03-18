@@ -1017,6 +1017,15 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700"
+                            onClick={() => { setMovingDoc(doc); setMoveTargetFolder(doc.folder); }}
+                            title="Verschieben"
+                          >
+                            <FolderInput className="w-3.5 h-3.5" />
+                          </Button>
                           <a href={doc.file_url} download={doc.file_name}>
                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen">
                               <Download className="w-3.5 h-3.5" />
