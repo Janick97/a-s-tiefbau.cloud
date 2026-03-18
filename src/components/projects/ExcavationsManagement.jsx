@@ -1242,6 +1242,7 @@ export default function ExcavationsManagement({
         projectTitle={project?.title}
         priceItem={getSelectedPriceItem(selectedExcavation?.price_item_id)}
         currentUser={internalUser}
+        excavationIndex={selectedExcavation ? getExcavationIndex(selectedExcavation) : undefined}
       />
 
       <MoveExcavationsDialog

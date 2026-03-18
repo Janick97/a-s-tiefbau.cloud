@@ -328,7 +328,9 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
         <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <CardHeader className="flex flex-row items-center justify-between bg-orange-500 text-white">
             <div className="flex flex-col gap-0.5">
-              <span className="text-xs font-mono text-white/70">#{safeExcavation.id?.slice(-8).toUpperCase()}</span>
+              {excavationIndex !== undefined && excavationIndex >= 0 && (
+                <span className="text-xs font-mono text-white/70">Leistung #{excavationIndex + 1}</span>
+              )}
               <CardTitle className="flex items-center gap-2">
                 <Ruler className="w-5 h-5" />
                 {safeExcavation.location_name}
