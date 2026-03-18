@@ -275,6 +275,33 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     setNewMainFolderName("");
   };
 
+  const handleRenameMainFolder = async (oldFolder, newName) => {
+    if (!newName.trim() || newName.trim() === oldFolder) {
+      setEditingMainFolder(null);
+      return;
+    }
+    const newFolder = newName.trim();
+    if (allFolders.includes(newFolder)) {
+      alert("Dieser Ordner existiert bereits");
+      return;
+    }
+    // Update all docs in this folder
+    const docsToUpdate = documents.filter(doc => doc.folder === oldFolder || doc.folder.startsWith(oldFolder + '/'));
+    for (const doc of docsToUpdate) {
+      const updatedFolder = doc.folder === oldFolder ? newFolder : newFolder + doc.folder.substring(oldFolder.length);
+      await ProjectDocument.update(doc.id, { folder: updatedFolder });
+    }
+    // Update custom folders
+    const updatedCustomFolders = customFolders.map(f => {
+      if (f === oldFolder) return newFolder;
+      if (f.startsWith(oldFolder + '/')) return newFolder + f.substring(oldFolder.length);
+      return f;
+    });
+    saveCustomFolders(updatedCustomFolders);
+    setEditingMainFolder(null);
+    await loadDocuments();
+  };
+
   const handleRenameSubfolder = async (oldFolder, newName) => {
     if (!newName.trim()) return;
 
