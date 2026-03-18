@@ -87,9 +87,15 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                         <span className="text-sm font-medium text-gray-700">{rec.cable_type}</span>
                         <div className="flex items-center gap-1.5">
                           <div
-                            className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+                            className="relative w-4 h-4 rounded-full border border-gray-300 shadow-sm overflow-hidden"
                             style={{ backgroundColor: SNR_COLORS_HEX[rec.snr_color] || "#ccc" }}
-                          />
+                          >
+                            {rec.snr_color?.endsWith("/Strich") && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-full h-[2px] bg-black/50" />
+                              </div>
+                            )}
+                          </div>
                           <span className="text-sm text-gray-600">{rec.snr_color}</span>
                         </div>
                       </div>
