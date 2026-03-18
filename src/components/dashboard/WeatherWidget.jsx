@@ -62,43 +62,15 @@ export default function WeatherWidget() {
           </div>
 
           {isLoading ? (
-            <div className="text-center py-4">
-              <Cloud className="w-12 h-12 mx-auto mb-2 text-gray-400 animate-pulse" />
-              <p className="text-sm text-gray-600">Wird geladen...</p>
-            </div>
+            <p className="text-sm text-gray-400">Wird geladen...</p>
           ) : weather ? (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-blue-100 rounded-xl">
-                    <WeatherIcon className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900">
-                      {Math.round(weather.temperature)}°C
-                    </div>
-                    <div className="text-sm text-gray-600 capitalize">
-                      {weather.description}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Droplets className="w-4 h-4" />
-                  <span>{weather.humidity}% Luftfeuchtigkeit</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Wind className="w-4 h-4" />
-                  <span>{Math.round(weather.wind_speed)} km/h</span>
-                </div>
-              </div>
+            <div className="flex items-center gap-2">
+              <WeatherIcon className="w-5 h-5 text-blue-500" />
+              <span className="text-lg font-bold text-gray-900">{Math.round(weather.temperature)}°C</span>
+              <span className="text-sm text-gray-500">Düren</span>
             </div>
           ) : (
-            <div className="text-center py-4">
-              <AlertCircle className="w-12 h-12 mx-auto mb-2 text-red-400" />
-              <p className="text-sm text-gray-600">Nicht verfügbar</p>
-            </div>
+            <p className="text-sm text-gray-400">Nicht verfügbar</p>
           )}
         </CardContent>
       </Card>
