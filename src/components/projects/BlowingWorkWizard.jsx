@@ -40,16 +40,17 @@ const STEPS = [
   { id: 4, title: "Zusammenfassung", desc: "Überprüfen & Speichern" },
 ];
 
-export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
+export default function BlowingWorkWizard({ project, onClose, onSaved, user, existingRecord }) {
+  const isEdit = !!existingRecord;
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
-    start_cable_meters: "",
-    end_cable_meters: "",
-    point_a: "",
-    point_b: "",
-    cable_type: "",
-    snr_color: "",
-    notes: "",
+    start_cable_meters: existingRecord?.start_cable_meters ?? "",
+    end_cable_meters: existingRecord?.end_cable_meters ?? "",
+    point_a: existingRecord?.point_a ?? "",
+    point_b: existingRecord?.point_b ?? "",
+    cable_type: existingRecord?.cable_type ?? "",
+    snr_color: existingRecord?.snr_color ?? "",
+    notes: existingRecord?.notes ?? "",
   });
   const [saving, setSaving] = useState(false);
 
