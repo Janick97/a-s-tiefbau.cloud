@@ -321,7 +321,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
               disabled={saving}
               className="flex-1 bg-teal-600 hover:bg-teal-700"
             >
-              {saving ? "Speichert..." : <><Check className="w-4 h-4 mr-1" /> Speichern</>}
+              {saving ? "Speichert..." : <><Check className="w-4 h-4 mr-1" /> {isEdit ? "Aktualisieren" : "Speichern"}</>}
             </Button>
           )}
         </div>
