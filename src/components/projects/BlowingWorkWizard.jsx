@@ -222,19 +222,26 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                   <h3 className="font-semibold text-gray-900 mb-1">Kabelart auswählen</h3>
                   <p className="text-sm text-gray-500">Welcher Kabeltyp wurde eingeblasen?</p>
                 </div>
-                <div className="grid grid-cols-1 gap-2">
-                  {CABLE_TYPES.map(type => (
-                    <button
-                      key={type}
-                      onClick={() => setData(d => ({ ...d, cable_type: type }))}
-                      className={`px-4 py-3 rounded-xl border-2 text-left font-medium transition-all ${
-                        data.cable_type === type
-                          ? "border-teal-500 bg-teal-50 text-teal-800"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      {type}
-                    </button>
+                <div className="space-y-3">
+                  {Object.entries(CABLE_TYPES).map(([group, types]) => (
+                    <div key={group}>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{group}</p>
+                      <div className="grid grid-cols-1 gap-1.5">
+                        {types.map(type => (
+                          <button
+                            key={type}
+                            onClick={() => setData(d => ({ ...d, cable_type: type }))}
+                            className={`px-4 py-2.5 rounded-xl border-2 text-left font-medium transition-all text-sm ${
+                              data.cable_type === type
+                                ? "border-teal-500 bg-teal-50 text-teal-800"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </motion.div>
