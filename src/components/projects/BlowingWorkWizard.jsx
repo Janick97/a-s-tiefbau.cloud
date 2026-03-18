@@ -260,6 +260,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
                   <p className="text-sm text-gray-500">Alle Angaben überprüfen und speichern.</p>
                 </div>
                 <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                  <Row label="Punkt A → Punkt B" value={<span className="font-semibold text-teal-700">{data.point_a} → {data.point_b}</span>} />
                   <Row label="Anfang Kabel" value={`${data.start_cable_meters} m`} />
                   <Row label="Ende Kabel" value={`${data.end_cable_meters} m`} />
                   <div className="border-t pt-3">
