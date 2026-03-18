@@ -11,7 +11,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft, Edit, MapPin, FileText, Shovel, Camera, Plus, Trash2,
   Eye, CheckCircle, X, Clock, Package, ListRestart, Construction, Layers,
-  Loader2, Check, Upload, Ruler, Image as ImageIcon, Navigation, AlertTriangle
+  Loader2, Check, Upload, Ruler, Image as ImageIcon, Navigation, AlertTriangle, Wind
 } from "lucide-react";
 import ExcavationWizard from "./../../components/excavations/ExcavationWizard";
 import PullingWorkForm from "./PullingWorkForm";
