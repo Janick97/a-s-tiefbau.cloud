@@ -47,7 +47,7 @@ export default function BlowingWorkTab({ projectId, user, project }) {
             </p>
           )}
         </div>
-        <Button onClick={() => setShowWizard(true)} className="bg-teal-600 hover:bg-teal-700">
+        <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="bg-teal-600 hover:bg-teal-700">
           <Plus className="w-4 h-4 mr-2" /> Einblasen erfassen
         </Button>
       </div>
