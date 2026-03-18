@@ -4,7 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Wind, Trash2, Calendar } from "lucide-react";
+import { Plus, Wind, Trash2, Calendar, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import BlowingWorkWizard from "./BlowingWorkWizard";
 
