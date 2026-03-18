@@ -71,8 +71,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
   const handleSave = async () => {
     setSaving(true);
     const blown = parseFloat(data.end_cable_meters) - parseFloat(data.start_cable_meters);
-    await base44.entities.BlowingWork.create({
-      project_id: project.id,
+    const payload = {
       start_cable_meters: parseFloat(data.start_cable_meters),
       end_cable_meters: parseFloat(data.end_cable_meters),
       meters_blown: blown,
@@ -81,10 +80,18 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
       cable_type: data.cable_type,
       snr_color: data.snr_color,
       notes: data.notes,
-      foreman_user_id: user?.id || "",
-      foreman_name: user?.full_name || "",
-      documentation_date: new Date().toISOString().split("T")[0],
-    });
+    };
+    if (isEdit) {
+      await base44.entities.BlowingWork.update(existingRecord.id, payload);
+    } else {
+      await base44.entities.BlowingWork.create({
+        ...payload,
+        project_id: project.id,
+        foreman_user_id: user?.id || "",
+        foreman_name: user?.full_name || "",
+        documentation_date: new Date().toISOString().split("T")[0],
+      });
+    }
     setSaving(false);
     onSaved?.();
     onClose();
