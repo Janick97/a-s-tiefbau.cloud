@@ -686,12 +686,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       const hasSubSubs = hasSubfolders(subfolder);
                       
                       return (
-                        <div key={subfolder} className="bg-gray-50 rounded-lg p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2 flex-1">
+                        <div key={subfolder} className="bg-gray-50 rounded-lg p-2.5">
+                          <div className="flex flex-col gap-1.5">
+                            {/* Top row: chevron + icon + name + badges */}
+                            <div className="flex items-center gap-1.5 min-w-0">
                               <button
                                 onClick={() => toggleSubfolder(subfolder)}
-                                className="hover:bg-gray-200 rounded p-1 transition-colors"
+                                className="hover:bg-gray-200 rounded p-1 transition-colors flex-shrink-0"
                               >
                                 {isSubExpanded ? (
                                   <ChevronDown className="w-3.5 h-3.5 text-gray-600" />
@@ -699,12 +700,12 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                   <ChevronRight className="w-3.5 h-3.5 text-gray-600" />
                                 )}
                               </button>
-                              <FolderOpen className="w-4 h-4 text-blue-600" />
+                              <FolderOpen className="w-4 h-4 text-blue-600 flex-shrink-0" />
                               {editingSubfolder === subfolder ? (
                                 <input
                                   type="text"
                                   defaultValue={getFolderName(subfolder)}
-                                  className="text-sm font-medium border rounded px-2 py-1"
+                                  className="text-sm font-medium border rounded px-2 py-0.5 flex-1 min-w-0"
                                   autoFocus
                                   onBlur={(e) => {
                                     if (e.target.value !== getFolderName(subfolder)) {
@@ -714,24 +715,17 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                     }
                                   }}
                                   onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.target.blur();
-                                    } else if (e.key === 'Escape') {
-                                      setEditingSubfolder(null);
-                                    }
+                                    if (e.key === 'Enter') e.target.blur();
+                                    else if (e.key === 'Escape') setEditingSubfolder(null);
                                   }}
                                 />
                               ) : (
-                                <span className="text-sm font-medium">{getFolderName(subfolder)}</span>
+                                <span className="text-sm font-medium truncate min-w-0 flex-1">{getFolderName(subfolder)}</span>
                               )}
-                              <Badge variant="outline" className="text-xs">{subDocs.length}</Badge>
-                              {hasSubSubs && (
-                                <Badge className="bg-blue-50 text-blue-700 text-xs border-blue-200">
-                                  {getSubfolderCount(subfolder)} Sub
-                                </Badge>
-                              )}
+                              <Badge variant="outline" className="text-xs flex-shrink-0">{subDocs.length}</Badge>
                             </div>
-                            <div className="flex items-center gap-1">
+                            {/* Bottom row: action buttons */}
+                            <div className="flex items-center gap-1 pl-7">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -756,14 +750,14 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 text-xs"
+                                className="h-7 px-2 text-xs"
                                 onClick={() => {
                                   setSelectedParentFolder(subfolder);
                                   setShowSubfolderDialog(true);
                                 }}
                               >
                                 <Plus className="w-3 h-3 mr-1" />
-                                Sub
+                                Unterordner
                               </Button>
                             </div>
                           </div>
