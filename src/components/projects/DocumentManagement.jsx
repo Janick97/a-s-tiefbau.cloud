@@ -614,22 +614,22 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               onDragOver={(e) => handleDragOver(e, folder)}
               onDragLeave={handleDragLeave}
             >
-              <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-t-xl" onClick={() => toggleFolder(folder)}>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <button className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors" onClick={e => { e.stopPropagation(); toggleFolder(folder); }}>
+              <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-t-xl px-3 sm:px-6" onClick={() => toggleFolder(folder)}>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1">
+                    <button className="hover:bg-gray-100 rounded p-1 flex-shrink-0 transition-colors" onClick={e => { e.stopPropagation(); toggleFolder(folder); }}>
                       {isMainExpanded ? (
                         <ChevronDown className="w-4 h-4 text-gray-600" />
                       ) : (
                         <ChevronRight className="w-4 h-4 text-gray-600" />
                       )}
                     </button>
-                    <FolderOpen className="w-5 h-5 text-orange-600" />
+                    <FolderOpen className="w-4 h-4 text-orange-600 flex-shrink-0" />
                     {editingMainFolder === folder ? (
                       <input
                         type="text"
                         value={editingMainFolderName}
-                        className="text-base font-semibold border rounded px-2 py-0.5"
+                        className="text-sm font-semibold border rounded px-2 py-0.5 min-w-0 flex-1"
                         autoFocus
                         onClick={e => e.stopPropagation()}
                         onChange={e => setEditingMainFolderName(e.target.value)}
@@ -640,16 +640,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                         }}
                       />
                     ) : (
-                      <span>{getFolderName(folder)}</span>
+                      <span className="font-semibold text-sm sm:text-base truncate">{getFolderName(folder)}</span>
                     )}
-                    <Badge variant="outline">{docs.length} Datei(en)</Badge>
+                    <Badge variant="outline" className="text-xs flex-shrink-0">{docs.length}</Badge>
                     {hasSubs && (
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        {getSubfolderCount(folder)} Unterordner
+                      <Badge className="bg-blue-100 text-blue-800 border-blue-300 text-xs flex-shrink-0 hidden sm:inline-flex">
+                        {getSubfolderCount(folder)} Sub
                       </Badge>
                     )}
-                  </CardTitle>
-                  <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                  </div>
+                  <div className="flex items-center gap-0.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -662,14 +662,15 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="h-7 w-7 p-0 sm:w-auto sm:px-2"
                       onClick={() => {
                         setSelectedParentFolder(folder);
                         setShowSubfolderDialog(true);
                       }}
                       title="Unterordner erstellen"
                     >
-                      <Plus className="w-4 h-4 mr-1" />
-                      Unterordner
+                      <Plus className="w-3.5 h-3.5 sm:mr-1" />
+                      <span className="hidden sm:inline text-xs">Unterordner</span>
                     </Button>
                   </div>
                 </div>
