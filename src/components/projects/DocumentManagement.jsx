@@ -942,7 +942,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       key={doc.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       draggable="true"
                       onDragStart={(e) => {
                         e.dataTransfer.effectAllowed = "copy";
