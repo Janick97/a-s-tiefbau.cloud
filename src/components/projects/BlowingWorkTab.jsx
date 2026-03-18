@@ -8,12 +8,17 @@ import { Plus, Wind, Trash2, Calendar, Pencil } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import BlowingWorkWizard from "./BlowingWorkWizard";
 
-const SNR_COLORS_HEX = {
+const SNR_COLORS_BASE_HEX = {
   "Rot": "#ff0000", "Grün": "#00cc00", "Blau": "#0000ff",
   "Gelb": "#ffff00", "Weiß": "#ffffff", "Grau": "#b0b0b0",
   "Braun": "#7b3f00", "Violett": "#8080c0", "Türkis": "#00ffff",
   "Schwarz": "#000000", "Orange": "#ff9900", "Rosa": "#ffb6c1",
 };
+// Include striped variants
+const SNR_COLORS_HEX = Object.fromEntries([
+  ...Object.entries(SNR_COLORS_BASE_HEX),
+  ...Object.entries(SNR_COLORS_BASE_HEX).map(([k, v]) => [k + "/Strich", v]),
+]);
 
 export default function BlowingWorkTab({ projectId, user, project }) {
   const [showWizard, setShowWizard] = useState(false);
