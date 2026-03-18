@@ -110,7 +110,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
     onClose();
   };
 
-  const snrColorObj = SNR_COLORS.find(c => c.name === data.snr_color);
+  const snrColorObj = SNR_COLORS_BASE.find(c => c.name === data.snr_color || c.name + "/Strich" === data.snr_color);
 
   return (
     <motion.div
