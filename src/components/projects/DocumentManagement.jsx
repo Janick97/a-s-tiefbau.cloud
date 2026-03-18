@@ -426,6 +426,14 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return allFolders.filter(folder => isSubfolderOf(folder, parentFolder));
   };
 
+  const handleMoveDocument = async () => {
+    if (!movingDoc || !moveTargetFolder) return;
+    await ProjectDocument.update(movingDoc.id, { folder: moveTargetFolder });
+    setMovingDoc(null);
+    setMoveTargetFolder("");
+    await loadDocuments();
+  };
+
   const toggleSubfolder = (folder) => {
     setExpandedFolders(prev => {
       const newSet = new Set(prev);
