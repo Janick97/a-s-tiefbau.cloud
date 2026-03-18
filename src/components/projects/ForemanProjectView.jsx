@@ -45,6 +45,7 @@ export default function ForemanProjectView({
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [showPullingForm, setShowPullingForm] = useState(false);
   const [editingPulling, setEditingPulling] = useState(null);
+  const [showBlowingWizard, setShowBlowingWizard] = useState(false);
   const [updating, setUpdating] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({ show: false, type: null, excavation: null });
   const [photoUploadDialog, setPhotoUploadDialog] = useState({ show: false, type: null, excavation: null, photos: [], isUploading: false });

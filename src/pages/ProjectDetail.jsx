@@ -126,6 +126,7 @@ export default function ProjectDetailPage() {
   const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
   const [currentProjectForCoverSheet, setCurrentProjectForCoverSheet] = useState(null);
   const [hasVisioplan, setHasVisioplan] = useState(false);
+  const [showBlowingWizard, setShowBlowingWizard] = useState(false);
 
   const coverSheetRef = useRef(null);
   const servicesOverviewRef = useRef(null);
