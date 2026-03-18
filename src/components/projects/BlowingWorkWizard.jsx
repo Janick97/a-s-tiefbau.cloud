@@ -45,6 +45,8 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
   const [data, setData] = useState({
     start_cable_meters: "",
     end_cable_meters: "",
+    point_a: "",
+    point_b: "",
     cable_type: "",
     snr_color: "",
     notes: "",
