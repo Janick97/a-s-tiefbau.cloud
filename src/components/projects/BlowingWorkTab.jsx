@@ -72,22 +72,22 @@ export default function BlowingWorkTab({ projectId, user, project }) {
           {records.map((rec, i) => (
             <motion.div key={rec.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card className="border-l-4 border-teal-400">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Badge className="bg-teal-600 text-white text-sm px-3 py-1">
-                          {(rec.meters_blown || 0).toFixed(1)} m eingeblasen
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge className="bg-teal-600 text-white text-xs sm:text-sm px-2 py-0.5">
+                          {(rec.meters_blown || 0).toFixed(1)} m
                         </Badge>
                         {(rec.point_a || rec.point_b) && (
-                          <span className="text-sm font-semibold text-gray-800">
+                          <span className="text-xs sm:text-sm font-semibold text-gray-800">
                             {rec.point_a} → {rec.point_b}
                           </span>
                         )}
-                        <span className="text-sm font-medium text-gray-700">{rec.cable_type}</span>
-                        <div className="flex items-center gap-1.5">
+                        <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">{rec.cable_type}</span>
+                        <div className="flex items-center gap-1">
                           <div
-                            className="relative w-4 h-4 rounded-full border border-gray-300 shadow-sm overflow-hidden"
+                            className="relative w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full border border-gray-300 shadow-sm overflow-hidden flex-shrink-0"
                             style={{ backgroundColor: SNR_COLORS_HEX[rec.snr_color] || "#ccc" }}
                           >
                             {rec.snr_color?.endsWith("/Strich") && (
@@ -96,13 +96,12 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                               </div>
                             )}
                           </div>
-                          <span className="text-sm text-gray-600">{rec.snr_color}</span>
+                          <span className="text-xs text-gray-600">{rec.snr_color}</span>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-4 text-xs text-gray-500">
+                      <div className="flex flex-wrap gap-2 sm:gap-4 text-xs text-gray-500">
                         <span>Anfang: <strong>{rec.start_cable_meters} m</strong></span>
                         <span>Ende: <strong>{rec.end_cable_meters} m</strong></span>
-                        {rec.foreman_name && <span>Erfasst von: <strong>{rec.foreman_name}</strong></span>}
                         {rec.documentation_date && (
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -110,16 +109,17 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                           </span>
                         )}
                       </div>
+                      {rec.foreman_name && <p className="text-xs text-gray-400">von {rec.foreman_name}</p>}
                       {rec.notes && <p className="text-xs text-gray-500 italic">{rec.notes}</p>}
                     </div>
-                    <div className="flex gap-1 flex-shrink-0">
+                    <div className="flex gap-0.5 flex-shrink-0">
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-gray-400 hover:text-teal-600 hover:bg-teal-50 h-8 w-8"
                         onClick={() => { setEditingRecord(rec); setShowWizard(true); }}
                       >
-                        <Pencil className="w-4 h-4" />
+                        <Pencil className="w-3.5 h-3.5" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -127,7 +127,7 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                         className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
                         onClick={() => { if (confirm("Eintrag löschen?")) deleteMutation.mutate(rec.id); }}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       </Button>
                     </div>
                   </div>
