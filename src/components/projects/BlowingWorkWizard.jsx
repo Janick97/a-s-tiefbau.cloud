@@ -26,7 +26,7 @@ const CABLE_TYPES = {
   ],
 };
 
-const SNR_COLORS = [
+const SNR_COLORS_BASE = [
   { name: "Rot",        hex: "#ff0000" },
   { name: "Grün",       hex: "#00cc00" },
   { name: "Blau",       hex: "#0000ff" },
@@ -39,6 +39,11 @@ const SNR_COLORS = [
   { name: "Schwarz",    hex: "#000000" },
   { name: "Orange",     hex: "#ff9900" },
   { name: "Rosa",       hex: "#ffb6c1" },
+];
+
+const SNR_COLORS_GROUPS = [
+  { label: "Einfarbig", colors: SNR_COLORS_BASE },
+  { label: "Mit Strich", colors: SNR_COLORS_BASE.map(c => ({ ...c, name: c.name + "/Strich", striped: true })) },
 ];
 
 const STEPS = [
