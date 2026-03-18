@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import ExcavationWizard from "./../../components/excavations/ExcavationWizard";
 import PullingWorkForm from "./PullingWorkForm";
+import BlowingWorkWizard from "./BlowingWorkWizard";
 import ExcavationsManagement from "./ExcavationsManagement";
 import PullingWorkManagement from "./PullingWorkManagement";
 import MaterialManagement from "./MaterialManagement";

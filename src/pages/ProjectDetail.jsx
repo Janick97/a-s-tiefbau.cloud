@@ -68,6 +68,7 @@ import ServicesOverview from "../components/projects/ServicesOverview";
 import MontageAuftragSection from "../components/projects/MontageAuftragSection";
 import ExcavationWizard from "../components/excavations/ExcavationWizard";
 import PullingWorkForm from "../components/projects/PullingWorkForm";
+import BlowingWorkWizard from "../components/projects/BlowingWorkWizard";
 import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
