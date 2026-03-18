@@ -253,7 +253,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
             )}
 
             {step === 3 && (
-              <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 overflow-y-auto max-h-[380px] pr-1">
+              <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 pr-1">
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">SNR Farbe wählen</h3>
                   <p className="text-sm text-gray-500">Welche Kabelfarbe wurde verwendet?</p>
