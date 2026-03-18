@@ -60,10 +60,10 @@ export default function BlowingWorkTab({ projectId, user, project }) {
       {isLoading ? (
         <div className="text-center py-12 text-gray-400">Laden...</div>
       ) : records.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <Wind className="w-14 h-14 mx-auto mb-3 opacity-20" />
-          <p className="font-medium">Noch keine Einblasarbeiten dokumentiert</p>
-          <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="mt-4 bg-teal-600 hover:bg-teal-700">
+        <div className="text-center py-12 text-gray-400">
+          <Wind className="w-12 h-12 mx-auto mb-3 opacity-20" />
+          <p className="font-medium text-sm">Noch keine Einblasarbeiten dokumentiert</p>
+          <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="mt-4 bg-teal-600 hover:bg-teal-700 text-sm">
             <Plus className="w-4 h-4 mr-2" /> Ersten Eintrag erstellen
           </Button>
         </div>
