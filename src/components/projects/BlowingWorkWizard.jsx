@@ -119,7 +119,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Wind className="w-5 h-5" />
-              <h2 className="text-lg font-bold">Einblasarbeiten</h2>
+              <h2 className="text-lg font-bold">{isEdit ? "Einblasen bearbeiten" : "Einblasarbeiten"}</h2>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
               <X className="w-5 h-5" />
