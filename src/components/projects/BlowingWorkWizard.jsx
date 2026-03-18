@@ -253,31 +253,40 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
             )}
 
             {step === 3 && (
-              <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+              <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4 overflow-y-auto max-h-[380px] pr-1">
                 <div>
                   <h3 className="font-semibold text-gray-900 mb-1">SNR Farbe wählen</h3>
                   <p className="text-sm text-gray-500">Welche Kabelfarbe wurde verwendet?</p>
                 </div>
-                <div className="grid grid-cols-3 gap-2">
-                  {SNR_COLORS.map(color => (
-                    <button
-                      key={color.name}
-                      onClick={() => setData(d => ({ ...d, snr_color: color.name }))}
-                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
-                        data.snr_color === color.name
-                          ? "border-teal-500 bg-teal-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div
-                        className="w-8 h-8 rounded-full border-2 border-gray-300 shadow"
-                        style={{ backgroundColor: color.hex }}
-                      />
-                      <span className="text-xs font-medium text-gray-700">{color.name}</span>
-                      {data.snr_color === color.name && <Check className="w-3 h-3 text-teal-600" />}
-                    </button>
-                  ))}
-                </div>
+                {SNR_COLORS_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{group.label}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {group.colors.map(color => (
+                        <button
+                          key={color.name}
+                          onClick={() => setData(d => ({ ...d, snr_color: color.name }))}
+                          className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all ${
+                            data.snr_color === color.name
+                              ? "border-teal-500 bg-teal-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <div className="relative w-8 h-8 rounded-full border-2 border-gray-300 shadow overflow-hidden"
+                            style={{ backgroundColor: color.hex }}>
+                            {color.striped && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-full h-[3px] bg-black/50" />
+                              </div>
+                            )}
+                          </div>
+                          <span className="text-xs font-medium text-gray-700 text-center leading-tight">{color.name}</span>
+                          {data.snr_color === color.name && <Check className="w-3 h-3 text-teal-600" />}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </motion.div>
             )}
 
