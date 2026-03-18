@@ -39,21 +39,21 @@ export default function BlowingWorkTab({ projectId, user, project }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-bold flex items-center gap-2">
-            <Wind className="w-5 h-5 text-teal-600" />
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+            <Wind className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600 flex-shrink-0" />
             Einblasarbeiten
           </h3>
           {records.length > 0 && (
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
               {records.length} Eintrag{records.length !== 1 ? "e" : ""} · gesamt{" "}
-              <span className="font-semibold text-teal-700">{totalMeters.toFixed(1)} m</span> eingeblasen
+              <span className="font-semibold text-teal-700">{totalMeters.toFixed(1)} m</span>
             </p>
           )}
         </div>
-        <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="w-4 h-4 mr-2" /> Einblasen erfassen
+        <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="bg-teal-600 hover:bg-teal-700 flex-shrink-0 text-xs sm:text-sm px-2.5 sm:px-4">
+          <Plus className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Einblasen erfassen</span>
         </Button>
       </div>
 
