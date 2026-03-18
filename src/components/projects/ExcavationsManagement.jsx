@@ -128,6 +128,10 @@ export default function ExcavationsManagement({
     setShowDetail(true);
   };
 
+  const getExcavationIndex = (excavation) => {
+    return excavations.findIndex(e => e.id === excavation.id);
+  };
+
   const handleEditFromDetail = (excavation) => {
     setShowDetail(false);
     setEditingExcavation(excavation);

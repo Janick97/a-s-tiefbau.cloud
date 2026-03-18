@@ -183,7 +183,7 @@ function ImagePreviewModal({ images, currentIndex, isOpen, onClose, title }) {
   );
 }
 
-export default function ExcavationDetail({ excavation, priceItem, onEdit, onClose, currentUser }) {
+export default function ExcavationDetail({ excavation, priceItem, onEdit, onClose, currentUser, excavationIndex }) {
   const [previewImage, setPreviewImage] = useState({
     isOpen: false,
     images: [],
