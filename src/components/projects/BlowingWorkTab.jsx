@@ -9,10 +9,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import BlowingWorkWizard from "./BlowingWorkWizard";
 
 const SNR_COLORS_HEX = {
-  "Blau": "#2563eb", "Orange": "#ea580c", "Grün": "#16a34a",
-  "Braun": "#92400e", "Grau": "#6b7280", "Weiß": "#d1d5db",
-  "Rot": "#dc2626", "Schwarz": "#111827", "Gelb": "#ca8a04",
-  "Violett": "#7c3aed", "Rosa": "#db2777", "Türkis": "#0891b2",
+  "Rot": "#ff0000", "Grün": "#00cc00", "Blau": "#0000ff",
+  "Gelb": "#ffff00", "Weiß": "#ffffff", "Grau": "#b0b0b0",
+  "Braun": "#7b3f00", "Violett": "#8080c0", "Türkis": "#00ffff",
+  "Schwarz": "#000000", "Orange": "#ff9900", "Rosa": "#ffb6c1",
 };
 
 export default function BlowingWorkTab({ projectId, user, project }) {
