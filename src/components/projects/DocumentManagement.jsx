@@ -673,8 +673,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 </div>
               </CardHeader>
               
-              {/* Unterordner Liste - immer sichtbar wenn vorhanden */}
-              {subfolders.length > 0 && (
+              {/* Unterordner Liste - nur wenn aufgeklappt */}
+              {isMainExpanded && subfolders.length > 0 && (
                 <div className="px-6 pb-3 border-b">
                   <div className="space-y-2">
                     {subfolders.map(subfolder => {
