@@ -17,6 +17,7 @@ const SNR_COLORS_HEX = {
 
 export default function BlowingWorkTab({ projectId, user, project }) {
   const [showWizard, setShowWizard] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: records = [], isLoading } = useQuery({
