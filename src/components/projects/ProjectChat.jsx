@@ -142,13 +142,40 @@ export default function ProjectChat({ projectId }) {
             const uploadPromises = files.map(file => UploadFile({ file }));
             const results = await Promise.all(uploadPromises);
             const urls = results.map(res => res.file_url);
-            setAttachments(prev => [...prev, ...urls]);
+            // Directly submit if no text – just photos
+            const newUrls = urls;
+            if (!newComment.trim()) {
+                // Send immediately with just the photos
+                if (currentUser) {
+                    setIsSubmitting(true);
+                    await ProjectComment.create({
+                        project_id: projectId,
+                        comment: "",
+                        attachments: newUrls,
+                        user_full_name: currentUser.full_name
+                    });
+                    for (const url of newUrls) {
+                        const fileName = url.split('/').pop() || 'chat-foto.jpg';
+                        await ProjectDocument.create({
+                            project_id: projectId,
+                            file_name: fileName,
+                            file_url: url,
+                            file_type: 'image/jpeg',
+                            folder: 'Chat-Dateien',
+                            description: 'Aus Chat hochgeladen',
+                            uploaded_by: currentUser.full_name
+                        });
+                    }
+                    setIsSubmitting(false);
+                }
+            } else {
+                setAttachments(prev => [...prev, ...newUrls]);
+            }
         } catch (error) {
             console.error("Upload-Fehler", error);
-            alert("Fehler beim Hochladen der Datei.");
         }
         setIsUploading(false);
-        if(fileInputRef.current) fileInputRef.current.value = "";
+        if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
     const removeAttachment = (urlToRemove) => {
