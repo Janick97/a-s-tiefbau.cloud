@@ -800,6 +800,7 @@ export default function ProjectDetailPage() {
     { id: 'deckblatt', name: 'Deckblatt' },
     { id: 'evergabe', name: 'E-Vergabe' },
     { id: 'excavations', name: `Leistungen (${excavations.length})` },
+    { id: 'blowing', name: 'Einblasen' },
     { id: 'pulling', name: 'Einziehen' },
     { id: 'materials', name: 'Material' },
     { id: 'timesheets', name: 'Stunden' },
@@ -1241,6 +1242,12 @@ export default function ProjectDetailPage() {
                 </div>
               )}
               
+              {activeTab === 'blowing' && (
+                <div className="p-2 sm:p-4 lg:p-6">
+                  <BlowingWorkTab projectId={project.id} user={user} project={project} />
+                </div>
+              )}
+
               {activeTab === 'pulling' && (
                 <div className="p-2 sm:p-4 lg:p-6 overflow-hidden">
                   <PullingWorkManagement projectId={project.id} loadData={loadProjectData} initialPullingWorks={pullingWorks} />
