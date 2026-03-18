@@ -132,7 +132,8 @@ export default function BlowingWorkTab({ projectId, user, project }) {
           <BlowingWorkWizard
             project={project}
             user={user}
-            onClose={() => setShowWizard(false)}
+            existingRecord={editingRecord}
+            onClose={() => { setShowWizard(false); setEditingRecord(null); }}
             onSaved={() => queryClient.invalidateQueries(["blowing-work", projectId])}
           />
         )}
