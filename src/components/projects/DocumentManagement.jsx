@@ -776,7 +776,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               ) : (
                                 <div className="space-y-2">
                                   {subDocs.filter(doc => isImage(doc.file_type)).length > 0 && (
-                                    <div className="grid grid-cols-4 gap-2">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                       {subDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
                                         <div
                                           key={doc.id}
