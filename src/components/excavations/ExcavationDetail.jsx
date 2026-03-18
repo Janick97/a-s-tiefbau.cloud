@@ -327,10 +327,13 @@ export default function ExcavationDetail({ excavation, priceItem, onEdit, onClos
       <div className="fixed inset-0 z-[55] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
           <CardHeader className="flex flex-row items-center justify-between bg-orange-500 text-white">
-            <CardTitle className="flex items-center gap-2">
-              <Ruler className="w-5 h-5" />
-              {safeExcavation.location_name}
-            </CardTitle>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-xs font-mono text-white/70">#{safeExcavation.id?.slice(-8).toUpperCase()}</span>
+              <CardTitle className="flex items-center gap-2">
+                <Ruler className="w-5 h-5" />
+                {safeExcavation.location_name}
+              </CardTitle>
+            </div>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={() => onEdit(excavation)} className="text-white hover:bg-white/20">
                 <Edit className="w-4 h-4 mr-2" />
