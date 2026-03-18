@@ -19,18 +19,18 @@ const CABLE_TYPES = [
 ];
 
 const SNR_COLORS = [
-  { name: "Blau",       hex: "#2563eb" },
-  { name: "Orange",     hex: "#ea580c" },
-  { name: "Grün",       hex: "#16a34a" },
-  { name: "Braun",      hex: "#92400e" },
-  { name: "Grau",       hex: "#6b7280" },
-  { name: "Weiß",       hex: "#d1d5db" },
-  { name: "Rot",        hex: "#dc2626" },
-  { name: "Schwarz",    hex: "#111827" },
-  { name: "Gelb",       hex: "#ca8a04" },
-  { name: "Violett",    hex: "#7c3aed" },
-  { name: "Rosa",       hex: "#db2777" },
-  { name: "Türkis",     hex: "#0891b2" },
+  { name: "Rot",        hex: "#ff0000" },
+  { name: "Grün",       hex: "#00cc00" },
+  { name: "Blau",       hex: "#0000ff" },
+  { name: "Gelb",       hex: "#ffff00" },
+  { name: "Weiß",       hex: "#ffffff" },
+  { name: "Grau",       hex: "#b0b0b0" },
+  { name: "Braun",      hex: "#7b3f00" },
+  { name: "Violett",    hex: "#8080c0" },
+  { name: "Türkis",     hex: "#00ffff" },
+  { name: "Schwarz",    hex: "#000000" },
+  { name: "Orange",     hex: "#ff9900" },
+  { name: "Rosa",       hex: "#ffb6c1" },
 ];
 
 const STEPS = [
