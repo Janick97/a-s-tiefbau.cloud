@@ -147,6 +147,26 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
                   <p className="text-sm text-gray-500">Gib den Anfangs- und Endmeter des Kabels ein.</p>
                 </div>
                 <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm font-medium">Punkt A (Startpunkt)</Label>
+                      <Input
+                        placeholder="z.B. M10"
+                        className="mt-1"
+                        value={data.point_a}
+                        onChange={e => setData(d => ({ ...d, point_a: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium">Punkt B (Endpunkt)</Label>
+                      <Input
+                        placeholder="z.B. M20"
+                        className="mt-1"
+                        value={data.point_b}
+                        onChange={e => setData(d => ({ ...d, point_b: e.target.value }))}
+                      />
+                    </div>
+                  </div>
                   <div>
                     <Label className="text-sm font-medium">Anfang Kabel (m)</Label>
                     <Input
