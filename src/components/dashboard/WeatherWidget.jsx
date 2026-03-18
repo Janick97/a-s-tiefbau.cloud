@@ -19,15 +19,12 @@ export default function WeatherWidget() {
     try {
       setIsLoading(true);
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: "Was ist das aktuelle Wetter in 52353 Düren, Deutschland? Gib mir die Temperatur in Celsius, Wetterbeschreibung (sonnig, bewölkt, regnerisch, etc.), Luftfeuchtigkeit in Prozent und Windgeschwindigkeit in km/h.",
+        prompt: "Aktuelles Wetter in 52353 Düren, Deutschland. Gib NUR die Temperatur in Celsius als Zahl zurück. Kein Text, keine Erklärung.",
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
-            temperature: { type: "number" },
-            description: { type: "string" },
-            humidity: { type: "number" },
-            wind_speed: { type: "number" }
+            temperature: { type: "number" }
           }
         }
       });
