@@ -437,27 +437,29 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-        <h3 className="text-xl font-bold">Anlagenkorb ({documents.length})</h3>
-        <div className="flex gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-initial sm:w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Dateien durchsuchen..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold">Anlagenkorb ({documents.length})</h3>
+          <div className="flex gap-1.5">
+            <Button onClick={() => setShowNewMainFolderDialog(true)} variant="outline" size="sm" className="flex-shrink-0 h-9 px-2.5">
+              <FolderOpen className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline text-xs">Ordner</span>
+            </Button>
+            <Button onClick={() => setShowUploadForm(true)} size="sm" className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 flex-shrink-0 h-9 px-2.5">
+              <Plus className="w-4 h-4 sm:mr-1.5" />
+              <span className="hidden sm:inline text-xs">Hochladen</span>
+            </Button>
           </div>
-          <Button onClick={() => setShowNewMainFolderDialog(true)} variant="outline" className="flex-shrink-0">
-            <FolderOpen className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Neuer Ordner</span>
-          </Button>
-          <Button onClick={() => setShowUploadForm(true)} className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 flex-shrink-0">
-            <Plus className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Datei hochladen</span>
-          </Button>
+        </div>
+        <div className="relative w-full">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Dateien durchsuchen..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 w-full"
+          />
         </div>
       </div>
       
