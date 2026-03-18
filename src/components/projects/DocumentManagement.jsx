@@ -973,8 +973,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                             </div>
                           ) : (
                             <>
-                              <p className="font-medium text-gray-900 truncate">{doc.file_name}</p>
-                              <p className="text-sm text-gray-500">{formatFileSize(doc.file_size)} • von {doc.uploaded_by || doc.created_by}</p>
+                             <p className="font-medium text-gray-900 truncate text-sm">{doc.file_name}</p>
+                             <p className="text-xs text-gray-500">{formatFileSize(doc.file_size)} • <span className="hidden sm:inline">von </span>{doc.uploaded_by || doc.created_by}</p>
                               {doc.description && (
                                 <p className="text-sm text-gray-600 mt-1">{doc.description}</p>
                               )}
