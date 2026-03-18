@@ -101,14 +101,24 @@ export default function BlowingWorkTab({ projectId, user, project }) {
                       </div>
                       {rec.notes && <p className="text-xs text-gray-500 italic">{rec.notes}</p>}
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8 flex-shrink-0"
-                      onClick={() => { if (confirm("Eintrag löschen?")) deleteMutation.mutate(rec.id); }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-400 hover:text-teal-600 hover:bg-teal-50 h-8 w-8"
+                        onClick={() => { setEditingRecord(rec); setShowWizard(true); }}
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                        onClick={() => { if (confirm("Eintrag löschen?")) deleteMutation.mutate(rec.id); }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
