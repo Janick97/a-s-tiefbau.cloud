@@ -284,6 +284,9 @@ export default function ForemanProjectView({
                 <Button onClick={() => { setShowTiefbauMenu(false); setEditingExcavation(null); setShowExcavationForm(true); }} className="w-full h-14 text-lg font-bold bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700" size="lg">
                   <Shovel className="w-5 h-5 mr-2" />Leistung erfassen
                 </Button>
+                <Button onClick={() => { setShowTiefbauMenu(false); setShowBlowingWizard(true); }} className="w-full h-14 text-lg font-bold bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700" size="lg">
+                  <Wind className="w-5 h-5 mr-2" />Einblasen
+                </Button>
                 <Button onClick={() => { setShowTiefbauMenu(false); setEditingPulling(null); setShowPullingForm(true); }} className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600" size="lg">
                   <ListRestart className="w-5 h-5 mr-2" />Einziehen
                 </Button>
