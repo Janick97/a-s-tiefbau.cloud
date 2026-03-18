@@ -810,7 +810,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   </div>
                 </div>
               )}
-            <CardContent className={isMainExpanded ? '' : 'hidden'}>
+            <CardContent className={isMainExpanded ? '' : 'hidden pb-0'}>
               {docs.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
                   <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
