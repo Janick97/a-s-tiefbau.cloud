@@ -75,6 +75,8 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
       start_cable_meters: parseFloat(data.start_cable_meters),
       end_cable_meters: parseFloat(data.end_cable_meters),
       meters_blown: blown,
+      point_a: data.point_a,
+      point_b: data.point_b,
       cable_type: data.cable_type,
       snr_color: data.snr_color,
       notes: data.notes,
