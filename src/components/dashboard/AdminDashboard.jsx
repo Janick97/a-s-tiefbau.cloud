@@ -100,6 +100,19 @@ export default function AdminDashboard({
       ]
     },
     {
+      label: "Telekom",
+      items: [
+        { title: "GBGS Verwaltung", icon: FolderOpen, link: "https://glasfaser.telekom.de/auftragnehmerportal-ui/home?a-cid=49361", external: true },
+        { title: "Workorder", icon: ClipboardList, link: "https://glasfaser.telekom.de/auftragnehmerportal-mui/?a-cid=49361", external: true },
+        { title: "Status App", icon: BarChart3, link: "https://glasfaser.telekom.de/accounts-03/realms/AundSHochundTiefbau/protocol/openid-connect/auth?scope=openid&state=3tYIv4PmKO2swoSO7_hz7yA_kRs3qLEP-IDeImBTNPk.m-K9Ti0ty7A.nvt-app-ui-ui-client&response_type=code&client_id=sso-internet-broker&redirect_uri=https%3A%2F%2Fglasfaser.telekom.de%2Fauth%2Frealms%2FGigabitHub%2Fbroker%2Fsupplier-aundshochundtiefbau%2Fendpoint&nonce=2mI6JI7kZ-roXTPXGFqOsA", external: true },
+        { title: "NVT App", icon: Network, link: "https://glasfaser.telekom.de/auftragnehmerportal-mui/nvt/search", external: true },
+        { title: "Digitale Baubegleitung", icon: Construction, link: "https://baubegleitung.telekom-dienste.de/login", external: true },
+        { title: "Trassenauskunft", icon: MapPin, link: "https://trassenauskunftkabel.telekom.de/start.html", external: true },
+        { title: "E-Vergabe", icon: FileText, link: "https://evergabe.telekom.de/", external: true },
+        { title: "LWA Tool", icon: Wrench, link: "https://lwa.telekom.de/login", external: true },
+      ]
+    },
+    {
       label: "Sonstiges",
       items: [
         { title: "Projekt-Explorer", icon: MapPin, link: createPageUrl("ProjectExplorer") },
