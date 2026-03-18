@@ -261,7 +261,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                 {SNR_COLORS_GROUPS.map(group => (
                   <div key={group.label}>
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1.5">{group.label}</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-4 sm:grid-cols-3 gap-1.5 sm:gap-2">
                       {group.colors.map(color => (
                         <button
                           key={color.name}
