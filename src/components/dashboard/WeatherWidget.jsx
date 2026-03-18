@@ -62,7 +62,7 @@ export default function WeatherWidget() {
             <p className="text-sm text-gray-400">Wird geladen...</p>
           ) : weather ? (
             <div className="flex items-center gap-2">
-              <WeatherIcon className="w-5 h-5 text-blue-500" />
+              <Sun className="w-5 h-5 text-blue-500" />
               <span className="text-lg font-bold text-gray-900">{Math.round(weather.temperature)}°C</span>
               <span className="text-sm text-gray-500">Düren</span>
             </div>
