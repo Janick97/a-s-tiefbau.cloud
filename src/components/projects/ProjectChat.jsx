@@ -118,49 +118,21 @@ export default function ProjectChat({ projectId }) {
     };
 
     useEffect(() => {
-        if (projectId) {
-            loadData();
+        if (!projectId) return;
+        loadData();
 
-            // Subscribe to new comments
-            const unsubscribe = ProjectComment.subscribe(async (event) => {
-                if (event.type === 'create' && event.data.project_id === projectId) {
-                    // Add the new comment to the list
-                    setComments(prev => [...prev, event.data]);
-                    
-                    // Notification system temporarily disabled
-                    // Skip notification if this is the current user's own comment
-                    // if (currentUser && event.data.created_by === currentUser.email) {
-                    //     return;
-                    // }
-                    // 
-                    // // Get project details for notification
-                    // try {
-                    //     const project = await Project.get(projectId);
-                    //     const montageAuftraege = await MontageAuftrag.filter({ project_id: projectId });
-                    //     
-                    //     let link = createPageUrl('ProjectDetail') + `?id=${projectId}`;
-                    //     if (montageAuftraege && montageAuftraege.length > 0) {
-                    //         link = createPageUrl('MontageAuftragDetail') + `?id=${montageAuftraege[0].id}`;
-                    //     }
-                    //     
-                    //     addNotification({
-                    //         comment_id: event.data.id,
-                    //         project_id: projectId,
-                    //         project_title: project?.title || 'Projekt',
-                    //         project_number: project?.project_number || '',
-                    //         user_name: event.data.user_full_name || 'Unbekannt',
-                    //         message: event.data.comment || '',
-                    //         link: link
-                    //     });
-                    // } catch (error) {
-                    //     console.error('Fehler beim Erstellen der Benachrichtigung:', error);
-                    // }
-                }
-            });
+        const unsubscribe = ProjectComment.subscribe((event) => {
+            if (event.type === 'create' && event.data?.project_id === projectId) {
+                setComments(prev => {
+                    // Avoid duplicates
+                    if (prev.some(c => c.id === event.data.id)) return prev;
+                    return [...prev, event.data];
+                });
+            }
+        });
 
-            return () => unsubscribe();
-        }
-    }, [projectId, currentUser]);
+        return () => unsubscribe();
+    }, [projectId]);
 
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
