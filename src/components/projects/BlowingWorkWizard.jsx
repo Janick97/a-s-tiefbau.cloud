@@ -8,15 +8,23 @@ import { Badge } from "@/components/ui/badge";
 import { X, ChevronRight, ChevronLeft, Check, Wind } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
-const CABLE_TYPES = [
-  "2x12 Minikabel",
-  "8x12 Minikabel",
-  "6R/22",
-  "12R/44",
-  "24R/88",
-  "48R/176",
-  "96R/352",
-];
+const CABLE_TYPES = {
+  "Minikabel": [
+    "Gf-Minikabel 1x12",
+    "Gf-Minikabel 2x12",
+    "Gf-Minikabel 3x12",
+    "Gf-Minikabel 4x12",
+    "Gf-Minikabel 6x12",
+    "Gf-Minikabel 8x12",
+  ],
+  "Mikrokabel": [
+    "Gf-Mikrokabel 1x4",
+    "Gf-Mikrokabel 1x6",
+    "Gf-Mikrokabel 1x12",
+    "Gf-Mikrokabel 1x24",
+    "Gf-Mikrokabel 1x36",
+  ],
+};
 
 const SNR_COLORS = [
   { name: "Rot",        hex: "#ff0000" },
