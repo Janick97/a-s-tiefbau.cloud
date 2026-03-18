@@ -231,13 +231,11 @@ export default function PullingWorkManagement({ projectId }) {
 
       <AnimatePresence>
         {showForm && (
-          <PullingWorkForm
-            pullingWork={editingWork} // Changed prop name to pullingWork
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingWork(null);
-            }}
+          <PullingWorkWizard
+            existingWork={editingWork}
+            project={{ id: projectId }}
+            onClose={() => { setShowForm(false); setEditingWork(null); }}
+            onSaved={() => { setShowForm(false); setEditingWork(null); loadData(); }}
           />
         )}
       </AnimatePresence>
