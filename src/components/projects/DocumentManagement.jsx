@@ -612,24 +612,34 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               onDragOver={(e) => handleDragOver(e, folder)}
               onDragLeave={handleDragLeave}
             >
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors rounded-t-xl" onClick={() => toggleFolder(folder)}>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    {hasSubs && (
-                      <button
-                        onClick={() => toggleFolder(folder)}
-                        className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors"
-                      >
-                        {isMainExpanded ? (
-                          <ChevronDown className="w-4 h-4 text-gray-600" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4 text-gray-600" />
-                        )}
-                      </button>
-                    )}
-                    {!hasSubs && <div className="w-6" />}
+                    <button className="hover:bg-gray-100 rounded p-1 -ml-1 transition-colors" onClick={e => { e.stopPropagation(); toggleFolder(folder); }}>
+                      {isMainExpanded ? (
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 text-gray-600" />
+                      )}
+                    </button>
                     <FolderOpen className="w-5 h-5 text-orange-600" />
-                    {getFolderName(folder)}
+                    {editingMainFolder === folder ? (
+                      <input
+                        type="text"
+                        value={editingMainFolderName}
+                        className="text-base font-semibold border rounded px-2 py-0.5"
+                        autoFocus
+                        onClick={e => e.stopPropagation()}
+                        onChange={e => setEditingMainFolderName(e.target.value)}
+                        onBlur={() => handleRenameMainFolder(folder, editingMainFolderName)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter') { e.target.blur(); }
+                          if (e.key === 'Escape') { setEditingMainFolder(null); }
+                        }}
+                      />
+                    ) : (
+                      <span>{getFolderName(folder)}</span>
+                    )}
                     <Badge variant="outline">{docs.length} Datei(en)</Badge>
                     {hasSubs && (
                       <Badge className="bg-blue-100 text-blue-800 border-blue-300">
@@ -637,18 +647,29 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       </Badge>
                     )}
                   </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedParentFolder(folder);
-                      setShowSubfolderDialog(true);
-                    }}
-                    title="Unterordner erstellen"
-                  >
-                    <Plus className="w-4 h-4 mr-1" />
-                    Unterordner
-                  </Button>
+                  <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      title="Ordner umbenennen"
+                      onClick={() => { setEditingMainFolder(folder); setEditingMainFolderName(getFolderName(folder)); }}
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedParentFolder(folder);
+                        setShowSubfolderDialog(true);
+                      }}
+                      title="Unterordner erstellen"
+                    >
+                      <Plus className="w-4 h-4 mr-1" />
+                      Unterordner
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               
