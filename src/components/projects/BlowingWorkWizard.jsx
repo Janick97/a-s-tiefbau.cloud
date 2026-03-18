@@ -330,7 +330,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         </div>
 
         {/* Footer */}
-        <div className="border-t p-4 flex gap-3">
+        <div className="border-t p-3 sm:p-4 flex gap-2 flex-shrink-0">
           {step > 1 && (
             <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1">
               <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
