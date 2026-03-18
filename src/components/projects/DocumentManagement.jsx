@@ -813,17 +813,17 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                   </div>
                 </div>
               )}
-            <CardContent className={isMainExpanded ? '' : 'hidden pb-0'}>
+            <CardContent className={`${isMainExpanded ? '' : 'hidden pb-0'} px-3 sm:px-6`}>
               {docs.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
-                  <FolderOpen className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Ziehen Sie Dateien hierher oder klicken Sie auf "Datei hochladen"</p>
+                  <FolderOpen className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">Dateien hochladen oder hierher ziehen</p>
                 </div>
               )}
               
               {/* Grid view for images */}
               {docs.some(doc => isImage(doc.file_type)) && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-6">
                   {docs.filter(doc => isImage(doc.file_type)).map((doc) => (
                     <motion.div
                      key={doc.id}
