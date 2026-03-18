@@ -984,36 +984,38 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       </div>
                       
                       {editingFileName !== doc.id && (
-                        <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1 flex-shrink-0">
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="h-8 w-8 p-0"
                             onClick={() => startEditingFileName(doc)}
                             title="Dateiname bearbeiten"
                           >
-                            <Edit className="w-4 h-4" />
+                            <Edit className="w-3.5 h-3.5" />
                           </Button>
                           <Button 
                             size="sm" 
-                            variant="outline" 
+                            variant="ghost"
+                            className="h-8 w-8 p-0"
                             title="Vorschau"
                             onClick={() => setPreviewDoc(doc)}
                           >
-                            <Eye className="w-4 h-4" />
+                            <Eye className="w-3.5 h-3.5" />
                           </Button>
                           <a href={doc.file_url} download={doc.file_name}>
-                            <Button size="sm" variant="outline" title="Herunterladen">
-                              <Download className="w-4 h-4" />
+                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen">
+                              <Download className="w-3.5 h-3.5" />
                             </Button>
                           </a>
                           <Button
                             size="sm"
                             variant="ghost"
+                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
                             onClick={() => handleDeleteDocument(doc.id)}
-                            className="text-red-600 hover:text-red-700"
                             title="Löschen"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </Button>
                         </div>
                       )}
