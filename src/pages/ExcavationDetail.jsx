@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { Excavation, Project, PriceItem } from "@/entities/all";
@@ -125,12 +124,19 @@ export default function ExcavationDetailPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6 no-print">
-          <Link to={createPageUrl("Excavations")}>
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Zurück
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl("Excavations")}>
+              <Button variant="outline">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Zurück
+              </Button>
+            </Link>
+            {excavation && (
+              <span className="text-sm font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                #{excavation.id?.slice(-8).toUpperCase()}
+              </span>
+            )}
+          </div>
           <div className="flex gap-2">
             <Button variant="outline">
               <Edit className="w-4 h-4 mr-2" />
