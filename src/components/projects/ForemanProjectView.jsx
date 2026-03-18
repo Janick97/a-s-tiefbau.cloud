@@ -483,6 +483,18 @@ export default function ForemanProjectView({
         )}
       </AnimatePresence>
 
+      {/* Blowing Work Wizard */}
+      <AnimatePresence>
+        {showBlowingWizard && (
+          <BlowingWorkWizard
+            project={project}
+            user={user}
+            onClose={() => setShowBlowingWizard(false)}
+            onSaved={loadData}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Pulling Form */}
       <AnimatePresence>
         {showPullingForm && (
