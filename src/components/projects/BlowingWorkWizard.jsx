@@ -61,7 +61,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user }) {
   };
 
   const canNext = () => {
-    if (step === 1) return data.start_cable_meters !== "" && data.end_cable_meters !== "" && parseFloat(data.end_cable_meters) > parseFloat(data.start_cable_meters);
+    if (step === 1) return data.start_cable_meters !== "" && data.end_cable_meters !== "" && parseFloat(data.end_cable_meters) > parseFloat(data.start_cable_meters) && data.point_a !== "" && data.point_b !== "";
     if (step === 2) return data.cable_type !== "";
     if (step === 3) return data.snr_color !== "";
     return true;
