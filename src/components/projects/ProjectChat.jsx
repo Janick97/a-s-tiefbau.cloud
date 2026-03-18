@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProjectComment, User, ProjectDocument, Project, MontageAuftrag } from '@/entities/all';
+import { ProjectComment, User, ProjectDocument } from '@/entities/all';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
