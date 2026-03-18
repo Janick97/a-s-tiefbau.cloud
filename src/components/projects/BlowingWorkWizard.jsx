@@ -124,7 +124,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         initial={{ y: "100%" }}
         animate={{ y: 0 }}
         exit={{ y: "100%" }}
-        className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-lg overflow-hidden"
+        className="bg-white rounded-t-2xl md:rounded-2xl w-full md:max-w-lg overflow-hidden max-h-[95vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
