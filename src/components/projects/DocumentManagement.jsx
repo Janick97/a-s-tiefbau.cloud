@@ -22,7 +22,8 @@ import {
   ChevronRight,
   ChevronDown,
   Search,
-  Edit2
+  Edit2,
+  FolderInput
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
