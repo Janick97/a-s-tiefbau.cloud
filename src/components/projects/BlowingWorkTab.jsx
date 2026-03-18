@@ -58,7 +58,7 @@ export default function BlowingWorkTab({ projectId, user, project }) {
         <div className="text-center py-16 text-gray-400">
           <Wind className="w-14 h-14 mx-auto mb-3 opacity-20" />
           <p className="font-medium">Noch keine Einblasarbeiten dokumentiert</p>
-          <Button onClick={() => setShowWizard(true)} className="mt-4 bg-teal-600 hover:bg-teal-700">
+          <Button onClick={() => { setEditingRecord(null); setShowWizard(true); }} className="mt-4 bg-teal-600 hover:bg-teal-700">
             <Plus className="w-4 h-4 mr-2" /> Ersten Eintrag erstellen
           </Button>
         </div>
