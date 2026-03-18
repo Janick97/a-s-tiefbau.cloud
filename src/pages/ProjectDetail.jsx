@@ -1094,7 +1094,7 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6">
                   {/* Mobile: Gestacktes Layout */}
                   <div className="block xl:hidden space-y-3">
-                    <ProjectStatsCard project={project} excavations={excavations} totalRevenue={excavations.reduce((sum, exc) => sum + (exc.calculated_price || 0), 0)} />
+
                     <ProjectDetails project={project} />
                     <MontageAuftragSection
                       project={project}
