@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Trash2, Check, AlertCircle, Camera, Loader2, Calendar, ChevronRight, ChevronLeft, Car } from "lucide-react";
+import { Upload, Trash2, Check, AlertCircle, Camera, Loader2, Calendar, ChevronRight, ChevronLeft, Car, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 function getWeekNumber(date) {
