@@ -430,13 +430,13 @@ export default function VehicleMaintenanceOverviewPage() {
                                 <Label className="text-gray-600 mb-2 block">Fotos vom Mitarbeiter ({selectedReport.photos?.length || 0})</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                   {selectedReport.photos?.map((photo, idx) => (
-                                    <img
-                                      key={idx}
-                                      src={photo}
-                                      alt={`Foto ${idx + 1}`}
-                                      className="w-full h-40 object-cover rounded cursor-pointer hover:opacity-75"
-                                      onClick={() => window.open(photo, '_blank')}
-                                    />
+                                   <img
+                                     key={idx}
+                                     src={photo}
+                                     alt={`Foto ${idx + 1}`}
+                                     className="w-full h-40 object-cover rounded cursor-pointer hover:opacity-75"
+                                     onClick={() => setLightboxUrl(photo)}
+                                   />
                                   ))}
                                 </div>
                               </div>
