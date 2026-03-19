@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { base44 } from '@/api/base44Client';
 import { pagesConfig } from '@/pages.config';
+
+// Speichert Scroll-Positionen pro URL
+const scrollPositions = {};
 
 export default function NavigationTracker() {
     const location = useLocation();
