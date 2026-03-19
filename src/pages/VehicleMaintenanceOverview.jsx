@@ -551,7 +551,7 @@ export default function VehicleMaintenanceOverviewPage() {
                           src={photo}
                           alt={`Foto ${idx + 1}`}
                           className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75"
-                          onClick={() => window.open(photo, '_blank')}
+                          onClick={() => setLightboxUrl(photo)}
                         />
                       ))}
                     </div>
