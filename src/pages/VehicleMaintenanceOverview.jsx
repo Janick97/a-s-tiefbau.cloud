@@ -195,14 +195,14 @@ export default function VehicleMaintenanceOverviewPage() {
 
         {/* Stats Cards - collapsible */}
         <div className="mb-5">
-        <button
-          onClick={() => setStatsOpen(o => !o)}
-          className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 mb-3 transition-colors"
-        >
-          <span>{statsOpen ? '▲' : '▼'}</span>
-          Statistiken {statsOpen ? 'ausblenden' : 'anzeigen'}
-        </button>
-        {statsOpen && <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <button
+            onClick={() => setStatsOpen(o => !o)}
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 mb-3 transition-colors"
+          >
+            <span>{statsOpen ? '▲' : '▼'}</span>
+            Statistiken {statsOpen ? 'ausblenden' : 'anzeigen'}
+          </button>
+          {statsOpen && <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           {[
             { label: "Diese Woche", value: `${stats.submittedThisWeek}/${stats.expectedThisWeek}`, color: "text-blue-600", icon: <Calendar className="w-6 h-6 text-blue-400" /> },
             { label: "Quote", value: `${stats.completionRate}%`, color: "text-purple-600", icon: <Car className="w-6 h-6 text-purple-400" /> },
