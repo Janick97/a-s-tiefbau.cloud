@@ -161,6 +161,7 @@ export default function VehicleMaintenanceOverviewPage() {
       });
 
       await loadData();
+      setOpenDialogId(null);
       setSelectedReport(null);
       setAdminNotes('');
     } catch (error) {
