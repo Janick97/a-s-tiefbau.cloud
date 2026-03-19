@@ -450,8 +450,8 @@ export default function EVergabeEditor({
                     <p>{formatPriceItemDescription(priceItem)}</p>
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-700">Menge:</p>
-                    <p>{exc.quantity} {priceItem?.unit || 'ST'}</p>
+                   <p className="font-semibold text-gray-700">{priceItem?.type === 'Grube' ? 'Faktor:' : 'Menge:'}</p>
+                   <p>{priceItem?.type === 'Grube' ? (exc.excavation_factor ?? 1) : `${exc.quantity} ${priceItem?.unit || 'ST'}`}</p>
                   </div>
                   <div>
                     <p className="font-semibold text-gray-700">Standort:</p>
