@@ -73,10 +73,13 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
               />
             </div>
             {selectedProject && (
-              <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
-                <Check className="w-4 h-4 text-orange-600 shrink-0" />
-                <span className="font-mono text-orange-700 font-semibold">{selectedProject.project_number}</span>
-                <span className="text-gray-700 truncate">{selectedProject.title}</span>
+              <div className="px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <Check className="w-4 h-4 text-orange-600 shrink-0" />
+                  <span className="font-mono text-orange-700 font-semibold text-sm">{selectedProject.project_number}</span>
+                  {selectedProject.city && <span className="text-gray-400 text-xs ml-auto">{selectedProject.city}</span>}
+                </div>
+                <p className="text-gray-800 text-sm font-medium pl-6">{selectedProject.title}</p>
               </div>
             )}
             <div className="border rounded-lg max-h-48 overflow-y-auto overflow-x-hidden">
