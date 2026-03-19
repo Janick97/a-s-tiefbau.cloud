@@ -98,6 +98,54 @@ export default function VehicleMaintenanceOverviewPage() {
     return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
   }
 
+  const handleDelete = async (reportId) => {
+    if (!window.confirm("Dokumentation wirklich löschen?")) return;
+    try {
+      await VehicleMaintenance.delete(reportId);
+      await loadData();
+    } catch (error) {
+      console.error("Fehler beim Löschen:", error);
+      alert("Fehler beim Löschen");
+    }
+  };
+
+  const handleInspectionPhotoUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length || !selectedReport) return;
+    setIsUploadingInspectionPhoto(true);
+    try {
+      const uploadedUrls = await Promise.all(
+        files.map(file => base44.integrations.Core.UploadFile({ file }))
+      );
+      const newPhotos = uploadedUrls.map(res => ({
+        url: res.file_url,
+        uploaded_by: currentUser.full_name,
+        uploaded_by_id: currentUser.id,
+        uploaded_at: new Date().toISOString()
+      }));
+      const existing = selectedReport.inspection_photos || [];
+      const updated = [...existing, ...newPhotos];
+      await VehicleMaintenance.update(selectedReport.id, { inspection_photos: updated });
+      const updatedReport = { ...selectedReport, inspection_photos: updated };
+      setSelectedReport(updatedReport);
+      setAllReports(prev => prev.map(r => r.id === selectedReport.id ? updatedReport : r));
+    } catch (error) {
+      console.error("Fehler beim Upload:", error);
+      alert("Fehler beim Hochladen");
+    }
+    setIsUploadingInspectionPhoto(false);
+    e.target.value = null;
+  };
+
+  const handleDeleteInspectionPhoto = async (photoIndex) => {
+    if (!selectedReport) return;
+    const updated = (selectedReport.inspection_photos || []).filter((_, i) => i !== photoIndex);
+    await VehicleMaintenance.update(selectedReport.id, { inspection_photos: updated });
+    const updatedReport = { ...selectedReport, inspection_photos: updated };
+    setSelectedReport(updatedReport);
+    setAllReports(prev => prev.map(r => r.id === selectedReport.id ? updatedReport : r));
+  };
+
   const handleStatusUpdate = async (status) => {
     if (!selectedReport) return;
 
