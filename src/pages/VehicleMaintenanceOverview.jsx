@@ -475,10 +475,10 @@ export default function VehicleMaintenanceOverviewPage() {
                                     {selectedReport.inspection_photos.map((photo, idx) => (
                                       <div key={idx} className="relative group">
                                         <img
-                                          src={photo.url}
-                                          alt={`Prüfungsfoto ${idx + 1}`}
-                                          className="w-full h-40 object-cover rounded cursor-pointer hover:opacity-75"
-                                          onClick={() => window.open(photo.url, '_blank')}
+                                         src={photo.url}
+                                         alt={`Prüfungsfoto ${idx + 1}`}
+                                         className="w-full h-40 object-cover rounded cursor-pointer hover:opacity-75"
+                                         onClick={() => setLightboxUrl(photo.url)}
                                         />
                                         <div className="mt-1 px-1">
                                           <p className="text-xs text-gray-600 font-medium">{photo.uploaded_by}</p>
