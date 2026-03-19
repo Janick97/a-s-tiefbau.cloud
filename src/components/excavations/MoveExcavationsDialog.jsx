@@ -82,7 +82,7 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
                 <p className="text-gray-800 text-sm font-medium pl-6">{selectedProject.title}</p>
               </div>
             )}
-            <div className="border rounded-lg max-h-48 overflow-y-auto overflow-x-hidden">
+            <div className="border rounded-lg max-h-64 overflow-y-auto overflow-x-hidden">
               {filteredProjects.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-4">Keine Projekte gefunden</p>
               ) : (
