@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowRight, Loader2, Search, Check } from "lucide-react";
 
 export default function MoveExcavationsDialog({ open, onClose, selectedExcavations, projects, onMove }) {
   const [targetProjectId, setTargetProjectId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
+  const [search, setSearch] = useState("");
 
   const handleMove = async () => {
     if (!targetProjectId) return;
