@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Check, X, AlertCircle, Loader2, Calendar, User as UserIcon, Car, Eye } from "lucide-react";
+import { Check, X, AlertCircle, Loader2, Calendar, User as UserIcon, Car, Eye, Trash2, Upload, Camera } from "lucide-react";
 import { motion } from "framer-motion";
+import { base44 } from "@/api/base44Client";
 
 export default function VehicleMaintenanceOverviewPage() {
   const [currentUser, setCurrentUser] = useState(null);
