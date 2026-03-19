@@ -398,6 +398,25 @@ export default function MyVehicleMaintenancePage() {
                         <strong>Büro:</strong> {report.admin_notes}
                       </div>
                     )}
+                    {report.status === 'rejected' && (
+                      <div className="mt-3">
+                        <label className="cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 w-full py-2 px-3 border-2 border-dashed border-red-300 rounded-lg bg-red-50 hover:bg-red-100 transition-colors text-sm text-red-700 font-medium">
+                            {uploadingReportId === report.id ? (
+                              <><Loader2 className="w-4 h-4 animate-spin" /> Wird hochgeladen...</>
+                            ) : (
+                              <><Upload className="w-4 h-4" /> Neue Fotos nachreichen</>
+                            )}
+                          </div>
+                          <input
+                            type="file" multiple accept="image/*" className="hidden"
+                            onChange={(e) => handleAddPhotosToReport(e, report)}
+                            disabled={uploadingReportId === report.id}
+                          />
+                        </label>
+                        <p className="text-xs text-gray-400 mt-1 text-center">Dokumentation wird nach dem Upload erneut zur Prüfung eingereicht</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               ))}
