@@ -6,43 +6,43 @@ import { motion } from "framer-motion";
 
 export default function BauleiterDashboard({ user }) {
   const tiles = [
-    {
-      title: "Meine Aufträge",
-      icon: FolderOpen,
-      url: user?.position === 'Oberfläche'
-        ? createPageUrl("MyProjectsOberflaeche")
-        : createPageUrl("MyProjects"),
-      color: "from-orange-500 to-amber-500",
-      bg: "from-orange-50 to-amber-50",
-      border: "border-orange-200"
-    },
-    {
-      title: "Fahrzeugpflege",
-      icon: Construction,
-      url: createPageUrl("MyVehicleMaintenance"),
-      color: "from-blue-500 to-indigo-500",
-      bg: "from-blue-50 to-indigo-50",
-      border: "border-blue-200"
-    }
-  ];
+  {
+    title: "Meine Aufträge",
+    icon: FolderOpen,
+    url: user?.position === 'Oberfläche' ?
+    createPageUrl("MyProjectsOberflaeche") :
+    createPageUrl("MyProjects"),
+    color: "from-orange-500 to-amber-500",
+    bg: "from-orange-50 to-amber-50",
+    border: "border-orange-200"
+  },
+  {
+    title: "Fahrzeugpflege",
+    icon: Construction,
+    url: createPageUrl("MyVehicleMaintenance"),
+    color: "from-blue-500 to-indigo-500",
+    bg: "from-blue-50 to-indigo-50",
+    border: "border-blue-200"
+  }];
+
 
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center p-6">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-2xl font-bold text-gray-900 mb-8"
-      >
-        Willkommen, {user?.full_name?.split(' ')[0]}!
-      </motion.h1>
+      
+
+
+
+
+
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full max-w-lg">
-        {tiles.map((tile, i) => (
-          <motion.div
-            key={tile.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
+        {tiles.map((tile, i) =>
+        <motion.div
+          key={tile.title}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.1 }}>
+          
             <Link to={tile.url}>
               <div className={`bg-gradient-to-br ${tile.bg} border ${tile.border} rounded-2xl p-8 flex flex-col items-center gap-4 shadow hover:shadow-md transition-all hover:scale-105 cursor-pointer`}>
                 <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${tile.color} flex items-center justify-center shadow-lg`}>
@@ -52,8 +52,8 @@ export default function BauleiterDashboard({ user }) {
               </div>
             </Link>
           </motion.div>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
