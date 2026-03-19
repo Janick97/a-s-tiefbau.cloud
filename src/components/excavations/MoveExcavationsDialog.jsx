@@ -20,8 +20,22 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
 
   const handleClose = () => {
     setTargetProjectId("");
+    setSearch("");
     onClose();
   };
+
+  const filteredProjects = useMemo(() => {
+    if (!search.trim()) return projects;
+    const q = search.toLowerCase();
+    return projects.filter(p =>
+      p.project_number?.toLowerCase().includes(q) ||
+      p.title?.toLowerCase().includes(q) ||
+      p.sm_number?.toLowerCase().includes(q) ||
+      p.city?.toLowerCase().includes(q)
+    );
+  }, [projects, search]);
+
+  const selectedProject = projects.find(p => p.id === targetProjectId);
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
