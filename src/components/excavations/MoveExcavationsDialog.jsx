@@ -63,19 +63,39 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
 
           <div className="space-y-2">
             <label className="text-sm font-medium text-gray-700">Zielprojekt auswählen</label>
-            <Select value={targetProjectId} onValueChange={setTargetProjectId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Projekt auswählen..." />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map(project => (
-                  <SelectItem key={project.id} value={project.id}>
-                    <span className="font-mono text-orange-700 mr-2">{project.project_number}</span>
-                    {project.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Suchen nach Nummer, Titel, Stadt..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9 h-9 text-sm"
+              />
+            </div>
+            {selectedProject && (
+              <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 border border-orange-200 rounded-lg text-sm">
+                <Check className="w-4 h-4 text-orange-600 shrink-0" />
+                <span className="font-mono text-orange-700 font-semibold">{selectedProject.project_number}</span>
+                <span className="text-gray-700 truncate">{selectedProject.title}</span>
+              </div>
+            )}
+            <div className="border rounded-lg max-h-48 overflow-y-auto">
+              {filteredProjects.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-4">Keine Projekte gefunden</p>
+              ) : (
+                filteredProjects.map(project => (
+                  <button
+                    key={project.id}
+                    onClick={() => setTargetProjectId(project.id)}
+                    className={`w-full text-left px-3 py-2 text-sm hover:bg-orange-50 flex items-center gap-2 transition-colors border-b last:border-b-0 ${targetProjectId === project.id ? 'bg-orange-50' : ''}`}
+                  >
+                    <span className="font-mono text-orange-700 font-semibold shrink-0">{project.project_number}</span>
+                    <span className="text-gray-700 truncate">{project.title}</span>
+                    {project.city && <span className="text-gray-400 text-xs shrink-0">{project.city}</span>}
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         </div>
 
