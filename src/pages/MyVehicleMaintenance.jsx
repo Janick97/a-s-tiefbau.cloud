@@ -388,6 +388,20 @@ export default function MyVehicleMaintenancePage() {
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightboxUrl && (
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center z-[200] p-4"
+          onClick={() => setLightboxUrl(null)}>
+          <button className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/70"
+            onClick={() => setLightboxUrl(null)}>
+            <X className="w-6 h-6" />
+          </button>
+          <img src={lightboxUrl} alt="Vorschau"
+            className="max-w-full max-h-[90vh] object-contain rounded shadow-2xl"
+            onClick={e => e.stopPropagation()} />
+        </div>
+      )}
     </div>
   );
 }
