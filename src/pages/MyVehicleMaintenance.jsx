@@ -88,6 +88,22 @@ export default function MyVehicleMaintenancePage() {
 
   const removePhoto = (idx) => setPhotos(prev => prev.filter((_, i) => i !== idx));
 
+  const handleAddPhotosToReport = async (e, report) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setUploadingReportId(report.id);
+    try {
+      const urls = await Promise.all(files.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const newPhotos = [...(report.photos || []), ...urls.map(r => r.file_url)];
+      await VehicleMaintenance.update(report.id, { photos: newPhotos, status: 'pending' });
+      await loadData();
+    } catch {
+      alert("Fehler beim Hochladen der Fotos");
+    }
+    setUploadingReportId(null);
+    e.target.value = null;
+  };
+
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const parts = [];
