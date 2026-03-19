@@ -372,7 +372,7 @@ export default function MyVehicleMaintenancePage() {
                     {report.photos?.length > 0 && (
                       <div className="grid grid-cols-5 gap-1">
                         {report.photos.map((photo, idx) => (
-                          <img key={idx} src={photo} alt={`Foto ${idx + 1}`} className="w-full h-14 object-cover rounded cursor-pointer hover:opacity-75" onClick={() => window.open(photo, '_blank')} />
+                          <img key={idx} src={photo} alt={`Foto ${idx + 1}`} className="w-full h-14 object-cover rounded cursor-pointer hover:opacity-75" onClick={() => setLightboxUrl(photo)} />
                         ))}
                       </div>
                     )}
