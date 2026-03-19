@@ -367,18 +367,20 @@ export default function VehicleMaintenanceOverviewPage() {
                         </p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
                       {getStatusBadge(report.status)}
-                      <Dialog>
+                      <Dialog open={openDialogId === report.id} onOpenChange={(open) => {
+                        if (open) {
+                          setOpenDialogId(report.id);
+                          setSelectedReport(report);
+                          setAdminNotes(report.admin_notes || '');
+                        } else {
+                          setOpenDialogId(null);
+                          setSelectedReport(null);
+                        }
+                      }}>
                         <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedReport(report);
-                              setAdminNotes(report.admin_notes || '');
-                            }}
-                          >
+                          <Button variant="outline" size="sm">
                             <Eye className="w-4 h-4 mr-2" />
                             Details
                           </Button>
@@ -392,40 +394,41 @@ export default function VehicleMaintenanceOverviewPage() {
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                   <Label className="text-gray-600">Mitarbeiter</Label>
-                                  <p className="font-medium">{report.user_name} ({report.user_position})</p>
+                                  <p className="font-medium">{selectedReport.user_name} ({selectedReport.user_position})</p>
                                 </div>
                                 <div>
                                   <Label className="text-gray-600">Woche</Label>
-                                  <p className="font-medium">KW {report.week} / {report.year}</p>
+                                  <p className="font-medium">KW {selectedReport.week} / {selectedReport.year}</p>
                                 </div>
                                 <div>
                                   <Label className="text-gray-600">Eingereicht am</Label>
-                                  <p className="font-medium">{new Date(report.submission_date).toLocaleString('de-DE')}</p>
+                                  <p className="font-medium">{new Date(selectedReport.submission_date).toLocaleString('de-DE')}</p>
                                 </div>
                                 <div>
                                   <Label className="text-gray-600">Status</Label>
-                                  <div className="mt-1">{getStatusBadge(report.status)}</div>
+                                  <div className="mt-1">{getStatusBadge(selectedReport.status)}</div>
                                 </div>
                               </div>
 
-                              {report.vehicle_info && (
+                              {selectedReport.vehicle_info && (
                                 <div>
                                   <Label className="text-gray-600">Fahrzeuginfo</Label>
-                                  <p className="font-medium">{report.vehicle_info}</p>
+                                  <p className="font-medium">{selectedReport.vehicle_info}</p>
                                 </div>
                               )}
 
-                              {report.notes && (
+                              {selectedReport.notes && (
                                 <div>
                                   <Label className="text-gray-600">Notizen</Label>
-                                  <p className="text-sm">{report.notes}</p>
+                                  <p className="text-sm">{selectedReport.notes}</p>
                                 </div>
                               )}
 
+                              {/* Einreichungs-Fotos */}
                               <div>
-                                <Label className="text-gray-600 mb-2 block">Fotos ({report.photos?.length || 0})</Label>
+                                <Label className="text-gray-600 mb-2 block">Fotos vom Mitarbeiter ({selectedReport.photos?.length || 0})</Label>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                  {report.photos?.map((photo, idx) => (
+                                  {selectedReport.photos?.map((photo, idx) => (
                                     <img
                                       key={idx}
                                       src={photo}
@@ -435,6 +438,63 @@ export default function VehicleMaintenanceOverviewPage() {
                                     />
                                   ))}
                                 </div>
+                              </div>
+
+                              {/* Prüfungsfotos */}
+                              <div className="border-t pt-4">
+                                <div className="flex items-center justify-between mb-3">
+                                  <Label className="text-gray-700 font-semibold flex items-center gap-2">
+                                    <Camera className="w-4 h-4" />
+                                    Fotos aus der Prüfung ({selectedReport.inspection_photos?.length || 0})
+                                  </Label>
+                                  <div>
+                                    <input
+                                      id={`inspection-upload-${selectedReport.id}`}
+                                      type="file"
+                                      multiple
+                                      accept="image/*"
+                                      className="hidden"
+                                      onChange={handleInspectionPhotoUpload}
+                                    />
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() => document.getElementById(`inspection-upload-${selectedReport.id}`).click()}
+                                      disabled={isUploadingInspectionPhoto}
+                                    >
+                                      {isUploadingInspectionPhoto
+                                        ? <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        : <Upload className="w-4 h-4 mr-2" />}
+                                      Fotos hinzufügen
+                                    </Button>
+                                  </div>
+                                </div>
+                                {selectedReport.inspection_photos?.length > 0 ? (
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {selectedReport.inspection_photos.map((photo, idx) => (
+                                      <div key={idx} className="relative group">
+                                        <img
+                                          src={photo.url}
+                                          alt={`Prüfungsfoto ${idx + 1}`}
+                                          className="w-full h-40 object-cover rounded cursor-pointer hover:opacity-75"
+                                          onClick={() => window.open(photo.url, '_blank')}
+                                        />
+                                        <div className="mt-1 px-1">
+                                          <p className="text-xs text-gray-600 font-medium">{photo.uploaded_by}</p>
+                                          <p className="text-xs text-gray-400">{new Date(photo.uploaded_at).toLocaleString('de-DE')}</p>
+                                        </div>
+                                        <button
+                                          onClick={() => handleDeleteInspectionPhoto(idx)}
+                                          className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-400 italic">Noch keine Prüfungsfotos hochgeladen</p>
+                                )}
                               </div>
 
                               <div>
@@ -471,6 +531,14 @@ export default function VehicleMaintenanceOverviewPage() {
                           )}
                         </DialogContent>
                       </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(report.id)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
 
