@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { User, VehicleMaintenance } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Upload, Trash2, Check, AlertCircle, Camera, Loader2, Calendar } from "lucide-react";
-import { motion } from "framer-motion";
+import { Upload, Trash2, Check, AlertCircle, Camera, Loader2, Calendar, ChevronRight, ChevronLeft, Car } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+function getWeekNumber(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+const PREFIX = "DN-AS ";
 
 export default function MyVehicleMaintenancePage() {
   const [user, setUser] = useState(null);
@@ -17,9 +26,11 @@ export default function MyVehicleMaintenancePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  // Wizard state
+  const [step, setStep] = useState(1); // 1 = Kennzeichen, 2 = Fotos, 3 = Bestätigung
+  const [busKennzeichen, setBusKennzeichen] = useState(PREFIX);
+  const [lkwKennzeichen, setLkwKennzeichen] = useState(PREFIX);
   const [photos, setPhotos] = useState([]);
-  const [vehicleInfo, setVehicleInfo] = useState('');
-  const [notes, setNotes] = useState('');
 
   const currentWeek = getWeekNumber(new Date());
   const currentYear = new Date().getFullYear();
@@ -33,7 +44,6 @@ export default function MyVehicleMaintenancePage() {
     try {
       const userData = await User.me();
       setUser(userData);
-
       const reports = await VehicleMaintenance.filter({ user_id: userData.id }, "-created_date");
       setMyReports(reports);
     } catch (error) {
@@ -42,53 +52,47 @@ export default function MyVehicleMaintenancePage() {
     setIsLoading(false);
   };
 
-  function getWeekNumber(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    const dayNum = d.getUTCDay() || 7;
-    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-  }
-
   const hasSubmittedThisWeek = myReports.some(
-    report => report.week === currentWeek && report.year === currentYear
+    r => r.week === currentWeek && r.year === currentYear
   );
+
+  const busValid = busKennzeichen.trim().length > PREFIX.trim().length;
+  const lkwValid = lkwKennzeichen.trim().length > PREFIX.trim().length;
+  const kennzeichenValid = busValid || lkwValid;
+
+  const handleKennzeichenChange = (setter) => (e) => {
+    const val = e.target.value;
+    // Ensure the prefix is always present
+    if (!val.startsWith(PREFIX)) {
+      setter(PREFIX);
+    } else {
+      setter(val.toUpperCase());
+    }
+  };
 
   const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-
+    if (!files.length) return;
     setIsUploading(true);
     try {
-      const uploadedUrls = [];
-      for (const file of files) {
-        const { file_url } = await base44.integrations.Core.UploadFile({ file });
-        uploadedUrls.push(file_url);
-      }
-      setPhotos([...photos, ...uploadedUrls]);
-    } catch (error) {
-      console.error("Fehler beim Upload:", error);
+      const urls = await Promise.all(files.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      setPhotos(prev => [...prev, ...urls.map(r => r.file_url)]);
+    } catch {
       alert("Fehler beim Hochladen der Fotos");
     }
     setIsUploading(false);
+    e.target.value = null;
   };
 
-  const removePhoto = (index) => {
-    setPhotos(photos.filter((_, i) => i !== index));
-  };
+  const removePhoto = (idx) => setPhotos(prev => prev.filter((_, i) => i !== idx));
 
   const handleSubmit = async () => {
-    if (photos.length < 4) {
-      alert("Bitte laden Sie mindestens 4 Fotos hoch (Außen, Cockpit, Fußraum, Armaturenbrett)");
-      return;
-    }
-    
-    if (!vehicleInfo || vehicleInfo.trim() === '') {
-      alert("Bitte geben Sie das Kennzeichen ein");
-      return;
-    }
-
     setIsSubmitting(true);
+    const parts = [];
+    if (busValid) parts.push(`Bus: ${busKennzeichen.trim()}`);
+    if (lkwValid) parts.push(`LKW: ${lkwKennzeichen.trim()}`);
+    const vehicleInfo = parts.join(" | ");
+
     try {
       await VehicleMaintenance.create({
         user_id: user.id,
@@ -97,37 +101,33 @@ export default function MyVehicleMaintenancePage() {
         week: currentWeek,
         year: currentYear,
         submission_date: new Date().toISOString(),
-        photos: photos,
+        photos,
         vehicle_info: vehicleInfo,
-        notes: notes,
         status: "pending"
       });
-
-      alert("Fahrzeugpflege erfolgreich dokumentiert!");
+      setStep(1);
+      setBusKennzeichen(PREFIX);
+      setLkwKennzeichen(PREFIX);
       setPhotos([]);
-      setVehicleInfo('');
-      setNotes('');
       await loadData();
-    } catch (error) {
-      console.error("Fehler beim Speichern:", error);
+    } catch {
       alert("Fehler beim Speichern");
     }
     setIsSubmitting(false);
   };
 
   const getStatusBadge = (status) => {
-    const variants = {
-      pending: { variant: "outline", text: "Ausstehend", color: "text-orange-600" },
-      approved: { variant: "default", text: "Geprüft ✓", color: "text-green-600" },
-      rejected: { variant: "destructive", text: "Beanstandet", color: "text-red-600" }
+    const map = {
+      pending: <Badge className="bg-orange-100 text-orange-800">Ausstehend</Badge>,
+      approved: <Badge className="bg-green-100 text-green-800">Geprüft ✓</Badge>,
+      rejected: <Badge className="bg-red-100 text-red-800">Beanstandet</Badge>,
     };
-    const config = variants[status] || variants.pending;
-    return <Badge variant={config.variant} className={config.color}>{config.text}</Badge>;
+    return map[status] || map.pending;
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
       </div>
     );
@@ -135,263 +135,257 @@ export default function MyVehicleMaintenancePage() {
 
   if (!user || !['Bauleiter', 'Oberfläche', 'Monteur'].includes(user.position)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8 flex items-center justify-center">
-        <Card className="card-elevation border-none">
-          <CardContent className="p-8 text-center">
-            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-            <h2 className="text-lg font-semibold">Kein Zugriff</h2>
-            <p className="text-gray-600">Diese Seite ist nur für Mitarbeiter zugänglich.</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
+        <Card><CardContent className="p-8 text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
+          <p className="text-gray-600">Kein Zugriff.</p>
+        </CardContent></Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 md:p-6 lg:p-8">
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-6"
-        >
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
-            Fahrzeugpflege Dokumentation
-          </h1>
-          <p className="text-sm md:text-base text-gray-600">
-            Jeden Freitag/Samstag Fahrzeugpflege dokumentieren
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-8">
+      <div className="max-w-xl mx-auto">
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-6 text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Fahrzeugpflege</h1>
+          <p className="text-gray-500 text-sm">KW {currentWeek} / {currentYear}</p>
         </motion.div>
 
-        {/* Current Week Status */}
-        <Card className="card-elevation border-none mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Aktuelle Woche</p>
-                <p className="text-2xl font-bold text-gray-900">KW {currentWeek} / {currentYear}</p>
-              </div>
-              <div>
-                {hasSubmittedThisWeek ? (
-                  <div className="flex items-center gap-2 text-green-600">
-                    <Check className="w-6 h-6" />
-                    <span className="font-medium">Bereits eingereicht</span>
+        {/* Already submitted */}
+        {hasSubmittedThisWeek ? (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="border-none shadow-md mb-6">
+              <CardContent className="p-6 flex flex-col items-center gap-3 text-center">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                  <Check className="w-8 h-8 text-green-600" />
+                </div>
+                <p className="text-lg font-semibold text-green-700">Diese Woche bereits eingereicht!</p>
+                <p className="text-sm text-gray-500">Du hast die Fahrzeugpflege für KW {currentWeek} bereits dokumentiert.</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ) : (
+          /* WIZARD */
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            {/* Step indicators */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              {[1, 2, 3].map(s => (
+                <React.Fragment key={s}>
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                    step === s ? 'bg-blue-600 text-white shadow-md' :
+                    step > s ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {step > s ? <Check className="w-4 h-4" /> : s}
                   </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-orange-600">
-                    <AlertCircle className="w-6 h-6" />
-                    <span className="font-medium">Noch nicht eingereicht</span>
-                  </div>
-                )}
-              </div>
+                  {s < 3 && <div className={`h-1 w-10 rounded transition-all ${step > s ? 'bg-green-400' : 'bg-gray-200'}`} />}
+                </React.Fragment>
+              ))}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Submission Form */}
-        {!hasSubmittedThisWeek && (
-          <Card className="card-elevation border-none mb-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Camera className="w-5 h-5" />
-                Neue Dokumentation einreichen
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Requirements Checklist */}
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5" />
-                  Erforderliche Fotos
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="flex items-center gap-2 text-sm text-blue-800">
-                    <Check className="w-4 h-4" />
-                    <span>Außenansicht</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-800">
-                    <Check className="w-4 h-4" />
-                    <span>Cockpit</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-800">
-                    <Check className="w-4 h-4" />
-                    <span>Fußraum</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-blue-800">
-                    <Check className="w-4 h-4" />
-                    <span>Armaturenbrett</span>
-                  </div>
-                </div>
-              </div>
+            <Card className="border-none shadow-md">
+              <CardContent className="p-6">
+                <AnimatePresence mode="wait">
 
-              <div>
-                <Label>Kennzeichen *</Label>
-                <Input
-                  value={vehicleInfo}
-                  onChange={(e) => setVehicleInfo(e.target.value)}
-                  placeholder="z.B. DN-AB 1234"
-                  className="text-lg font-medium"
-                />
-              </div>
+                  {/* STEP 1: Kennzeichen */}
+                  {step === 1 && (
+                    <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Car className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h2 className="font-bold text-lg text-gray-900">Kennzeichen eingeben</h2>
+                          <p className="text-sm text-gray-500">Mindestens ein Kennzeichen muss vollständig eingetragen sein</p>
+                        </div>
+                      </div>
 
-              <div>
-                <Label className="mb-2 block">
-                  Fotos hochladen * 
-                  <span className="text-sm text-gray-600 font-normal ml-2">
-                    (Mindestens 4 Fotos: Außen, Cockpit, Fußraum, Armaturenbrett)
-                  </span>
-                </Label>
-                <div className="mt-2">
-                  <label className="flex items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-gray-400 focus:outline-none">
-                    <div className="flex flex-col items-center space-y-2">
-                      <Upload className="w-8 h-8 text-gray-600" />
-                      <span className="text-sm text-gray-600">
-                        {isUploading ? "Hochladen..." : "Fotos auswählen oder hier ablegen"}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Mehrere Fotos möglich
-                      </span>
-                    </div>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handlePhotoUpload}
-                      disabled={isUploading}
-                    />
-                  </label>
-                </div>
-                
-                {photos.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-                    {photos.map((photo, idx) => (
-                      <div key={idx} className="relative">
-                        <img
-                          src={photo}
-                          alt={`Foto ${idx + 1}`}
-                          className="w-full h-32 object-cover rounded-lg"
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-gray-700">🚌 Bus Kennzeichen</Label>
+                        <Input
+                          value={busKennzeichen}
+                          onChange={handleKennzeichenChange(setBusKennzeichen)}
+                          className={`text-lg font-mono tracking-wider ${busValid ? 'border-green-400 focus-visible:ring-green-400' : ''}`}
+                          placeholder={PREFIX + "1234"}
                         />
+                        {busValid && <p className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Eingetragen</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="font-semibold text-gray-700">🚛 LKW Kennzeichen</Label>
+                        <Input
+                          value={lkwKennzeichen}
+                          onChange={handleKennzeichenChange(setLkwKennzeichen)}
+                          className={`text-lg font-mono tracking-wider ${lkwValid ? 'border-green-400 focus-visible:ring-green-400' : ''}`}
+                          placeholder={PREFIX + "5678"}
+                        />
+                        {lkwValid && <p className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Eingetragen</p>}
+                      </div>
+
+                      {!kennzeichenValid && (
+                        <p className="text-sm text-orange-600 flex items-center gap-2 bg-orange-50 p-3 rounded-lg">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          Bitte mindestens ein Kennzeichen vollständig eintragen
+                        </p>
+                      )}
+
+                      <Button
+                        className="w-full"
+                        size="lg"
+                        disabled={!kennzeichenValid}
+                        onClick={() => setStep(2)}
+                      >
+                        Weiter
+                        <ChevronRight className="w-4 h-4 ml-1" />
+                      </Button>
+                    </motion.div>
+                  )}
+
+                  {/* STEP 2: Fotos */}
+                  {step === 2 && (
+                    <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h2 className="font-bold text-lg text-gray-900">Fotos hochladen</h2>
+                          <p className="text-sm text-gray-500">Außen, Cockpit, Fußraum, Armaturenbrett</p>
+                        </div>
+                      </div>
+
+                      <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors">
+                        {isUploading ? (
+                          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-blue-500 mb-2" />
+                            <span className="text-sm font-medium text-blue-700">Fotos auswählen</span>
+                            <span className="text-xs text-blue-500 mt-1">Mehrere Fotos möglich</span>
+                          </>
+                        )}
+                        <input type="file" multiple accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUploading} />
+                      </label>
+
+                      {photos.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2">
+                          {photos.map((photo, idx) => (
+                            <div key={idx} className="relative group">
+                              <img src={photo} alt={`Foto ${idx + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                              <button
+                                onClick={() => removePhoto(idx)}
+                                className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {photos.length > 0 && (
+                        <p className="text-sm text-green-600 font-medium text-center">{photos.length} Foto{photos.length !== 1 ? 's' : ''} hochgeladen</p>
+                      )}
+
+                      <div className="flex gap-3">
+                        <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
+                          <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
+                        </Button>
                         <Button
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-2 right-2 h-8 w-8"
-                          onClick={() => removePhoto(idx)}
+                          className="flex-1"
+                          size="lg"
+                          disabled={photos.length === 0}
+                          onClick={() => setStep(3)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          Weiter <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </motion.div>
+                  )}
 
-              <div>
-                <Label>Notizen (optional)</Label>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Besondere Vorkommnisse, durchgeführte Arbeiten, etc."
-                  rows={4}
-                />
-              </div>
+                  {/* STEP 3: Bestätigung */}
+                  {step === 3 && (
+                    <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                          <Check className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h2 className="font-bold text-lg text-gray-900">Zusammenfassung</h2>
+                          <p className="text-sm text-gray-500">Bitte prüfen und abschicken</p>
+                        </div>
+                      </div>
 
-              <Button
-                onClick={handleSubmit}
-                disabled={isSubmitting || photos.length < 4 || !vehicleInfo}
-                className="w-full"
-                size="lg"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Wird eingereicht...
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-4 h-4 mr-2" />
-                    Dokumentation einreichen ({photos.length}/4 Fotos)
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+                      <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wide text-xs">Kennzeichen</p>
+                        {busValid && <p className="font-mono font-semibold text-gray-900">🚌 Bus: {busKennzeichen.trim()}</p>}
+                        {lkwValid && <p className="font-mono font-semibold text-gray-900">🚛 LKW: {lkwKennzeichen.trim()}</p>}
+                      </div>
+
+                      <div className="bg-gray-50 rounded-xl p-4">
+                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wide text-xs mb-2">Fotos ({photos.length})</p>
+                        <div className="grid grid-cols-4 gap-1">
+                          {photos.map((p, i) => (
+                            <img key={i} src={p} alt={`Foto ${i + 1}`} className="w-full h-16 object-cover rounded-lg" />
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex gap-3">
+                        <Button variant="outline" className="flex-1" onClick={() => setStep(2)} disabled={isSubmitting}>
+                          <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
+                        </Button>
+                        <Button className="flex-1 bg-green-600 hover:bg-green-700" size="lg" onClick={handleSubmit} disabled={isSubmitting}>
+                          {isSubmitting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2" />}
+                          Einreichen
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+          </motion.div>
         )}
 
         {/* Previous Reports */}
-        <Card className="card-elevation border-none">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Meine bisherigen Dokumentationen
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {myReports.map((report) => (
-                <div key={report.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        KW {report.week} / {report.year}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {new Date(report.submission_date).toLocaleDateString('de-DE', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric'
-                        })}
-                      </p>
+        {myReports.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <Calendar className="w-5 h-5" /> Meine Dokumentationen
+            </h2>
+            <div className="space-y-3">
+              {myReports.map(report => (
+                <Card key={report.id} className="border-none shadow-sm">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div>
+                        <p className="font-semibold text-gray-900">KW {report.week} / {report.year}</p>
+                        <p className="text-xs text-gray-500">{new Date(report.submission_date).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+                      </div>
+                      {getStatusBadge(report.status)}
                     </div>
-                    {getStatusBadge(report.status)}
-                  </div>
-
-                  {report.vehicle_info && (
-                    <p className="text-sm text-gray-600 mb-2">
-                      <strong>Fahrzeug:</strong> {report.vehicle_info}
-                    </p>
-                  )}
-
-                  {report.photos && report.photos.length > 0 && (
-                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2 mb-3">
-                      {report.photos.map((photo, idx) => (
-                        <img
-                          key={idx}
-                          src={photo}
-                          alt={`Foto ${idx + 1}`}
-                          className="w-full h-20 object-cover rounded cursor-pointer hover:opacity-75"
-                          onClick={() => window.open(photo, '_blank')}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-                  {report.notes && (
-                    <p className="text-sm text-gray-700 mb-2">
-                      <strong>Notizen:</strong> {report.notes}
-                    </p>
-                  )}
-
-                  {report.admin_notes && (
-                    <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                      <p className="text-sm font-medium text-yellow-900 mb-1">
-                        Anmerkungen vom Büro:
-                      </p>
-                      <p className="text-sm text-yellow-800">{report.admin_notes}</p>
-                    </div>
-                  )}
-                </div>
+                    {report.vehicle_info && <p className="text-sm text-gray-600 mb-2 font-mono">{report.vehicle_info}</p>}
+                    {report.photos?.length > 0 && (
+                      <div className="grid grid-cols-5 gap-1">
+                        {report.photos.map((photo, idx) => (
+                          <img key={idx} src={photo} alt={`Foto ${idx + 1}`} className="w-full h-14 object-cover rounded cursor-pointer hover:opacity-75" onClick={() => window.open(photo, '_blank')} />
+                        ))}
+                      </div>
+                    )}
+                    {report.admin_notes && (
+                      <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                        <strong>Büro:</strong> {report.admin_notes}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               ))}
-
-              {myReports.length === 0 && (
-                <p className="text-center text-gray-500 py-8">
-                  Noch keine Dokumentationen vorhanden
-                </p>
-              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        )}
       </div>
     </div>
   );
