@@ -26,6 +26,7 @@ export default function MyVehicleMaintenancePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [lightboxUrl, setLightboxUrl] = useState(null);
+  const [uploadingReportId, setUploadingReportId] = useState(null);
 
   // Wizard state
   const [step, setStep] = useState(1); // 1 = Kennzeichen, 2 = Fotos, 3 = Bestätigung
