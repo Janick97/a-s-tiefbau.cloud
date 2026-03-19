@@ -90,7 +90,7 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
                     className={`w-full text-left px-3 py-2 text-sm hover:bg-orange-50 flex items-start gap-2 transition-colors border-b last:border-b-0 ${targetProjectId === project.id ? 'bg-orange-50' : ''}`}
                   >
                     <span className="font-mono text-orange-700 font-semibold shrink-0">{project.project_number}</span>
-                    <span className="text-gray-700 break-words min-w-0 flex-1">{project.title}</span>
+                    <span className="text-gray-700 truncate min-w-0 flex-1">{project.title}</span>
                     {project.city && <span className="text-gray-400 text-xs shrink-0 mt-0.5">{project.city}</span>}
                   </button>
                 ))
