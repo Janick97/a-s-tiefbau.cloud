@@ -26,6 +26,7 @@ export default function VehicleMaintenanceOverviewPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isUploadingInspectionPhoto, setIsUploadingInspectionPhoto] = useState(false);
   const [openDialogId, setOpenDialogId] = useState(null);
+  const [lightboxUrl, setLightboxUrl] = useState(null);
 
   useEffect(() => {
     loadData();
