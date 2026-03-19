@@ -222,7 +222,7 @@ export default function VehicleMaintenanceOverviewPage() {
               </CardContent>
             </Card>
           ))}
-        </div>}
+          </div>}
         </div>
 
         {/* Filters */}
