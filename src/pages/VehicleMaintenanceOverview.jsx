@@ -24,6 +24,8 @@ export default function VehicleMaintenanceOverviewPage() {
   const [selectedReport, setSelectedReport] = useState(null);
   const [adminNotes, setAdminNotes] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isUploadingInspectionPhoto, setIsUploadingInspectionPhoto] = useState(false);
+  const [openDialogId, setOpenDialogId] = useState(null);
 
   useEffect(() => {
     loadData();
