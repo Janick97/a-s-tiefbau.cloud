@@ -822,7 +822,7 @@ export default function ExcavationsManagement({
             <Button
               size="sm"
               onClick={() => setShowMoveDialog(true)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="hidden md:inline-flex bg-blue-600 hover:bg-blue-700"
             >
               <ArrowRight className="w-4 h-4 mr-2" />
               {selectedIds.length} verschieben
@@ -832,7 +832,7 @@ export default function ExcavationsManagement({
             size="sm"
             variant={selectionMode ? "outline" : "secondary"}
             onClick={toggleSelectionMode}
-            className={selectionMode ? "border-orange-400 text-orange-600" : ""}
+            className={`hidden md:inline-flex ${selectionMode ? "border-orange-400 text-orange-600" : ""}`}
           >
             {selectionMode ? <Square className="w-4 h-4 mr-2" /> : <CheckSquare className="w-4 h-4 mr-2" />}
             {selectionMode ? "Abbrechen" : "Auswählen"}
