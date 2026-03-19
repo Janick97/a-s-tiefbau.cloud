@@ -39,7 +39,7 @@ export default function MoveExcavationsDialog({ open, onClose, selectedExcavatio
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-[90vw] max-w-md overflow-hidden">
+      <DialogContent className="w-[95vw] max-w-2xl overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRight className="w-5 h-5 text-orange-500" />
