@@ -333,7 +333,7 @@ export default function EVergabeEditor({
         pdf.text(`#${i + 1}  ${exc.location_name}`, 17, yOffset + 7.5);
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'normal');
-        pdf.setTextColor(80, 80, 80);
+        pdf.setTextColor(120, 120, 120);
         pdf.text('Tiefbau', 195, yOffset + 7.5, { align: 'right' });
         pdf.setTextColor(0, 0, 0);
         yOffset += 14;
