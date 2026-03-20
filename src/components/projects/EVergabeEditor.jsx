@@ -24,7 +24,9 @@ export default function EVergabeEditor({
     montageLeistungen: []
   });
   const [isExporting, setIsExporting] = useState(false);
-  const exportRef = React.useRef(null);
+  const [selectedExcIds, setSelectedExcIds] = useState(new Set());
+  const [selectedMlIds, setSelectedMlIds] = useState(new Set());
+  const exportRef = useRef(null);
 
   // Gruppiere Daten nach Projekt
   const excavationsByProject = React.useMemo(() => {
