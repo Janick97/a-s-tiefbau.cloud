@@ -355,13 +355,20 @@ export default function EVergabeEditor({
 
         pdf.setFont(undefined, 'bold');
         if (priceItem?.type === 'Grube') {
-          pdf.text('Faktor:', 12, yOffset);
+          pdf.text('Maße:', 12, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text(`${exc.excavation_factor ?? 1}`, 40, yOffset);
+          const l = exc.excavation_length || 1.2;
+          const w = exc.excavation_width || 1.0;
+          const d = exc.excavation_depth || 1.0;
+          const f = exc.excavation_factor ?? 1;
+          pdf.text(`${l} m × ${w} m × ${d} m  |  Faktor: ${f}`, 40, yOffset);
         } else if (priceItem?.type === 'Graben') {
-          pdf.text('Länge:', 12, yOffset);
+          pdf.text('Maße:', 12, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text(`${exc.excavation_length || 1.2} m`, 40, yOffset);
+          const gl = exc.excavation_length || 1.2;
+          const gw = exc.excavation_width || 1.0;
+          const gd = exc.excavation_depth || 1.0;
+          pdf.text(`${gl} m × ${gw} m × ${gd} m`, 40, yOffset);
         } else {
           pdf.text('Menge:', 12, yOffset);
           pdf.setFont(undefined, 'normal');
