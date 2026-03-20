@@ -650,12 +650,6 @@ export default function EVergabeEditor({
                       <p>{exc.construction_justification}</p>
                     </div>
                   )}
-                  <div className="col-span-2">
-                    <p className="font-semibold text-gray-700">Preis:</p>
-                    <p className="text-lg font-bold text-green-600">
-                      {exc.calculated_price?.toFixed(2) || '0.00'} €
-                    </p>
-                  </div>
                 </div>
 
                 {/* Image Management */}
