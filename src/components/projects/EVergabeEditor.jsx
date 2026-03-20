@@ -298,9 +298,12 @@ export default function EVergabeEditor({
       let yOffset = 28;
       drawPageHeader(pdf, pageNum);
 
-      // --- Excavations ---
-      for (let i = 0; i < editableData.excavations.length; i++) {
-        const exc = editableData.excavations[i];
+      // --- Excavations (nur ausgewählte) ---
+      const selectedExcavations = editableData.excavations.filter(e => selectedExcIds.has(e.id));
+      const selectedMontage = editableData.montageLeistungen.filter(m => selectedMlIds.has(m.id));
+
+      for (let i = 0; i < selectedExcavations.length; i++) {
+        const exc = selectedExcavations[i];
         const priceItem = priceItems.find(p => p.id === exc.price_item_id);
         const imageCount = exc.evergabe_images?.length || 0;
 
