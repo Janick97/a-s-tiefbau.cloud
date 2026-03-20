@@ -580,11 +580,14 @@ export default function EVergabeEditor({
         </div>
         <Button 
           onClick={handleExportPDF}
-          disabled={isExporting}
+          disabled={isExporting || (selectedExcIds.size === 0 && selectedMlIds.size === 0)}
           className="bg-purple-600 hover:bg-purple-700"
         >
           <Download className="w-4 h-4 mr-2" />
-          {isExporting ? 'Exportiere...' : 'Als PDF exportieren'}
+          {isExporting
+            ? 'Exportiere...'
+            : `Als PDF exportieren (${selectedExcIds.size + selectedMlIds.size} Position${selectedExcIds.size + selectedMlIds.size !== 1 ? 'en' : ''})`
+          }
         </Button>
       </div>
 
