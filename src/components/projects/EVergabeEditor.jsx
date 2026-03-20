@@ -186,189 +186,361 @@ export default function EVergabeEditor({
     return surfaceMap[surfaceType] || surfaceType || '-';
   };
 
+  // Hilfsfunktion: Bild als base64 laden
+  const loadImageAsBase64 = async (url) => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  // Hilfsfunktion: Zeilenumbruch-Text mit Breite
+  const addWrappedText = (pdf, text, x, y, maxWidth, lineHeight) => {
+    const lines = pdf.splitTextToSize(text, maxWidth);
+    lines.forEach((line, i) => {
+      pdf.text(line, x, y + i * lineHeight);
+    });
+    return lines.length * lineHeight;
+  };
+
+  // Kopfzeile auf jede Seite zeichnen
+  const drawPageHeader = (pdf, pageNum) => {
+    pdf.setFontSize(8);
+    pdf.setFont(undefined, 'normal');
+    pdf.setTextColor(150, 150, 150);
+    pdf.text(`${project.project_number} - ${project.title} | E-Vergabe`, 10, 8);
+    pdf.text(`Seite ${pageNum}`, 200, 8, { align: 'right' });
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(10, 10, 200, 10);
+    pdf.setTextColor(0, 0, 0);
+  };
+
   const handleExportPDF = async () => {
     if (!exportRef.current) return;
     
     setIsExporting(true);
     try {
       const pdf = new jsPDF('p', 'mm', 'a4');
-      let isFirstPage = true;
-      
-      // Header hinzufügen
-      pdf.setFontSize(18);
+      const PAGE_HEIGHT = 287;
+      const MARGIN_TOP = 15;
+      const MARGIN_BOTTOM = 10;
+      const CONTENT_START = 15;
+      const IMG_WIDTH = 85;
+      const IMG_HEIGHT = 63;
+      const IMG_COLS = 2;
+      let pageNum = 1;
+
+      // --- Berechne benötigte Höhe einer Position ---
+      const estimatePositionHeight = (detailLines, imageCount) => {
+        let h = 12; // Header-Balken
+        h += detailLines * 6; // Textzeilen
+        h += 6; // Abstand
+        if (imageCount > 0) {
+          h += 6; // "Bilder:"-Label
+          const rows = Math.ceil(imageCount / IMG_COLS);
+          h += rows * (IMG_HEIGHT + 4);
+        }
+        h += 10; // Abstand nach Position
+        return h;
+      };
+
+      // Neue Seite beginnen
+      const startNewPage = () => {
+        pdf.addPage();
+        pageNum++;
+        drawPageHeader(pdf, pageNum);
+        return CONTENT_START;
+      };
+
+      // --- Deckblatt ---
+      pdf.setFillColor(30, 30, 30);
+      pdf.rect(0, 0, 210, 50, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(22);
       pdf.setFont(undefined, 'bold');
-      pdf.text('E-Vergabe Aufstellung', 105, 20, { align: 'center' });
-      
-      pdf.setFontSize(12);
+      pdf.text('E-Vergabe Aufstellung', 105, 22, { align: 'center' });
+      pdf.setFontSize(11);
       pdf.setFont(undefined, 'normal');
-      pdf.text(`Projekt: ${project.project_number} - ${project.title}`, 105, 30, { align: 'center' });
-      pdf.text(`Kunde: ${project.client}`, 105, 37, { align: 'center' });
-      pdf.text(`Standort: ${project.street}, ${project.city}`, 105, 44, { align: 'center' });
-      
-      let yOffset = 55;
-      
-      // Excavations
+      pdf.text(`${project.project_number} – ${project.title}`, 105, 33, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}`, 105, 41, { align: 'center' });
+      pdf.setTextColor(0, 0, 0);
+
+      pdf.setFontSize(10);
+      pdf.setFont(undefined, 'normal');
+      pdf.text(`Exportdatum: ${new Date().toLocaleDateString('de-DE')}`, 10, 58);
+      pdf.text(`Positionen gesamt: ${editableData.excavations.length + editableData.montageLeistungen.length}`, 10, 64);
+
+      pdf.setDrawColor(200, 200, 200);
+      pdf.line(10, 70, 200, 70);
+
+      let yOffset = 78;
+      drawPageHeader(pdf, pageNum);
+
+      // --- Excavations ---
       for (let i = 0; i < editableData.excavations.length; i++) {
         const exc = editableData.excavations[i];
         const priceItem = priceItems.find(p => p.id === exc.price_item_id);
-        
-        if (yOffset > 240) {
-          pdf.addPage();
-          yOffset = 20;
+        const imageCount = exc.evergabe_images?.length || 0;
+
+        // Detailzeilen schätzen
+        let detailLines = 3; // Leistung, Standort, Maße/Faktor
+        if (exc.surface_type) detailLines++;
+        if (exc.construction_justification) detailLines += Math.ceil((exc.construction_justification.length / 80));
+        detailLines++; // Preis
+
+        const neededHeight = estimatePositionHeight(detailLines, imageCount);
+
+        // Passt die gesamte Position auf die aktuelle Seite?
+        if (yOffset + neededHeight > PAGE_HEIGHT - MARGIN_BOTTOM) {
+          yOffset = startNewPage();
         }
-        
-        // Position Header
-        pdf.setFillColor(240, 240, 240);
-        pdf.rect(10, yOffset, 190, 10, 'F');
-        pdf.setFontSize(12);
+
+        // --- Position Header ---
+        pdf.setFillColor(245, 245, 245);
+        pdf.rect(10, yOffset, 190, 11, 'F');
+        pdf.setDrawColor(180, 180, 180);
+        pdf.rect(10, yOffset, 190, 11, 'S');
+        pdf.setFillColor(34, 197, 94); // grün
+        pdf.rect(10, yOffset, 4, 11, 'F');
+        pdf.setFontSize(11);
         pdf.setFont(undefined, 'bold');
-        pdf.text(`Position ${i + 1}: ${exc.location_name}`, 12, yOffset + 7);
-        
-        yOffset += 15;
-        
-        // Details
-        pdf.setFontSize(10);
+        pdf.setTextColor(30, 30, 30);
+        pdf.text(`#${i + 1}  ${exc.location_name}`, 17, yOffset + 7.5);
+        pdf.setFontSize(9);
         pdf.setFont(undefined, 'normal');
-        pdf.text(`Leistung: ${formatPriceItemDescription(priceItem)}`, 12, yOffset);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text('Tiefbau', 195, yOffset + 7.5, { align: 'right' });
+        pdf.setTextColor(0, 0, 0);
+        yOffset += 14;
+
+        // --- Details ---
+        pdf.setFontSize(9);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Leistung:', 12, yOffset);
+        pdf.setFont(undefined, 'normal');
+        const leistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 160);
+        leistungLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
+        yOffset += leistungLines.length * 5.5 + 2;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Standort:', 12, yOffset);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`${exc.street || ''}, ${exc.city || ''}`, 40, yOffset);
         yOffset += 6;
-        pdf.text(`Standort: ${exc.street}, ${exc.city}`, 12, yOffset);
-        yOffset += 6;
-        
-        // Maße je nach Typ (Grube oder Graben)
-        if (priceItem?.type === 'Graben') {
-          pdf.text(`Länge: ${exc.excavation_length || 1.2}m`, 12, yOffset);
+
+        pdf.setFont(undefined, 'bold');
+        if (priceItem?.type === 'Grube') {
+          pdf.text('Faktor:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(`${exc.excavation_factor ?? 1}`, 40, yOffset);
+        } else if (priceItem?.type === 'Graben') {
+          pdf.text('Länge:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(`${exc.excavation_length || 1.2} m`, 40, yOffset);
         } else {
-          pdf.text(`Maße: ${exc.excavation_length || 1.2}m x ${exc.excavation_width || 1.0}m x ${exc.excavation_depth || 1.0}m`, 12, yOffset);
+          pdf.text('Menge:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(`${exc.quantity} ${priceItem?.unit || 'ST'}`, 40, yOffset);
         }
         yOffset += 6;
-        
-        pdf.text(`Oberfläche: ${formatSurfaceType(exc.surface_type)}`, 12, yOffset);
-        yOffset += 6;
-        
-        if (exc.construction_justification) {
-          pdf.text(`Begründung: ${exc.construction_justification}`, 12, yOffset);
+
+        if (exc.surface_type) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Oberfläche:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
+          pdf.text(formatSurfaceType(exc.surface_type), 40, yOffset);
           yOffset += 6;
         }
-        
-        yOffset += 4;
-        
-        // Bilder hinzufügen
-        if (exc.evergabe_images && exc.evergabe_images.length > 0) {
+
+        if (exc.construction_justification) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Begründung:', 12, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text('Bilder:', 12, yOffset);
+          const justLines = pdf.splitTextToSize(exc.construction_justification, 155);
+          justLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
+          yOffset += justLines.length * 5.5 + 1;
+        }
+
+        pdf.setFont(undefined, 'bold');
+        pdf.setTextColor(22, 163, 74);
+        pdf.text(`Preis: ${exc.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
+        pdf.setTextColor(0, 0, 0);
+        yOffset += 8;
+
+        // --- Bilder ---
+        if (imageCount > 0) {
+          pdf.setDrawColor(220, 220, 220);
+          pdf.line(12, yOffset, 198, yOffset);
+          yOffset += 4;
+          pdf.setFontSize(9);
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Dokumentationsfotos:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
           yOffset += 5;
-          
-          for (let imgIdx = 0; imgIdx < exc.evergabe_images.length; imgIdx++) {
-            const imgUrl = exc.evergabe_images[imgIdx];
-            
+
+          for (let imgIdx = 0; imgIdx < imageCount; imgIdx++) {
+            const col = imgIdx % IMG_COLS;
+            const xPos = 12 + col * (IMG_WIDTH + 10);
+
+            if (col === 0 && imgIdx > 0) {
+              yOffset += IMG_HEIGHT + 6;
+            }
+
+            // Vor dem ersten Bild einer Zeile: prüfen ob noch Platz
+            if (col === 0 && yOffset + IMG_HEIGHT > PAGE_HEIGHT - MARGIN_BOTTOM) {
+              yOffset = startNewPage();
+              pdf.setFontSize(9);
+              pdf.setFont(undefined, 'italic');
+              pdf.setTextColor(100, 100, 100);
+              pdf.text(`(Fortsetzung: ${exc.location_name})`, 12, yOffset);
+              pdf.setTextColor(0, 0, 0);
+              yOffset += 6;
+            }
+
             try {
-              // Bild laden und als base64 konvertieren
-              const response = await fetch(imgUrl);
-              const blob = await response.blob();
-              const base64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-              });
-              
-              const imgWidth = 85;
-              const imgHeight = 60;
-              const xPos = 12 + (imgIdx % 2) * 95;
-              
-              if (yOffset + imgHeight > 280) {
-                pdf.addPage();
-                yOffset = 20;
+              const base64 = await loadImageAsBase64(exc.evergabe_images[imgIdx]);
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_WIDTH, IMG_HEIGHT);
+              // Schatten-Rahmen
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(xPos, yOffset, IMG_WIDTH, IMG_HEIGHT, 'S');
+            } catch (err) {
+              console.error('Bildfehler:', err);
+            }
+
+            if (col === IMG_COLS - 1 || imgIdx === imageCount - 1) {
+              // Letzte Spalte der Zeile oder letztes Bild
+              if (imgIdx === imageCount - 1 && col < IMG_COLS - 1) {
+                yOffset += IMG_HEIGHT + 6;
               }
-              
-              pdf.addImage(base64, 'JPEG', xPos, yOffset, imgWidth, imgHeight);
-              
-              if (imgIdx % 2 === 1 || imgIdx === exc.evergabe_images.length - 1) {
-                yOffset += imgHeight + 5;
-              }
-            } catch (error) {
-              console.error('Fehler beim Laden des Bildes:', error);
             }
           }
+          // Sicherstellen dass nach dem letzten Bild-Reihe korrekt weitergemacht wird
+          if (imageCount % IMG_COLS !== 0 || imageCount === 0) {
+            // Bereits oben behandelt
+          }
+          yOffset += IMG_HEIGHT + 8;
         }
-        
-        yOffset += 10;
+
+        // Trennlinie nach Position
+        pdf.setDrawColor(230, 230, 230);
+        pdf.line(10, yOffset, 200, yOffset);
+        yOffset += 8;
       }
-      
-      // Montage Leistungen
+
+      // --- Montage Leistungen ---
       for (let i = 0; i < editableData.montageLeistungen.length; i++) {
         const ml = editableData.montageLeistungen[i];
         const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
-        
-        if (yOffset > 240) {
-          pdf.addPage();
-          yOffset = 20;
+        const imageCount = ml.evergabe_images?.length || 0;
+
+        let detailLines = 2;
+        if (ml.work_description) detailLines += Math.ceil((ml.work_description.length / 80));
+        detailLines++;
+
+        const neededHeight = estimatePositionHeight(detailLines, imageCount);
+
+        if (yOffset + neededHeight > PAGE_HEIGHT - MARGIN_BOTTOM) {
+          yOffset = startNewPage();
         }
-        
-        // Position Header
-        pdf.setFillColor(220, 240, 255);
-        pdf.rect(10, yOffset, 190, 10, 'F');
-        pdf.setFontSize(12);
+
+        // --- Position Header ---
+        pdf.setFillColor(240, 247, 255);
+        pdf.rect(10, yOffset, 190, 11, 'F');
+        pdf.setDrawColor(180, 200, 230);
+        pdf.rect(10, yOffset, 190, 11, 'S');
+        pdf.setFillColor(59, 130, 246); // blau
+        pdf.rect(10, yOffset, 4, 11, 'F');
+        pdf.setFontSize(11);
         pdf.setFont(undefined, 'bold');
-        pdf.text(`Position ${editableData.excavations.length + i + 1}: ${ml.location_name}`, 12, yOffset + 7);
-        
-        yOffset += 15;
-        
-        // Details
-        pdf.setFontSize(10);
+        pdf.setTextColor(30, 30, 30);
+        pdf.text(`#${editableData.excavations.length + i + 1}  ${ml.location_name}`, 17, yOffset + 7.5);
+        pdf.setFontSize(9);
         pdf.setFont(undefined, 'normal');
-        pdf.text(`Leistung: ${formatPriceItemDescription(priceItem)}`, 12, yOffset);
+        pdf.setTextColor(80, 80, 80);
+        pdf.text('Montage', 195, yOffset + 7.5, { align: 'right' });
+        pdf.setTextColor(0, 0, 0);
+        yOffset += 14;
+
+        // --- Details ---
+        pdf.setFontSize(9);
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Leistung:', 12, yOffset);
+        pdf.setFont(undefined, 'normal');
+        const mlLeistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 160);
+        mlLeistungLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
+        yOffset += mlLeistungLines.length * 5.5 + 2;
+
+        pdf.setFont(undefined, 'bold');
+        pdf.text('Menge:', 12, yOffset);
+        pdf.setFont(undefined, 'normal');
+        pdf.text(`${ml.quantity} ${priceItem?.unit || 'ST'}`, 40, yOffset);
         yOffset += 6;
-        pdf.text(`Menge: ${ml.quantity} ${priceItem?.unit || 'ST'}`, 12, yOffset);
-        yOffset += 6;
-        
+
         if (ml.work_description) {
-          pdf.text(`Beschreibung: ${ml.work_description}`, 12, yOffset);
-          yOffset += 6;
-        }
-        
-        yOffset += 4;
-        
-        // Bilder hinzufügen
-        if (ml.evergabe_images && ml.evergabe_images.length > 0) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Beschreibung:', 12, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text('Bilder:', 12, yOffset);
+          const descLines = pdf.splitTextToSize(ml.work_description, 155);
+          descLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
+          yOffset += descLines.length * 5.5 + 1;
+        }
+
+        pdf.setFont(undefined, 'bold');
+        pdf.setTextColor(37, 99, 235);
+        pdf.text(`Preis: ${ml.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
+        pdf.setTextColor(0, 0, 0);
+        yOffset += 8;
+
+        // --- Bilder ---
+        if (imageCount > 0) {
+          pdf.setDrawColor(220, 220, 220);
+          pdf.line(12, yOffset, 198, yOffset);
+          yOffset += 4;
+          pdf.setFontSize(9);
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Dokumentationsfotos:', 12, yOffset);
+          pdf.setFont(undefined, 'normal');
           yOffset += 5;
-          
-          for (let imgIdx = 0; imgIdx < ml.evergabe_images.length; imgIdx++) {
-            const imgUrl = ml.evergabe_images[imgIdx];
-            
+
+          for (let imgIdx = 0; imgIdx < imageCount; imgIdx++) {
+            const col = imgIdx % IMG_COLS;
+            const xPos = 12 + col * (IMG_WIDTH + 10);
+
+            if (col === 0 && imgIdx > 0) {
+              yOffset += IMG_HEIGHT + 6;
+            }
+
+            if (col === 0 && yOffset + IMG_HEIGHT > PAGE_HEIGHT - MARGIN_BOTTOM) {
+              yOffset = startNewPage();
+              pdf.setFontSize(9);
+              pdf.setFont(undefined, 'italic');
+              pdf.setTextColor(100, 100, 100);
+              pdf.text(`(Fortsetzung: ${ml.location_name})`, 12, yOffset);
+              pdf.setTextColor(0, 0, 0);
+              yOffset += 6;
+            }
+
             try {
-              const response = await fetch(imgUrl);
-              const blob = await response.blob();
-              const base64 = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(blob);
-              });
-              
-              const imgWidth = 85;
-              const imgHeight = 60;
-              const xPos = 12 + (imgIdx % 2) * 95;
-              
-              if (yOffset + imgHeight > 280) {
-                pdf.addPage();
-                yOffset = 20;
-              }
-              
-              pdf.addImage(base64, 'JPEG', xPos, yOffset, imgWidth, imgHeight);
-              
-              if (imgIdx % 2 === 1 || imgIdx === ml.evergabe_images.length - 1) {
-                yOffset += imgHeight + 5;
-              }
-            } catch (error) {
-              console.error('Fehler beim Laden des Bildes:', error);
+              const base64 = await loadImageAsBase64(ml.evergabe_images[imgIdx]);
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_WIDTH, IMG_HEIGHT);
+              pdf.setDrawColor(200, 200, 200);
+              pdf.rect(xPos, yOffset, IMG_WIDTH, IMG_HEIGHT, 'S');
+            } catch (err) {
+              console.error('Bildfehler:', err);
             }
           }
+          yOffset += IMG_HEIGHT + 8;
         }
-        
-        yOffset += 10;
+
+        pdf.setDrawColor(230, 230, 230);
+        pdf.line(10, yOffset, 200, yOffset);
+        yOffset += 8;
       }
-      
+
       pdf.save(`EVergabe_${project.project_number}.pdf`);
     } catch (error) {
       console.error("Fehler beim PDF Export:", error);
