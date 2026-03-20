@@ -853,12 +853,6 @@ export default function EVergabeEditor({
                       <p>{ml.work_description}</p>
                     </div>
                   )}
-                  <div className="col-span-2">
-                    <p className="font-semibold text-gray-700">Preis:</p>
-                    <p className="text-lg font-bold text-blue-600">
-                      {ml.calculated_price?.toFixed(2) || '0.00'} €
-                    </p>
-                  </div>
                 </div>
 
                 {/* Image Management */}
