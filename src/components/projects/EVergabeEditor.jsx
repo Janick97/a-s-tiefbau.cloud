@@ -68,7 +68,7 @@ export default function EVergabeEditor({
     return groups;
   }, [excavations, allProjects, project]);
 
-  const montageByProject = React.useMemo(() => {
+  const montageByProject = useMemo(() => {
     const groups = {};
     
     montageLeistungen.forEach(ml => {
