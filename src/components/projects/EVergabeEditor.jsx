@@ -585,21 +585,6 @@ export default function EVergabeEditor({
 
       {/* Preview Container */}
       <div ref={exportRef} className="space-y-8">
-        {/* Header */}
-        <Card className="evergabe-header border-2 border-purple-200">
-          <CardHeader className="bg-purple-50">
-            <CardTitle className="text-center">
-              <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-purple-900">E-Vergabe Aufstellung</h2>
-                <div className="text-lg text-gray-700">
-                  <p>Projekt: {project.project_number} - {project.title}</p>
-                  <p>Kunde: {project.client}</p>
-                  <p>Standort: {project.street}, {project.city}</p>
-                </div>
-              </div>
-            </CardTitle>
-          </CardHeader>
-        </Card>
 
         {/* Excavation Positions - Gruppiert nach Projekt */}
         {Object.entries(excavationsByProject).map(([projectId, group]) => (
