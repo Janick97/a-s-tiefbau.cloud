@@ -845,11 +845,21 @@ export default function EVergabeEditor({
           const editableMl = editableData.montageLeistungen[globalIndex];
           const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
           
+          const isMlSelected = selectedMlIds.has(ml.id);
           return (
-            <Card key={ml.id} className="evergabe-position border-2 border-gray-300">
-              <CardHeader className="bg-blue-50">
-                <CardTitle className="flex items-center justify-between">
-                  <span>Position {editableData.excavations.length + globalIndex + 1}: {ml.location_name}</span>
+            <Card key={ml.id} className={`evergabe-position border-2 transition-all ${isMlSelected ? 'border-blue-400' : 'border-gray-200 opacity-60'}`}>
+              <CardHeader className={isMlSelected ? 'bg-blue-50' : 'bg-gray-50'}>
+                <CardTitle className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={isMlSelected}
+                      onCheckedChange={() => toggleMlSelection(ml.id)}
+                      className="w-5 h-5"
+                    />
+                    <span className={!isMlSelected ? 'text-gray-400' : ''}>
+                      Position {editableData.excavations.length + globalIndex + 1}: {ml.location_name}
+                    </span>
+                  </div>
                   <Badge className="bg-blue-600">Montage</Badge>
                 </CardTitle>
               </CardHeader>
