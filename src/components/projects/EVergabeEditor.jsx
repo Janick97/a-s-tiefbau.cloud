@@ -28,8 +28,30 @@ export default function EVergabeEditor({
   const [selectedMlIds, setSelectedMlIds] = useState(new Set());
   const exportRef = useRef(null);
 
+  // Alle IDs vorauswählen wenn sich Daten ändern
+  useEffect(() => {
+    setSelectedExcIds(new Set(excavations.map(e => e.id)));
+    setSelectedMlIds(new Set(montageLeistungen.map(m => m.id)));
+  }, [excavations, montageLeistungen]);
+
+  const toggleExcSelection = (id) => {
+    setSelectedExcIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleMlSelection = (id) => {
+    setSelectedMlIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
   // Gruppiere Daten nach Projekt
-  const excavationsByProject = React.useMemo(() => {
+  const excavationsByProject = useMemo(() => {
     const groups = {};
     
     excavations.forEach(exc => {
