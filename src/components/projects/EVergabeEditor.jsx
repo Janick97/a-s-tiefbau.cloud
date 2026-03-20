@@ -478,7 +478,7 @@ export default function EVergabeEditor({
         pdf.setFontSize(11);
         pdf.setFont(undefined, 'bold');
         pdf.setTextColor(30, 30, 30);
-        pdf.text(`#${editableData.excavations.length + i + 1}  ${ml.location_name}`, 17, yOffset + 7.5);
+        pdf.text(`#${selectedExcavations.length + i + 1}  ${ml.location_name}`, 17, yOffset + 7.5);
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(80, 80, 80);
