@@ -255,29 +255,22 @@ export default function EVergabeEditor({
         return CONTENT_START;
       };
 
-      // --- Deckblatt ---
+      // --- Kompakter Header ---
       pdf.setFillColor(30, 30, 30);
-      pdf.rect(0, 0, 210, 50, 'F');
+      pdf.rect(0, 0, 210, 22, 'F');
       pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(22);
+      pdf.setFontSize(14);
       pdf.setFont(undefined, 'bold');
-      pdf.text('E-Vergabe Aufstellung', 105, 22, { align: 'center' });
-      pdf.setFontSize(11);
+      pdf.text('E-Vergabe', 10, 10);
+      pdf.setFontSize(9);
       pdf.setFont(undefined, 'normal');
-      pdf.text(`${project.project_number} – ${project.title}`, 105, 33, { align: 'center' });
-      pdf.setFontSize(10);
-      pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}`, 105, 41, { align: 'center' });
+      pdf.text(`${project.project_number} – ${project.title}`, 10, 17);
+      pdf.setFontSize(8);
+      pdf.setTextColor(200, 200, 200);
+      pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}  |  ${new Date().toLocaleDateString('de-DE')}`, 195, 17, { align: 'right' });
       pdf.setTextColor(0, 0, 0);
 
-      pdf.setFontSize(10);
-      pdf.setFont(undefined, 'normal');
-      pdf.text(`Exportdatum: ${new Date().toLocaleDateString('de-DE')}`, 10, 58);
-      pdf.text(`Positionen gesamt: ${editableData.excavations.length + editableData.montageLeistungen.length}`, 10, 64);
-
-      pdf.setDrawColor(200, 200, 200);
-      pdf.line(10, 70, 200, 70);
-
-      let yOffset = 78;
+      let yOffset = 28;
       drawPageHeader(pdf, pageNum);
 
       // --- Excavations ---
