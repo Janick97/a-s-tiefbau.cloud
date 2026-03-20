@@ -452,9 +452,9 @@ export default function EVergabeEditor({
         yOffset += 8;
       }
 
-      // --- Montage Leistungen ---
-      for (let i = 0; i < editableData.montageLeistungen.length; i++) {
-        const ml = editableData.montageLeistungen[i];
+      // --- Montage Leistungen (nur ausgewählte) ---
+      for (let i = 0; i < selectedMontage.length; i++) {
+        const ml = selectedMontage[i];
         const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
         const imageCount = ml.evergabe_images?.length || 0;
 
