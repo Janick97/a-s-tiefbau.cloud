@@ -628,11 +628,21 @@ export default function EVergabeEditor({
           const editableExc = editableData.excavations[globalIndex];
           const priceItem = priceItems.find(p => p.id === exc.price_item_id);
           
+          const isExcSelected = selectedExcIds.has(exc.id);
           return (
-            <Card key={exc.id} className="evergabe-position border-2 border-gray-300">
-              <CardHeader className="bg-gray-50">
-                <CardTitle className="flex items-center justify-between">
-                  <span>Position {globalIndex + 1}: {exc.location_name}</span>
+            <Card key={exc.id} className={`evergabe-position border-2 transition-all ${isExcSelected ? 'border-green-400' : 'border-gray-200 opacity-60'}`}>
+              <CardHeader className={isExcSelected ? 'bg-green-50' : 'bg-gray-50'}>
+                <CardTitle className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={isExcSelected}
+                      onCheckedChange={() => toggleExcSelection(exc.id)}
+                      className="w-5 h-5"
+                    />
+                    <span className={!isExcSelected ? 'text-gray-400' : ''}>
+                      Position {globalIndex + 1}: {exc.location_name}
+                    </span>
+                  </div>
                   <Badge className="bg-green-600">Tiefbau</Badge>
                 </CardTitle>
               </CardHeader>
