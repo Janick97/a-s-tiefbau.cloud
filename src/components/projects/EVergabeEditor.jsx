@@ -386,11 +386,7 @@ export default function EVergabeEditor({
           yOffset += justLines.length * 5.5 + 1;
         }
 
-        pdf.setFont(undefined, 'bold');
-        pdf.setTextColor(22, 163, 74);
-        pdf.text(`Preis: ${exc.calculated_price?.toFixed(2) || '0.00'} €`, 12, yOffset);
-        pdf.setTextColor(0, 0, 0);
-        yOffset += 8;
+        yOffset += 2;
 
         // --- Bilder ---
         if (imageCount > 0) {
