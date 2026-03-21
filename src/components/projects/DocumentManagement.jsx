@@ -35,7 +35,6 @@ import {
   Unlock
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
-import ImageViewer from "./ImageViewer";
 
 const folderOptions = [
   "Aufmaß",
@@ -66,13 +65,6 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [editingFileName, setEditingFileName] = useState(null);
   const [newFileName, setNewFileName] = useState("");
   const [previewDoc, setPreviewDoc] = useState(null);
-  const [imageViewerState, setImageViewerState] = useState(null); // { images, initialIndex }
-
-  const openImageViewer = (doc, allDocs) => {
-    const images = allDocs.filter(d => isImage(d.file_type));
-    const idx = images.findIndex(d => d.id === doc.id);
-    setImageViewerState({ images, initialIndex: idx >= 0 ? idx : 0 });
-  };
   const [showSubfolderDialog, setShowSubfolderDialog] = useState(false);
   const [selectedParentFolder, setSelectedParentFolder] = useState("");
   const [newSubfolderName, setNewSubfolderName] = useState("");
@@ -931,7 +923,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       src={doc.file_url} 
                       alt={doc.file_name}
                       className="w-full aspect-square object-cover cursor-pointer"
-                      onClick={() => openImageViewer(doc, sortedDocs)}
+                      onClick={() => setPreviewDoc(doc)}
                     />
                       
                       {/* Filename always visible at bottom */}
@@ -965,7 +957,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
                       {/* Hover overlay with action buttons */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-start p-1 gap-1 pb-7 pt-6">
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => openImageViewer(doc, sortedDocs)} title="Vorschau">
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => setPreviewDoc(doc)} title="Vorschau">
                           <Eye className="w-3 h-3" />
                         </Button>
                         <a href={doc.file_url} download={doc.file_name}>
@@ -1161,80 +1153,19 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               ) : (
                                 <div className="space-y-2">
                                   {subDocs.filter(doc => isImage(doc.file_type)).length > 0 && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 mb-2">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                                       {subDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
-                                        <motion.div
+                                        <div
                                           key={doc.id}
-                                          initial={{ opacity: 0, scale: 0.9 }}
-                                          animate={{ opacity: 1, scale: 1 }}
-                                          className={`group relative bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${selectedDocIds.has(doc.id) ? 'border-blue-500' : 'border-gray-200 hover:border-orange-400'}`}
+                                          className="aspect-square bg-white rounded border hover:border-orange-400 overflow-hidden cursor-pointer"
+                                          onClick={() => setPreviewDoc(doc)}
                                         >
-                                          {/* Selection checkbox - top right */}
-                                          <div className="absolute top-1 right-1 z-10" onClick={e => e.stopPropagation()}>
-                                            <Checkbox
-                                              checked={selectedDocIds.has(doc.id)}
-                                              onCheckedChange={() => toggleDocSelection(doc.id)}
-                                              className="bg-white/90 border-gray-400"
-                                            />
-                                          </div>
-                                          {/* Upload date - top left */}
-                                          <div className="absolute top-1 left-1 z-10">
-                                            <span className="text-[9px] bg-black/50 text-white rounded px-1 py-0.5 leading-none">
-                                              {doc.created_date ? new Date(doc.created_date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) : ''}
-                                            </span>
-                                          </div>
-                                          <img
-                                            src={doc.file_url}
+                                          <img 
+                                            src={doc.file_url} 
                                             alt={doc.file_name}
-                                            className="w-full aspect-square object-cover cursor-pointer"
-                                            onClick={() => setPreviewDoc(doc)}
+                                            className="w-full h-full object-cover"
                                           />
-                                          {/* Filename always visible at bottom */}
-                                          <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
-                                            {editingFileName === doc.id ? (
-                                              <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                                                <Input
-                                                  value={newFileName}
-                                                  onChange={(e) => setNewFileName(e.target.value)}
-                                                  className="h-5 text-[10px] px-1 py-0 bg-white"
-                                                  onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') saveFileName(doc.id);
-                                                    if (e.key === 'Escape') cancelEditingFileName();
-                                                  }}
-                                                  autoFocus
-                                                />
-                                                <Button size="sm" onClick={(e) => { e.stopPropagation(); saveFileName(doc.id); }} className="h-5 w-5 p-0 flex-shrink-0">
-                                                  <Check className="w-2.5 h-2.5" />
-                                                </Button>
-                                                <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); cancelEditingFileName(); }} className="h-5 w-5 p-0 flex-shrink-0">
-                                                  <X className="w-2.5 h-2.5" />
-                                                </Button>
-                                              </div>
-                                            ) : (
-                                              <div className="flex items-center gap-1 cursor-pointer" onClick={(e) => { e.stopPropagation(); startEditingFileName(doc); }}>
-                                                <p className="text-[10px] text-white truncate flex-1 leading-tight">{doc.file_name}</p>
-                                                <Edit className="w-2.5 h-2.5 text-white/70 flex-shrink-0" />
-                                              </div>
-                                            )}
-                                          </div>
-                                          {/* Hover overlay with action buttons */}
-                                          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-start p-1 gap-1 pb-7 pt-6">
-                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => setPreviewDoc(doc)} title="Vorschau">
-                                              <Eye className="w-3 h-3" />
-                                            </Button>
-                                            <a href={doc.file_url} download={doc.file_name}>
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" title="Herunterladen">
-                                                <Download className="w-3 h-3" />
-                                              </Button>
-                                            </a>
-                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
-                                              <FolderInput className="w-3 h-3" />
-                                            </Button>
-                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600" onClick={(e) => { e.stopPropagation(); handleDeleteDocument(doc.id); }} title="Löschen">
-                                              <Trash2 className="w-3 h-3" />
-                                            </Button>
-                                          </div>
-                                        </motion.div>
+                                        </div>
                                       ))}
                                     </div>
                                   )}
