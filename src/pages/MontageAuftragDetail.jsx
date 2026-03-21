@@ -27,6 +27,9 @@ export default function MontageAuftragDetailPage() {
   const [einmassSkizzen, setEinmassSkizzen] = useState([]);
   const [isUploadingSkizze, setIsUploadingSkizze] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [showLeistungWizard, setShowLeistungWizard] = useState(false);
+  const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  const [availableMonteure, setAvailableMonteure] = useState([]);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
