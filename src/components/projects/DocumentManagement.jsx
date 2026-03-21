@@ -773,6 +773,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="h-7 px-2 text-xs text-gray-500 hidden sm:flex items-center gap-1"
+                      title="Sortierung ändern"
+                      onClick={(e) => cycleSortFolder(folder, e)}
+                    >
+                      {getSortIcon(folder)}
+                      <span className="hidden sm:inline">{getSortLabel(folder)}</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       className="h-7 w-7 p-0"
                       title="Ordner umbenennen"
                       onClick={() => { setEditingMainFolder(folder); setEditingMainFolderName(getFolderName(folder)); }}
