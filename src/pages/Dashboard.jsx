@@ -274,24 +274,31 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Navigation Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            <NavigationCard
-              title="Meine Montageaufträge"
-              description="Alle Ihnen zugewiesenen Montageaufträge anzeigen"
-              icon={Construction}
-              color="from-blue-500 to-blue-600"
-              link={createPageUrl("MyMontageAuftraege")}
-            />
-
-            <NavigationCard
-              title="Mein Profil"
-              description="Persönliche Einstellungen bearbeiten"
-              icon={UserIcon}
-              color="from-orange-500 to-amber-600"
-              link={createPageUrl("Profile")}
-            />
-          </div>
+          {/* Navigation */}
+           <div className="w-full max-w-md">
+             <Link to={createPageUrl("MyMontageAuftraege")} className="block">
+               <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 whileHover={{ y: -2 }}
+                 transition={{ duration: 0.2 }}
+               >
+                 <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
+                   <CardContent className="p-6">
+                     <div className="flex items-center gap-4">
+                       <div className="p-3 rounded-lg bg-slate-100">
+                         <Construction className="w-6 h-6 text-slate-700" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h3 className="text-lg font-semibold text-gray-900">Meine Montageaufträge</h3>
+                         <p className="text-sm text-gray-500 mt-1">Zeige alle Aufträge</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </motion.div>
+             </Link>
+           </div>
         </div>
       </div>
     );
