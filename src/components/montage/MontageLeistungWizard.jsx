@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, MapPin, Check, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, MapPin, Check, AlertCircle, Loader2, Navigation } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
 const WIZARD_STEPS = [
@@ -39,22 +39,11 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   });
 
   const [leistungsoptionen, setLeistungsoptionen] = useState([]);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({});
 
   useEffect(() => {
     loadLeistungsoptionen();
-    // Get GPS location if available
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFormData(prev => ({
-            ...prev,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          }));
-        },
-        (error) => console.log('GPS nicht verfügbar:', error)
-      );
-    }
   }, []);
 
   const loadLeistungsoptionen = async () => {
@@ -69,7 +58,12 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   const handleFileUpload = async (files, type) => {
     try {
       const uploadedUrls = [];
-      for (const file of files) {
+      const totalFiles = files.length;
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        setUploadProgress(prev => ({ ...prev, [type]: { current: i + 1, total: totalFiles } }));
+        
         const { file_url } = await UploadFile({ file });
         uploadedUrls.push(file_url);
       }
@@ -78,9 +72,36 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
         ...prev,
         [type]: [...(prev[type] || []), ...uploadedUrls]
       }));
+      
+      setUploadProgress(prev => ({ ...prev, [type]: null }));
     } catch (error) {
       console.error('Fehler beim Upload:', error);
       alert('Fehler beim Upload der Datei');
+      setUploadProgress(prev => ({ ...prev, [type]: null }));
+    }
+  };
+
+  const handleGetLocation = () => {
+    setIsGettingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setFormData(prev => ({
+            ...prev,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          }));
+          setIsGettingLocation(false);
+        },
+        (error) => {
+          console.log('GPS nicht verfügbar:', error);
+          alert('GPS-Standort konnte nicht ermittelt werden');
+          setIsGettingLocation(false);
+        }
+      );
+    } else {
+      alert('GPS ist nicht verfügbar');
+      setIsGettingLocation(false);
     }
   };
 
