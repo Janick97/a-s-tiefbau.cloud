@@ -948,7 +948,8 @@ export default function ProjectDetailPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
+                {/* Aktions-Gruppe */}
                 <Button 
                   variant="outline" 
                   onClick={handleSendCompletionEmail}
@@ -965,28 +966,39 @@ export default function ProjectDetailPage() {
                       className="bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
                     >
                       <Network className="w-4 h-4 mr-2" />
-                      Visioplan öffnen
+                      Visioplan
                     </Button>
                   </Link>
                 ) : (
-                  <Button 
-                    variant="outline" 
-                    disabled
-                    className="opacity-50 cursor-not-allowed"
-                  >
+                  <Button variant="outline" disabled className="opacity-40 cursor-not-allowed">
                     <Network className="w-4 h-4 mr-2" />
-                    Kein Visioplan vorhanden
+                    Kein Visioplan
                   </Button>
                 )}
 
-                <Button variant="outline" onClick={handleExportServicesOverviewPdf} className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Leistungsübersicht Export
-                </Button>
-                <Button variant="outline" onClick={handleExportCoverSheetPdf}>
-                  <FileText className="w-4 h-4 mr-2" />
-                  Deckblatt Export
-                </Button>
+                {/* Export Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100">
+                      <Download className="w-4 h-4 mr-2" />
+                      Export
+                      <ChevronDown className="w-4 h-4 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleExportServicesOverviewPdf}>
+                      <FileText className="w-4 h-4 mr-2 text-purple-600" />
+                      Leistungsübersicht Export
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportCoverSheetPdf}>
+                      <FileText className="w-4 h-4 mr-2 text-gray-600" />
+                      Deckblatt Export
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Trennlinie */}
+                <div className="w-px h-6 bg-gray-200" />
 
                 {!project.montage_auftrag_id && (
                   <Button 
@@ -995,7 +1007,7 @@ export default function ProjectDetailPage() {
                     className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Montageauftrag erstellen
+                    Montageauftrag
                   </Button>
                 )}
                 {isMainProject && (
