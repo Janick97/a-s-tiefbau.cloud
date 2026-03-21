@@ -563,6 +563,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
   const [showForm, setShowForm] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
   const [editingLeistung, setEditingLeistung] = useState(null);
+  const [editingMaterial, setEditingMaterial] = useState(null);
   const [previewImages, setPreviewImages] = useState([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
