@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit, Trash2, Shovel, MapPin, Euro, CheckSquare, Package, ArrowRight, Square } from "lucide-react";
+import { Plus, Edit, Trash2, Shovel, MapPin, Euro, CheckSquare, Package, ArrowRight, Square, Check, X } from "lucide-react";
 import { Excavation, User, Project } from "@/entities/all";
 import ExcavationWizard from "../excavations/ExcavationWizard";
 import ExcavationDetail from "../excavations/ExcavationDetail";
