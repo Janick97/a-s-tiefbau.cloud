@@ -541,79 +541,91 @@ export default function ExcavationsManagement({
                       {(excavation.surface_type === 'Platten' || excavation.surface_type === 'Pflaster' || 
                         excavation.surface_type_2 === 'Platten' || excavation.surface_type_2 === 'Pflaster') ? (
                         <div className="flex flex-col items-center gap-1">
-                          <Checkbox
-                            checked={excavation.is_closed || false}
-                            onCheckedChange={(checked) => handleClosureToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                          />
+                          <button
+                            onClick={() => handleClosureToggle(excavation, !excavation.is_closed)}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm border-2 ${
+                              excavation.is_closed
+                                ? 'bg-green-500 border-green-500 text-white hover:bg-green-600'
+                                : 'bg-white border-gray-300 text-gray-300 hover:border-green-400 hover:text-green-400'
+                            }`}
+                          >
+                            <Check className="w-4 h-4" strokeWidth={3} />
+                          </button>
                           {excavation.is_closed && excavation.closed_date && (
-                            <div className="text-xs text-green-600 text-center">
+                            <div className="text-xs text-green-600 text-center leading-tight">
                               <div>{new Date(excavation.closed_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.closed_by && (
-                                <div className="text-green-700 font-medium">{excavation.closed_by}</div>
-                              )}
+                              {excavation.closed_by && <div className="font-medium truncate max-w-[80px]">{excavation.closed_by}</div>}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
+                        <div className="text-center text-xs text-gray-300">–</div>
                       )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
                         <div className="flex flex-col items-center gap-1">
-                          <Checkbox
-                            checked={excavation.asphalt_fein_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
-                          />
+                          <button
+                            onClick={() => handleAsphaltFeinToggle(excavation, !excavation.asphalt_fein_completed)}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm border-2 ${
+                              excavation.asphalt_fein_completed
+                                ? 'bg-gray-900 border-gray-900 text-white hover:bg-black'
+                                : 'bg-white border-gray-300 text-gray-300 hover:border-gray-700 hover:text-gray-700'
+                            }`}
+                          >
+                            <Check className="w-4 h-4" strokeWidth={3} />
+                          </button>
                           {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
-                            <div className="text-xs text-gray-900 text-center">
+                            <div className="text-xs text-gray-700 text-center leading-tight">
                               <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_fein_by && (
-                                <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
-                              )}
+                              {excavation.asphalt_fein_by && <div className="font-medium truncate max-w-[80px]">{excavation.asphalt_fein_by}</div>}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
+                        <div className="text-center text-xs text-gray-300">–</div>
                       )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
                         <div className="flex flex-col items-center gap-1">
-                          <Checkbox
-                            checked={excavation.asphalt_trag_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
-                          />
+                          <button
+                            onClick={() => handleAsphaltTragToggle(excavation, !excavation.asphalt_trag_completed)}
+                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm border-2 ${
+                              excavation.asphalt_trag_completed
+                                ? 'bg-gray-600 border-gray-600 text-white hover:bg-gray-700'
+                                : 'bg-white border-gray-300 text-gray-300 hover:border-gray-500 hover:text-gray-500'
+                            }`}
+                          >
+                            <Check className="w-4 h-4" strokeWidth={3} />
+                          </button>
                           {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
-                            <div className="text-xs text-gray-700 text-center">
+                            <div className="text-xs text-gray-600 text-center leading-tight">
                               <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_trag_by && (
-                                <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
-                              )}
+                              {excavation.asphalt_trag_by && <div className="font-medium truncate max-w-[80px]">{excavation.asphalt_trag_by}</div>}
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
+                        <div className="text-center text-xs text-gray-300">–</div>
                       )}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-center gap-1">
-                        <Checkbox
-                          checked={excavation.is_backfilled || false}
-                          onCheckedChange={(checked) => handleBackfillToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
-                        />
+                        <button
+                          onClick={() => handleBackfillToggle(excavation, !excavation.is_backfilled)}
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 shadow-sm border-2 ${
+                            excavation.is_backfilled
+                              ? 'bg-orange-500 border-orange-500 text-white hover:bg-orange-600'
+                              : 'bg-white border-gray-300 text-gray-300 hover:border-orange-400 hover:text-orange-400'
+                          }`}
+                        >
+                          <Check className="w-4 h-4" strokeWidth={3} />
+                        </button>
                         {excavation.is_backfilled && excavation.backfilled_date && (
-                          <div className="text-xs text-orange-600 text-center">
+                          <div className="text-xs text-orange-600 text-center leading-tight">
                             <div>{new Date(excavation.backfilled_date).toLocaleDateString('de-DE')}</div>
-                            {excavation.backfilled_by && (
-                              <div className="text-orange-700 font-medium">{excavation.backfilled_by}</div>
-                            )}
+                            {excavation.backfilled_by && <div className="font-medium truncate max-w-[80px]">{excavation.backfilled_by}</div>}
                           </div>
                         )}
                       </div>
