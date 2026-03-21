@@ -321,16 +321,11 @@ export default function EVergabeEditor({
       pdf.setFontSize(7.5);
       pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}  |  ${new Date().toLocaleDateString('de-DE')}`, 10, 25);
 
-      // Logo oben rechts laden – weißer Hintergrund + Logo quadratisch zentriert
-      try {
-        const logoBase64 = await loadImageAsBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png');
-        // Logo-Bereich: rechts, vertikal mittig im Header
-        const LOGO_W = 36;
-        const LOGO_H = 18;
-        const LOGO_X = 210 - 10 - LOGO_W;
-        const LOGO_Y = (HEADER_H - LOGO_H) / 2 + 1;
-        pdf.addImage(logoBase64, 'PNG', LOGO_X, LOGO_Y, LOGO_W, LOGO_H);
-      } catch (e) { /* Logo nicht verfügbar */ }
+      // Firmenname dezent oben rechts
+      pdf.setFontSize(7.5);
+      pdf.setFont(undefined, 'normal');
+      pdf.setTextColor(160, 160, 160);
+      pdf.text('A&S Tief- Straßenbau GmbH', 200, 13, { align: 'right' });
 
       // Trennlinie unter Header
       pdf.setDrawColor(234, 88, 12);
