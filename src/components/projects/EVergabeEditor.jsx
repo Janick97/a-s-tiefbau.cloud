@@ -210,14 +210,31 @@ export default function EVergabeEditor({
     return surfaceMap[surfaceType] || surfaceType || '-';
   };
 
-  // Hilfsfunktion: Bild als base64 laden
-  const loadImageAsBase64 = async (url) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
+  // Hilfsfunktion: Bild laden, skalieren und als komprimiertes JPEG zurückgeben
+  const loadImageAsBase64 = (url, maxSize = 800, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxSize || height > maxSize) {
+          if (width > height) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          } else {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = url;
     });
   };
 
@@ -251,7 +268,7 @@ export default function EVergabeEditor({
     
     setIsExporting(true);
     try {
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new jsPDF('p', 'mm', 'a4', true); // true = compress
       const PAGE_HEIGHT = 287;
       const MARGIN_TOP = 15;
       const MARGIN_BOTTOM = 10;
