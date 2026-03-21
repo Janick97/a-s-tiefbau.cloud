@@ -207,19 +207,18 @@ export default function ExcavationsManagement({
       });
       setShowBackfillDialog(true);
     } else {
-      if (!window.confirm(`Status "Verfüllt" für "${excavation.location_name}" wirklich entfernen?`)) return;
-      try {
-        await Excavation.update(excavation.id, {
-          is_backfilled: false,
-          backfilled_date: null,
-          backfilled_by: null,
-          backfilled_by_user_id: null,
-          backfill_commission: null
-        });
-        loadData();
-      } catch (error) {
-        console.error("Fehler beim Aktualisieren:", error);
-      }
+      setRemoveConfirmData({
+        excavation,
+        statusLabel: 'Verfüllt',
+        color: 'orange',
+        onConfirm: async () => {
+          await Excavation.update(excavation.id, {
+            is_backfilled: false, backfilled_date: null, backfilled_by: null,
+            backfilled_by_user_id: null, backfill_commission: null
+          });
+          loadData();
+        }
+      });
     }
   };
 
