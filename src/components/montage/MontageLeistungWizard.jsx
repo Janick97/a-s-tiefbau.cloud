@@ -335,17 +335,14 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
             {/* Step 2: Leistungen */}
             {currentStep === 2 && (
-              <motion.div key="leistungen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                <div>
-                  <p className="text-sm text-gray-600 mb-3">Wählen Sie durchgeführte Leistungen und geben Sie die Menge ein:</p>
-                  <Input
-                    placeholder="Nach Position suchen..."
-                    value={searchLeistung}
-                    onChange={(e) => setSearchLeistung(e.target.value)}
-                    className="h-10 mb-4"
-                  />
-                </div>
-                <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+              <motion.div key="leistungen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-3">
+                <Input
+                  placeholder="Nach Position suchen..."
+                  value={searchLeistung}
+                  onChange={(e) => setSearchLeistung(e.target.value)}
+                  className="h-10"
+                />
+                <div className="space-y-2 max-h-[450px] overflow-y-auto pr-2">
                   {leistungsoptionen
                     .filter(leistung =>
                       leistung.description.toLowerCase().includes(searchLeistung.toLowerCase()) ||
@@ -356,10 +353,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                     return (
                       <motion.div
                         key={leistung.id}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
-                          selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className={`flex items-center gap-3 p-3 rounded border transition-all cursor-pointer ${
+                          selected ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
                         onClick={() => {
                           if (!selected) handleLeistungToggle(leistung.id, 1);
@@ -375,19 +372,18 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                           className="flex-shrink-0"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900">{leistung.description}</p>
-                          <p className="text-xs text-gray-500 mt-0.5">{leistung.unit}</p>
+                          <p className="text-sm font-medium text-gray-900">{leistung.description}</p>
+                          <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
                         </div>
                         {selected && (
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            <span className="text-xs text-gray-500">Menge:</span>
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
                             <Input
                               type="number"
                               min="0.1"
                               step="0.1"
                               value={selected.quantity}
                               onChange={(e) => handleLeistungToggle(leistung.id, parseFloat(e.target.value))}
-                              className="w-16 h-9 text-sm"
+                              className="w-14 h-8 text-xs text-center"
                             />
                           </div>
                         )}
