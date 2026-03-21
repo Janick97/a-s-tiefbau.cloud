@@ -1232,6 +1232,85 @@ export default function ExcavationsManagement({
         </motion.div>
       )}
 
+      {/* Status Remove Confirmation Dialog */}
+      <AnimatePresence>
+        {removeConfirmData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]"
+          >
+            <motion.div
+              initial={{ scale: 0.85, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.85, y: 30, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="w-full max-w-sm"
+            >
+              <Card className="border-none shadow-2xl overflow-hidden">
+                {/* Top accent bar */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-red-400 via-red-500 to-orange-400" />
+                <CardContent className="p-6">
+                  {/* Icon */}
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-red-50 border-4 border-red-100 flex items-center justify-center">
+                      <AlertTriangle className="w-8 h-8 text-red-500" />
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-center text-lg font-bold text-gray-900 mb-1">
+                    Status entfernen?
+                  </h3>
+                  <p className="text-center text-sm text-gray-500 mb-4">
+                    Diese Aktion kann nicht rückgängig gemacht werden.
+                  </p>
+
+                  {/* Info box */}
+                  <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 mb-5 space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 font-medium">Status:</span>
+                      <span className="font-semibold text-gray-800 bg-white border border-gray-200 rounded-md px-2 py-0.5">
+                        {removeConfirmData.statusLabel}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-500 font-medium">Position:</span>
+                      <span className="font-semibold text-gray-800 truncate ml-2 max-w-[180px]">
+                        {removeConfirmData.excavation.location_name}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Buttons */}
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => setRemoveConfirmData(null)}
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Abbrechen
+                    </Button>
+                    <Button
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                      onClick={async () => {
+                        await removeConfirmData.onConfirm();
+                        setRemoveConfirmData(null);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Ja, entfernen
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <ExcavationDetail
         excavation={selectedExcavation}
         isOpen={showDetail}
