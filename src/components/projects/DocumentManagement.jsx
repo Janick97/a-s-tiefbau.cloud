@@ -35,6 +35,7 @@ import {
   Unlock
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
+import ImageViewer from "./ImageViewer";
 
 const folderOptions = [
   "Aufmaß",
