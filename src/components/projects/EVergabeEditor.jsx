@@ -256,9 +256,11 @@ export default function EVergabeEditor({
       const MARGIN_TOP = 15;
       const MARGIN_BOTTOM = 10;
       const CONTENT_START = 15;
-      const IMG_WIDTH = 85;
-      const IMG_HEIGHT = 63;
-      const IMG_COLS = 2;
+      const IMG_SIZE = 58; // quadratisch
+      const IMG_WIDTH = IMG_SIZE;
+      const IMG_HEIGHT = IMG_SIZE;
+      const IMG_COLS = 3;
+      const IMG_GAP = 5;
       let pageNum = 1;
 
       // --- Berechne benötigte Höhe einer Position ---
@@ -302,10 +304,15 @@ export default function EVergabeEditor({
       pdf.setFontSize(7.5);
       pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}  |  ${new Date().toLocaleDateString('de-DE')}`, 10, 25);
 
-      // Logo oben rechts laden
+      // Logo oben rechts laden – weißer Hintergrund + Logo quadratisch zentriert
       try {
         const logoBase64 = await loadImageAsBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png');
-        pdf.addImage(logoBase64, 'PNG', 155, 2, 48, 24);
+        // Logo-Bereich: rechts, vertikal mittig im Header
+        const LOGO_W = 36;
+        const LOGO_H = 18;
+        const LOGO_X = 210 - 10 - LOGO_W;
+        const LOGO_Y = (HEADER_H - LOGO_H) / 2 + 1;
+        pdf.addImage(logoBase64, 'PNG', LOGO_X, LOGO_Y, LOGO_W, LOGO_H);
       } catch (e) { /* Logo nicht verfügbar */ }
 
       // Trennlinie unter Header
