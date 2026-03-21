@@ -307,17 +307,28 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   };
 
   const handleRenameSubfolder = async (oldFolder, newName) => {
-    if (!newName.trim()) return;
+    if (!newName.trim() || newName.trim() === getFolderName(oldFolder)) {
+      setEditingSubfolder(null);
+      return;
+    }
 
     const oldParts = oldFolder.split('/');
     const parentPath = oldParts.slice(0, -1).join('/');
     const newFolder = parentPath ? `${parentPath}/${newName.trim()}` : newName.trim();
 
-    const docsToUpdate = documents.filter(doc => doc.folder === oldFolder);
-    
+    const docsToUpdate = documents.filter(doc => doc.folder === oldFolder || doc.folder.startsWith(oldFolder + '/'));
     for (const doc of docsToUpdate) {
-      await ProjectDocument.update(doc.id, { folder: newFolder });
+      const updatedFolder = doc.folder === oldFolder ? newFolder : newFolder + doc.folder.substring(oldFolder.length);
+      await ProjectDocument.update(doc.id, { folder: updatedFolder });
     }
+
+    // Update custom folders too
+    const updatedCustomFolders = customFolders.map(f => {
+      if (f === oldFolder) return newFolder;
+      if (f.startsWith(oldFolder + '/')) return newFolder + f.substring(oldFolder.length);
+      return f;
+    });
+    saveCustomFolders(updatedCustomFolders);
 
     setEditingSubfolder(null);
     await loadDocuments();
