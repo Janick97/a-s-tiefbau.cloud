@@ -113,13 +113,8 @@ export default function MyMontageAuftraegePage() {
       );
     }
 
-    // Status-Filter
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(auftrag => auftrag.status === statusFilter);
-    }
-
     setFilteredAuftraege(filtered);
-  }, [auftraege, searchTerm, statusFilter, showCompletedAuftraege]);
+  }, [auftraege, searchTerm, showCompletedAuftraege]);
 
   useEffect(() => {
     filterAuftraege();
@@ -262,47 +257,22 @@ export default function MyMontageAuftraegePage() {
           </div>
         </motion.div>
 
-        {/* Filter Section */}
+        {/* Suchfeld */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
+          className="mb-2 md:mb-3"
         >
-          <Card className="card-elevation border-none mb-2 md:mb-3">
-            <CardContent className="p-2 md:p-3">
-              <div className="flex flex-col md:flex-row gap-2">
-                {/* Suchfeld */}
-                <div className="flex-1">
-                  <div className="relative">
-                    <Search className="w-3 h-3 absolute left-2 top-2.5 text-gray-400" />
-                    <Input
-                      placeholder="Suche..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8 text-xs h-8"
-                    />
-                  </div>
-                </div>
-
-                {/* Filter */}
-                <div className="flex gap-2">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-28 text-xs h-8">
-                      <Filter className="w-3 h-3 mr-1" />
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Alle Status</SelectItem>
-                      <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
-                      <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
-                      <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
-                      <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="relative">
+            <Search className="w-3 h-3 absolute left-3 top-3 text-gray-400" />
+            <Input
+              placeholder="Nach Auftrag suchen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 text-xs h-9"
+            />
+          </div>
         </motion.div>
 
         {/* Aufträge Grid */}
