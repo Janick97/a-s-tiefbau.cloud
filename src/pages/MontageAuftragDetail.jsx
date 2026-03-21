@@ -285,6 +285,27 @@ export default function MontageAuftragDetailPage() {
           </CardContent>
         </Card>
 
+        {/* Action Buttons für Monteur */}
+        {isMonteur && !readOnly && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+            <Button
+              onClick={() => setShowLeistungWizard(true)}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-10"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Leistung erfassen
+            </Button>
+            <Button
+              onClick={() => setShowMaterialDialog(true)}
+              variant="outline"
+              className="h-10"
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Material hinzufügen
+            </Button>
+          </div>
+        )}
+
         {/* Montage Leistungen */}
         <div className="mb-3">
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
