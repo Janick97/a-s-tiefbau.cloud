@@ -350,139 +350,59 @@ export default function MyMontageAuftraegePage() {
                     transition={{ delay: index * 0.05 }}
                     whileHover={{ y: -4 }}
                   >
-                    <Card className={`card-elevation border-none h-full hover:shadow-xl transition-all duration-300 ${
-                      auftrag.monteur_completed 
-                        ? 'bg-red-50 border-l-4 border-l-red-500' 
-                        : auftrag.tiefbau_offen 
-                        ? 'bg-blue-50 border-l-4 border-l-blue-500' 
-                        : ''
-                    }`}>
-                      <CardHeader className="pb-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="min-w-0 flex-1">
-                            <CardTitle className="text-base md:text-lg font-bold text-gray-900 truncate">
-                              {auftrag.sm_number}
-                            </CardTitle>
-                            {auftrag.project_number && (
-                              <p className="text-xs md:text-sm text-gray-600 truncate">
-                                Projekt: {auftrag.project_number}
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex gap-1 flex-wrap justify-end">
-                            {auftrag.monteur_completed ? (
-                              <Badge className="bg-red-100 text-red-800 border-red-200">
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                Fertig
-                              </Badge>
-                            ) : auftrag.tiefbau_offen ? (
-                              <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                                <Construction className="w-3 h-3 mr-1" />
-                                Tiefbau offen
-                              </Badge>
-                            ) : (
-                              <Badge className={`text-xs ${statusColors[auftrag.status] || statusColors['Auftrag neu']}`}>
-                                {auftrag.status}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardHeader>
-
-                      <CardContent className="space-y-3 md:space-y-4">
-                        {/* Auftrag Info */}
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-sm md:text-base text-gray-900 line-clamp-2 leading-tight">
+                    <Card className="card-elevation border-none h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+                      <CardContent className="p-4 space-y-3">
+                        {/* Titel */}
+                        <div>
+                          <CardTitle className="text-base font-bold text-gray-900 line-clamp-2">
                             {auftrag.title}
-                          </h3>
-                          <div className="space-y-1 text-xs md:text-sm text-gray-600">
-                            <div className="flex items-center gap-2">
-                              <Building className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                              <span className="truncate">{auftrag.client}</span>
-                            </div>
-                            {auftrag.city && (
-                              <div className="flex items-center gap-2">
-                                <MapPin className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                                <span>{auftrag.street ? `${auftrag.street}, ` : ''}{auftrag.city}</span>
-                              </div>
-                            )}
-                            {auftrag.start_date && (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0" />
-                                <span>{new Date(auftrag.start_date).toLocaleDateString('de-DE')}</span>
-                              </div>
-                            )}
-                            {auftrag.monteur_completed_date && (
-                              <div className="flex items-center gap-2">
-                                <CheckCircle className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 text-red-600" />
-                                <span className="text-red-600">
-                                  Fertig am {new Date(auftrag.monteur_completed_date).toLocaleDateString('de-DE')}
-                                </span>
-                              </div>
-                            )}
-                            {auftrag.tiefbau_offen && auftrag.tiefbau_offen_date && (
-                              <div className="flex items-center gap-2">
-                                <Construction className="w-3 h-3 md:w-4 md:h-4 flex-shrink-0 text-blue-600" />
-                                <span className="text-blue-600">
-                                  Tiefbau offen seit {new Date(auftrag.tiefbau_offen_date).toLocaleDateString('de-DE')}
-                                </span>
-                              </div>
-                            )}
-                          </div>
+                          </CardTitle>
                         </div>
 
-                        {/* Notizen Vorschau */}
+                        {/* Tiefbau Status */}
+                        {auftrag.tiefbau_offen && (
+                          <div className="flex items-center gap-2 bg-blue-50 p-2 rounded border border-blue-200">
+                            <Construction className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                            <span className="text-sm font-medium text-blue-700">Tiefbau offen</span>
+                          </div>
+                        )}
+
+                        {/* Notizen */}
                         {auftrag.notes && (
-                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                            <div className="flex items-start gap-2">
-                              <FileText className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1">
-                                <p className="text-xs font-medium text-gray-700 mb-1">Notizen:</p>
-                                <p className="text-xs text-gray-600 line-clamp-2">
-                                  {auftrag.notes}
-                                </p>
-                              </div>
-                            </div>
+                          <div className="bg-gray-50 rounded p-2 border border-gray-200">
+                            <p className="text-xs text-gray-600 line-clamp-3">
+                              {auftrag.notes}
+                            </p>
                           </div>
                         )}
 
                         {/* Action Buttons */}
-                        <div className="space-y-2">
-                          <Link to={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)} className="block">
-                            <Button variant="default" className="w-full text-sm bg-blue-600 hover:bg-blue-700">
-                              <Eye className="w-4 h-4 mr-2" />
-                              Details & Leistungen erfassen
-                            </Button>
-                          </Link>
-                          
-                          <Button
-                            variant="outline"
-                            className="w-full text-sm"
-                            onClick={() => handleNotesClick(auftrag)}
-                          >
-                            <Edit3 className="w-4 h-4 mr-2" />
-                            Notizen bearbeiten
-                          </Button>
-
+                        <div className="space-y-2 pt-1">
                           {!auftrag.monteur_completed && (
                             <Button
-                              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-sm"
+                              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-sm h-9"
                               onClick={() => handleMarkAsCompleted(auftrag)}
                               disabled={isCompleting}
                             >
                               {isCompleting ? (
                                 <>
-                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
                                   Wird markiert...
                                 </>
                               ) : (
                                 <>
-                                  <CheckCircle className="w-4 h-4 mr-2" />
-                                  Als fertig melden
+                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  Fertigstellen
                                 </>
                               )}
                             </Button>
                           )}
+                          <Link to={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)} className="block">
+                            <Button variant="default" className="w-full text-sm bg-blue-600 hover:bg-blue-700 h-9">
+                              <Eye className="w-3 h-3 mr-2" />
+                              Auftrag öffnen
+                            </Button>
+                          </Link>
                         </div>
                       </CardContent>
                     </Card>
