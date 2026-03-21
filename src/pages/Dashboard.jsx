@@ -23,15 +23,7 @@ import {
   CheckSquare,
   TrendingUp,
   Package,
-  Clock,
   Eye,
-  Cloud,
-  CloudRain,
-  Sun,
-  CloudSnow,
-  Wind,
-  Droplets,
-  Thermometer,
   RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -80,208 +72,7 @@ function NavigationCard({ title, description, icon: Icon, color, link, stats }) 
   );
 }
 
-// Kompaktes Header-Widget: Uhrzeit + Wetter
-function AdminHeaderWidget() {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [weather, setWeather] = useState(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    loadWeather();
-    const weatherTimer = setInterval(loadWeather, 30 * 60 * 1000);
-    return () => { clearInterval(timer); clearInterval(weatherTimer); };
-  }, []);
-
-  const loadWeather = async () => {
-    try {
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: "Aktuelles Wetter in 52353 Düren, Deutschland. Temperatur in Celsius und kurze Beschreibung.",
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            temperature: { type: "number" },
-            description: { type: "string" }
-          }
-        }
-      });
-      setWeather(response);
-    } catch (e) {
-      setWeather(null);
-    }
-  };
-
-  return (
-    <div className="hidden md:flex items-center gap-3 text-sm text-gray-600">
-      {weather && (
-        <span className="text-gray-500">
-          {Math.round(weather.temperature)}°C · {weather.description}
-        </span>
-      )}
-      <span className="font-medium text-gray-700 tabular-nums">
-        {currentTime.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })}
-      </span>
-    </div>
-  );
-}
-
-// Uhrzeit & Wetter Widget (groß – nicht mehr genutzt im Admin)
-function DateTimeWeatherWidget() {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [weather, setWeather] = useState(null);
-  const [isLoadingWeather, setIsLoadingWeather] = useState(true);
-
-  useEffect(() => {
-    // Uhrzeit jede Sekunde aktualisieren
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    // Wetter laden
-    loadWeather();
-
-    // Wetter alle 30 Minuten aktualisieren
-    const weatherTimer = setInterval(() => {
-      loadWeather();
-    }, 30 * 60 * 1000);
-
-    return () => {
-      clearInterval(timer);
-      clearInterval(weatherTimer);
-    };
-  }, []);
-
-  const loadWeather = async () => {
-    try {
-      setIsLoadingWeather(true);
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: "Was ist das aktuelle Wetter in 52353 Düren, Deutschland? Gib mir die Temperatur in Celsius, Wetterbeschreibung (sonnig, bewölkt, regnerisch, etc.), Luftfeuchtigkeit in Prozent und Windgeschwindigkeit in km/h.",
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            temperature: { type: "number" },
-            description: { type: "string" },
-            humidity: { type: "number" },
-            wind_speed: { type: "number" }
-          }
-        }
-      });
-
-      setWeather(response);
-    } catch (error) {
-      console.error("Fehler beim Laden des Wetters:", error);
-      setWeather(null);
-    }
-    setIsLoadingWeather(false);
-  };
-
-  const getWeatherIcon = (description) => {
-    if (!description) return Sun;
-    const desc = description.toLowerCase();
-    if (desc.includes('regen') || desc.includes('rain')) return CloudRain;
-    if (desc.includes('schnee') || desc.includes('snow')) return CloudSnow;
-    if (desc.includes('bewölkt') || desc.includes('cloud') || desc.includes('wolke')) return Cloud;
-    return Sun;
-  };
-
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('de-DE', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      second: '2-digit'
-    });
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('de-DE', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  };
-
-  const WeatherIcon = weather ? getWeatherIcon(weather.description) : Sun;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-6"
-    >
-      <Card className="card-elevation border-none bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 text-white overflow-hidden">
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Datum & Uhrzeit */}
-            <div className="flex flex-col justify-center">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                  <Clock className="w-8 h-8" />
-                </div>
-                <div>
-                  <div className="text-4xl md:text-5xl font-bold tracking-tight">
-                    {formatTime(currentTime)}
-                  </div>
-                  <div className="text-sm md:text-base opacity-90 mt-1">
-                    {formatDate(currentTime)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Wetter */}
-            <div className="flex flex-col justify-center border-l border-white/20 pl-6">
-              {isLoadingWeather ? (
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm animate-pulse">
-                    <Cloud className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <div className="text-lg opacity-90">Wetter wird geladen...</div>
-                  </div>
-                </div>
-              ) : weather ? (
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <WeatherIcon className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <div className="text-3xl md:text-4xl font-bold">
-                      {Math.round(weather.temperature)}°C
-                    </div>
-                    <div className="text-sm md:text-base opacity-90 capitalize">
-                      {weather.description}
-                    </div>
-                    <div className="flex gap-4 mt-2 text-xs md:text-sm opacity-80">
-                      <div className="flex items-center gap-1">
-                        <Droplets className="w-4 h-4" />
-                        {weather.humidity}%
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Wind className="w-4 h-4" />
-                        {Math.round(weather.wind_speed)} km/h
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <AlertCircle className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <div className="text-lg opacity-90">Wetter nicht verfügbar</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
 
 export default function DashboardPage() {
   const [user, setUser] = useState(null);
@@ -483,9 +274,6 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Datum, Uhrzeit & Wetter Widget */}
-          <DateTimeWeatherWidget />
-
           {/* Navigation Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             <NavigationCard
@@ -563,16 +351,13 @@ export default function DashboardPage() {
               <h1 className="text-lg md:text-xl font-light tracking-wide text-gray-800 mb-0.5">Dashboard</h1>
               <p className="text-xs text-gray-400 tracking-wider uppercase">Ihr persönlicher Überblick</p>
             </div>
-            <div className="flex items-center gap-3">
-              <AdminHeaderWidget />
-              <button
-                onClick={loadData}
-                className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-                title="Aktualisieren"
-              >
-                <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
-              </button>
-            </div>
+            <button
+              onClick={loadData}
+              className="p-2 hover:bg-white/50 rounded-lg transition-colors"
+              title="Aktualisieren"
+            >
+              <RefreshCw className="w-5 h-5 text-gray-600 hover:text-orange-600" />
+            </button>
           </div>
         </motion.div>
 
