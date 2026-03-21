@@ -1306,9 +1306,21 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         })}
       </div>
 
-      {/* Preview Modal */}
+      {/* Image Viewer for images with zoom and navigation */}
       <AnimatePresence>
-        {previewDoc && (
+        {previewDoc && isImage(previewDoc.file_type) && (
+          <ImageViewer
+            images={filteredDocuments.filter(d => isImage(d.file_type))}
+            currentIndex={filteredDocuments.filter(d => isImage(d.file_type)).findIndex(d => d.id === previewDoc.id)}
+            onClose={() => setPreviewDoc(null)}
+            onNavigate={(index) => setPreviewDoc(filteredDocuments.filter(d => isImage(d.file_type))[index])}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Preview Modal for non-image files */}
+      <AnimatePresence>
+        {previewDoc && !isImage(previewDoc.file_type) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1342,13 +1354,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               </div>
               
               <div className="pt-20 pb-4 px-4 max-h-[90vh] overflow-auto">
-                {previewDoc.file_type?.includes('image') ? (
-                  <img 
-                    src={previewDoc.file_url} 
-                    alt={previewDoc.file_name} 
-                    className="w-full h-auto max-h-[70vh] object-contain mx-auto" 
-                  />
-                ) : (previewDoc.file_type?.includes('pdf') || previewDoc.file_name?.toLowerCase().endsWith('.pdf')) ? (
+                {previewDoc.file_type?.includes('pdf') || previewDoc.file_name?.toLowerCase().endsWith('.pdf') ? (
                   <iframe 
                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`}
                     className="w-full h-[70vh] border-0"
