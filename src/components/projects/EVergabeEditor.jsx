@@ -304,6 +304,7 @@ export default function EVergabeEditor({
 
       for (let i = 0; i < selectedExcavations.length; i++) {
         const exc = selectedExcavations[i];
+        const globalExcIndex = editableData.excavations.findIndex(e => e.id === exc.id);
         const priceItem = priceItems.find(p => p.id === exc.price_item_id);
         const imageCount = exc.evergabe_images?.length || 0;
 
