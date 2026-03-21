@@ -1336,6 +1336,126 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
       </AnimatePresence>
 
+      {/* Billing SM Number Dialog */}
+      <AnimatePresence>
+        {billingDoc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setBillingDoc(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-lg p-6 w-full max-w-sm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-base font-bold mb-1">VAO abrechnen</h3>
+              <p className="text-xs text-gray-500 mb-4 truncate">{billingDoc.file_name}</p>
+              <div className="space-y-4">
+                <div>
+                  <Label>SM Nummer der Abrechnung</Label>
+                  <Input
+                    value={billingSmNumber}
+                    onChange={(e) => setBillingSmNumber(e.target.value)}
+                    placeholder="z.B. SM-2024-001"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && billingSmNumber.trim()) {
+                        ProjectDocument.update(billingDoc.id, { is_billed: true, billed_sm_number: billingSmNumber.trim() })
+                          .then(() => loadDocuments());
+                        setBillingDoc(null);
+                      }
+                      if (e.key === 'Escape') setBillingDoc(null);
+                    }}
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={() => setBillingDoc(null)}>Abbrechen</Button>
+                  <Button
+                    disabled={!billingSmNumber.trim()}
+                    onClick={() => {
+                      ProjectDocument.update(billingDoc.id, { is_billed: true, billed_sm_number: billingSmNumber.trim() })
+                        .then(() => loadDocuments());
+                      setBillingDoc(null);
+                    }}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <CheckSquare className="w-4 h-4 mr-2" />
+                    Als abgerechnet markieren
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Un-Billing Confirmation Dialog */}
+      <AnimatePresence>
+        {unBillingDoc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setUnBillingDoc(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.85, y: 30, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.85, y: 30, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+              className="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-1.5 w-full bg-gradient-to-r from-orange-400 to-red-400" />
+              <div className="p-6">
+                <div className="flex justify-center mb-4">
+                  <div className="w-14 h-14 rounded-full bg-orange-50 border-4 border-orange-100 flex items-center justify-center">
+                    <CheckSquare className="w-7 h-7 text-orange-500" />
+                  </div>
+                </div>
+                <h3 className="text-center text-base font-bold text-gray-900 mb-1">Abrechnung entfernen?</h3>
+                <p className="text-center text-xs text-gray-500 mb-4">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-5 space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Datei:</span>
+                    <span className="font-medium text-gray-800 truncate ml-2 max-w-[180px]">{unBillingDoc.file_name}</span>
+                  </div>
+                  {unBillingDoc.billed_sm_number && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">SM Nummer:</span>
+                      <span className="font-semibold text-gray-800">{unBillingDoc.billed_sm_number}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1" onClick={() => setUnBillingDoc(null)}>
+                    <X className="w-4 h-4 mr-1" />
+                    Abbrechen
+                  </Button>
+                  <Button
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => {
+                      ProjectDocument.update(unBillingDoc.id, { is_billed: false, billed_sm_number: null })
+                        .then(() => loadDocuments());
+                      setUnBillingDoc(null);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Ja, entfernen
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Delete Subfolder Dialog */}
       <AnimatePresence>
         {showDeleteSubfolderDialog && (
