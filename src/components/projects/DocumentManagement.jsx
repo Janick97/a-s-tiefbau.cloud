@@ -727,18 +727,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               {editingSubfolder === subfolder ? (
                                 <input
                                   type="text"
-                                  defaultValue={getFolderName(subfolder)}
+                                  value={editingSubfolderName}
                                   className="text-sm font-medium border rounded px-2 py-0.5 flex-1 min-w-0"
                                   autoFocus
-                                  onBlur={(e) => {
-                                    if (e.target.value !== getFolderName(subfolder)) {
-                                      handleRenameSubfolder(subfolder, e.target.value);
-                                    } else {
-                                      setEditingSubfolder(null);
-                                    }
-                                  }}
+                                  onChange={(e) => setEditingSubfolderName(e.target.value)}
+                                  onBlur={() => handleRenameSubfolder(subfolder, editingSubfolderName)}
                                   onKeyDown={(e) => {
-                                    if (e.key === 'Enter') e.target.blur();
+                                    if (e.key === 'Enter') handleRenameSubfolder(subfolder, editingSubfolderName);
                                     else if (e.key === 'Escape') setEditingSubfolder(null);
                                   }}
                                 />
