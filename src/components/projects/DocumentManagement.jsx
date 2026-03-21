@@ -444,7 +444,15 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     setDragTargetFolder(null);
   };
 
+  const isFolderProtected = (folder) => !!PROTECTED_FOLDERS[folder];
+  const isFolderUnlocked = (folder) => unlockedFolders.has(folder);
+
   const toggleFolder = (folder) => {
+    // If folder is protected and not yet unlocked, show password dialog
+    if (isFolderProtected(folder) && !isFolderUnlocked(folder)) {
+      setPasswordDialog({ folder, input: "", error: "" });
+      return;
+    }
     setExpandedFolders(prev => {
       const newSet = new Set(prev);
       if (newSet.has(folder)) {
@@ -453,6 +461,31 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         newSet.add(folder);
       }
       return newSet;
+    });
+  };
+
+  const handlePasswordSubmit = () => {
+    const { folder, input } = passwordDialog;
+    if (input === PROTECTED_FOLDERS[folder]) {
+      setUnlockedFolders(prev => new Set([...prev, folder]));
+      setPasswordDialog(null);
+      setExpandedFolders(prev => new Set([...prev, folder]));
+    } else {
+      setPasswordDialog(prev => ({ ...prev, error: "Falsches Passwort" }));
+    }
+  };
+
+  const lockFolder = (folder, e) => {
+    e.stopPropagation();
+    setUnlockedFolders(prev => {
+      const next = new Set(prev);
+      next.delete(folder);
+      return next;
+    });
+    setExpandedFolders(prev => {
+      const next = new Set(prev);
+      next.delete(folder);
+      return next;
     });
   };
 
