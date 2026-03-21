@@ -496,30 +496,34 @@ export default function EVergabeEditor({
         yOffset += 14;
 
         // --- Details ---
+        const ML_LINE_H = 5;
+        const ML_LABEL_X = 12;
+        const ML_VALUE_X = 42;
+
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
-        pdf.text('Leistung:', 12, yOffset);
+        pdf.text('Leistung:', ML_LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        const mlLeistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 160);
-        mlLeistungLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
-        yOffset += mlLeistungLines.length * 5.5 + 2;
+        const mlLeistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 155);
+        mlLeistungLines.forEach((line, li) => pdf.text(line, ML_VALUE_X, yOffset + li * ML_LINE_H));
+        yOffset += mlLeistungLines.length * ML_LINE_H + 1;
 
         pdf.setFont(undefined, 'bold');
-        pdf.text('Menge:', 12, yOffset);
+        pdf.text('Menge:', ML_LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        pdf.text(`${ml.quantity} ${priceItem?.unit || 'ST'}`, 40, yOffset);
-        yOffset += 6;
+        pdf.text(`${ml.quantity} ${priceItem?.unit || 'ST'}`, ML_VALUE_X, yOffset);
+        yOffset += ML_LINE_H + 1;
 
         if (ml.work_description) {
           pdf.setFont(undefined, 'bold');
-          pdf.text('Beschreibung:', 12, yOffset);
+          pdf.text('Beschreibung:', ML_LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
           const descLines = pdf.splitTextToSize(ml.work_description, 155);
-          descLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
-          yOffset += descLines.length * 5.5 + 1;
+          descLines.forEach((line, li) => pdf.text(line, ML_VALUE_X, yOffset + li * ML_LINE_H));
+          yOffset += descLines.length * ML_LINE_H + 1;
         }
 
-        yOffset += 2;
+        yOffset += 3;
 
         // --- Bilder ---
         if (imageCount > 0) {
