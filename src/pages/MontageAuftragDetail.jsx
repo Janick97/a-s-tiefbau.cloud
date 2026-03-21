@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { MontageAuftrag, User } from "@/entities/all";
+import { MontageAuftrag, MontagePreisItem, MontageMaterialInventory, User } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Wrench, MapPin, FileText, Upload, X, Eye, Download, Image as ImageIcon, Plus, Package } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { UploadFile } from "@/integrations/Core";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
-import SchaedigerManagement from "../components/projects/SchaedigerManagement";
-import DocumentManagement from "../components/projects/DocumentManagement";
-import ProjectChat from "../components/projects/ProjectChat";
 import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
 import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,12 +20,8 @@ export default function MontageAuftragDetailPage() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [einmassSkizzen, setEinmassSkizzen] = useState([]);
-  const [isUploadingSkizze, setIsUploadingSkizze] = useState(false);
-  const [previewImage, setPreviewImage] = useState(null);
   const [showLeistungWizard, setShowLeistungWizard] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
-  const [availableMonteure, setAvailableMonteure] = useState([]);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
@@ -49,16 +41,6 @@ export default function MontageAuftragDetailPage() {
 
         setMontageAuftrag(auftragData);
         setUser(userData);
-        
-        // Get available monteure from assigned list (excluding current user)
-        const monteure = (Array.isArray(auftragData.assigned_monteure) ? auftragData.assigned_monteure : [])
-          .filter(m => m.id !== userData?.id);
-        setAvailableMonteure(monteure);
-        
-        // Load existing Einmaß-Skizzen
-        if (auftragData.einmass_skizzen && Array.isArray(auftragData.einmass_skizzen)) {
-          setEinmassSkizzen(auftragData.einmass_skizzen);
-        }
       } catch (err) {
         console.error("Fehler beim Laden:", err);
         setError(err.message || "Ein Fehler ist aufgetreten.");
@@ -98,82 +80,11 @@ export default function MontageAuftragDetailPage() {
     );
   }
 
-  // Check if user is authorized (Monteur assigned to this Auftrag, or Admin)
-  const isAuthorized = user && (
-    user.role === 'admin' || 
-    montageAuftrag.assigned_monteur_id === user.id ||
-    (Array.isArray(montageAuftrag.assigned_monteure) && montageAuftrag.assigned_monteure.some(m => m && m.id === user.id))
-  );
-
-  // Check if user can edit (Admin or assigned monteur)
   const isAssignedMonteur = montageAuftrag.assigned_monteur_id === user?.id ||
     (Array.isArray(montageAuftrag.assigned_monteure) && montageAuftrag.assigned_monteure.some(m => m && m.id === user?.id));
   const readOnly = user?.role !== 'admin' && !isAssignedMonteur;
-
-  if (!isAuthorized) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-4 md:p-8">
-        <div className="flex flex-col items-center justify-center h-full text-center">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Zugriff verweigert</h2>
-          <p className="text-gray-600 mb-6">Sie haben keine Berechtigung, diesen Montageauftrag zu sehen.</p>
-          <Link to={createPageUrl("MyMontageAuftraege")}>
-            <Button>Zurück zur Übersicht</Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  // Mobile-optimierte Ansicht für Monteure
   const isMonteur = user?.position === 'Monteur';
 
-  // Upload Einmaß-Skizze
-  const handleSkizzeUpload = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-
-    setIsUploadingSkizze(true);
-    try {
-      const uploadedUrls = [];
-      
-      for (const file of files) {
-        const { file_url } = await UploadFile({ file });
-        uploadedUrls.push(file_url);
-      }
-
-      const updatedSkizzen = [...einmassSkizzen, ...uploadedUrls];
-      setEinmassSkizzen(updatedSkizzen);
-      
-      // Save to database
-      await MontageAuftrag.update(montageAuftrag.id, {
-        einmass_skizzen: updatedSkizzen
-      });
-    } catch (error) {
-      console.error("Fehler beim Hochladen der Skizze:", error);
-      alert("Fehler beim Hochladen der Skizze");
-    }
-    setIsUploadingSkizze(false);
-    e.target.value = '';
-  };
-
-  // Delete Einmaß-Skizze
-  const handleDeleteSkizze = async (url) => {
-    if (!window.confirm("Möchten Sie diese Skizze wirklich löschen?")) return;
-
-    const updatedSkizzen = einmassSkizzen.filter(s => s !== url);
-    setEinmassSkizzen(updatedSkizzen);
-
-    try {
-      await MontageAuftrag.update(montageAuftrag.id, {
-        einmass_skizzen: updatedSkizzen
-      });
-    } catch (error) {
-      console.error("Fehler beim Löschen der Skizze:", error);
-      alert("Fehler beim Löschen der Skizze");
-    }
-  };
-
-  // Update Status
   const handleStatusChange = async (newStatus) => {
     try {
       await MontageAuftrag.update(montageAuftrag.id, { status: newStatus });
@@ -184,7 +95,6 @@ export default function MontageAuftragDetailPage() {
     }
   };
 
-  // Update Art
   const handleArtChange = async (newArt) => {
     try {
       await MontageAuftrag.update(montageAuftrag.id, { art: newArt });
@@ -197,8 +107,8 @@ export default function MontageAuftragDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-2 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header - kompakt */}
+      <div className="max-w-6xl mx-auto space-y-3">
+        {/* Header */}
         <div className="flex items-center gap-2 mb-4">
           <Link to={createPageUrl("MyMontageAuftraege")}>
             <Button variant="outline" size="sm">
@@ -207,7 +117,7 @@ export default function MontageAuftragDetailPage() {
           </Link>
           <div className="flex-1 min-w-0">
             <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-              {montageAuftrag.project_number}
+              {montageAuftrag.sm_number}
             </h1>
             <p className="text-xs md:text-sm text-gray-600 truncate">{montageAuftrag.title}</p>
           </div>
@@ -216,32 +126,36 @@ export default function MontageAuftragDetailPage() {
           )}
         </div>
 
-        {/* Info Card - kompakt */}
-        <Card className="border-none mb-3">
-          <CardContent className="p-3">
-            <div className="grid grid-cols-2 gap-2 text-xs">
+        {/* Kerninformationen */}
+        <Card className="border-none">
+          <CardContent className="p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div>
-                <p className="text-gray-500">SM-Nr.</p>
-                <p className="font-semibold truncate">{montageAuftrag.sm_number || "-"}</p>
+                <p className="text-xs md:text-sm text-gray-500 mb-1">SM-Nr.</p>
+                <p className="font-semibold text-gray-900">{montageAuftrag.sm_number}</p>
               </div>
               <div>
-                <p className="text-gray-500">Kunde</p>
-                <p className="font-semibold truncate">{montageAuftrag.client}</p>
+                <p className="text-xs md:text-sm text-gray-500 mb-1">Standort</p>
+                <p className="font-semibold text-gray-900 flex items-center gap-1">
+                  <MapPin className="w-3 h-3 flex-shrink-0" />
+                  {montageAuftrag.street && `${montageAuftrag.street}, `}{montageAuftrag.city}
+                </p>
               </div>
-              {montageAuftrag.city && (
-                <div className="col-span-2">
-                  <p className="text-gray-500">Standort</p>
-                  <p className="font-semibold text-sm flex items-center gap-1 truncate">
-                    <MapPin className="w-3 h-3 flex-shrink-0" />
-                    {montageAuftrag.street && `${montageAuftrag.street}, `}{montageAuftrag.city}
-                  </p>
-                </div>
-              )}
+              <div>
+                <p className="text-xs md:text-sm text-gray-500 mb-1">Kunde</p>
+                <p className="font-semibold text-gray-900">{montageAuftrag.client}</p>
+              </div>
             </div>
 
-            {/* Status und Art - bearbeitbar */}
+            {montageAuftrag.notes && (
+              <div className="border-t pt-4">
+                <p className="text-xs text-gray-500 mb-1">Notizen</p>
+                <p className="text-sm text-gray-700">{montageAuftrag.notes}</p>
+              </div>
+            )}
+
             {!readOnly && (
-              <div className="mt-3 pt-3 border-t space-y-3">
+              <div className="mt-4 pt-4 border-t space-y-3">
                 <div>
                   <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
                   <Select value={montageAuftrag.status} onValueChange={handleStatusChange}>
@@ -249,7 +163,6 @@ export default function MontageAuftragDetailPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Auftrag neu">Auftrag neu</SelectItem>
                       <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
                       <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
                       <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
@@ -269,220 +182,48 @@ export default function MontageAuftragDetailPage() {
                       <SelectItem value="APL-Straße">APL-Straße</SelectItem>
                       <SelectItem value="Störung">Störung</SelectItem>
                       <SelectItem value="FTTH">FTTH</SelectItem>
+                      <SelectItem value="Messauftrag">Messauftrag</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             )}
-
-            {montageAuftrag.notes && (
-              <div className="mt-3 pt-3 border-t">
-                <p className="text-xs text-gray-500 mb-1">Notizen</p>
-                <p className="text-xs text-gray-700 line-clamp-3">{montageAuftrag.notes}</p>
-              </div>
-            )}
           </CardContent>
         </Card>
 
-        {/* Action Buttons für Monteur */}
+        {/* Action Buttons - Zwei große Buttons für Monteur */}
         {isMonteur && !readOnly && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button
               onClick={() => setShowLeistungWizard(true)}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-10"
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 text-base font-semibold"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-5 h-5 mr-2" />
               Leistung erfassen
             </Button>
             <Button
               onClick={() => setShowMaterialDialog(true)}
-              variant="outline"
-              className="h-10"
+              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white h-12 text-base font-semibold"
             >
-              <Package className="w-4 h-4 mr-2" />
+              <Package className="w-5 h-5 mr-2" />
               Material hinzufügen
             </Button>
           </div>
         )}
 
-        {/* Montage Leistungen */}
-        <div className="mb-3">
+        {/* Übersicht der Leistungen */}
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen</h2>
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
         </div>
-
-        {/* Einmaß-Skizzen */}
-        <div className="mb-3">
-          <Card className="border-none">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                <ImageIcon className="w-5 h-5 text-blue-600" />
-                Einmaß-Skizzen
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!readOnly && (
-                <div className="mb-4">
-                  <label className="block">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*,application/pdf"
-                      onChange={handleSkizzeUpload}
-                      disabled={isUploadingSkizze}
-                      className="hidden"
-                      id="skizze-upload"
-                    />
-                    <Button
-                      type="button"
-                      onClick={() => document.getElementById('skizze-upload').click()}
-                      disabled={isUploadingSkizze}
-                      className="w-full bg-blue-600 hover:bg-blue-700"
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      {isUploadingSkizze ? "Wird hochgeladen..." : "Skizze hochladen"}
-                    </Button>
-                  </label>
-                </div>
-              )}
-
-              {einmassSkizzen.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {einmassSkizzen.map((url, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="relative group"
-                    >
-                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 border-2 border-gray-200">
-                        <img
-                          src={url}
-                          alt={`Einmaß-Skizze ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="absolute top-2 right-2 flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => setPreviewImage(url)}
-                        >
-                          <Eye className="w-3 h-3" />
-                        </Button>
-                        <a
-                          href={url}
-                          download
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <Download className="w-3 h-3" />
-                          </Button>
-                        </a>
-                        {!readOnly && (
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDeleteSkizze(url)}
-                          >
-                            <X className="w-3 h-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500 text-sm">
-                  <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                  <p>Keine Einmaß-Skizzen vorhanden</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Schädiger */}
-        <div className="mt-3">
-          <SchaedigerManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} />
-        </div>
-
-        {/* Anlagenkorb & Dokumente */}
-        {montageAuftrag.project_id && (
-          <div className="mt-3">
-            <Card className="card-elevation border-none">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <FileText className="w-5 h-5" />
-                  Anlagenkorb & Dokumente
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DocumentManagement 
-                  projectId={montageAuftrag.project_id} 
-                  project={montageAuftrag}
-                  loadData={() => {}}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Chat-Bereich */}
-        {montageAuftrag.project_id && (
-          <div className="h-[500px] mt-3">
-            <ProjectChat projectId={montageAuftrag.project_id} />
-          </div>
-        )}
       </div>
-
-      {/* Image Preview Modal */}
-      <AnimatePresence>
-        {previewImage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setPreviewImage(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="relative max-w-4xl max-h-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Button
-                variant="secondary"
-                size="icon"
-                className="absolute top-2 right-2 z-10"
-                onClick={() => setPreviewImage(null)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-              <img
-                src={previewImage}
-                alt="Preview"
-                className="max-w-full max-h-[90vh] object-contain rounded-lg"
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Leistung Wizard */}
       <AnimatePresence>
         {showLeistungWizard && (
           <MontageLeistungWizard
             montageAuftragId={montageAuftrag.id}
-            availableMonteure={availableMonteure}
+            availableMonteure={Array.isArray(montageAuftrag.assigned_monteure) ? montageAuftrag.assigned_monteure.filter(m => m.id !== user?.id) : []}
             onComplete={() => {
               setShowLeistungWizard(false);
               setShowMaterialDialog(true);
