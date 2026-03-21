@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ChevronDown, ChevronUp, FolderOpen, Shovel, Ruler, Hash } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function QuickStatsBar({ projects, excavations, priceItems = [] }) {
+export default function QuickStatsBar({ projects, excavations, priceItems = [], montageAuftraege = [] }) {
   const [open, setOpen] = useState(false);
 
   const totalProjects = projects.length;
