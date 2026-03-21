@@ -931,7 +931,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       src={doc.file_url} 
                       alt={doc.file_name}
                       className="w-full aspect-square object-cover cursor-pointer"
-                      onClick={() => setPreviewDoc(doc)}
+                      onClick={() => openImageViewer(doc, sortedDocs)}
                     />
                       
                       {/* Filename always visible at bottom */}
@@ -965,7 +965,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
                       {/* Hover overlay with action buttons */}
                       <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-start p-1 gap-1 pb-7 pt-6">
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => setPreviewDoc(doc)} title="Vorschau">
+                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => openImageViewer(doc, sortedDocs)} title="Vorschau">
                           <Eye className="w-3 h-3" />
                         </Button>
                         <a href={doc.file_url} download={doc.file_name}>
