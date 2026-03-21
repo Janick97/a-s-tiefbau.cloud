@@ -257,6 +257,24 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     return fileType && fileType.includes('image');
   };
 
+  const handleDownloadFile = async (doc) => {
+    try {
+      const response = await fetch(doc.file_url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.file_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download fehlgeschlagen:', error);
+      window.open(doc.file_url, '_blank');
+    }
+  };
+
   const getFolderDepth = (folder) => {
     return folder.split('/').length - 1;
   };
