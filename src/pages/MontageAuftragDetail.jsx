@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
 import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDialog";
+import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
@@ -161,11 +162,17 @@ export default function MontageAuftragDetailPage() {
         }
 
         {/* Übersicht der Leistungen */}
-        <div>
+         <div>
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
         </div>
-      </div>
+
+        {/* Chat */}
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Nachrichten</h2>
+          <ProjectChat projectId={montageAuftrag.id} />
+        </div>
+        </div>
 
       {/* Leistung Wizard */}
       <AnimatePresence>
