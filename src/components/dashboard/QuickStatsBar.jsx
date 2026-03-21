@@ -48,7 +48,7 @@ export default function QuickStatsBar({ projects, excavations, priceItems = [], 
     },
     {
       label: "Graben gesamt",
-      value: `${Math.round(grabenM).toLocaleString('de-DE')} m`,
+      value: `${(grabenM / 1000).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} km`,
       icon: Ruler,
       color: "text-blue-600",
       bg: "bg-blue-50",
