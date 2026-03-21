@@ -39,6 +39,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   });
 
   const [allMonteure, setAllMonteure] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const [leistungsoptionen, setLeistungsoptionen] = useState([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
@@ -52,8 +53,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
   const loadAllMonteure = async () => {
     try {
+      const user = await User.me();
+      setCurrentUser(user);
       const users = await User.list();
-      const monteurs = users.filter(u => u.position === 'Monteur');
+      const monteurs = users.filter(u => u.position === 'Monteur' && u.id !== user.id);
       setAllMonteure(monteurs);
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
