@@ -1043,26 +1043,36 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                     </div>
                                   )}
                                   {subDocs.filter(doc => !isImage(doc.file_type)).map((doc) => (
-                                    <div key={doc.id} className={`flex items-center gap-2 bg-white p-2 rounded text-xs ${doc.is_billed ? 'border border-green-200' : ''}`}>
+                                    <div key={doc.id} className={`flex items-center gap-2 bg-white p-2 rounded text-xs ${doc.is_billed ? 'border border-green-200 bg-green-50' : ''}`}>
                                       <FileText className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                                      <span className={`flex-1 truncate ${doc.is_billed ? 'line-through text-gray-400' : ''}`}>{doc.file_name}</span>
+                                      <span className={`flex-1 truncate ${doc.is_billed ? 'text-gray-500' : ''}`}>{doc.file_name}</span>
                                       {subfolder === BILLED_FOLDER && (
                                         <button
-                                          title={doc.is_billed ? "Als nicht abgerechnet markieren" : "Als abgerechnet markieren"}
-                                          onClick={async () => {
-                                            await ProjectDocument.update(doc.id, { is_billed: !doc.is_billed });
-                                            await loadDocuments();
+                                          title={doc.is_billed ? "Abrechnung entfernen" : "Als abgerechnet markieren"}
+                                          onClick={() => {
+                                            if (doc.is_billed) {
+                                              setUnBillingDoc(doc);
+                                            } else {
+                                              setBillingDoc(doc);
+                                              setBillingSmNumber("");
+                                            }
                                           }}
-                                          className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 transition-colors ${
+                                          className={`flex flex-col items-end gap-0.5 px-2 py-1 rounded text-xs font-medium flex-shrink-0 transition-colors ${
                                             doc.is_billed 
                                               ? 'bg-green-100 text-green-700 hover:bg-green-200' 
                                               : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                                           }`}
                                         >
-                                          {doc.is_billed 
-                                            ? <><CheckSquare className="w-3 h-3 mr-1" />Abgerechnet</>
-                                            : <><Square className="w-3 h-3 mr-1" />Abrechnen</>
-                                          }
+                                          {doc.is_billed ? (
+                                            <div className="flex flex-col items-end">
+                                              {doc.billed_sm_number && (
+                                                <span className="text-[10px] text-green-500 font-normal leading-none mb-0.5">{doc.billed_sm_number}</span>
+                                              )}
+                                              <span className="flex items-center gap-1"><CheckSquare className="w-3 h-3" />Abgerechnet</span>
+                                            </div>
+                                          ) : (
+                                            <span className="flex items-center gap-1"><Square className="w-3 h-3" />Abrechnen</span>
+                                          )}
                                         </button>
                                       )}
                                       <a href={doc.file_url} download={doc.file_name}>
