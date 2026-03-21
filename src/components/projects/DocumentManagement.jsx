@@ -74,6 +74,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [newMainFolderName, setNewMainFolderName] = useState("");
   const [movingDoc, setMovingDoc] = useState(null);
   const [moveTargetFolder, setMoveTargetFolder] = useState("");
+  const [billingDoc, setBillingDoc] = useState(null); // doc to mark as billed
+  const [billingSmNumber, setBillingSmNumber] = useState("");
+  const [unBillingDoc, setUnBillingDoc] = useState(null); // doc to unmark billing
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
