@@ -172,17 +172,17 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="w-full max-w-2xl bg-white rounded-xl shadow-2xl"
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full h-full md:h-auto md:max-w-4xl bg-white md:rounded-xl shadow-2xl flex flex-col"
       >
         {/* Progress Bar */}
-        <div className="h-2 bg-gray-200">
+        <div className="h-1 bg-gray-200">
           <motion.div
-            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600"
+            className="h-full bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-600"
             initial={{ width: 0 }}
             animate={{ width: `${((currentStep + 1) / WIZARD_STEPS.length) * 100}%` }}
             transition={{ duration: 0.3 }}
@@ -190,20 +190,20 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
         </div>
 
         {/* Header */}
-        <CardHeader className="border-b">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{WIZARD_STEPS[currentStep].icon}</span>
-            <div>
-              <CardTitle>{WIZARD_STEPS[currentStep].title}</CardTitle>
-              <p className="text-xs text-gray-500 mt-1">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b p-6">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{WIZARD_STEPS[currentStep].icon}</span>
+            <div className="flex-1">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">{WIZARD_STEPS[currentStep].title}</h2>
+              <p className="text-sm text-gray-500 mt-1">
                 Schritt {currentStep + 1} von {WIZARD_STEPS.length}
               </p>
             </div>
           </div>
-        </CardHeader>
+        </div>
 
         {/* Content */}
-        <CardContent className="p-6 min-h-[400px]">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
           <AnimatePresence mode="wait">
             {/* Step 0: Kategorie */}
             {currentStep === 0 && (
@@ -269,33 +269,45 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
             {/* Step 2: Leistungen */}
             {currentStep === 2 && (
               <motion.div key="leistungen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                <p className="text-sm text-gray-600 mb-4">Wählen Sie durchgeführte Leistungen und geben Sie Stückzahl ein:</p>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                <p className="text-sm text-gray-600 mb-6">Wählen Sie durchgeführte Leistungen und geben Sie die Menge ein:</p>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
                   {leistungsoptionen.map(leistung => {
                     const selected = formData.leistungen.find(l => l.id === leistung.id);
                     return (
-                      <div key={leistung.id} className="flex items-center gap-3 p-2 rounded-lg border border-gray-200">
+                      <motion.div
+                        key={leistung.id}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                          selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
                         <Checkbox
                           checked={!!selected}
                           onCheckedChange={(checked) => {
                             if (!checked) handleLeistungToggle(leistung.id, 0);
                             else handleLeistungToggle(leistung.id, 1);
                           }}
+                          className="flex-shrink-0"
                         />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{leistung.name}</p>
-                          <p className="text-xs text-gray-500">{leistung.unit}</p>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{leistung.description}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{leistung.unit}</p>
                         </div>
                         {selected && (
-                          <Input
-                            type="number"
-                            min="1"
-                            value={selected.quantity}
-                            onChange={(e) => handleLeistungToggle(leistung.id, parseInt(e.target.value))}
-                            className="w-16 h-8 text-sm"
-                          />
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-xs text-gray-500">Menge:</span>
+                            <Input
+                              type="number"
+                              min="0.1"
+                              step="0.1"
+                              value={selected.quantity}
+                              onChange={(e) => handleLeistungToggle(leistung.id, parseFloat(e.target.value))}
+                              className="w-16 h-9 text-sm"
+                            />
+                          </div>
                         )}
-                      </div>
+                      </motion.div>
                     );
                   })}
                 </div>
@@ -304,49 +316,73 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
             {/* Step 3: Standort & GPS */}
             {currentStep === 3 && (
-              <motion.div key="standort" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+              <motion.div key="standort" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div>
-                  <Label>Standortbezeichnung</Label>
+                  <Label className="text-base font-semibold mb-2 block">Standortbezeichnung</Label>
                   <Input
                     value={formData.standortName}
                     onChange={(e) => setFormData({ ...formData, standortName: e.target.value })}
                     placeholder="z.B. Haus Nr. 42, Kellerraum"
-                    className="mt-1"
+                    className="h-10 text-base"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs">GPS Breite</Label>
-                    <Input
-                      type="number"
-                      step="0.0001"
-                      value={formData.latitude || ''}
-                      onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
-                      placeholder="z.B. 52.5200"
-                      className="text-sm mt-1"
-                    />
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <Label className="text-base font-semibold">GPS-Standort</Label>
+                    <Button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={isGettingLocation}
+                      className="bg-blue-600 hover:bg-blue-700 text-white h-9"
+                    >
+                      {isGettingLocation ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Wird ermittelt...
+                        </>
+                      ) : (
+                        <>
+                          <Navigation className="w-4 h-4 mr-2" />
+                          GPS aktivieren
+                        </>
+                      )}
+                    </Button>
                   </div>
-                  <div>
-                    <Label className="text-xs">GPS Länge</Label>
-                    <Input
-                      type="number"
-                      step="0.0001"
-                      value={formData.longitude || ''}
-                      onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
-                      placeholder="z.B. 13.4050"
-                      className="text-sm mt-1"
-                    />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-600 mb-2 block">Breitengrad</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        value={formData.latitude || ''}
+                        onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
+                        placeholder="z.B. 52.5200"
+                        className="h-10"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-sm text-gray-600 mb-2 block">Längengrad</Label>
+                      <Input
+                        type="number"
+                        step="0.0001"
+                        value={formData.longitude || ''}
+                        onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
+                        placeholder="z.B. 13.4050"
+                        className="h-10"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div>
-                  <Label>Notizen zur Montagestelle</Label>
+                  <Label className="text-base font-semibold mb-2 block">Notizen zur Montagestelle</Label>
                   <Textarea
                     value={formData.notizen}
                     onChange={(e) => setFormData({ ...formData, notizen: e.target.value })}
-                    placeholder="Besonderheiten, Probleme, Observations..."
-                    className="mt-1 h-24"
+                    placeholder="Besonderheiten, Probleme, Beobachtungen..."
+                    className="h-32 resize-none"
                   />
                 </div>
               </motion.div>
@@ -354,36 +390,76 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
             {/* Step 4: Dokumente */}
             {currentStep === 4 && (
-              <motion.div key="dokumente" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+              <motion.div key="dokumente" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
                 <div>
-                  <Label className="block mb-2">Einmaß-Skizzen hochladen</Label>
-                  <label className="block">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*,application/pdf"
-                      onChange={(e) => handleFileUpload(Array.from(e.target.files), 'einmassSkizzen')}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    />
+                  <Label className="text-base font-semibold mb-3 block">Einmaß-Skizzen</Label>
+                  <label className="block cursor-pointer">
+                    <div className="border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg p-8 text-center hover:bg-blue-100 transition-colors">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,application/pdf"
+                        onChange={(e) => handleFileUpload(Array.from(e.target.files), 'einmassSkizzen')}
+                        className="hidden"
+                      />
+                      <p className="text-sm font-medium text-gray-900">Dateien hochladen</p>
+                      <p className="text-xs text-gray-600 mt-1">Bilder oder PDF-Dateien</p>
+                    </div>
                   </label>
+                  {uploadProgress.einmassSkizzen && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>Upload läuft...</span>
+                        <span>{uploadProgress.einmassSkizzen.current}/{uploadProgress.einmassSkizzen.total}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <motion.div
+                          className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2 rounded-full"
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${(uploadProgress.einmassSkizzen.current / uploadProgress.einmassSkizzen.total) * 100}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                    </div>
+                  )}
                   {formData.einmassSkizzen.length > 0 && (
-                    <p className="text-xs text-green-600 mt-1">✓ {formData.einmassSkizzen.length} Skizze(n) hochgeladen</p>
+                    <p className="text-sm text-green-600 mt-3 font-medium">✓ {formData.einmassSkizzen.length} Skizze(n) hochgeladen</p>
                   )}
                 </div>
 
                 <div>
-                  <Label className="block mb-2">Fotos hochladen</Label>
-                  <label className="block">
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={(e) => handleFileUpload(Array.from(e.target.files), 'fotos')}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                    />
+                  <Label className="text-base font-semibold mb-3 block">Fotos</Label>
+                  <label className="block cursor-pointer">
+                    <div className="border-2 border-dashed border-purple-300 bg-purple-50 rounded-lg p-8 text-center hover:bg-purple-100 transition-colors">
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(Array.from(e.target.files), 'fotos')}
+                        className="hidden"
+                      />
+                      <p className="text-sm font-medium text-gray-900">Dateien hochladen</p>
+                      <p className="text-xs text-gray-600 mt-1">JPG, PNG oder ähnliche Formate</p>
+                    </div>
                   </label>
+                  {uploadProgress.fotos && (
+                    <div className="mt-3 space-y-2">
+                      <div className="flex justify-between text-xs text-gray-600">
+                        <span>Upload läuft...</span>
+                        <span>{uploadProgress.fotos.current}/{uploadProgress.fotos.total}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <motion.div
+                          className="bg-gradient-to-r from-purple-500 to-pink-600 h-2 rounded-full"
+                          initial={{ width: '0%' }}
+                          animate={{ width: `${(uploadProgress.fotos.current / uploadProgress.fotos.total) * 100}%` }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </div>
+                    </div>
+                  )}
                   {formData.fotos.length > 0 && (
-                    <p className="text-xs text-green-600 mt-1">✓ {formData.fotos.length} Foto(s) hochgeladen</p>
+                    <p className="text-sm text-green-600 mt-3 font-medium">✓ {formData.fotos.length} Foto(s) hochgeladen</p>
                   )}
                 </div>
               </motion.div>
