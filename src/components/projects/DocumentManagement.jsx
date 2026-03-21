@@ -784,7 +784,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                         <ChevronRight className="w-4 h-4 text-gray-600" />
                       )}
                     </button>
-                    <FolderOpen className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                    {isFolderProtected(folder) ? (
+                      isFolderUnlocked(folder) 
+                        ? <Unlock className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        : <Lock className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    ) : (
+                      <FolderOpen className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                    )}
 
                     {editingMainFolder === folder ? (
                       <input
