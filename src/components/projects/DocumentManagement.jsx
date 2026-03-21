@@ -1213,13 +1213,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                           )}
                                         </button>
                                       )}
+                                      <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={() => setPreviewDoc(doc)} title="Vorschau">
+                                        <Eye className="w-3 h-3" />
+                                      </Button>
                                       <a href={doc.file_url} download={doc.file_name}>
-                                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
-                                          <Download className="w-3 h-3" />
-                                        </Button>
+                                       <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
+                                         <Download className="w-3 h-3" />
+                                       </Button>
                                       </a>
-                                    </div>
-                                  ))}
+                                      </div>
+                                      ))}
                                 </div>
                               )}
                             </div>
