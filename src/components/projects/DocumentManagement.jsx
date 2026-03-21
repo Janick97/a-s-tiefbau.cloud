@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Plus, 
@@ -25,7 +26,11 @@ import {
   Edit2,
   FolderInput,
   CheckSquare,
-  Square
+  Square,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  MoveRight
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
