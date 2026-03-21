@@ -956,7 +956,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       </div>
 
                       {/* Hover overlay with action buttons */}
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-1 gap-1 pb-7">
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-start p-1 gap-1 pb-7 pt-6">
                         <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => setPreviewDoc(doc)} title="Vorschau">
                           <Eye className="w-3 h-3" />
                         </Button>
