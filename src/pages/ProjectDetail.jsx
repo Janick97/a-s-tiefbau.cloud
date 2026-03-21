@@ -1007,7 +1007,7 @@ export default function ProjectDetailPage() {
                     className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
                   >
                     <Plus className="w-4 h-4 mr-2" />
-                    Montageauftrag
+                    Montage
                   </Button>
                 )}
                 {isMainProject && (
