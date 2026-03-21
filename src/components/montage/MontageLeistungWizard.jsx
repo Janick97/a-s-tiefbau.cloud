@@ -81,16 +81,37 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
     }
   };
 
-  const handleGetLocation = () => {
+  const handleGetLocation = async () => {
     setIsGettingLocation(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFormData(prev => ({
-            ...prev,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          }));
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          
+          // Reverse Geocoding via Nominatim (OpenStreetMap)
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
+              { headers: { 'Accept-Language': 'de' } }
+            );
+            const data = await response.json();
+            const address = data.address?.road ? `${data.address.road} ${data.address.house_number || ''}` : data.display_name.split(',')[0];
+            
+            setFormData(prev => ({
+              ...prev,
+              latitude: lat,
+              longitude: lng,
+              standortName: address.trim()
+            }));
+          } catch (error) {
+            console.log('Reverse Geocoding fehlgeschlagen:', error);
+            setFormData(prev => ({
+              ...prev,
+              latitude: lat,
+              longitude: lng
+            }));
+          }
           setIsGettingLocation(false);
         },
         (error) => {
