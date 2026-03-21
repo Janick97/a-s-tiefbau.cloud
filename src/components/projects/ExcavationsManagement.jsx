@@ -315,6 +315,7 @@ export default function ExcavationsManagement({
       });
       setShowAsphaltFeinDialog(true);
     } else {
+      if (!window.confirm(`Status "Asphalt Feinschicht" für "${excavation.location_name}" wirklich entfernen?`)) return;
       try {
         await Excavation.update(excavation.id, {
           asphalt_fein_completed: false,
