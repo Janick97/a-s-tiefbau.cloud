@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Shovel, MapPin, Euro, CheckSquare, Package, ArrowRight, Square, AlertTriangle, X } from "lucide-react";
 import { Excavation, User, Project } from "@/entities/all";
 import ExcavationWizard from "../excavations/ExcavationWizard";
+import ExcavationForm from "../excavations/ExcavationForm";
 import ExcavationDetail from "../excavations/ExcavationDetail";
 import MoveExcavationsDialog from "../excavations/MoveExcavationsDialog";
 
