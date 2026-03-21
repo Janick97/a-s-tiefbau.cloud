@@ -364,12 +364,12 @@ export default function EVergabeEditor({
         pdf.setTextColor(150, 150, 150);
         pdf.text('Tiefbau', 197, yOffset + 4.2, { align: 'right' });
         pdf.setTextColor(0, 0, 0);
-        yOffset += 8;
+        yOffset += 10;
 
         // --- Details ---
-        const LINE_H = 5;
+        const LINE_H = 4.5;
         const LABEL_X = 12;
-        const VALUE_X = 42;
+        const VALUE_X = 44;
 
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
@@ -531,12 +531,12 @@ export default function EVergabeEditor({
         pdf.setTextColor(150, 150, 150);
         pdf.text('Montage', 197, yOffset + 4.2, { align: 'right' });
         pdf.setTextColor(0, 0, 0);
-        yOffset += 8;
+        yOffset += 10;
 
         // --- Details ---
-        const ML_LINE_H = 5;
+        const ML_LINE_H = 4.5;
         const ML_LABEL_X = 12;
-        const ML_VALUE_X = 42;
+        const ML_VALUE_X = 44;
 
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
