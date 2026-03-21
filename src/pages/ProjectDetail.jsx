@@ -956,7 +956,7 @@ export default function ProjectDetailPage() {
                   className="bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
                 >
                   <Mail className="w-4 h-4 mr-2" />
-                  Kann zu verschicken
+                  Kann zu
                 </Button>
 
                 {hasVisioplan ? (
