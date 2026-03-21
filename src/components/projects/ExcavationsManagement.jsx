@@ -75,6 +75,7 @@ export default function ExcavationsManagement({
   }, [currentUser]);
 
   const [showForm, setShowForm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [editingExcavation, setEditingExcavation] = useState(null);
   const [selectedExcavation, setSelectedExcavation] = useState(null);
