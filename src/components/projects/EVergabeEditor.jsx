@@ -461,45 +461,34 @@ export default function EVergabeEditor({
 
           for (let imgIdx = 0; imgIdx < imageCount; imgIdx++) {
             const col = imgIdx % IMG_COLS;
-            const xPos = 12 + col * (IMG_WIDTH + 10);
+            const xPos = 12 + col * (IMG_SIZE + IMG_GAP);
 
             if (col === 0 && imgIdx > 0) {
-              yOffset += IMG_HEIGHT + 6;
+              yOffset += IMG_SIZE + IMG_GAP;
             }
 
-            // Vor dem ersten Bild einer Zeile: prüfen ob noch Platz
-            if (col === 0 && yOffset + IMG_HEIGHT > PAGE_HEIGHT - MARGIN_BOTTOM) {
+            if (col === 0 && yOffset + IMG_SIZE > PAGE_HEIGHT - MARGIN_BOTTOM) {
               yOffset = startNewPage();
-              pdf.setFontSize(9);
+              pdf.setFontSize(8);
               pdf.setFont(undefined, 'italic');
-              pdf.setTextColor(100, 100, 100);
+              pdf.setTextColor(120, 120, 120);
               pdf.text(`(Fortsetzung: ${exc.location_name})`, 12, yOffset);
               pdf.setTextColor(0, 0, 0);
-              yOffset += 6;
+              yOffset += 5;
             }
 
             try {
               const base64 = await loadImageAsBase64(exc.evergabe_images[imgIdx]);
-              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_WIDTH, IMG_HEIGHT);
-              // Schatten-Rahmen
-              pdf.setDrawColor(200, 200, 200);
-              pdf.rect(xPos, yOffset, IMG_WIDTH, IMG_HEIGHT, 'S');
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_SIZE, IMG_SIZE);
+              pdf.setDrawColor(180, 180, 180);
+              pdf.setLineWidth(0.3);
+              pdf.rect(xPos, yOffset, IMG_SIZE, IMG_SIZE, 'S');
+              pdf.setLineWidth(0.2);
             } catch (err) {
               console.error('Bildfehler:', err);
             }
-
-            if (col === IMG_COLS - 1 || imgIdx === imageCount - 1) {
-              // Letzte Spalte der Zeile oder letztes Bild
-              if (imgIdx === imageCount - 1 && col < IMG_COLS - 1) {
-                yOffset += IMG_HEIGHT + 6;
-              }
-            }
           }
-          // Sicherstellen dass nach dem letzten Bild-Reihe korrekt weitergemacht wird
-          if (imageCount % IMG_COLS !== 0 || imageCount === 0) {
-            // Bereits oben behandelt
-          }
-          yOffset += IMG_HEIGHT + 8;
+          yOffset += IMG_SIZE + IMG_GAP + 3;
         }
 
         // Trennlinie nach Position
@@ -585,32 +574,34 @@ export default function EVergabeEditor({
 
           for (let imgIdx = 0; imgIdx < imageCount; imgIdx++) {
             const col = imgIdx % IMG_COLS;
-            const xPos = 12 + col * (IMG_WIDTH + 10);
+            const xPos = 12 + col * (IMG_SIZE + IMG_GAP);
 
             if (col === 0 && imgIdx > 0) {
-              yOffset += IMG_HEIGHT + 6;
+              yOffset += IMG_SIZE + IMG_GAP;
             }
 
-            if (col === 0 && yOffset + IMG_HEIGHT > PAGE_HEIGHT - MARGIN_BOTTOM) {
+            if (col === 0 && yOffset + IMG_SIZE > PAGE_HEIGHT - MARGIN_BOTTOM) {
               yOffset = startNewPage();
-              pdf.setFontSize(9);
+              pdf.setFontSize(8);
               pdf.setFont(undefined, 'italic');
-              pdf.setTextColor(100, 100, 100);
+              pdf.setTextColor(120, 120, 120);
               pdf.text(`(Fortsetzung: ${ml.location_name})`, 12, yOffset);
               pdf.setTextColor(0, 0, 0);
-              yOffset += 6;
+              yOffset += 5;
             }
 
             try {
               const base64 = await loadImageAsBase64(ml.evergabe_images[imgIdx]);
-              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_WIDTH, IMG_HEIGHT);
-              pdf.setDrawColor(200, 200, 200);
-              pdf.rect(xPos, yOffset, IMG_WIDTH, IMG_HEIGHT, 'S');
+              pdf.addImage(base64, 'JPEG', xPos, yOffset, IMG_SIZE, IMG_SIZE);
+              pdf.setDrawColor(180, 180, 180);
+              pdf.setLineWidth(0.3);
+              pdf.rect(xPos, yOffset, IMG_SIZE, IMG_SIZE, 'S');
+              pdf.setLineWidth(0.2);
             } catch (err) {
               console.error('Bildfehler:', err);
             }
           }
-          yOffset += IMG_HEIGHT + 8;
+          yOffset += IMG_SIZE + IMG_GAP + 3;
         }
 
         pdf.setDrawColor(230, 230, 230);
