@@ -210,13 +210,20 @@ export default function MyMontageAuftraegePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 md:p-3">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 md:p-3 relative">
+      <button
+        onClick={loadData}
+        className="absolute top-2 right-2 md:top-3 md:right-3 p-2 hover:bg-white/50 rounded-lg transition-colors"
+        title="Aktualisieren"
+      >
+        <RefreshCw className="w-5 h-5 text-gray-600 hover:text-blue-600" />
+      </button>
       <div className="max-w-7xl mx-auto">
          {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-2 md:mb-3 gap-2"
+          className="mb-2 md:mb-3"
         >
           <div>
             <h1 className="text-lg md:text-xl font-bold text-gray-900">
@@ -226,13 +233,6 @@ export default function MyMontageAuftraegePage() {
               {filteredAuftraege.length} von {showCompletedAuftraege ? completedAuftraegeCount : activeAuftraegeCount} Montageaufträgen
             </p>
           </div>
-          <button
-            onClick={loadData}
-            className="p-2 hover:bg-white/50 rounded-lg transition-colors"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="w-5 h-5 text-gray-600 hover:text-blue-600" />
-          </button>
         </motion.div>
 
         {/* Toggle zwischen aktiven und abgeschlossenen Aufträgen */}
