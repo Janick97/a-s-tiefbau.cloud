@@ -93,6 +93,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [showBulkMoveDialog, setShowBulkMoveDialog] = useState(false);
   // Sort per folder: { [folderPath]: 'name_asc' | 'name_desc' | 'date_asc' | 'date_desc' }
   const [folderSortMap, setFolderSortMap] = useState({});
+  // Passwort-geschützte Ordner: Set der entsperrten Ordner (nur in dieser Session)
+  const [unlockedFolders, setUnlockedFolders] = useState(new Set());
+  const [passwordDialog, setPasswordDialog] = useState(null); // { folder, input, error }
   
   const [uploadForm, setUploadForm] = useState({
     files: [],
