@@ -38,10 +38,9 @@ export default function MontageAuftragDetailPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const [auftragData, userData, usersData] = await Promise.all([
+        const [auftragData, userData] = await Promise.all([
           MontageAuftrag.get(montageAuftragId),
-          User.me(),
-          User.list()
+          User.me()
         ]);
 
         if (!auftragData) {
@@ -51,9 +50,9 @@ export default function MontageAuftragDetailPage() {
         setMontageAuftrag(auftragData);
         setUser(userData);
         
-        // Get available monteure (excluding current user)
-        const monteure = (Array.isArray(usersData) ? usersData : [])
-          .filter(u => u.position === 'Monteur' && u.id !== userData?.id);
+        // Get available monteure from assigned list (excluding current user)
+        const monteure = (Array.isArray(auftragData.assigned_monteure) ? auftragData.assigned_monteure : [])
+          .filter(m => m.id !== userData?.id);
         setAvailableMonteure(monteure);
         
         // Load existing Einmaß-Skizzen
