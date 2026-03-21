@@ -1475,6 +1475,54 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
       </AnimatePresence>
 
+      {/* Bulk Move Dialog */}
+      <AnimatePresence>
+        {showBulkMoveDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setShowBulkMoveDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-lg p-6 w-full max-w-md"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold mb-1">Dateien verschieben</h3>
+              <p className="text-sm text-gray-500 mb-4">{selectedDocIds.size} Datei(en) ausgewählt</p>
+              <div className="space-y-4">
+                <div>
+                  <Label>Zielordner</Label>
+                  <Select value={bulkMoveFolder} onValueChange={setBulkMoveFolder}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Ordner wählen..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {allFolders.map(f => (
+                        <SelectItem key={f} value={f}>
+                          {'  '.repeat(getFolderDepth(f))}{getFolderDepth(f) > 0 ? '└─ ' : ''}{getFolderName(f)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={() => setShowBulkMoveDialog(false)}>Abbrechen</Button>
+                  <Button onClick={handleBulkMove} disabled={!bulkMoveFolder} className="bg-blue-600 hover:bg-blue-700">
+                    <MoveRight className="w-4 h-4 mr-2" />
+                    Verschieben
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Billing SM Number Dialog */}
       <AnimatePresence>
         {billingDoc && (
