@@ -313,19 +313,18 @@ export default function ExcavationsManagement({
       });
       setShowAsphaltFeinDialog(true);
     } else {
-      if (!window.confirm(`Status "Asphalt Feinschicht" für "${excavation.location_name}" wirklich entfernen?`)) return;
-      try {
-        await Excavation.update(excavation.id, {
-          asphalt_fein_completed: false,
-          asphalt_fein_date: null,
-          asphalt_fein_by: null,
-          asphalt_fein_by_user_id: null,
-          asphalt_fein_commission: null
-        });
-        loadData();
-      } catch (error) {
-        console.error("Fehler beim Aktualisieren:", error);
-      }
+      setRemoveConfirmData({
+        excavation,
+        statusLabel: 'Asphalt Feinschicht',
+        color: 'gray',
+        onConfirm: async () => {
+          await Excavation.update(excavation.id, {
+            asphalt_fein_completed: false, asphalt_fein_date: null, asphalt_fein_by: null,
+            asphalt_fein_by_user_id: null, asphalt_fein_commission: null
+          });
+          loadData();
+        }
+      });
     }
   };
 
