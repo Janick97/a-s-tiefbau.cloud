@@ -864,6 +864,25 @@ export default function ExcavationsManagement({
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {showEditForm && editingExcavation && (
+          <ExcavationForm
+            excavation={editingExcavation}
+            projects={[project]}
+            defaultProjectId={projectId}
+            onSubmit={async (data) => {
+              await onExcavationSubmit(data, editingExcavation.id);
+              setShowEditForm(false);
+              setEditingExcavation(null);
+            }}
+            onCancel={() => {
+              setShowEditForm(false);
+              setEditingExcavation(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
       {renderContent()}
 
       {/* Closure Dialog */}
