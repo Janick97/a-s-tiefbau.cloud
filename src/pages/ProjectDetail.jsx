@@ -938,14 +938,16 @@ export default function ProjectDetailPage() {
                   <div className="flex items-center gap-3">
                     <h1 className="text-2xl font-bold text-gray-900">{project.project_number} - {project.title}</h1>
                     {!!project.parent_project_id && <Badge variant="outline">Folgeauftrag</Badge>}
+                  </div>
+                  <div className="flex items-center gap-2 mt-1">
+                    <p className="text-gray-600">
+                      {isMainProject && followUpProjects.length > 0 
+                        ? `Hauptprojekt mit ${followUpProjects.length} Folgeauftrag${followUpProjects.length === 1 ? '' : 'en'}`
+                        : 'Projektdetails und -verwaltung'
+                      }
+                    </p>
                     {project.has_montage && <Badge className="bg-blue-100 text-blue-800">Mit Montage</Badge>}
                   </div>
-                  <p className="text-gray-600">
-                    {isMainProject && followUpProjects.length > 0 
-                      ? `Hauptprojekt mit ${followUpProjects.length} Folgeauftrag${followUpProjects.length === 1 ? '' : 'en'}`
-                      : 'Projektdetails und -verwaltung'
-                    }
-                  </p>
                 </div>
               </div>
               <div className="flex gap-2 flex-wrap items-center">
