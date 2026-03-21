@@ -473,6 +473,7 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
   const [quantity, setQuantity] = useState(editingMaterial?.quantity_used || 1);
   const [currentUser, setCurrentUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchMaterial, setSearchMaterial] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -525,15 +526,27 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label className="text-sm">Material *</Label>
+            <Input
+              type="text"
+              placeholder="Nach Material suchen..."
+              value={searchMaterial}
+              onChange={(e) => setSearchMaterial(e.target.value)}
+              className="h-9 text-sm mb-2"
+            />
             <Select value={selectedMaterial} onValueChange={setSelectedMaterial} required>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="Material wählen..." />
               </SelectTrigger>
               <SelectContent className="max-h-[250px]">
-                {materials.map((mat) =>
+                {materials
+                  .filter(mat => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase()))
+                  .map((mat) =>
                 <SelectItem key={mat.id} value={mat.id} className="text-xs">
-                    {mat.name} ({mat.current_stock} {mat.unit})
+                    {mat.name} ({mat.current_stock} {mat.unit}) - {mat.article_number}
                   </SelectItem>
+                )}
+                {materials.filter(mat => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase())).length === 0 && (
+                  <div className="text-xs text-gray-500 p-2">Keine Materialien gefunden</div>
                 )}
               </SelectContent>
             </Select>
