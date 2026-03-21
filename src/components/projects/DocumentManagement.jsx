@@ -807,7 +807,30 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               </CardHeader>
               
             <CardContent className={`${isMainExpanded ? '' : 'hidden pb-0'} px-3 sm:px-6`}>
-              {docs.length === 0 && subfolders.length === 0 && (
+              {(() => {
+                const sortedDocs = getSortedDocs(docs, folder);
+                const folderSelectedCount = sortedDocs.filter(d => selectedDocIds.has(d.id)).length;
+                return (<>
+              {/* Selection bar */}
+              {sortedDocs.length > 0 && (
+                <div className="flex items-center gap-2 mb-3 text-xs">
+                  <Checkbox
+                    checked={folderSelectedCount === sortedDocs.length && sortedDocs.length > 0}
+                    onCheckedChange={() => toggleSelectAll(sortedDocs)}
+                    id={`select-all-${folder}`}
+                  />
+                  <label htmlFor={`select-all-${folder}`} className="text-gray-500 cursor-pointer select-none">Alle auswählen</label>
+                  {folderSelectedCount > 0 && (
+                    <Button size="sm" variant="outline" className="ml-auto h-6 px-2 text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
+                      onClick={() => { setBulkMoveFolder(""); setShowBulkMoveDialog(true); }}>
+                      <MoveRight className="w-3 h-3 mr-1" />
+                      {folderSelectedCount} verschieben
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {sortedDocs.length === 0 && subfolders.length === 0 && (
                 <div className="text-center py-8 text-gray-400">
                   <FolderOpen className="w-10 h-10 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Dateien hochladen oder hierher ziehen</p>
@@ -815,9 +838,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               )}
               
               {/* Grid view for images */}
-              {docs.some(doc => isImage(doc.file_type)) && (
+              {sortedDocs.some(doc => isImage(doc.file_type)) && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-6">
-                  {docs.filter(doc => isImage(doc.file_type)).map((doc) => (
+                  {sortedDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
                     <motion.div
                      key={doc.id}
                      initial={{ opacity: 0, scale: 0.9 }}
