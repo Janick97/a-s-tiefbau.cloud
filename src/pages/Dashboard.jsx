@@ -580,6 +580,7 @@ export default function DashboardPage() {
           projects={projects}
           excavations={excavations}
           priceItems={priceItems}
+          montageAuftraege={montageAuftraege}
         />
 
         <AdminDashboard 
