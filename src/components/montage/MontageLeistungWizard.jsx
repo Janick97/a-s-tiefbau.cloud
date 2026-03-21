@@ -393,7 +393,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                           <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
                         </div>
                         {selected && (
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div className="flex items-center gap-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
                             <Input
                               type="number"
                               min="0.1"
