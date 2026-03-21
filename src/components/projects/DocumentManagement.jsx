@@ -765,18 +765,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               >
                                 <Trash2 className="w-3 h-3" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 px-2 text-xs"
-                                onClick={() => {
-                                  setSelectedParentFolder(subfolder);
-                                  setShowSubfolderDialog(true);
-                                }}
-                              >
-                                <Plus className="w-3 h-3 mr-1" />
-                                Unterordner
-                              </Button>
+
                             </div>
                           </div>
                           
