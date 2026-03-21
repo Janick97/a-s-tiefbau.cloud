@@ -864,7 +864,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 </div>
               </CardHeader>
               
-            <CardContent className={`${isMainExpanded ? '' : 'hidden pb-0'} px-3 sm:px-6`}>
+            <CardContent className={`${isMainExpanded && (!isFolderProtected(folder) || isFolderUnlocked(folder)) ? '' : 'hidden pb-0'} px-3 sm:px-6`}>
               {(() => {
                 const sortedDocs = getSortedDocs(docs, folder);
                 const folderSelectedCount = sortedDocs.filter(d => selectedDocIds.has(d.id)).length;
