@@ -842,22 +842,25 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-4 mb-4 sm:mb-6">
                   {sortedDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
                     <motion.div
-                     key={doc.id}
-                     initial={{ opacity: 0, scale: 0.9 }}
-                     animate={{ opacity: 1, scale: 1 }}
-                     className="group relative aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200 hover:border-orange-400 transition-all"
-                     draggable="true"
-                     onDragStart={(e) => {
-                       e.dataTransfer.effectAllowed = "copy";
-                       e.dataTransfer.setData("DownloadURL", `${doc.file_type}:${doc.file_name}:${doc.file_url}`);
-                     }}
+                    key={doc.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className={`group relative aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 transition-all ${selectedDocIds.has(doc.id) ? 'border-blue-500' : 'border-gray-200 hover:border-orange-400'}`}
                     >
-                     <img 
-                       src={doc.file_url} 
-                       alt={doc.file_name}
-                       className="w-full h-full object-cover cursor-pointer"
-                       onClick={() => setPreviewDoc(doc)}
-                     />
+                    {/* Selection checkbox overlay */}
+                    <div className="absolute top-1 left-1 z-10" onClick={e => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedDocIds.has(doc.id)}
+                        onCheckedChange={() => toggleDocSelection(doc.id)}
+                        className="bg-white/90 border-gray-400"
+                      />
+                    </div>
+                    <img 
+                      src={doc.file_url} 
+                      alt={doc.file_name}
+                      className="w-full h-full object-cover cursor-pointer"
+                      onClick={() => setPreviewDoc(doc)}
+                    />
                       
                       {/* Overlay with actions */}
                       <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
