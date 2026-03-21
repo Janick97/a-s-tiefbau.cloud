@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MontageLeistung, MontageMaterial, MontageMaterialInventory } from "@/entities/all";
+import { MontageLeistung, MontagePreisItem, MontageMaterialInventory } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,7 +59,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
   const loadLeistungsoptionen = async () => {
     try {
-      const leistungen = await MontageMaterial.list();
+      const leistungen = await MontagePreisItem.list();
       setLeistungsoptionen(Array.isArray(leistungen) ? leistungen : []);
     } catch (error) {
       console.error('Fehler beim Laden der Leistungen:', error);
