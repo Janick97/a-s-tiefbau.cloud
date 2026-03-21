@@ -1155,9 +1155,35 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                     </div>
                                   )}
                                   {subDocs.filter(doc => !isImage(doc.file_type)).map((doc) => (
-                                    <div key={doc.id} className={`flex items-center gap-2 bg-white p-2 rounded text-xs ${doc.is_billed ? 'border border-green-200 bg-green-50' : ''}`}>
+                                    <div key={doc.id} className={`flex items-center gap-2 bg-white p-2 rounded text-xs ${doc.is_billed ? 'border border-green-200 bg-green-50' : ''} ${selectedDocIds.has(doc.id) ? 'border border-blue-300 bg-blue-50' : ''}`}>
+                                      <Checkbox
+                                        checked={selectedDocIds.has(doc.id)}
+                                        onCheckedChange={() => toggleDocSelection(doc.id)}
+                                        className="flex-shrink-0 h-3 w-3"
+                                      />
                                       <FileText className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                                      <span className={`flex-1 truncate ${doc.is_billed ? 'text-gray-500' : ''}`}>{doc.file_name}</span>
+                                      {editingFileName === doc.id ? (
+                                        <div className="flex items-center gap-1 flex-1 min-w-0">
+                                          <Input
+                                            value={newFileName}
+                                            onChange={(e) => setNewFileName(e.target.value)}
+                                            className="h-5 text-xs px-1 flex-1"
+                                            onKeyDown={(e) => {
+                                              if (e.key === 'Enter') saveFileName(doc.id);
+                                              if (e.key === 'Escape') cancelEditingFileName();
+                                            }}
+                                            autoFocus
+                                          />
+                                          <Button size="sm" onClick={() => saveFileName(doc.id)} className="h-5 w-5 p-0"><Check className="w-3 h-3" /></Button>
+                                          <Button size="sm" variant="outline" onClick={cancelEditingFileName} className="h-5 w-5 p-0"><X className="w-3 h-3" /></Button>
+                                        </div>
+                                      ) : (
+                                        <span
+                                          className={`flex-1 truncate cursor-pointer hover:text-orange-600 ${doc.is_billed ? 'text-gray-500' : ''}`}
+                                          title="Klicken zum Umbenennen"
+                                          onClick={() => startEditingFileName(doc)}
+                                        >{doc.file_name}</span>
+                                      )}
                                       {subfolder === BILLED_FOLDER && (
                                         <button
                                           title={doc.is_billed ? "Abrechnung entfernen" : "Als abgerechnet markieren"}
