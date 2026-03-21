@@ -1459,7 +1459,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     <SelectTrigger>
                       <SelectValue placeholder="Ordner wählen..." />
                     </SelectTrigger>
-                    <SelectContent className="max-h-[300px]">
+                    <SelectContent className="max-h-[300px] z-[200]">
                       {allFolders.map(f => (
                         <SelectItem key={f} value={f}>
                           {'  '.repeat(getFolderDepth(f))}{getFolderDepth(f) > 0 ? '└─ ' : ''}{getFolderName(f)}
