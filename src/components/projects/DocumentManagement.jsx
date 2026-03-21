@@ -744,6 +744,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       )}
                     </button>
                     <FolderOpen className="w-4 h-4 text-orange-600 flex-shrink-0" />
+
                     {editingMainFolder === folder ? (
                       <input
                         type="text"
