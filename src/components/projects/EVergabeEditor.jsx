@@ -323,21 +323,20 @@ export default function EVergabeEditor({
 
         // --- Position Header ---
         pdf.setFillColor(245, 245, 245);
-        pdf.rect(10, yOffset, 190, 11, 'F');
+        pdf.rect(10, yOffset, 190, 7, 'F');
         pdf.setDrawColor(180, 180, 180);
-        pdf.rect(10, yOffset, 190, 11, 'S');
-        pdf.setFillColor(34, 197, 94); // grün
-        pdf.rect(10, yOffset, 4, 11, 'F');
-        pdf.setFontSize(11);
+        pdf.rect(10, yOffset, 190, 7, 'S');
+        pdf.setFillColor(34, 197, 94);
+        pdf.rect(10, yOffset, 3, 7, 'F');
+        pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
         pdf.setTextColor(30, 30, 30);
-        pdf.text(`#${globalExcIndex + 1}  ${exc.location_name}`, 17, yOffset + 7.5);
-        pdf.setFontSize(9);
+        pdf.text(`#${globalExcIndex + 1}  ${exc.location_name}`, 15, yOffset + 5);
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(120, 120, 120);
-        pdf.text('Tiefbau', 195, yOffset + 7.5, { align: 'right' });
+        pdf.text('Tiefbau', 195, yOffset + 5, { align: 'right' });
         pdf.setTextColor(0, 0, 0);
-        yOffset += 14;
+        yOffset += 10;
 
         // --- Details ---
         const LINE_H = 5;
@@ -501,21 +500,20 @@ export default function EVergabeEditor({
 
         // --- Position Header ---
         pdf.setFillColor(240, 247, 255);
-        pdf.rect(10, yOffset, 190, 11, 'F');
+        pdf.rect(10, yOffset, 190, 7, 'F');
         pdf.setDrawColor(180, 200, 230);
-        pdf.rect(10, yOffset, 190, 11, 'S');
-        pdf.setFillColor(59, 130, 246); // blau
-        pdf.rect(10, yOffset, 4, 11, 'F');
-        pdf.setFontSize(11);
+        pdf.rect(10, yOffset, 190, 7, 'S');
+        pdf.setFillColor(59, 130, 246);
+        pdf.rect(10, yOffset, 3, 7, 'F');
+        pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
         pdf.setTextColor(30, 30, 30);
-        pdf.text(`#${editableData.excavations.length + globalMlIndex + 1}  ${ml.location_name}`, 17, yOffset + 7.5);
-        pdf.setFontSize(9);
+        pdf.text(`#${editableData.excavations.length + globalMlIndex + 1}  ${ml.location_name}`, 15, yOffset + 5);
         pdf.setFont(undefined, 'normal');
         pdf.setTextColor(80, 80, 80);
-        pdf.text('Montage', 195, yOffset + 7.5, { align: 'right' });
+        pdf.text('Montage', 195, yOffset + 5, { align: 'right' });
         pdf.setTextColor(0, 0, 0);
-        yOffset += 14;
+        yOffset += 10;
 
         // --- Details ---
         const ML_LINE_H = 5;
