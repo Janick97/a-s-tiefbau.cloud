@@ -147,7 +147,7 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
   };
 };
 
-export default function ExcavationForm({ excavation, projects = [], defaultProjectId, onSubmit, onCancel }) {
+export default function ExcavationForm({ excavation, projects = [], defaultProjectId, onSubmit, onCancel, excavationIndex }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState(getInitialData(excavation, projects, defaultProjectId, null));
   const [priceItems, setPriceItems] = useState([]);
