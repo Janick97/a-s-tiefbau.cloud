@@ -477,6 +477,32 @@ export default function MontageAuftragDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Leistung Wizard */}
+      <AnimatePresence>
+        {showLeistungWizard && (
+          <MontageLeistungWizard
+            montageAuftragId={montageAuftrag.id}
+            availableMonteure={availableMonteure}
+            onComplete={() => {
+              setShowLeistungWizard(false);
+              setShowMaterialDialog(true);
+            }}
+            onCancel={() => setShowLeistungWizard(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Material Dialog */}
+      <AnimatePresence>
+        {showMaterialDialog && (
+          <MaterialVerbrauchDialog
+            montageAuftragId={montageAuftrag.id}
+            onClose={() => setShowMaterialDialog(false)}
+            onSave={() => setShowMaterialDialog(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
