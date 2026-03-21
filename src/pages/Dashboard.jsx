@@ -323,6 +323,7 @@ export default function DashboardPage() {
       setMontageAuftraege(Array.isArray(montageData) ? montageData : []);
       setUsers(Array.isArray(usersData) ? usersData : []);
       setTasks(Array.isArray(tasksData) ? tasksData : []);
+      setPriceItems(Array.isArray(priceItemsData) ? priceItemsData : []);
 
       if (userData && (userData.position === 'Bauleiter' || userData.position === 'Oberfläche')) {
         const currentMonth = new Date().toISOString().substring(0, 7);
