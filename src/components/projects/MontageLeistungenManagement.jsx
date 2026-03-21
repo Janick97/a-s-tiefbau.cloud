@@ -467,10 +467,10 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
 
 }
 
-function MaterialUsageDialog({ montageAuftragId, onClose }) {
+function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
   const [materials, setMaterials] = useState([]);
-  const [selectedMaterial, setSelectedMaterial] = useState("");
-  const [quantity, setQuantity] = useState(1);
+  const [selectedMaterial, setSelectedMaterial] = useState(editingMaterial?.material_id || "");
+  const [quantity, setQuantity] = useState(editingMaterial?.quantity_used || 1);
   const [currentUser, setCurrentUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -491,20 +491,27 @@ function MaterialUsageDialog({ montageAuftragId, onClose }) {
     setIsSubmitting(true);
 
     try {
-      await MontageLeistungMaterial.create({
-        montage_auftrag_id: montageAuftragId,
-        material_id: selectedMaterial,
-        quantity_used: quantity,
-        usage_date: new Date().toISOString().split('T')[0],
-        used_by: currentUser?.full_name || "",
-        used_by_user_id: currentUser?.id || ""
-      });
-
-      alert("Material erfolgreich erfasst!");
+      if (editingMaterial) {
+        await MontageLeistungMaterial.update(editingMaterial.id, {
+          material_id: selectedMaterial,
+          quantity_used: quantity
+        });
+        alert("Material erfolgreich aktualisiert!");
+      } else {
+        await MontageLeistungMaterial.create({
+          montage_auftrag_id: montageAuftragId,
+          material_id: selectedMaterial,
+          quantity_used: quantity,
+          usage_date: new Date().toISOString().split('T')[0],
+          used_by: currentUser?.full_name || "",
+          used_by_user_id: currentUser?.id || ""
+        });
+        alert("Material erfolgreich erfasst!");
+      }
       onClose();
     } catch (error) {
-      console.error("Fehler beim Erfassen:", error);
-      alert("Fehler beim Erfassen des Materials");
+      console.error("Fehler:", error);
+      alert("Fehler beim Speichern des Materials");
     }
     setIsSubmitting(false);
   };
@@ -513,7 +520,7 @@ function MaterialUsageDialog({ montageAuftragId, onClose }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] sm:max-w-md p-4">
         <DialogHeader className="pb-2">
-          <DialogTitle className="text-base">Material erfassen</DialogTitle>
+          <DialogTitle className="text-base">{editingMaterial ? "Material ändern" : "Material erfassen"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
@@ -546,7 +553,7 @@ function MaterialUsageDialog({ montageAuftragId, onClose }) {
 
           <DialogFooter className="gap-2 sm:gap-0">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1 sm:flex-none h-10">Abbrechen</Button>
-            <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none h-10">Erfassen</Button>
+            <Button type="submit" disabled={isSubmitting} className="flex-1 sm:flex-none h-10">{editingMaterial ? "Aktualisieren" : "Erfassen"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -664,8 +671,20 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                       <p className="font-medium truncate">{material.name}</p>
                       <p className="text-gray-600">{material.article_number}</p>
                     </div>
-                    <div className="text-right ml-2">
-                      <p className="font-bold">{usage.quantity_used} {material.unit}</p>
+                    <div className="flex items-center gap-2 ml-2">
+                      <div className="text-right">
+                        <p className="font-bold">{usage.quantity_used} {material.unit}</p>
+                      </div>
+                      {isMonteur && !readOnly && (
+                        <div className="flex gap-1 flex-shrink-0">
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => {setEditingMaterial(usage);setShowMaterialForm(true);}}>
+                            <Edit className="w-3 h-3" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={async () => {if (window.confirm("Löschen?")) {await MontageLeistungMaterial.delete(usage.id);loadData();}}}>
+                            <Trash2 className="w-3 h-3 text-red-600" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div> :
               null;
@@ -793,7 +812,8 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
         {showMaterialForm &&
         <MaterialUsageDialog
           montageAuftragId={montageAuftragId}
-          onClose={() => {setShowMaterialForm(false);loadData();}} />
+          editingMaterial={editingMaterial}
+          onClose={() => {setShowMaterialForm(false);setEditingMaterial(null);loadData();}} />
 
         }
       </AnimatePresence>
