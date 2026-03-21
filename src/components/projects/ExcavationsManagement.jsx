@@ -89,6 +89,7 @@ export default function ExcavationsManagement({
   const [asphaltTragDialogData, setAsphaltTragDialogData] = useState(null);
   const [showAsphaltFeinDialog, setShowAsphaltFeinDialog] = useState(false);
   const [asphaltFeinDialogData, setAsphaltFeinDialogData] = useState(null);
+  const [removeConfirmData, setRemoveConfirmData] = useState(null); // { excavation, statusLabel, color, onConfirm }
 
   const priceItemsMap = useMemo(() => {
     return new Map(priceItems.map(item => [item.id, item]));
