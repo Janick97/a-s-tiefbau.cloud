@@ -490,6 +490,70 @@ export default function DocumentManagement({ projectId, project, loadData }) {
     });
   };
 
+  // Multi-select helpers
+  const toggleDocSelection = (docId) => {
+    setSelectedDocIds(prev => {
+      const next = new Set(prev);
+      if (next.has(docId)) next.delete(docId);
+      else next.add(docId);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = (folderDocs) => {
+    const allIds = folderDocs.map(d => d.id);
+    const allSelected = allIds.every(id => selectedDocIds.has(id));
+    setSelectedDocIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) allIds.forEach(id => next.delete(id));
+      else allIds.forEach(id => next.add(id));
+      return next;
+    });
+  };
+
+  const handleBulkMove = async () => {
+    if (!bulkMoveFolder || selectedDocIds.size === 0) return;
+    await Promise.all([...selectedDocIds].map(id => ProjectDocument.update(id, { folder: bulkMoveFolder })));
+    setSelectedDocIds(new Set());
+    setShowBulkMoveDialog(false);
+    setBulkMoveFolder("");
+    await loadDocuments();
+  };
+
+  // Sort docs in a folder
+  const getSortedDocs = (docs, folder) => {
+    const sort = folderSortMap[folder] || 'date_desc';
+    return [...docs].sort((a, b) => {
+      if (sort === 'name_asc') return a.file_name.localeCompare(b.file_name);
+      if (sort === 'name_desc') return b.file_name.localeCompare(a.file_name);
+      if (sort === 'date_asc') return new Date(a.created_date) - new Date(b.created_date);
+      return new Date(b.created_date) - new Date(a.created_date); // date_desc
+    });
+  };
+
+  const cycleSortFolder = (folder, e) => {
+    e.stopPropagation();
+    const order = ['date_desc', 'date_asc', 'name_asc', 'name_desc'];
+    const cur = folderSortMap[folder] || 'date_desc';
+    const next = order[(order.indexOf(cur) + 1) % order.length];
+    setFolderSortMap(prev => ({ ...prev, [folder]: next }));
+  };
+
+  const getSortLabel = (folder) => {
+    const s = folderSortMap[folder] || 'date_desc';
+    if (s === 'date_desc') return 'Neueste';
+    if (s === 'date_asc') return 'Älteste';
+    if (s === 'name_asc') return 'A–Z';
+    return 'Z–A';
+  };
+
+  const getSortIcon = (folder) => {
+    const s = folderSortMap[folder] || 'date_desc';
+    if (s === 'name_asc' || s === 'date_asc') return <ArrowUp className="w-3 h-3" />;
+    if (s === 'name_desc' || s === 'date_desc') return <ArrowDown className="w-3 h-3" />;
+    return <ArrowUpDown className="w-3 h-3" />;
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3">
