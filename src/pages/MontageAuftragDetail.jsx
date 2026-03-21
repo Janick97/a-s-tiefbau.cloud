@@ -7,13 +7,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Wrench, MapPin, FileText, Upload, X, Eye, Download, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, Wrench, MapPin, FileText, Upload, X, Eye, Download, Image as ImageIcon, Plus, Package } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UploadFile } from "@/integrations/Core";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import SchaedigerManagement from "../components/projects/SchaedigerManagement";
 import DocumentManagement from "../components/projects/DocumentManagement";
 import ProjectChat from "../components/projects/ProjectChat";
+import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
+import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDialog";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
