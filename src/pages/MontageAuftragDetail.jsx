@@ -136,40 +136,7 @@ export default function MontageAuftragDetailPage() {
               </div>
             )}
 
-            {!readOnly && (
-              <div className="mt-4 pt-4 border-t space-y-3">
-                <div>
-                  <Label className="text-xs text-gray-500 mb-1 block">Status</Label>
-                  <Select value={montageAuftrag.status} onValueChange={handleStatusChange}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Tiefbau ausstehend">Tiefbau ausstehend</SelectItem>
-                      <SelectItem value="Bereit zur Montage">Bereit zur Montage</SelectItem>
-                      <SelectItem value="Montage abgeschlossen">Montage abgeschlossen</SelectItem>
-                      <SelectItem value="Rotberichtigung abgeschlossen">Rotberichtigung abgeschlossen</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
 
-                <div>
-                  <Label className="text-xs text-gray-500 mb-1 block">Auftragsart</Label>
-                  <Select value={montageAuftrag.art || ""} onValueChange={handleArtChange}>
-                    <SelectTrigger className="h-8 text-xs">
-                      <SelectValue placeholder="Wählen Sie eine Art" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Ü-Wege">Ü-Wege</SelectItem>
-                      <SelectItem value="APL-Straße">APL-Straße</SelectItem>
-                      <SelectItem value="Störung">Störung</SelectItem>
-                      <SelectItem value="FTTH">FTTH</SelectItem>
-                      <SelectItem value="Messauftrag">Messauftrag</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
