@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MontageLeistung, MontagePreisItem, MontageMaterialInventory } from "@/entities/all";
+import { MontageLeistung, MontagePreisItem, MontageMaterialInventory, User } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,8 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
     einmassSkizzen: []
   });
 
+  const [allMonteure, setAllMonteure] = useState([]);
+
   const [leistungsoptionen, setLeistungsoptionen] = useState([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
@@ -45,7 +47,18 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
   useEffect(() => {
     loadLeistungsoptionen();
+    loadAllMonteure();
   }, []);
+
+  const loadAllMonteure = async () => {
+    try {
+      const users = await User.list();
+      const monteurs = users.filter(u => u.position === 'Monteur');
+      setAllMonteure(monteurs);
+    } catch (error) {
+      console.error('Fehler beim Laden der Monteure:', error);
+    }
+  };
 
   const loadLeistungsoptionen = async () => {
     try {
@@ -168,20 +181,49 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Save MontageLeistung records
+      // Get monteur IDs (single user if alleine, or selected users)
+      const monteurIds = formData.alleineArbeiten === 'ja' 
+        ? [] 
+        : formData.mitarbeiterIds;
+      
+      const monteurCount = monteurIds.length > 0 ? monteurIds.length : 1;
+      
+      // Save MontageLeistung records, split among monteurs
       for (const leistung of formData.leistungen) {
-        await MontageLeistung.create({
-          montage_auftrag_id: montageAuftragId,
-          preis_item_id: leistung.id,
-          quantity: leistung.quantity,
-          location_name: formData.standortName,
-          monteur_name: 'Monteur',
-          monteur_user_id: 'auto',
-          completion_date: new Date().toISOString().split('T')[0],
-          work_description: formData.notizen,
-          photos: formData.fotos,
-          einmass_skizze: formData.einmassSkizzen
-        });
+        const quantityPerMonteur = leistung.quantity / monteurCount;
+        
+        if (monteurIds.length > 0) {
+          // Multiple monteurs - create entry for each
+          for (const monteurId of monteurIds) {
+            const monteurData = allMonteure.find(m => m.id === monteurId);
+            await MontageLeistung.create({
+              montage_auftrag_id: montageAuftragId,
+              preis_item_id: leistung.id,
+              quantity: quantityPerMonteur,
+              location_name: formData.standortName,
+              monteur_name: monteurData?.full_name || 'Monteur',
+              monteur_user_id: monteurId,
+              completion_date: new Date().toISOString().split('T')[0],
+              work_description: formData.notizen,
+              photos: formData.fotos,
+              einmass_skizze: formData.einmassSkizzen
+            });
+          }
+        } else {
+          // Single monteur (alleine)
+          await MontageLeistung.create({
+            montage_auftrag_id: montageAuftragId,
+            preis_item_id: leistung.id,
+            quantity: leistung.quantity,
+            location_name: formData.standortName,
+            monteur_name: 'Monteur',
+            monteur_user_id: 'auto',
+            completion_date: new Date().toISOString().split('T')[0],
+            work_description: formData.notizen,
+            photos: formData.fotos,
+            einmass_skizze: formData.einmassSkizzen
+          });
+        }
       }
       
       setIsLoading(false);
@@ -269,11 +311,11 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                   ))}
                 </div>
 
-                {formData.alleineArbeiten === 'nein' && availableMonteure.length > 0 && (
+                {formData.alleineArbeiten === 'nein' && allMonteure.length > 0 && (
                   <div>
                     <Label className="text-sm font-medium mb-2 block">Wählen Sie Ihre Mitarbeiter:</Label>
                     <div className="space-y-2">
-                      {availableMonteure.map(monteur => (
+                      {allMonteure.map(monteur => (
                         <div key={monteur.id} className="flex items-center gap-2">
                           <Checkbox
                             checked={formData.mitarbeiterIds.includes(monteur.id)}
