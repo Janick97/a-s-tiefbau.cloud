@@ -748,7 +748,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                 variant="ghost"
                                 size="sm"
                                 className="h-7 w-7 p-0"
-                                onClick={() => setEditingSubfolder(subfolder)}
+                                onClick={() => { setEditingSubfolder(subfolder); setEditingSubfolderName(getFolderName(subfolder)); }}
                                 title="Umbenennen"
                               >
                                 <Edit2 className="w-3 h-3" />
