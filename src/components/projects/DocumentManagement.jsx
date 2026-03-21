@@ -30,7 +30,9 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  MoveRight
+  MoveRight,
+  Lock,
+  Unlock
 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
