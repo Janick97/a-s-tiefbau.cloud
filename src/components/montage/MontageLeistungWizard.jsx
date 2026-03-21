@@ -502,10 +502,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
               </motion.div>
             )}
           </AnimatePresence>
-        </CardContent>
+        </div>
 
         {/* Footer */}
-        <div className="border-t p-6 flex gap-3 justify-between bg-gray-50">
+        <div className="border-t p-6 flex gap-3 justify-between bg-gray-50 md:rounded-b-lg mt-auto">
           <Button
             variant="outline"
             onClick={() => currentStep === 0 ? onCancel() : setCurrentStep(currentStep - 1)}
