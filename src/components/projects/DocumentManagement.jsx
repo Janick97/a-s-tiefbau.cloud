@@ -242,6 +242,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
       alert("Bitte geben Sie einen Ordnernamen ein");
       return;
     }
+
+    // Nur ein Unterordner-Level erlaubt: selectedParentFolder darf kein '/' enthalten
+    const parentIsSubfolder = selectedParentFolder && selectedParentFolder.includes('/');
+    if (parentIsSubfolder) {
+      alert("Unterordner von Unterordnern sind nicht erlaubt.");
+      return;
+    }
     
     const newFolderPath = selectedParentFolder 
       ? `${selectedParentFolder}/${newSubfolderName.trim()}`
