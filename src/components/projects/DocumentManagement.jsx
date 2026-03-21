@@ -1203,6 +1203,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     })}
                 </div>
               )}
+              </>); })()}
             </CardContent>
             </Card>
           );
