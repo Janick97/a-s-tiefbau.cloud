@@ -306,14 +306,15 @@ export default function DashboardPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [userData, projectsData, excavationsData, montageData, usersData, tasksData, sollwerteData] = await Promise.all([
+      const [userData, projectsData, excavationsData, montageData, usersData, tasksData, sollwerteData, priceItemsData] = await Promise.all([
         User.me().catch(() => null),
         Project.list("-created_date", DASHBOARD_PROJECT_LIMIT).catch(() => []),
         Excavation.list("-created_date", DASHBOARD_EXCAVATION_LIMIT).catch(() => []),
         MontageAuftrag.list().catch(() => []),
         User.list().catch(() => []),
         Task.list().catch(() => []),
-        KolonnenSollwert.list().catch(() => [])
+        KolonnenSollwert.list().catch(() => []),
+        PriceItem.list().catch(() => [])
       ]);
 
       setUser(userData);
