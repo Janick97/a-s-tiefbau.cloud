@@ -314,20 +314,37 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                   ))}
                 </div>
 
-                {formData.alleineArbeiten === 'nein' && allMonteure.length > 0 && (
+                {formData.alleineArbeiten === 'nein' && (
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Wählen Sie Ihre Mitarbeiter:</Label>
-                    <div className="space-y-2">
-                      {allMonteure.map(monteur => (
-                        <div key={monteur.id} className="flex items-center gap-2">
-                          <Checkbox
-                            checked={formData.mitarbeiterIds.includes(monteur.id)}
-                            onCheckedChange={() => handleMonteurToggle(monteur.id)}
-                          />
-                          <label className="text-sm cursor-pointer">{monteur.full_name}</label>
-                        </div>
-                      ))}
-                    </div>
+                    <Label className="text-base font-semibold mb-3 block">Mit welchen Monteuren haben Sie zusammengearbeitet?</Label>
+                    {allMonteure.length > 0 ? (
+                      <div className="space-y-2">
+                        {allMonteure.map(monteur => (
+                          <motion.div
+                            key={monteur.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className={`flex items-center gap-3 p-3 rounded border transition-all cursor-pointer ${
+                              formData.mitarbeiterIds.includes(monteur.id)
+                                ? 'bg-blue-50 border-blue-300'
+                                : 'bg-white border-gray-200 hover:border-gray-300'
+                            }`}
+                            onClick={() => handleMonteurToggle(monteur.id)}
+                          >
+                            <Checkbox
+                              checked={formData.mitarbeiterIds.includes(monteur.id)}
+                              onCheckedChange={() => handleMonteurToggle(monteur.id)}
+                              className="flex-shrink-0"
+                            />
+                            <label className="text-sm font-medium cursor-pointer flex-1">{monteur.full_name}</label>
+                          </motion.div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-gray-50 rounded border border-gray-200 text-center">
+                        <p className="text-sm text-gray-500">Keine anderen Monteure verfügbar</p>
+                      </div>
+                    )}
                   </div>
                 )}
               </motion.div>
