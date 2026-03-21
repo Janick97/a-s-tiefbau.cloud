@@ -230,15 +230,18 @@ export default function EVergabeEditor({
     return lines.length * lineHeight;
   };
 
-  // Kopfzeile nur auf Folgeseiten zeichnen (nicht auf Seite 1, da dort der dunkle Header ist)
+  // Kopfzeile auf Folgeseiten
   const drawPageHeader = (pdf, pageNum) => {
     if (pageNum === 1) return;
-    pdf.setFontSize(8);
+    pdf.setFillColor(234, 88, 12);
+    pdf.rect(0, 0, 210, 1.5, 'F');
+    pdf.setFontSize(7.5);
     pdf.setFont(undefined, 'normal');
-    pdf.setTextColor(150, 150, 150);
+    pdf.setTextColor(130, 130, 130);
     pdf.text(`${project.project_number} – ${project.title} | E-Vergabe`, 10, 8);
     pdf.text(`Seite ${pageNum}`, 200, 8, { align: 'right' });
     pdf.setDrawColor(220, 220, 220);
+    pdf.setLineWidth(0.2);
     pdf.line(10, 10, 200, 10);
     pdf.setTextColor(0, 0, 0);
   };
