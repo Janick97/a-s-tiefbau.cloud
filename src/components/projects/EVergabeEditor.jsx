@@ -542,23 +542,23 @@ export default function EVergabeEditor({
         pdf.setFont(undefined, 'bold');
         pdf.text('Leistung:', ML_LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        const mlLeistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 155);
+        const mlLeistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 153);
         mlLeistungLines.forEach((line, li) => pdf.text(line, ML_VALUE_X, yOffset + li * ML_LINE_H));
-        yOffset += mlLeistungLines.length * ML_LINE_H + 1;
+        yOffset += mlLeistungLines.length * ML_LINE_H + 2;
 
         pdf.setFont(undefined, 'bold');
         pdf.text('Menge:', ML_LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
         pdf.text(`${ml.quantity} ${priceItem?.unit || 'ST'}`, ML_VALUE_X, yOffset);
-        yOffset += ML_LINE_H + 1;
+        yOffset += ML_LINE_H + 0.5;
 
         if (ml.work_description) {
           pdf.setFont(undefined, 'bold');
           pdf.text('Beschreibung:', ML_LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
-          const descLines = pdf.splitTextToSize(ml.work_description, 155);
+          const descLines = pdf.splitTextToSize(ml.work_description, 153);
           descLines.forEach((line, li) => pdf.text(line, ML_VALUE_X, yOffset + li * ML_LINE_H));
-          yOffset += descLines.length * ML_LINE_H + 1;
+          yOffset += descLines.length * ML_LINE_H + 0.5;
         }
 
         yOffset += 3;
