@@ -280,22 +280,39 @@ export default function EVergabeEditor({
         return CONTENT_START;
       };
 
-      // --- Kompakter Header ---
-      pdf.setFillColor(30, 30, 30);
-      pdf.rect(0, 0, 210, 22, 'F');
-      pdf.setTextColor(255, 255, 255);
-      pdf.setFontSize(14);
+      // --- Header: weißer Hintergrund mit orange Akzentlinie ---
+      const HEADER_H = 28;
+      pdf.setFillColor(255, 255, 255);
+      pdf.rect(0, 0, 210, HEADER_H, 'F');
+      // Orange Akzentlinie oben
+      pdf.setFillColor(234, 88, 12); // orange-600
+      pdf.rect(0, 0, 210, 2, 'F');
+      // Linker Textblock
+      pdf.setTextColor(30, 30, 30);
+      pdf.setFontSize(15);
       pdf.setFont(undefined, 'bold');
-      pdf.text('E-Vergabe', 10, 10);
-      pdf.setFontSize(9);
+      pdf.text('E-Vergabe', 10, 13);
+      pdf.setFontSize(8.5);
       pdf.setFont(undefined, 'normal');
-      pdf.text(`${project.project_number} – ${project.title}`, 10, 17);
-      pdf.setFontSize(8);
-      pdf.setTextColor(200, 200, 200);
-      pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}  |  ${new Date().toLocaleDateString('de-DE')}`, 195, 17, { align: 'right' });
+      pdf.setTextColor(100, 100, 100);
+      pdf.text(`${project.project_number} – ${project.title}`, 10, 19);
+      pdf.setFontSize(7.5);
+      pdf.text(`Kunde: ${project.client}  |  ${project.street}, ${project.city}  |  ${new Date().toLocaleDateString('de-DE')}`, 10, 25);
+
+      // Logo oben rechts laden
+      try {
+        const logoBase64 = await loadImageAsBase64('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/d76156ea9_logo_a-s_tiefbaupdf.png');
+        pdf.addImage(logoBase64, 'PNG', 155, 2, 48, 24);
+      } catch (e) { /* Logo nicht verfügbar */ }
+
+      // Trennlinie unter Header
+      pdf.setDrawColor(234, 88, 12);
+      pdf.setLineWidth(0.5);
+      pdf.line(10, HEADER_H, 200, HEADER_H);
+      pdf.setLineWidth(0.2);
       pdf.setTextColor(0, 0, 0);
 
-      let yOffset = 28;
+      let yOffset = HEADER_H + 6;
       drawPageHeader(pdf, pageNum);
 
       // --- Excavations (nur ausgewählte) ---
