@@ -53,6 +53,9 @@ const folderOptions = [
 const DEFAULT_SUBFOLDERS = ["VAO/Anträge", "VAO/Verkehrsrechtliche Anordnung"];
 // Ordner in dem Dateien als "abgerechnet" markiert werden können
 const BILLED_FOLDER = "VAO/Verkehrsrechtliche Anordnung";
+// Passwortgeschützte Ordner: { [folderName]: passwort }
+const PROTECTED_FOLDERS = { "Rechnungen": "0000" };
+const DEFAULT_MAIN_FOLDERS = ["Rechnungen"];
 
 export default function DocumentManagement({ projectId, project, loadData }) {
   const [documents, setDocuments] = useState([]);
