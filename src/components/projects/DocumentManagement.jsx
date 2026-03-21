@@ -1281,8 +1281,14 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     alt={previewDoc.file_name} 
                     className="w-full h-auto max-h-[70vh] object-contain mx-auto" 
                   />
-                ) : previewDoc.file_type?.includes('pdf') ? (
+                ) : (previewDoc.file_type?.includes('pdf') || previewDoc.file_name?.toLowerCase().endsWith('.pdf')) ? (
                   <iframe 
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`}
+                    className="w-full h-[70vh] border-0"
+                    title={previewDoc.file_name}
+                  />
+                ) : (previewDoc.file_name?.match(/\.(docx?|xlsx?|pptx?|odt|ods|odp)$/i)) ? (
+                  <iframe
                     src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`}
                     className="w-full h-[70vh] border-0"
                     title={previewDoc.file_name}
