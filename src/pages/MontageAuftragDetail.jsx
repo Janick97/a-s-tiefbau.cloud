@@ -31,9 +31,9 @@ export default function MontageAuftragDetailPage() {
       setError(null);
       try {
         const [auftragData, userData] = await Promise.all([
-          MontageAuftrag.get(montageAuftragId),
-          User.me()
-        ]);
+        MontageAuftrag.get(montageAuftragId),
+        User.me()]
+        );
 
         if (!auftragData) {
           throw new Error("Montageauftrag nicht gefunden.");
@@ -63,8 +63,8 @@ export default function MontageAuftragDetailPage() {
           <Skeleton className="h-10 w-64 mb-6" />
           <Skeleton className="h-96" />
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   if (error || !montageAuftrag) {
@@ -76,12 +76,12 @@ export default function MontageAuftragDetailPage() {
             <Button>Zurück zur Übersicht</Button>
           </Link>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   const isAssignedMonteur = montageAuftrag.assigned_monteur_id === user?.id ||
-    (Array.isArray(montageAuftrag.assigned_monteure) && montageAuftrag.assigned_monteure.some(m => m && m.id === user?.id));
+  Array.isArray(montageAuftrag.assigned_monteure) && montageAuftrag.assigned_monteure.some((m) => m && m.id === user?.id);
   const readOnly = user?.role !== 'admin' && !isAssignedMonteur;
   const isMonteur = user?.position === 'Monteur';
 
@@ -121,77 +121,77 @@ export default function MontageAuftragDetailPage() {
             </h1>
             <p className="text-xs md:text-sm text-gray-600 truncate">{montageAuftrag.title}</p>
           </div>
-          {montageAuftrag.monteur_completed && (
-            <Badge className="bg-green-100 text-green-800 text-xs">Erledigt</Badge>
-          )}
+          {montageAuftrag.monteur_completed &&
+          <Badge className="bg-green-100 text-green-800 text-xs">Erledigt</Badge>
+          }
         </div>
 
         {/* Kerninformationen entfernt */}
         <Card className="border-none">
-          <CardContent className="p-4 md:p-6">
-            {montageAuftrag.notes && (
-              <div>
-                <p className="text-xs text-gray-500 mb-1">Notizen</p>
-                <p className="text-sm text-gray-700">{montageAuftrag.notes}</p>
-              </div>
-            )}
+          
 
 
-          </CardContent>
+
+
+
+
+
+
+          
         </Card>
 
         {/* Action Buttons - Zwei große Buttons für Monteur */}
-        {isMonteur && !readOnly && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {isMonteur && !readOnly &&
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Button
-              onClick={() => setShowLeistungWizard(true)}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 text-base font-semibold"
-            >
+            onClick={() => setShowLeistungWizard(true)}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 text-base font-semibold">
+            
               <Plus className="w-5 h-5 mr-2" />
               Leistung erfassen
             </Button>
             <Button
-              onClick={() => setShowMaterialDialog(true)}
-              className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white h-12 text-base font-semibold"
-            >
+            onClick={() => setShowMaterialDialog(true)}
+            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white h-12 text-base font-semibold">
+            
               <Package className="w-5 h-5 mr-2" />
               Material hinzufügen
             </Button>
           </div>
-        )}
+        }
 
         {/* Übersicht der Leistungen */}
         <div>
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen</h2>
+          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
         </div>
       </div>
 
       {/* Leistung Wizard */}
       <AnimatePresence>
-        {showLeistungWizard && (
-          <MontageLeistungWizard
-            montageAuftragId={montageAuftrag.id}
-            availableMonteure={Array.isArray(montageAuftrag.assigned_monteure) ? montageAuftrag.assigned_monteure.filter(m => m.id !== user?.id) : []}
-            onComplete={() => {
-              setShowLeistungWizard(false);
-              setShowMaterialDialog(true);
-            }}
-            onCancel={() => setShowLeistungWizard(false)}
-          />
-        )}
+        {showLeistungWizard &&
+        <MontageLeistungWizard
+          montageAuftragId={montageAuftrag.id}
+          availableMonteure={Array.isArray(montageAuftrag.assigned_monteure) ? montageAuftrag.assigned_monteure.filter((m) => m.id !== user?.id) : []}
+          onComplete={() => {
+            setShowLeistungWizard(false);
+            setShowMaterialDialog(true);
+          }}
+          onCancel={() => setShowLeistungWizard(false)} />
+
+        }
       </AnimatePresence>
 
       {/* Material Dialog */}
       <AnimatePresence>
-        {showMaterialDialog && (
-          <MaterialVerbrauchDialog
-            montageAuftragId={montageAuftrag.id}
-            onClose={() => setShowMaterialDialog(false)}
-            onSave={() => setShowMaterialDialog(false)}
-          />
-        )}
+        {showMaterialDialog &&
+        <MaterialVerbrauchDialog
+          montageAuftragId={montageAuftrag.id}
+          onClose={() => setShowMaterialDialog(false)}
+          onSave={() => setShowMaterialDialog(false)} />
+
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 }
