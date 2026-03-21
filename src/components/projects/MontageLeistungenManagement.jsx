@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Camera, X, Wrench, Check, ChevronsUpDown } from "lucide-react";
+import { Plus, Edit, Trash2, Camera, X, Wrench, Check, ChevronsUpDown, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
 import { Badge } from "@/components/ui/badge";
@@ -563,6 +563,8 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
   const [showForm, setShowForm] = useState(false);
   const [showMaterialForm, setShowMaterialForm] = useState(false);
   const [editingLeistung, setEditingLeistung] = useState(null);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -758,12 +760,12 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                     {leistung.photos && leistung.photos.length > 0 && (
                       <div className="mt-2 flex gap-1 overflow-x-auto">
                         {leistung.photos.slice(0, 4).map((url, idx) => (
-                          <img key={idx} src={url} alt={`Foto ${idx + 1}`} className="w-16 h-16 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={() => window.open(url, '_blank')} />
+                          <img key={idx} src={url} alt={`Foto ${idx + 1}`} className="w-16 h-16 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={() => { setPreviewImages(leistung.photos); setCurrentImageIndex(idx); }} />
                         ))}
                         {leistung.photos.length > 4 && (
-                          <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-600 flex-shrink-0">
+                          <button onClick={() => { setPreviewImages(leistung.photos); setCurrentImageIndex(0); }} className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-600 flex-shrink-0 hover:bg-gray-200">
                             +{leistung.photos.length - 4}
-                          </div>
+                          </button>
                         )}
                       </div>
                     )}
@@ -792,6 +794,71 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
             montageAuftragId={montageAuftragId}
             onClose={() => { setShowMaterialForm(false); loadData(); }}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Image Viewer */}
+      <AnimatePresence>
+        {previewImages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+            onClick={() => setPreviewImages([])}
+          >
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.9 }}
+              className="relative max-w-4xl w-full max-h-[90vh] bg-black rounded-lg overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Image */}
+              <div className="flex items-center justify-center h-[70vh] bg-black">
+                <img
+                  src={previewImages[currentImageIndex]}
+                  alt={`Bild ${currentImageIndex + 1}`}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+
+              {/* Navigation */}
+              <div className="absolute inset-0 flex items-center justify-between p-4 pointer-events-none">
+                {currentImageIndex > 0 && (
+                  <button
+                    onClick={() => setCurrentImageIndex(prev => prev - 1)}
+                    className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                )}
+                {currentImageIndex < previewImages.length - 1 && (
+                  <button
+                    onClick={() => setCurrentImageIndex(prev => prev + 1)}
+                    className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors ml-auto"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                )}
+              </div>
+
+              {/* Close button */}
+              <button
+                onClick={() => setPreviewImages([])}
+                className="absolute top-4 right-4 z-10 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Counter */}
+              <div className="absolute bottom-4 left-4 right-4 flex justify-center">
+                <div className="bg-black/60 text-white px-3 py-2 rounded-lg text-sm">
+                  {currentImageIndex + 1} / {previewImages.length}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
