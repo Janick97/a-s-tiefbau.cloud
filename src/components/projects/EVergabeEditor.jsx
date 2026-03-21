@@ -385,7 +385,29 @@ export default function EVergabeEditor({
           pdf.setFont(undefined, 'bold');
           pdf.text('Oberfläche:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text(formatSurfaceType(exc.surface_type), VALUE_X, yOffset);
+          let surfaceText = formatSurfaceType(exc.surface_type);
+          if (exc.surface_type === 'Asphalt' && exc.asphalt_thickness) {
+            surfaceText += `  |  Dicke: ${exc.asphalt_thickness} cm`;
+          }
+          pdf.text(surfaceText, VALUE_X, yOffset);
+          yOffset += LINE_H + 1;
+        }
+
+        // Unterbeton / Mörtel
+        const extraNotes = [];
+        if (exc.concrete_base_used) {
+          extraNotes.push(`Unterbeton${exc.concrete_base_thickness ? ` (${exc.concrete_base_thickness} cm)` : ''}`);
+        }
+        if (exc.mortar_used) {
+          extraNotes.push(`Mörtel${exc.mortar_thickness ? ` (${exc.mortar_thickness} cm)` : ''}`);
+        }
+        if (extraNotes.length > 0) {
+          pdf.setFont(undefined, 'bold');
+          pdf.text('Hinweis:', LABEL_X, yOffset);
+          pdf.setFont(undefined, 'normal');
+          pdf.setTextColor(180, 100, 0);
+          pdf.text(extraNotes.join('  |  '), VALUE_X, yOffset);
+          pdf.setTextColor(0, 0, 0);
           yOffset += LINE_H + 1;
         }
 
@@ -665,6 +687,28 @@ export default function EVergabeEditor({
                     <div className="col-span-2">
                       <p className="font-semibold text-gray-700">Tiefbaubegründung:</p>
                       <p>{exc.construction_justification}</p>
+                    </div>
+                  )}
+                  {/* Asphaltdicke */}
+                  {exc.surface_type === 'Asphalt' && exc.asphalt_thickness && (
+                    <div>
+                      <p className="font-semibold text-gray-700">Asphaltdicke:</p>
+                      <p>{exc.asphalt_thickness} cm</p>
+                    </div>
+                  )}
+                  {/* Unterbeton / Mörtel Hinweise */}
+                  {(exc.concrete_base_used || exc.mortar_used) && (
+                    <div className="col-span-2 flex flex-wrap gap-2">
+                      {exc.concrete_base_used && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold rounded">
+                          ⚠ Unterbeton{exc.concrete_base_thickness ? ` (${exc.concrete_base_thickness} cm)` : ''}
+                        </span>
+                      )}
+                      {exc.mortar_used && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 border border-amber-300 text-amber-800 text-xs font-semibold rounded">
+                          ⚠ Mörtel{exc.mortar_thickness ? ` (${exc.mortar_thickness} cm)` : ''}
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
