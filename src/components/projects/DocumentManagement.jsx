@@ -66,6 +66,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [editingFileName, setEditingFileName] = useState(null);
   const [newFileName, setNewFileName] = useState("");
   const [previewDoc, setPreviewDoc] = useState(null);
+  const [imageViewerState, setImageViewerState] = useState(null); // { images, initialIndex }
+
+  const openImageViewer = (doc, allDocs) => {
+    const images = allDocs.filter(d => isImage(d.file_type));
+    const idx = images.findIndex(d => d.id === doc.id);
+    setImageViewerState({ images, initialIndex: idx >= 0 ? idx : 0 });
+  };
   const [showSubfolderDialog, setShowSubfolderDialog] = useState(false);
   const [selectedParentFolder, setSelectedParentFolder] = useState("");
   const [newSubfolderName, setNewSubfolderName] = useState("");
