@@ -47,6 +47,13 @@ export default function ImageViewer({ images, currentIndex, onClose, onNavigate 
     setZoom(prev => Math.max(prev - 0.2, 1));
   };
 
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = currentImage.file_url;
+    link.download = currentImage.file_name;
+    link.click();
+  };
+
   const resetZoom = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
