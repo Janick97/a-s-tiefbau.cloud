@@ -1710,6 +1710,65 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
       </AnimatePresence>
 
+      {/* Password Dialog */}
+      <AnimatePresence>
+        {passwordDialog && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[100]"
+            onClick={() => setPasswordDialog(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="h-1.5 w-full bg-gradient-to-r from-red-400 to-orange-400" />
+              <div className="p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-50 border-2 border-red-100 flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-5 h-5 text-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-900">Geschützter Ordner</h3>
+                    <p className="text-xs text-gray-500">"{passwordDialog.folder}" ist passwortgeschützt</p>
+                  </div>
+                </div>
+                <div>
+                  <Label>Passwort eingeben</Label>
+                  <Input
+                    type="password"
+                    value={passwordDialog.input}
+                    onChange={(e) => setPasswordDialog(prev => ({ ...prev, input: e.target.value, error: "" }))}
+                    placeholder="Passwort..."
+                    autoFocus
+                    className={passwordDialog.error ? "border-red-400" : ""}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handlePasswordSubmit();
+                      if (e.key === 'Escape') setPasswordDialog(null);
+                    }}
+                  />
+                  {passwordDialog.error && (
+                    <p className="text-xs text-red-500 mt-1">{passwordDialog.error}</p>
+                  )}
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline" onClick={() => setPasswordDialog(null)}>Abbrechen</Button>
+                  <Button onClick={handlePasswordSubmit} className="bg-red-600 hover:bg-red-700">
+                    <Unlock className="w-4 h-4 mr-2" />
+                    Entsperren
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Delete Subfolder Dialog */}
       <AnimatePresence>
         {showDeleteSubfolderDialog && (
