@@ -210,19 +210,19 @@ export default function MyMontageAuftraegePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-3 md:p-4 lg:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 md:p-3">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
+         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 md:mb-6 gap-3"
+          className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-2 md:mb-3 gap-2"
         >
           <div>
-            <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
+            <h1 className="text-lg md:text-xl font-bold text-gray-900">
               Meine Montageaufträge
             </h1>
-            <p className="text-sm md:text-base text-gray-600 mt-1">
+            <p className="text-xs md:text-sm text-gray-600 mt-0.5">
               {filteredAuftraege.length} von {showCompletedAuftraege ? completedAuftraegeCount : activeAuftraegeCount} Montageaufträgen
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function MyMontageAuftraegePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="mb-4 md:mb-6"
+          className="mb-2 md:mb-3"
         >
           <div className="flex gap-2">
             <Button
@@ -268,27 +268,27 @@ export default function MyMontageAuftraegePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="card-elevation border-none mb-4 md:mb-6">
-            <CardContent className="p-3 md:p-4">
-              <div className="flex flex-col md:flex-row gap-3">
+          <Card className="card-elevation border-none mb-2 md:mb-3">
+            <CardContent className="p-2 md:p-3">
+              <div className="flex flex-col md:flex-row gap-2">
                 {/* Suchfeld */}
                 <div className="flex-1">
                   <div className="relative">
-                    <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                    <Search className="w-3 h-3 absolute left-2 top-2.5 text-gray-400" />
                     <Input
-                      placeholder="Suche nach SM-Nr., Projektnummer, Titel, Kunde oder Stadt..."
+                      placeholder="Suche..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10 text-sm"
+                      className="pl-8 text-xs h-8"
                     />
                   </div>
                 </div>
 
                 {/* Filter */}
-                <div className="flex gap-2 md:gap-3">
+                <div className="flex gap-2">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-32 text-sm">
-                      <Filter className="w-4 h-4 mr-1" />
+                    <SelectTrigger className="w-28 text-xs h-8">
+                      <Filter className="w-3 h-3 mr-1" />
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -336,7 +336,7 @@ export default function MyMontageAuftraegePage() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-3">
             <AnimatePresence>
               {filteredAuftraege.map((auftrag, index) => {
                 const isCompleting = completing === auftrag.id;
@@ -351,10 +351,10 @@ export default function MyMontageAuftraegePage() {
                     whileHover={{ y: -4 }}
                   >
                     <Card className="card-elevation border-none h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-                      <CardContent className="p-4 space-y-3">
+                      <CardContent className="p-3 space-y-2">
                         {/* Titel */}
                         <div>
-                          <CardTitle className="text-base font-bold text-gray-900 line-clamp-2">
+                          <CardTitle className="text-sm font-bold text-gray-900 line-clamp-2">
                             {auftrag.title}
                           </CardTitle>
                         </div>
@@ -377,29 +377,29 @@ export default function MyMontageAuftraegePage() {
                         )}
 
                         {/* Action Buttons */}
-                        <div className="space-y-2 pt-1">
+                        <div className="space-y-1.5 pt-1">
                           {!auftrag.monteur_completed && (
                             <Button
-                              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-sm h-9"
+                              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-xs h-8"
                               onClick={() => handleMarkAsCompleted(auftrag)}
                               disabled={isCompleting}
                             >
                               {isCompleting ? (
                                 <>
-                                  <Loader2 className="w-3 h-3 mr-2 animate-spin" />
+                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                                   Wird markiert...
                                 </>
                               ) : (
                                 <>
-                                  <CheckCircle className="w-3 h-3 mr-2" />
+                                  <CheckCircle className="w-3 h-3 mr-1" />
                                   Fertigstellen
                                 </>
                               )}
                             </Button>
                           )}
                           <Link to={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)} className="block">
-                            <Button variant="default" className="w-full text-sm bg-blue-600 hover:bg-blue-700 h-9">
-                              <Eye className="w-3 h-3 mr-2" />
+                            <Button variant="default" className="w-full text-xs bg-blue-600 hover:bg-blue-700 h-8">
+                              <Eye className="w-3 h-3 mr-1" />
                               Auftrag öffnen
                             </Button>
                           </Link>
