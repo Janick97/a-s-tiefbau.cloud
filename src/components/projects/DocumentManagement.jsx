@@ -1234,11 +1234,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" onClick={() => setPreviewDoc(doc)} title="Vorschau">
                                               <Eye className="w-3 h-3" />
                                             </Button>
-                                            <a href={doc.file_url} download={doc.file_name}>
-                                              <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" title="Herunterladen">
-                                                <Download className="w-3 h-3" />
-                                              </Button>
-                                            </a>
+                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" title="Herunterladen" onClick={(e) => { e.stopPropagation(); handleDownloadFile(doc); }}>
+                                              <Download className="w-3 h-3" />
+                                            </Button>
                                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
                                               <FolderInput className="w-3 h-3" />
                                             </Button>
