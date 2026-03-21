@@ -264,19 +264,18 @@ export default function ExcavationsManagement({
       });
       setShowAsphaltTragDialog(true);
     } else {
-      if (!window.confirm(`Status "Asphalt Tragschicht" für "${excavation.location_name}" wirklich entfernen?`)) return;
-      try {
-        await Excavation.update(excavation.id, {
-          asphalt_trag_completed: false,
-          asphalt_trag_date: null,
-          asphalt_trag_by: null,
-          asphalt_trag_by_user_id: null,
-          asphalt_trag_commission: null
-        });
-        loadData();
-      } catch (error) {
-        console.error("Fehler beim Aktualisieren:", error);
-      }
+      setRemoveConfirmData({
+        excavation,
+        statusLabel: 'Asphalt Tragschicht',
+        color: 'gray',
+        onConfirm: async () => {
+          await Excavation.update(excavation.id, {
+            asphalt_trag_completed: false, asphalt_trag_date: null, asphalt_trag_by: null,
+            asphalt_trag_by_user_id: null, asphalt_trag_commission: null
+          });
+          loadData();
+        }
+      });
     }
   };
 
