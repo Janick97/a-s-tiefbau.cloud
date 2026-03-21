@@ -158,19 +158,18 @@ export default function ExcavationsManagement({
       });
       setShowClosureDialog(true);
     } else {
-      if (!window.confirm(`Status "Platten/Pflaster" für "${excavation.location_name}" wirklich entfernen?`)) return;
-      try {
-        await Excavation.update(excavation.id, {
-          is_closed: false,
-          closed_date: null,
-          closed_by: null,
-          closed_by_user_id: null,
-          surface_commission: null
-        });
-        loadData();
-      } catch (error) {
-        console.error("Fehler beim Aktualisieren:", error);
-      }
+      setRemoveConfirmData({
+        excavation,
+        statusLabel: 'Platten/Pflaster',
+        color: 'green',
+        onConfirm: async () => {
+          await Excavation.update(excavation.id, {
+            is_closed: false, closed_date: null, closed_by: null,
+            closed_by_user_id: null, surface_commission: null
+          });
+          loadData();
+        }
+      });
     }
   };
 
