@@ -459,6 +459,7 @@ export default function EVergabeEditor({
       // --- Montage Leistungen (nur ausgewählte) ---
       for (let i = 0; i < selectedMontage.length; i++) {
         const ml = selectedMontage[i];
+        const globalMlIndex = editableData.montageLeistungen.findIndex(m => m.id === ml.id);
         const priceItem = montagePreisItems.find(p => p.id === ml.preis_item_id);
         const imageCount = ml.evergabe_images?.length || 0;
 
