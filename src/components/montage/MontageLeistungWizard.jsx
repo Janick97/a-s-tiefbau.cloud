@@ -316,6 +316,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                         className={`flex items-center gap-3 p-4 rounded-lg border-2 transition-all cursor-pointer ${
                           selected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 bg-white hover:border-gray-300'
                         }`}
+                        onClick={() => {
+                          if (!selected) handleLeistungToggle(leistung.id, 1);
+                          else handleLeistungToggle(leistung.id, 0);
+                        }}
                       >
                         <Checkbox
                           checked={!!selected}
