@@ -375,15 +375,15 @@ export default function EVergabeEditor({
         pdf.setFont(undefined, 'bold');
         pdf.text('Leistung:', LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        const leistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 155);
+        const leistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 153);
         leistungLines.forEach((line, li) => pdf.text(line, VALUE_X, yOffset + li * LINE_H));
-        yOffset += leistungLines.length * LINE_H + 1;
+        yOffset += leistungLines.length * LINE_H + 2;
 
         pdf.setFont(undefined, 'bold');
         pdf.text('Standort:', LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
         pdf.text(`${exc.street || ''}, ${exc.city || ''}`, VALUE_X, yOffset);
-        yOffset += LINE_H + 1;
+        yOffset += LINE_H + 0.5;
 
         pdf.setFont(undefined, 'bold');
         if (priceItem?.type === 'Grube') {
@@ -406,7 +406,7 @@ export default function EVergabeEditor({
           pdf.setFont(undefined, 'normal');
           pdf.text(`${exc.quantity} ${priceItem?.unit || 'ST'}`, VALUE_X, yOffset);
         }
-        yOffset += LINE_H + 1;
+        yOffset += LINE_H + 0.5;
 
         if (exc.surface_type) {
           pdf.setFont(undefined, 'bold');
@@ -417,7 +417,7 @@ export default function EVergabeEditor({
             surfaceText += `  |  Dicke: ${exc.asphalt_thickness} cm`;
           }
           pdf.text(surfaceText, VALUE_X, yOffset);
-          yOffset += LINE_H + 1;
+          yOffset += LINE_H + 0.5;
         }
 
         // Unterbeton / Mörtel
@@ -435,16 +435,16 @@ export default function EVergabeEditor({
           pdf.setTextColor(180, 100, 0);
           pdf.text(extraNotes.join('  |  '), VALUE_X, yOffset);
           pdf.setTextColor(0, 0, 0);
-          yOffset += LINE_H + 1;
+          yOffset += LINE_H + 0.5;
         }
 
         if (exc.construction_justification) {
           pdf.setFont(undefined, 'bold');
           pdf.text('Begründung:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
-          const justLines = pdf.splitTextToSize(exc.construction_justification, 155);
+          const justLines = pdf.splitTextToSize(exc.construction_justification, 153);
           justLines.forEach((line, li) => pdf.text(line, VALUE_X, yOffset + li * LINE_H));
-          yOffset += justLines.length * LINE_H + 1;
+          yOffset += justLines.length * LINE_H + 0.5;
         }
 
         yOffset += 3;
