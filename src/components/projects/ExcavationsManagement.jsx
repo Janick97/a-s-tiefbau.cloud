@@ -870,6 +870,7 @@ export default function ExcavationsManagement({
             excavation={editingExcavation}
             projects={[project]}
             defaultProjectId={projectId}
+            excavationIndex={getExcavationIndex(editingExcavation)}
             onSubmit={async (data) => {
               await onExcavationSubmit(data, editingExcavation.id);
               setShowEditForm(false);
