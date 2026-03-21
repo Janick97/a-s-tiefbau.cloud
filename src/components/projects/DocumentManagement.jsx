@@ -36,9 +36,14 @@ const folderOptions = [
   "Leitungspläne",
   "Montage",
   "Statusmeldung",
-  "VAOs",
+  "VAO",
   "Chat-Dateien"
 ];
+
+// Standard-Unterordner die immer vorhanden sein sollen
+const DEFAULT_SUBFOLDERS = ["VAO/Anträge", "VAO/Verkehrsrechtliche Anordnung"];
+// Ordner in dem Dateien als "abgerechnet" markiert werden können
+const BILLED_FOLDER = "VAO/Verkehrsrechtliche Anordnung";
 
 export default function DocumentManagement({ projectId, project, loadData }) {
   const [documents, setDocuments] = useState([]);
