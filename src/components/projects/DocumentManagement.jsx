@@ -88,9 +88,13 @@ export default function DocumentManagement({ projectId, project, loadData }) {
 
   const loadCustomFolders = () => {
     const saved = localStorage.getItem(`custom_folders_${projectId}`);
-    if (saved) {
-      setCustomFolders(JSON.parse(saved));
+    const existing = saved ? JSON.parse(saved) : [];
+    // Merge with default subfolders
+    const merged = Array.from(new Set([...existing, ...DEFAULT_SUBFOLDERS]));
+    if (merged.length !== existing.length) {
+      localStorage.setItem(`custom_folders_${projectId}`, JSON.stringify(merged));
     }
+    setCustomFolders(merged);
   };
 
   const saveCustomFolders = (folders) => {
