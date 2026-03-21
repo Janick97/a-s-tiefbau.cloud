@@ -246,18 +246,18 @@ export default function MyMontageAuftraegePage() {
             <Button
               variant={!showCompletedAuftraege ? "default" : "outline"}
               onClick={() => setShowCompletedAuftraege(false)}
-              className={!showCompletedAuftraege ? "bg-gradient-to-r from-blue-500 to-indigo-600" : ""}
+              className={`text-xs h-8 ${!showCompletedAuftraege ? "bg-gradient-to-r from-blue-500 to-indigo-600" : ""}`}
             >
-              <Clock className="w-4 h-4 mr-2" />
-              Aktive Aufträge ({activeAuftraegeCount})
+              <Clock className="w-3 h-3 mr-1" />
+              Aktive ({activeAuftraegeCount})
             </Button>
             <Button
               variant={showCompletedAuftraege ? "default" : "outline"}
               onClick={() => setShowCompletedAuftraege(true)}
-              className={showCompletedAuftraege ? "bg-gradient-to-r from-red-500 to-pink-600" : ""}
+              className={`text-xs h-8 ${showCompletedAuftraege ? "bg-gradient-to-r from-red-500 to-pink-600" : ""}`}
             >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Fertig gemeldet ({completedAuftraegeCount})
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Fertig ({completedAuftraegeCount})
             </Button>
           </div>
         </motion.div>
