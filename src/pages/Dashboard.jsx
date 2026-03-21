@@ -576,6 +576,12 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
+        <QuickStatsBar
+          projects={projects}
+          excavations={excavations}
+          priceItems={priceItems}
+        />
+
         <AdminDashboard 
           projects={projects}
           excavations={excavations}
