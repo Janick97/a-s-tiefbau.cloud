@@ -138,7 +138,7 @@ export default function ExcavationsManagement({
   const handleEditFromDetail = (excavation) => {
     setShowDetail(false);
     setEditingExcavation(excavation);
-    setShowForm(true);
+    setShowEditForm(true);
   };
 
   const handleSubmit = async (excavationData) => {
