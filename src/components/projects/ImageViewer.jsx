@@ -161,7 +161,19 @@ export default function ImageViewer({ images, currentIndex, onClose, onNavigate 
         <div className="h-6 w-px bg-gray-600 mx-2" />
 
         <Button
-          onClick={handlePrev}
+          onClick={(e) => { e.stopPropagation(); handleDownload(); }}
+          variant="ghost"
+          className="text-white hover:bg-white/20"
+          size="sm"
+          title="Download"
+        >
+          Download
+        </Button>
+
+        <div className="h-6 w-px bg-gray-600 mx-2" />
+
+        <Button
+          onClick={(e) => { e.stopPropagation(); handlePrev(); }}
           variant="ghost"
           className="text-white hover:bg-white/20"
           size="sm"
@@ -171,7 +183,7 @@ export default function ImageViewer({ images, currentIndex, onClose, onNavigate 
           <ChevronLeft className="w-5 h-5" />
         </Button>
         <Button
-          onClick={handleNext}
+          onClick={(e) => { e.stopPropagation(); handleNext(); }}
           variant="ghost"
           className="text-white hover:bg-white/20"
           size="sm"
