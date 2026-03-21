@@ -340,61 +340,65 @@ export default function EVergabeEditor({
         yOffset += 14;
 
         // --- Details ---
+        const LINE_H = 5;
+        const LABEL_X = 12;
+        const VALUE_X = 42;
+
         pdf.setFontSize(9);
         pdf.setFont(undefined, 'bold');
-        pdf.text('Leistung:', 12, yOffset);
+        pdf.text('Leistung:', LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        const leistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 160);
-        leistungLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
-        yOffset += leistungLines.length * 5.5 + 2;
+        const leistungLines = pdf.splitTextToSize(formatPriceItemDescription(priceItem) || '–', 155);
+        leistungLines.forEach((line, li) => pdf.text(line, VALUE_X, yOffset + li * LINE_H));
+        yOffset += leistungLines.length * LINE_H + 1;
 
         pdf.setFont(undefined, 'bold');
-        pdf.text('Standort:', 12, yOffset);
+        pdf.text('Standort:', LABEL_X, yOffset);
         pdf.setFont(undefined, 'normal');
-        pdf.text(`${exc.street || ''}, ${exc.city || ''}`, 40, yOffset);
-        yOffset += 6;
+        pdf.text(`${exc.street || ''}, ${exc.city || ''}`, VALUE_X, yOffset);
+        yOffset += LINE_H + 1;
 
         pdf.setFont(undefined, 'bold');
         if (priceItem?.type === 'Grube') {
-          pdf.text('Maße:', 12, yOffset);
+          pdf.text('Maße:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
           const l = exc.excavation_length || 1.2;
           const w = exc.excavation_width || 1.0;
           const d = exc.excavation_depth || 1.0;
           const f = exc.excavation_factor ?? 1;
-          pdf.text(`${l} m × ${w} m × ${d} m  |  Faktor: ${f}`, 40, yOffset);
+          pdf.text(`${l} m × ${w} m × ${d} m  |  Faktor: ${f}`, VALUE_X, yOffset);
         } else if (priceItem?.type === 'Graben') {
-          pdf.text('Maße:', 12, yOffset);
+          pdf.text('Maße:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
           const gl = exc.excavation_length || 1.2;
           const gw = exc.excavation_width || 1.0;
           const gd = exc.excavation_depth || 1.0;
-          pdf.text(`${gl} m × ${gw} m × ${gd} m`, 40, yOffset);
+          pdf.text(`${gl} m × ${gw} m × ${gd} m`, VALUE_X, yOffset);
         } else {
-          pdf.text('Menge:', 12, yOffset);
+          pdf.text('Menge:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text(`${exc.quantity} ${priceItem?.unit || 'ST'}`, 40, yOffset);
+          pdf.text(`${exc.quantity} ${priceItem?.unit || 'ST'}`, VALUE_X, yOffset);
         }
-        yOffset += 6;
+        yOffset += LINE_H + 1;
 
         if (exc.surface_type) {
           pdf.setFont(undefined, 'bold');
-          pdf.text('Oberfläche:', 12, yOffset);
+          pdf.text('Oberfläche:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
-          pdf.text(formatSurfaceType(exc.surface_type), 40, yOffset);
-          yOffset += 6;
+          pdf.text(formatSurfaceType(exc.surface_type), VALUE_X, yOffset);
+          yOffset += LINE_H + 1;
         }
 
         if (exc.construction_justification) {
           pdf.setFont(undefined, 'bold');
-          pdf.text('Begründung:', 12, yOffset);
+          pdf.text('Begründung:', LABEL_X, yOffset);
           pdf.setFont(undefined, 'normal');
           const justLines = pdf.splitTextToSize(exc.construction_justification, 155);
-          justLines.forEach((line, li) => pdf.text(line, 40, yOffset + li * 5.5));
-          yOffset += justLines.length * 5.5 + 1;
+          justLines.forEach((line, li) => pdf.text(line, VALUE_X, yOffset + li * LINE_H));
+          yOffset += justLines.length * LINE_H + 1;
         }
 
-        yOffset += 2;
+        yOffset += 3;
 
         // --- Bilder ---
         if (imageCount > 0) {
