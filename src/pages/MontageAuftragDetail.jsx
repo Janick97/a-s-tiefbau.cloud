@@ -126,29 +126,11 @@ export default function MontageAuftragDetailPage() {
           )}
         </div>
 
-        {/* Kerninformationen */}
+        {/* Kerninformationen entfernt */}
         <Card className="border-none">
           <CardContent className="p-4 md:p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-1">SM-Nr.</p>
-                <p className="font-semibold text-gray-900">{montageAuftrag.sm_number}</p>
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-1">Standort</p>
-                <p className="font-semibold text-gray-900 flex items-center gap-1">
-                  <MapPin className="w-3 h-3 flex-shrink-0" />
-                  {montageAuftrag.street && `${montageAuftrag.street}, `}{montageAuftrag.city}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs md:text-sm text-gray-500 mb-1">Kunde</p>
-                <p className="font-semibold text-gray-900">{montageAuftrag.client}</p>
-              </div>
-            </div>
-
             {montageAuftrag.notes && (
-              <div className="border-t pt-4">
+              <div>
                 <p className="text-xs text-gray-500 mb-1">Notizen</p>
                 <p className="text-sm text-gray-700">{montageAuftrag.notes}</p>
               </div>
