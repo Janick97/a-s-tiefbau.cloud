@@ -60,6 +60,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       setAllMonteure(monteurs);
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
+      // Fallback: Verwende die übergebenen verfügbaren Monteure wenn Laden fehlschlägt
+      if (Array.isArray(availableMonteure) && availableMonteure.length > 0) {
+        setAllMonteure(availableMonteure);
+      }
     }
   };
 
