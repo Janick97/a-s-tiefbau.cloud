@@ -43,8 +43,17 @@ import {
   Ruler,
   Image as ImageIcon,
   Navigation,
-  Network
+  Network,
+  Download,
+  ChevronDown
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import ProjectForm from "../components/projects/ProjectForm";
