@@ -207,6 +207,7 @@ export default function ExcavationsManagement({
       });
       setShowBackfillDialog(true);
     } else {
+      if (!window.confirm(`Status "Verfüllt" für "${excavation.location_name}" wirklich entfernen?`)) return;
       try {
         await Excavation.update(excavation.id, {
           is_backfilled: false,
