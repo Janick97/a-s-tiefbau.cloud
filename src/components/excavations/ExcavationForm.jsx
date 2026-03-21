@@ -706,10 +706,15 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
           </style>
           <CardHeader className="bg-gradient-to-r from-orange-500 to-amber-600 text-white rounded-t-lg py-3 px-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Shovel className="w-5 h-5" />
-                {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
-              </CardTitle>
+              <div className="flex flex-col gap-0.5">
+                {excavation && excavationIndex !== undefined && excavationIndex >= 0 && (
+                  <span className="text-xs font-mono text-white/70">Leistung #{excavationIndex + 1}</span>
+                )}
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Shovel className="w-5 h-5" />
+                  {excavation ? 'Leistung bearbeiten' : 'Neue Leistung erfassen'}
+                </CardTitle>
+              </div>
               <Button variant="ghost" size="icon" onClick={onCancel} className="text-white hover:text-white/80">
                   <X className="w-4 h-4"/>
               </Button>
