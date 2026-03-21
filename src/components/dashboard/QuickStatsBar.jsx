@@ -1,66 +1,62 @@
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp, FolderOpen, Shovel, Ruler, Network } from "lucide-react";
+import { ChevronDown, ChevronUp, FolderOpen, Shovel, Ruler, Hash } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function QuickStatsBar({ projects, excavations }) {
+export default function QuickStatsBar({ projects, excavations, priceItems = [] }) {
   const [open, setOpen] = useState(false);
 
   const totalProjects = projects.length;
 
-  const gruben = excavations.filter(e => {
-    // Grube: price_item unit ST oder type Grube, aber einfach: alle ohne Graben-Kennzeichen
-    return e.excavation_length <= 2 || !e.excavation_length;
+  // Erstelle eine Map: price_item_id → type ('Grube' | 'Graben')
+  const priceItemMap = {};
+  priceItems.forEach(p => { priceItemMap[p.id] = p; });
+
+  let grubenCount = 0;
+  let grabenM = 0;
+  let mdCount = 0; // ST-Positionen ohne Typ-Zuordnung (z.B. Sonderleistungen)
+
+  excavations.forEach(exc => {
+    const pi = priceItemMap[exc.price_item_id];
+    if (pi) {
+      if (pi.type === 'Grube') {
+        grubenCount += 1;
+      } else if (pi.type === 'Graben') {
+        grabenM += exc.quantity || 0;
+      } else {
+        mdCount += exc.quantity || 0;
+      }
+    } else {
+      // Kein priceItem bekannt → zähle als MD
+      mdCount += 1;
+    }
   });
-
-  // Gruben = alle Excavations die keine Graben-Leistung sind
-  // Wir verwenden hier eine einfache Heuristik:
-  // Graben: quantity > 1 und unit M → aber wir haben kein priceItem hier direkt
-  // Sicherer: Gruben = ST-Einträge (quantity == 1 oder factor basiert), Graben = quantity in Metern
-  // Da wir priceItems nicht haben, nutzen wir: Graben erkennen wir an excavation_length > 5 (typisch für Gräben)
-  
-  const grabens = excavations.filter(e => e.quantity && e.quantity > 1);
-  const totalGrabenM = grabens.reduce((sum, e) => sum + (e.quantity || 0), 0);
-
-  // MD = Montageaufträge / Leistungen → hier: alle Excavations mit quantity > 0 (Stück)
-  // "MD" = vermutlich Meter Daten oder Montage-Dokumentationen
-  // Wir nutzen: alle Excavations mit quantity = 1 (ST = Grube/Schacht)
-  const grubenCount = excavations.filter(e => !e.quantity || e.quantity === 1).length;
-  
-  // Graben in Metern = alle mit quantity > 1
-  const grabenM = Math.round(excavations
-    .filter(e => e.quantity && e.quantity > 1)
-    .reduce((sum, e) => sum + (e.quantity || 0), 0));
-
-  // MD = alle mit price_item_id die "MD" enthält → Fallback: alle ST-Positionen die keine Grube sind
-  // Einfach: Anzahl Excavations gesamt minus Graben
-  const mdCount = grubenCount; // Gruben = ST-Positionen
 
   const stats = [
     {
       label: "Projekte gesamt",
-      value: totalProjects,
+      value: totalProjects.toLocaleString('de-DE'),
       icon: FolderOpen,
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
     {
       label: "Gruben erstellt",
-      value: grubenCount,
+      value: grubenCount.toLocaleString('de-DE'),
       icon: Shovel,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
       label: "Graben gesamt",
-      value: `${grabenM} m`,
+      value: `${Math.round(grabenM).toLocaleString('de-DE')} m`,
       icon: Ruler,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
-      label: "Positionen (ST)",
-      value: mdCount,
-      icon: Network,
+      label: "MD gesamt",
+      value: Math.round(mdCount).toLocaleString('de-DE'),
+      icon: Hash,
       color: "text-purple-600",
       bg: "bg-purple-50",
     },
@@ -74,9 +70,12 @@ export default function QuickStatsBar({ projects, excavations }) {
       >
         <span className="flex items-center gap-2">
           <span className="text-orange-500 font-semibold">Schnellstatistik</span>
-          <span className="text-gray-400 font-normal hidden sm:inline">— Gesamtübersicht Tiefbau</span>
+          <span className="text-gray-400 font-normal hidden sm:inline">— Gesamtübersicht</span>
         </span>
-        {open ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+        {open
+          ? <ChevronUp className="w-4 h-4 text-gray-400" />
+          : <ChevronDown className="w-4 h-4 text-gray-400" />
+        }
       </button>
 
       <AnimatePresence>
@@ -90,7 +89,10 @@ export default function QuickStatsBar({ projects, excavations }) {
           >
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-3">
               {stats.map((s) => (
-                <div key={s.label} className={`flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-100 bg-white shadow-sm`}>
+                <div
+                  key={s.label}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-100 bg-white shadow-sm"
+                >
                   <div className={`p-2 rounded-lg ${s.bg}`}>
                     <s.icon className={`w-5 h-5 ${s.color}`} />
                   </div>
