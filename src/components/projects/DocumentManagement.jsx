@@ -817,6 +817,17 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                     )}
                   </div>
                   <div className="flex items-center gap-0.5 flex-shrink-0" onClick={e => e.stopPropagation()}>
+                    {isFolderProtected(folder) && isFolderUnlocked(folder) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 w-7 p-0 text-green-600 hover:text-red-600"
+                        title="Ordner sperren"
+                        onClick={(e) => lockFolder(folder, e)}
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"
