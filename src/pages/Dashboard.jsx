@@ -293,6 +293,7 @@ export default function DashboardPage() {
   const [sollwert, setSollwert] = useState(null);
   const [assignedProjects, setAssignedProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [priceItems, setPriceItems] = useState([]);
   const [widgetSettings, setWidgetSettings] = useState(() => {
     const saved = localStorage.getItem('dashboardWidgets');
     return saved ? JSON.parse(saved) : {};
