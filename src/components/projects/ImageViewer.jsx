@@ -47,11 +47,22 @@ export default function ImageViewer({ images, currentIndex, onClose, onNavigate 
     setZoom(prev => Math.max(prev - 0.2, 1));
   };
 
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = currentImage.file_url;
-    link.download = currentImage.file_name;
-    link.click();
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(currentImage.file_url);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = currentImage.file_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download fehlgeschlagen:', error);
+      window.open(currentImage.file_url, '_blank');
+    }
   };
 
   const resetZoom = () => {
