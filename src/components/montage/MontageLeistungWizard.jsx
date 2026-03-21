@@ -41,6 +41,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   const [leistungsoptionen, setLeistungsoptionen] = useState([]);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({});
+  const [searchLeistung, setSearchLeistung] = useState("");
 
   useEffect(() => {
     loadLeistungsoptionen();
@@ -290,9 +291,22 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
             {/* Step 2: Leistungen */}
             {currentStep === 2 && (
               <motion.div key="leistungen" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
-                <p className="text-sm text-gray-600 mb-6">Wählen Sie durchgeführte Leistungen und geben Sie die Menge ein:</p>
-                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                  {leistungsoptionen.map(leistung => {
+                <div>
+                  <p className="text-sm text-gray-600 mb-3">Wählen Sie durchgeführte Leistungen und geben Sie die Menge ein:</p>
+                  <Input
+                    placeholder="Nach Position suchen..."
+                    value={searchLeistung}
+                    onChange={(e) => setSearchLeistung(e.target.value)}
+                    className="h-10 mb-4"
+                  />
+                </div>
+                <div className="space-y-3 max-h-[450px] overflow-y-auto pr-2">
+                  {leistungsoptionen
+                    .filter(leistung =>
+                      leistung.description.toLowerCase().includes(searchLeistung.toLowerCase()) ||
+                      leistung.item_number.toLowerCase().includes(searchLeistung.toLowerCase())
+                    )
+                    .map(leistung => {
                     const selected = formData.leistungen.find(l => l.id === leistung.id);
                     return (
                       <motion.div
@@ -331,6 +345,11 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                       </motion.div>
                     );
                   })}
+                  {leistungsoptionen.filter(l => l.description.toLowerCase().includes(searchLeistung.toLowerCase()) || l.item_number.toLowerCase().includes(searchLeistung.toLowerCase())).length === 0 && searchLeistung && (
+                    <div className="text-center py-8 text-gray-500">
+                      <p className="text-sm">Keine Leistungen gefunden</p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
