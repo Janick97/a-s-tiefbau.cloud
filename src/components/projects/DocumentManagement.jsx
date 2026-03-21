@@ -1040,9 +1040,28 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                     </div>
                                   )}
                                   {subDocs.filter(doc => !isImage(doc.file_type)).map((doc) => (
-                                    <div key={doc.id} className="flex items-center gap-2 bg-white p-2 rounded text-xs">
-                                      <FileText className="w-3.5 h-3.5 text-gray-500" />
-                                      <span className="flex-1 truncate">{doc.file_name}</span>
+                                    <div key={doc.id} className={`flex items-center gap-2 bg-white p-2 rounded text-xs ${doc.is_billed ? 'border border-green-200' : ''}`}>
+                                      <FileText className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                                      <span className={`flex-1 truncate ${doc.is_billed ? 'line-through text-gray-400' : ''}`}>{doc.file_name}</span>
+                                      {subfolder === BILLED_FOLDER && (
+                                        <button
+                                          title={doc.is_billed ? "Als nicht abgerechnet markieren" : "Als abgerechnet markieren"}
+                                          onClick={async () => {
+                                            await ProjectDocument.update(doc.id, { is_billed: !doc.is_billed });
+                                            await loadDocuments();
+                                          }}
+                                          className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 transition-colors ${
+                                            doc.is_billed 
+                                              ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                                              : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                                          }`}
+                                        >
+                                          {doc.is_billed 
+                                            ? <><CheckSquare className="w-3 h-3 mr-1" />Abgerechnet</>
+                                            : <><Square className="w-3 h-3 mr-1" />Abrechnen</>
+                                          }
+                                        </button>
+                                      )}
                                       <a href={doc.file_url} download={doc.file_name}>
                                         <Button size="sm" variant="ghost" className="h-6 w-6 p-0">
                                           <Download className="w-3 h-3" />
