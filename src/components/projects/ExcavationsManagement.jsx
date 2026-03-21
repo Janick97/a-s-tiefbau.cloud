@@ -157,6 +157,7 @@ export default function ExcavationsManagement({
       });
       setShowClosureDialog(true);
     } else {
+      if (!window.confirm(`Status "Platten/Pflaster" für "${excavation.location_name}" wirklich entfernen?`)) return;
       try {
         await Excavation.update(excavation.id, {
           is_closed: false,
