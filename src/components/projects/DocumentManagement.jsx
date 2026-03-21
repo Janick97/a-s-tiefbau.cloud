@@ -897,7 +897,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
               
               {/* Grid view for images */}
               {sortedDocs.some(doc => isImage(doc.file_type)) && (
-                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-1.5 sm:gap-2 mb-4">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 mb-4">
                   {sortedDocs.filter(doc => isImage(doc.file_type)).map((doc) => (
                     <motion.div
                     key={doc.id}
