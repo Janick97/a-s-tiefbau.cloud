@@ -37,6 +37,7 @@ import {
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import StatsCard from "../components/dashboard/StatsCard";
+import QuickStatsBar from "../components/dashboard/QuickStatsBar";
 
 // OPTIMIERUNG: Limits für Dashboard-Daten
 const DASHBOARD_PROJECT_LIMIT = 50;
