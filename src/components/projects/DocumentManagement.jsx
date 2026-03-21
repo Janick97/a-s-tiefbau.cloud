@@ -53,6 +53,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
   const [newSubfolderName, setNewSubfolderName] = useState("");
   const [customFolders, setCustomFolders] = useState([]);
   const [editingSubfolder, setEditingSubfolder] = useState(null);
+  const [editingSubfolderName, setEditingSubfolderName] = useState("");
   const [showDeleteSubfolderDialog, setShowDeleteSubfolderDialog] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState(null);
   const [dragActive, setDragActive] = useState(false);
