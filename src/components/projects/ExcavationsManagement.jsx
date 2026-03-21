@@ -265,6 +265,7 @@ export default function ExcavationsManagement({
       });
       setShowAsphaltTragDialog(true);
     } else {
+      if (!window.confirm(`Status "Asphalt Tragschicht" für "${excavation.location_name}" wirklich entfernen?`)) return;
       try {
         await Excavation.update(excavation.id, {
           asphalt_trag_completed: false,
