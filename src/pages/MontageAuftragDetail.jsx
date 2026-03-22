@@ -178,6 +178,12 @@ export default function MontageAuftragDetailPage() {
               <MapPin className="w-5 h-5 mr-2" />
               Fehlerortung
             </Button>
+            <Button
+            onClick={() => setShowChat(true)}
+            className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white h-12 text-base font-semibold">
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Chat
+            </Button>
           </div>
         }
 
