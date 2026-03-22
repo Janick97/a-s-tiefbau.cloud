@@ -766,13 +766,25 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                            </div>
                            {isExpanded && (
                              <div className="border-t p-2.5 bg-gray-50 space-y-2 text-xs">
-                               <div className="bg-blue-50 border border-blue-200 rounded p-2 text-blue-800">
-                                 <p className="font-semibold mb-1">Zusammenfassung ({leistung.entries.length} Einträge):</p>
-                                 <ul className="space-y-1">
+                               <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                                 <p className="font-semibold mb-2 text-blue-800">Zusammenfassung ({leistung.entries.length} Einträge):</p>
+                                 <ul className="space-y-2">
                                    {leistung.entries.map((entry, i) => (
-                                     <li key={entry.id} className="flex justify-between text-xs">
-                                       <span>{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</span>
-                                       <span className="text-gray-600">{new Date(entry.completion_date).toLocaleDateString('de-DE')}</span>
+                                     <li key={entry.id} className="flex items-center justify-between p-2 bg-white rounded border border-blue-100 text-xs">
+                                       <div>
+                                         <div className="font-medium">{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</div>
+                                         <div className="text-gray-500">{new Date(entry.completion_date).toLocaleDateString('de-DE')}</div>
+                                       </div>
+                                       {!readOnly && (
+                                         <div className="flex gap-1 ml-2 flex-shrink-0">
+                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingLeistung(entry); setShowForm(true); }}>
+                                             <Edit className="w-3 h-3 text-blue-600" />
+                                           </Button>
+                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}>
+                                             <Trash2 className="w-3 h-3 text-red-500" />
+                                           </Button>
+                                         </div>
+                                       )}
                                      </li>
                                    ))}
                                  </ul>
