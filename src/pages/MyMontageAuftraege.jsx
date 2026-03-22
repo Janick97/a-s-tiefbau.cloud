@@ -182,27 +182,29 @@ export default function MyMontageAuftraegePage() {
                     )}
                   </div>
 
-                  {/* Meta */}
-                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
-                    {auftrag.client && (
-                      <span className="flex items-center gap-1">
-                        <Building2 className="w-3 h-3" />{auftrag.client}
-                      </span>
-                    )}
-                    {auftrag.city && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />{auftrag.city}
-                      </span>
-                    )}
-                    {auftrag.art && (
-                      <span className="bg-gray-100 px-2 py-0.5 rounded-full">{auftrag.art}</span>
-                    )}
-                  </div>
-
-                  {/* Notizen preview */}
-                  {auftrag.notes && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+                  {/* Notiz oder Meta */}
+                  {auftrag.notes ? (
+                    <button
+                      className="w-full text-left bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3 hover:bg-amber-100 transition-colors"
+                      onClick={() => { setNotesAuftrag(auftrag); setNotesText(auftrag.notes || ''); }}
+                    >
                       <p className="text-xs text-amber-800 line-clamp-2">{auftrag.notes}</p>
+                    </button>
+                  ) : (
+                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                      {auftrag.client && (
+                        <span className="flex items-center gap-1">
+                          <Building2 className="w-3 h-3" />{auftrag.client}
+                        </span>
+                      )}
+                      {auftrag.city && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />{auftrag.city}
+                        </span>
+                      )}
+                      {auftrag.art && (
+                        <span className="bg-gray-100 px-2 py-0.5 rounded-full">{auftrag.art}</span>
+                      )}
                     </div>
                   )}
 
@@ -218,11 +220,10 @@ export default function MyMontageAuftraegePage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-8 text-xs px-3 gap-1.5 border-blue-200 text-blue-700 hover:bg-blue-50"
+                      className="h-8 text-xs px-3 gap-1.5 border-gray-200 text-gray-600 hover:bg-gray-50"
                       onClick={() => { setNotesAuftrag(auftrag); setNotesText(auftrag.notes || ''); }}
                     >
                       <FileText className="w-3.5 h-3.5" />
-                      Notizen
                     </Button>
 
                     {!auftrag.monteur_completed && (
