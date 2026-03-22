@@ -202,7 +202,16 @@ export default function MontageAuftragDetailPage() {
           montageAuftragId={montageAuftrag.id}
           onClose={() => setShowMaterialDialog(false)}
           onSave={() => setShowMaterialDialog(false)} />
+        }
+      </AnimatePresence>
 
+      {/* Beweissicherung Dialog */}
+      <AnimatePresence>
+        {showBeweissicherungDialog &&
+        <BeweissicherungDialog
+          montageAuftragId={montageAuftrag.id}
+          onClose={() => setShowBeweissicherungDialog(false)}
+          onSave={() => setShowBeweissicherungDialog(false)} />
         }
       </AnimatePresence>
     </div>);
