@@ -58,7 +58,7 @@ const BILLED_FOLDER = "VAO/Verkehrsrechtliche Anordnung";
 const PROTECTED_FOLDERS = { "Rechnungen": "0000" };
 const DEFAULT_MAIN_FOLDERS = ["Rechnungen"];
 
-export default function DocumentManagement({ projectId, project, loadData }) {
+export default function DocumentManagement({ projectId, project, loadData, readOnly = false }) {
   const [documents, setDocuments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUploadForm, setShowUploadForm] = useState(false);
@@ -651,6 +651,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         </div>
       )}
 
+      {!readOnly && (
+      <>
       {/* Global Upload Progress Bar */}
       {uploading && (
         <Card className="border-orange-500 bg-orange-50">
@@ -680,6 +682,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
       )}
 
       {/* Upload Form */}
+      {!readOnly && (
       <AnimatePresence>
         {showUploadForm && (
           <motion.div
@@ -768,6 +771,7 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </motion.div>
         )}
       </AnimatePresence>
+      )}
 
       {/* Documents grouped by folder */}
       <div className="space-y-6">
@@ -857,28 +861,32 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       {getSortIcon(folder)}
                       <span className="hidden sm:inline">{getSortLabel(folder)}</span>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      title="Ordner umbenennen"
-                      onClick={() => { setEditingMainFolder(folder); setEditingMainFolderName(getFolderName(folder)); }}
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 sm:w-auto sm:px-2"
-                      onClick={() => {
-                        setSelectedParentFolder(folder);
-                        setShowSubfolderDialog(true);
-                      }}
-                      title="Unterordner erstellen"
-                    >
-                      <Plus className="w-3.5 h-3.5 sm:mr-1" />
-                      <span className="hidden sm:inline text-xs">Unterordner</span>
-                    </Button>
+                    {!readOnly && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0"
+                          title="Ordner umbenennen"
+                          onClick={() => { setEditingMainFolder(folder); setEditingMainFolderName(getFolderName(folder)); }}
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 sm:w-auto sm:px-2"
+                          onClick={() => {
+                            setSelectedParentFolder(folder);
+                            setShowSubfolderDialog(true);
+                          }}
+                          title="Unterordner erstellen"
+                        >
+                          <Plus className="w-3.5 h-3.5 sm:mr-1" />
+                          <span className="hidden sm:inline text-xs">Unterordner</span>
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardHeader>
@@ -890,21 +898,23 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                 return (<>
               {/* Selection bar */}
               {sortedDocs.length > 0 && (
-                <div className="flex items-center gap-2 mb-3 text-xs">
-                  <Checkbox
-                    checked={folderSelectedCount === sortedDocs.length && sortedDocs.length > 0}
-                    onCheckedChange={() => toggleSelectAll(sortedDocs)}
-                    id={`select-all-${folder}`}
-                  />
-                  <label htmlFor={`select-all-${folder}`} className="text-gray-500 cursor-pointer select-none">Alle auswählen</label>
-                  {folderSelectedCount > 0 && (
-                    <Button size="sm" variant="outline" className="ml-auto h-6 px-2 text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
-                      onClick={() => { setBulkMoveFolder(""); setShowBulkMoveDialog(true); }}>
-                      <MoveRight className="w-3 h-3 mr-1" />
-                      {folderSelectedCount} verschieben
-                    </Button>
-                  )}
-                </div>
+                {!readOnly && (
+                        <div className="flex items-center gap-2 mb-3 text-xs">
+                           <Checkbox
+                             checked={folderSelectedCount === sortedDocs.length && sortedDocs.length > 0}
+                             onCheckedChange={() => toggleSelectAll(sortedDocs)}
+                             id={`select-all-${folder}`}
+                           />
+                           <label htmlFor={`select-all-${folder}`} className="text-gray-500 cursor-pointer select-none">Alle auswählen</label>
+                           {folderSelectedCount > 0 && (
+                             <Button size="sm" variant="outline" className="ml-auto h-6 px-2 text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
+                               onClick={() => { setBulkMoveFolder(""); setShowBulkMoveDialog(true); }}>
+                               <MoveRight className="w-3 h-3 mr-1" />
+                               {folderSelectedCount} verschieben
+                             </Button>
+                           )}
+                         </div>
+                      )}
               )}
 
               {sortedDocs.length === 0 && subfolders.length === 0 && (
@@ -984,12 +994,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                             <Download className="w-3 h-3" />
                           </Button>
                         </a>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
-                          <FolderInput className="w-3 h-3" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600" onClick={() => handleDeleteDocument(doc.id)} title="Löschen">
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        {!readOnly && (
+                          <>
+                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
+                              <FolderInput className="w-3 h-3" />
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600" onClick={() => handleDeleteDocument(doc.id)} title="Löschen">
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </motion.div>
                   ))}
@@ -1046,50 +1060,56 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                       </div>
                       
                       {editingFileName !== doc.id && (
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            onClick={() => startEditingFileName(doc)}
-                            title="Dateiname bearbeiten"
-                          >
-                            <Edit className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost"
-                            className="h-8 w-8 p-0"
-                            title="Vorschau"
-                            onClick={() => setPreviewDoc(doc)}
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700"
-                            onClick={() => { setMovingDoc(doc); setMoveTargetFolder(doc.folder); }}
-                            title="Verschieben"
-                          >
-                            <FolderInput className="w-3.5 h-3.5" />
-                          </Button>
-                          <a href={doc.file_url} download={doc.file_name}>
-                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen">
-                              <Download className="w-3.5 h-3.5" />
-                            </Button>
-                          </a>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                            onClick={() => handleDeleteDocument(doc.id)}
-                            title="Löschen"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
-                        </div>
-                      )}
+                         <div className="flex items-center gap-1 flex-shrink-0">
+                           {!readOnly && (
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               className="h-8 w-8 p-0"
+                               onClick={() => startEditingFileName(doc)}
+                               title="Dateiname bearbeiten"
+                             >
+                               <Edit className="w-3.5 h-3.5" />
+                             </Button>
+                           )}
+                           <Button 
+                             size="sm" 
+                             variant="ghost"
+                             className="h-8 w-8 p-0"
+                             title="Vorschau"
+                             onClick={() => setPreviewDoc(doc)}
+                           >
+                             <Eye className="w-3.5 h-3.5" />
+                           </Button>
+                           {!readOnly && (
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700"
+                               onClick={() => { setMovingDoc(doc); setMoveTargetFolder(doc.folder); }}
+                               title="Verschieben"
+                             >
+                               <FolderInput className="w-3.5 h-3.5" />
+                             </Button>
+                           )}
+                           <a href={doc.file_url} download={doc.file_name}>
+                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen">
+                               <Download className="w-3.5 h-3.5" />
+                             </Button>
+                           </a>
+                           {!readOnly && (
+                             <Button
+                               size="sm"
+                               variant="ghost"
+                               className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                               onClick={() => handleDeleteDocument(doc.id)}
+                               title="Löschen"
+                             >
+                               <Trash2 className="w-3.5 h-3.5" />
+                             </Button>
+                           )}
+                         </div>
+                       )}
                     </motion.div>
                   ))}
                 </div>
@@ -1138,30 +1158,32 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                               <Badge variant="outline" className="text-xs flex-shrink-0">{subDocs.length}</Badge>
                             </div>
                             {/* Bottom row: action buttons */}
-                            <div className="flex items-center gap-1 pl-7">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0"
-                                onClick={() => { setEditingSubfolder(subfolder); setEditingSubfolderName(getFolderName(subfolder)); }}
-                                title="Umbenennen"
-                              >
-                                <Edit2 className="w-3 h-3" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
-                                onClick={() => {
-                                  setFolderToDelete(subfolder);
-                                  setShowDeleteSubfolderDialog(true);
-                                }}
-                                title="Löschen"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
+                             {!readOnly && (
+                             <div className="flex items-center gap-1 pl-7">
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 className="h-7 w-7 p-0"
+                                 onClick={() => { setEditingSubfolder(subfolder); setEditingSubfolderName(getFolderName(subfolder)); }}
+                                 title="Umbenennen"
+                               >
+                                 <Edit2 className="w-3 h-3" />
+                               </Button>
+                               <Button
+                                 variant="ghost"
+                                 size="sm"
+                                 className="h-7 w-7 p-0 text-red-600 hover:text-red-700"
+                                 onClick={() => {
+                                   setFolderToDelete(subfolder);
+                                   setShowDeleteSubfolderDialog(true);
+                                 }}
+                                 title="Löschen"
+                               >
+                                 <Trash2 className="w-3 h-3" />
+                               </Button>
 
-                            </div>
+                             </div>
+                             )}
                           </div>
                           
                           {/* Inhalt des Unterordners wenn aufgeklappt */}
@@ -1237,12 +1259,16 @@ export default function DocumentManagement({ projectId, project, loadData }) {
                                             <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-white/90 hover:bg-white" title="Herunterladen" onClick={(e) => { e.stopPropagation(); handleDownloadFile(doc); }}>
                                               <Download className="w-3 h-3" />
                                             </Button>
-                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
-                                              <FolderInput className="w-3 h-3" />
-                                            </Button>
-                                            <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600" onClick={() => handleDeleteDocument(doc.id)} title="Löschen">
-                                              <Trash2 className="w-3 h-3" />
-                                            </Button>
+                                            {!readOnly && (
+                                              <>
+                                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-blue-50 hover:bg-blue-100 text-blue-600" onClick={(e) => { e.stopPropagation(); setMovingDoc(doc); setMoveTargetFolder(doc.folder); }} title="Verschieben">
+                                                  <FolderInput className="w-3 h-3" />
+                                                </Button>
+                                                <Button size="sm" variant="ghost" className="h-6 w-6 p-0 bg-red-100 hover:bg-red-200 text-red-600" onClick={() => handleDeleteDocument(doc.id)} title="Löschen">
+                                                  <Trash2 className="w-3 h-3" />
+                                                </Button>
+                                              </>
+                                            )}
                                           </div>
                                         </motion.div>
                                       ))}
@@ -1469,6 +1495,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
       </AnimatePresence>
 
+      </>
+      )}
+
       {/* New Main Folder Dialog */}
       <AnimatePresence>
         {showNewMainFolderDialog && (
@@ -1522,6 +1551,8 @@ export default function DocumentManagement({ projectId, project, loadData }) {
         )}
       </AnimatePresence>
 
+      {!readOnly && (
+      <>
       {/* Move Document Dialog */}
       <AnimatePresence>
         {movingDoc && (
@@ -1799,6 +1830,9 @@ export default function DocumentManagement({ projectId, project, loadData }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      </>
+      )}
 
       {/* Delete Subfolder Dialog */}
       <AnimatePresence>
