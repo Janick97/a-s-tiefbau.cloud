@@ -897,24 +897,23 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                 const folderSelectedCount = sortedDocs.filter(d => selectedDocIds.has(d.id)).length;
                 return (<>
               {/* Selection bar */}
-              {sortedDocs.length > 0 && (
-                {!readOnly && (
-                        <div className="flex items-center gap-2 mb-3 text-xs">
-                           <Checkbox
-                             checked={folderSelectedCount === sortedDocs.length && sortedDocs.length > 0}
-                             onCheckedChange={() => toggleSelectAll(sortedDocs)}
-                             id={`select-all-${folder}`}
-                           />
-                           <label htmlFor={`select-all-${folder}`} className="text-gray-500 cursor-pointer select-none">Alle auswählen</label>
-                           {folderSelectedCount > 0 && (
-                             <Button size="sm" variant="outline" className="ml-auto h-6 px-2 text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
-                               onClick={() => { setBulkMoveFolder(""); setShowBulkMoveDialog(true); }}>
-                               <MoveRight className="w-3 h-3 mr-1" />
-                               {folderSelectedCount} verschieben
-                             </Button>
-                           )}
-                         </div>
-                      )}
+              {sortedDocs.length > 0 && !readOnly && (
+                <div className="flex items-center gap-2 mb-3 text-xs">
+                   <Checkbox
+                     checked={folderSelectedCount === sortedDocs.length && sortedDocs.length > 0}
+                     onCheckedChange={() => toggleSelectAll(sortedDocs)}
+                     id={`select-all-${folder}`}
+                   />
+                   <label htmlFor={`select-all-${folder}`} className="text-gray-500 cursor-pointer select-none">Alle auswählen</label>
+                   {folderSelectedCount > 0 && (
+                     <Button size="sm" variant="outline" className="ml-auto h-6 px-2 text-xs border-blue-300 text-blue-600 hover:bg-blue-50"
+                       onClick={() => { setBulkMoveFolder(""); setShowBulkMoveDialog(true); }}>
+                       <MoveRight className="w-3 h-3 mr-1" />
+                       {folderSelectedCount} verschieben
+                     </Button>
+                   )}
+                 </div>
+              )}
               )}
 
               {sortedDocs.length === 0 && subfolders.length === 0 && (
