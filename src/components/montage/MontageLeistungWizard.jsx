@@ -228,7 +228,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       case 0: return formData.kategorie !== '';
       case 1: return formData.alleineArbeiten === 'ja' || formData.mitarbeiterIds.length > 0;
       case 2: return formData.leistungen.length > 0;
-      case 3: return formData.latitude && formData.longitude;
+      case 3: return formData.standortName.trim() !== '';
       default: return true;
     }
   };
