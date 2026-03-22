@@ -29,6 +29,7 @@ export default function MontageAuftragDetailPage() {
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
   const [showBeweissicherungDialog, setShowBeweissicherungDialog] = useState(false);
   const [showFehlerortungDialog, setShowFehlerortungDialog] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
