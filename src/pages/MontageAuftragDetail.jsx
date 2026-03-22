@@ -36,10 +36,11 @@ export default function MontageAuftragDetailPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const [auftragData, userData] = await Promise.all([
-        MontageAuftrag.get(montageAuftragId),
-        User.me()]
-        );
+        const [auftragData, userData, beweissicherungenData] = await Promise.all([
+          MontageAuftrag.get(montageAuftragId),
+          User.me(),
+          base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => [])
+        ]);
 
         if (!auftragData) {
           throw new Error("Montageauftrag nicht gefunden.");
