@@ -481,7 +481,7 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
   useEffect(() => {
     const loadData = async () => {
       const [mats, user] = await Promise.all([
-      MontageMaterialInventory.list(),
+      MontageMaterial.list(),
       User.me()]
       );
       setMaterials(Array.isArray(mats) ? mats : []);
