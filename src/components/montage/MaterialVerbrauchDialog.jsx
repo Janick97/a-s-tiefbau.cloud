@@ -55,12 +55,14 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
     try {
       for (const material of selectedMaterials) {
         if (material.material_id) {
+          const user = await import('@/api/base44Client').then(m => m.base44.auth.me()).catch(() => null);
           await MontageLeistungMaterial.create({
             montage_auftrag_id: montageAuftragId,
             material_id: material.material_id,
             quantity_used: material.quantity,
             usage_date: new Date().toISOString().split('T')[0],
-            used_by: 'Monteur',
+            used_by: user?.full_name || 'Monteur',
+            used_by_user_id: user?.id || '',
             notes: material.notes || ''
           });
         }
