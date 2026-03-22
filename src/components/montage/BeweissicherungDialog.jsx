@@ -3,25 +3,26 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import { X, Loader2, ShieldAlert, Upload, Check } from "lucide-react";
+import { X, Loader2, ShieldAlert, Upload, Check, Trash2 } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
-export default function BeweissicherungDialog({ montageAuftragId, onClose, onSave }) {
+export default function BeweissicherungDialog({ montageAuftragId, existingBeweissicherung, onClose, onSave }) {
+  const isEdit = !!existingBeweissicherung;
+
   const [isLoading, setIsLoading] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [formData, setFormData] = useState({
-    schaediger_name: "",
-    schaediger_adresse: "",
-    schaediger_nummer: "",
-    schadensort_plz: "",
-    schadensort_ort: "",
-    schadensort_strasse: "",
-    schadensursache: "",
-    uhrzeit_schaden: "",
-    uhrzeit_beseitigung: "",
-    fotos: []
+    schaediger_name: existingBeweissicherung?.schaediger_name || "",
+    schaediger_adresse: existingBeweissicherung?.schaediger_adresse || "",
+    schaediger_nummer: existingBeweissicherung?.schaediger_nummer || "",
+    schadensort_plz: existingBeweissicherung?.schadensort_plz || "",
+    schadensort_ort: existingBeweissicherung?.schadensort_ort || "",
+    schadensort_strasse: existingBeweissicherung?.schadensort_strasse || "",
+    schadensursache: existingBeweissicherung?.schadensursache || "",
+    uhrzeit_schaden: existingBeweissicherung?.uhrzeit_schaden || "",
+    uhrzeit_beseitigung: existingBeweissicherung?.uhrzeit_beseitigung || "",
+    fotos: existingBeweissicherung?.fotos || []
   });
 
   const handleChange = (field, value) => {
@@ -29,12 +30,7 @@ export default function BeweissicherungDialog({ montageAuftragId, onClose, onSav
   };
 
   const handlePhotoUpload = async (files) => {
-    if (formData.fotos.length >= 5) {
-      alert("Maximal 5 Fotos erlaubt.");
-      return;
-    }
-    const remaining = 5 - formData.fotos.length;
-    const filesToUpload = Array.from(files).slice(0, remaining);
+    const filesToUpload = Array.from(files);
     setUploadingPhotos(true);
     try {
       const urls = [];
@@ -61,14 +57,18 @@ export default function BeweissicherungDialog({ montageAuftragId, onClose, onSav
     }
     setIsLoading(true);
     try {
-      const user = await base44.auth.me();
-      await base44.entities.Beweissicherung.create({
-        montage_auftrag_id: montageAuftragId,
-        ...formData,
-        erfasst_von: user.full_name,
-        erfasst_von_user_id: user.id,
-        erfassungsdatum: new Date().toISOString().split("T")[0]
-      });
+      if (isEdit) {
+        await base44.entities.Beweissicherung.update(existingBeweissicherung.id, formData);
+      } else {
+        const user = await base44.auth.me();
+        await base44.entities.Beweissicherung.create({
+          montage_auftrag_id: montageAuftragId,
+          ...formData,
+          erfasst_von: user.full_name,
+          erfasst_von_user_id: user.id,
+          erfassungsdatum: new Date().toISOString().split("T")[0]
+        });
+      }
       onSave();
     } catch (error) {
       console.error("Fehler beim Speichern:", error);
@@ -89,7 +89,9 @@ export default function BeweissicherungDialog({ montageAuftragId, onClose, onSav
         <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-red-50 to-orange-50 rounded-t-xl">
           <div className="flex items-center gap-3">
             <ShieldAlert className="w-6 h-6 text-red-600" />
-            <h2 className="text-lg font-bold text-gray-900">Beweissicherung</h2>
+            <h2 className="text-lg font-bold text-gray-900">
+              {isEdit ? "Beweissicherung bearbeiten" : "Beweissicherung"}
+            </h2>
           </div>
           <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
             <X className="w-5 h-5 text-gray-500" />
@@ -200,35 +202,33 @@ export default function BeweissicherungDialog({ montageAuftragId, onClose, onSav
           {/* Fotos */}
           <div>
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">
-              Fotos ({formData.fotos.length}/5)
+              Fotos ({formData.fotos.length})
             </h3>
-            {formData.fotos.length < 5 && (
-              <label className="block cursor-pointer mb-3">
-                <div className="border-2 border-dashed border-orange-300 bg-orange-50 rounded-lg p-5 text-center hover:bg-orange-100 transition-colors">
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={(e) => handlePhotoUpload(e.target.files)}
-                    className="hidden"
-                  />
-                  {uploadingPhotos ? (
-                    <div className="flex items-center justify-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-orange-600" />
-                      <span className="text-sm text-orange-700">Wird hochgeladen...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload className="w-5 h-5 text-orange-500 mx-auto mb-1" />
-                      <p className="text-sm font-medium text-gray-700">Fotos hochladen</p>
-                      <p className="text-xs text-gray-500">Noch {5 - formData.fotos.length} Foto(s) möglich</p>
-                    </>
-                  )}
-                </div>
-              </label>
-            )}
+            <label className="block cursor-pointer mb-3">
+              <div className="border-2 border-dashed border-orange-300 bg-orange-50 rounded-lg p-5 text-center hover:bg-orange-100 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => handlePhotoUpload(e.target.files)}
+                  className="hidden"
+                />
+                {uploadingPhotos ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-orange-600" />
+                    <span className="text-sm text-orange-700">Wird hochgeladen...</span>
+                  </div>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+                    <p className="text-sm font-medium text-gray-700">Fotos hochladen</p>
+                    <p className="text-xs text-gray-500">Beliebig viele Fotos möglich</p>
+                  </>
+                )}
+              </div>
+            </label>
             {formData.fotos.length > 0 && (
-              <div className="grid grid-cols-5 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 {formData.fotos.map((url, i) => (
                   <div key={i} className="relative aspect-square">
                     <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover rounded-lg border" />
@@ -252,13 +252,13 @@ export default function BeweissicherungDialog({ montageAuftragId, onClose, onSav
           </Button>
           <Button
             onClick={handleSave}
-            disabled={isLoading}
+            disabled={isLoading || uploadingPhotos}
             className="flex-1 bg-red-600 hover:bg-red-700 text-white"
           >
             {isLoading ? (
               <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Wird gespeichert...</>
             ) : (
-              <><Check className="w-4 h-4 mr-2" />Speichern</>
+              <><Check className="w-4 h-4 mr-2" />{isEdit ? "Aktualisieren" : "Speichern"}</>
             )}
           </Button>
         </div>
