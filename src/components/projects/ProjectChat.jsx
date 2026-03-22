@@ -102,14 +102,12 @@ export default function ProjectChat({ projectId }) {
     const loadData = async () => {
         setIsLoading(true);
         try {
-            const [user, projectComments, project] = await Promise.all([
+            const [user, projectComments] = await Promise.all([
                 User.me(),
                 ProjectComment.filter({ project_id: projectId }, 'created_date'),
-                Project.get(projectId).catch(() => null)
             ]);
             setCurrentUser(user);
             setComments(Array.isArray(projectComments) ? projectComments : []);
-            setProjectData(project);
         } catch (error) {
             console.error("Fehler beim Laden der Kommentare:", error);
         } finally {
