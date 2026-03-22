@@ -19,6 +19,8 @@ async function sendChatMessage(projectId, message, userName) {
 export default function FehlerortungDialog({ montageAuftrag, user, onClose, onReload, onOpenLeistungWizard }) {
   const [step, setStep] = useState('start');
   const [tiefbauText, setTiefbauText] = useState('');
+  const [kabelVon, setKabelVon] = useState('');
+  const [kabelBis, setKabelBis] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const montageAuftragId = montageAuftrag.id;
