@@ -92,7 +92,7 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
           onClick={(e) => e.stopPropagation()}
         >
           <Card className="border-none h-full rounded-none flex flex-col">
-            <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-lg">
+            <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   🧰 Material verbraucht
