@@ -262,16 +262,12 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
         </div>
 
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b p-6">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{WIZARD_STEPS[currentStep].icon}</span>
-            <div className="flex-1">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">{WIZARD_STEPS[currentStep].title}</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Schritt {currentStep + 1} von {WIZARD_STEPS.length}
-              </p>
-            </div>
+        <div className="border-b px-4 py-3 flex items-center gap-3 bg-white">
+          <span className="text-xl">{WIZARD_STEPS[currentStep].icon}</span>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base font-bold text-gray-900 truncate">{WIZARD_STEPS[currentStep].title}</h2>
           </div>
+          <span className="text-xs text-gray-400 flex-shrink-0">{currentStep + 1} / {WIZARD_STEPS.length}</span>
         </div>
 
         {/* Content */}
