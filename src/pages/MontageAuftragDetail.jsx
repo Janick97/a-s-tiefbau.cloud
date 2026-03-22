@@ -218,6 +218,21 @@ export default function MontageAuftragDetailPage() {
         }
       </AnimatePresence>
 
+      {/* Fehlerortung Dialog */}
+      <AnimatePresence>
+        {showFehlerortungDialog &&
+        <FehlerortungDialog
+          montageAuftrag={montageAuftrag}
+          user={user}
+          onClose={() => setShowFehlerortungDialog(false)}
+          onReload={async () => {
+            const updated = await MontageAuftrag.get(montageAuftragId);
+            setMontageAuftrag(updated);
+          }}
+        />
+        }
+      </AnimatePresence>
+
       {/* Beweissicherung Dialog */}
       <AnimatePresence>
         {showBeweissicherungDialog &&
