@@ -83,6 +83,7 @@ import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import BeweissicherungsAnzeige from "../components/montage/BeweissicherungsAnzeige";
+import MontageLeistungenPdfExport from "../components/montage/MontageLeistungenPdfExport";
 import ProjectHistory from "../components/projects/ProjectHistory";
 import PartialClosureDialog from "../components/excavations/PartialClosureDialog";
 import { base44 } from "@/api/base44Client";
