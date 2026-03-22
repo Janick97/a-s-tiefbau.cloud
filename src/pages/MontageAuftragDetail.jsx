@@ -42,10 +42,10 @@ export default function MontageAuftragDetailPage() {
       setError(null);
       try {
         const [auftragData, userData, beweissicherungenData] = await Promise.all([
-          MontageAuftrag.get(montageAuftragId),
-          User.me(),
-          base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => [])
-        ]);
+        MontageAuftrag.get(montageAuftragId),
+        User.me(),
+        base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => [])]
+        );
 
         if (!auftragData) {
           throw new Error("Montageauftrag nicht gefunden.");
@@ -198,7 +198,7 @@ export default function MontageAuftragDetailPage() {
         {/* Übersicht der Leistungen */}
         <div>
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
-          <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} hidePrices={isMonteur} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={async () => { const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []); setBeweissicherungen(Array.isArray(data) ? data : []); }} />
+          <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} hidePrices={isMonteur} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={async () => {const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);setBeweissicherungen(Array.isArray(data) ? data : []);}} />
         </div>
         </div>
 
@@ -238,8 +238,8 @@ export default function MontageAuftragDetailPage() {
             const updated = await MontageAuftrag.get(montageAuftragId);
             setMontageAuftrag(updated);
           }}
-          onOpenLeistungWizard={() => setShowLeistungWizard(true)}
-        />
+          onOpenLeistungWizard={() => setShowLeistungWizard(true)} />
+
         }
       </AnimatePresence>
 
@@ -265,9 +265,9 @@ export default function MontageAuftragDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-white w-full h-full flex flex-col"
-          >
-            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+            className="bg-white w-full h-full flex flex-col">
+            
+            <div className="bg-gray-50 px-4 py-1 flex items-center justify-between border-b">
               <h3 className="font-bold text-gray-900 text-lg">Projektdokumente</h3>
               <button onClick={() => setShowDocuments(false)} className="p-2 rounded-lg hover:bg-gray-200 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <X className="w-6 h-6 text-gray-500" />
@@ -289,8 +289,8 @@ export default function MontageAuftragDetailPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="bg-white w-full h-full flex flex-col"
-          >
+            className="bg-white w-full h-full flex flex-col">
+            
             <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-teal-500 to-cyan-500">
               <h3 className="font-bold text-white text-lg">Projekt-Chat</h3>
               <button onClick={() => setShowChat(false)} className="p-2 rounded-lg hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
