@@ -56,7 +56,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       const user = await User.me();
       setCurrentUser(user);
       const users = await User.list();
-      const monteurs = users.filter(u => u.id !== user.id && (u.position === 'Monteur' || !u.position));
+      const monteurs = users.filter(u => u.id !== user.id && u.position === 'Monteur');
       setAllMonteure(monteurs);
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
