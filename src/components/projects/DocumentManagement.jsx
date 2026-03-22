@@ -76,7 +76,7 @@ export default function DocumentManagement({ projectId, project, loadData, readO
   const [folderToDelete, setFolderToDelete] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [dragTargetFolder, setDragTargetFolder] = useState(null);
-  const [expandedFolders, setExpandedFolders] = useState(new Set()); // alle zugeklappt beim Start
+  const [expandedFolders, setExpandedFolders] = useState(() => new Set()); // alle zugeklappt beim Start
   const [editingMainFolder, setEditingMainFolder] = useState(null);
   const [editingMainFolderName, setEditingMainFolderName] = useState("");
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
