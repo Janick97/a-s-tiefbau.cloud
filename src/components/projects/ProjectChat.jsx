@@ -131,6 +131,10 @@ export default function ProjectChat({ projectId }) {
         return () => unsubscribe();
     }, [projectId]);
 
+    useEffect(() => {
+        commentsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [comments]);
+
     const handleFileSelect = async (event) => {
         const files = Array.from(event.target.files);
         if (files.length === 0) return;
