@@ -129,10 +129,10 @@ export default function MontageAuftragDetailPage() {
             </Button>
           </Link>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-              {montageAuftrag.sm_number}
-            </h1>
-            <p className="text-xs md:text-sm text-gray-600 truncate">{montageAuftrag.title}</p>
+            
+
+            
+            <p className="text-gray-600 text-sm md:text-sm truncate">{montageAuftrag.title}</p>
           </div>
           {montageAuftrag.monteur_completed &&
           <Badge className="bg-green-100 text-green-800 text-xs">Erledigt</Badge>
