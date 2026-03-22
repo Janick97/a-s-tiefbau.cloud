@@ -1306,7 +1306,10 @@ export default function ProjectDetailPage() {
               {activeTab === 'montage' && (
                 <div className="p-2 sm:p-4 lg:p-6 overflow-hidden">
                   {montageAuftrag ? (
-                    <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} />
+                    <>
+                      <BeweissicherungsAnzeige beweissicherungen={beweissicherungen} />
+                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} />
+                    </>
                   ) : (
                     <div className="text-center py-16">
                       <p className="text-gray-500 mb-4">Für dieses Projekt existiert noch kein Montageauftrag.</p>

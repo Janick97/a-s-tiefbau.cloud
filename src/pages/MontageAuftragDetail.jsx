@@ -172,8 +172,11 @@ export default function MontageAuftragDetailPage() {
           </div>
         }
 
+        {/* Beweissicherungen anzeigen */}
+        <BeweissicherungsAnzeige beweissicherungen={beweissicherungen} />
+
         {/* Übersicht der Leistungen */}
-         <div>
+        <div>
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} />
         </div>
