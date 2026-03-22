@@ -23,6 +23,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
   const [kabelBis, setKabelBis] = useState('');
   const [muffeEins, setMuffeEins] = useState('');
   const [muffeZwei, setMuffeZwei] = useState('');
+  const [hausanschlussHaus, setHausanschlussHaus] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const montageAuftragId = montageAuftrag.id;
