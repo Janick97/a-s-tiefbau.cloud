@@ -250,9 +250,9 @@ export default function ProjectDetailPage() {
         Promise.all(relatedProjectIds.map(id => 
           ProjectDocument.filter({ project_id: id }).catch(() => [])
         )).then(results => results.flat()),
-        montageAuftrag ? MontageLeistung.filter({ montage_auftrag_id: montageAuftrag.id }).catch(() => []) : Promise.resolve([]),
+        projectMontage ? MontageLeistung.filter({ montage_auftrag_id: projectMontage.id }).catch(() => []) : Promise.resolve([]),
         MontagePreisItem.list().catch(() => []),
-        montageAuftrag ? base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftrag.id }).catch(() => []) : Promise.resolve([])
+        projectMontage ? base44.entities.Beweissicherung.filter({ montage_auftrag_id: projectMontage.id }).catch(() => []) : Promise.resolve([])
       ]);
 
       // Sortiere Ausgrabungen nach Erstellungsdatum (älteste zuerst)
