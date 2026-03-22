@@ -852,33 +852,57 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-1">
-                    {materialUsage.map((usage) => {
-                      const material = materials.find((m) => m.id === usage.material_id);
-                      return material ? (
-                        <div key={usage.id} className="flex justify-between items-center p-2 bg-white border rounded text-xs">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium truncate">{material.name}</p>
-                            <p className="text-gray-400">{material.article_number}</p>
-                          </div>
-                          <div className="flex items-center gap-1.5 ml-2">
-                            <p className="font-bold text-gray-700">{usage.quantity_used} {material.unit}</p>
-                            {!readOnly && (
-                              <div className="flex gap-0.5 flex-shrink-0">
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => { setEditingMaterial(usage); setShowMaterialForm(true); }}>
-                                  <Edit className="w-3 h-3" />
-                                </Button>
-                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async () => { if (window.confirm("Löschen?")) { await MontageLeistungMaterial.delete(usage.id); loadData(); } }}>
-                                  <Trash2 className="w-3 h-3 text-red-500" />
-                                </Button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                )}
+                   <div className="space-y-1.5">
+                     {aggregatedMaterialUsage.map((usage) => {
+                       const material = materials.find((m) => m.id === usage.material_id);
+                       const isExpanded = expandedMaterialId === usage.material_id;
+                       return material ? (
+                         <div key={usage.material_id} className="border rounded-lg overflow-hidden bg-white">
+                           <div
+                             className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                             onClick={() => setExpandedMaterialId(isExpanded ? null : usage.material_id)}
+                           >
+                             <div className="flex-1 min-w-0">
+                               <p className="font-medium text-xs text-gray-900">{material.name}</p>
+                               <p className="text-[10px] text-gray-400">{material.article_number}</p>
+                             </div>
+                             <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                               <p className="font-bold text-xs text-gray-700">{usage.quantity_used} {material.unit}</p>
+                               {usage.entries.length > 1 && (
+                                 <Badge variant="outline" className="text-[10px]">{usage.entries.length}x</Badge>
+                               )}
+                               <ChevronDown className={`w-3 h-3 text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                             </div>
+                           </div>
+                           {isExpanded && (
+                             <div className="border-t p-2 bg-gray-50 space-y-2">
+                               <ul className="space-y-1.5">
+                                 {usage.entries.map((entry) => (
+                                   <li key={entry.id} className="flex items-center justify-between p-2 bg-white rounded border border-purple-100 text-xs">
+                                     <div>
+                                       <div className="font-medium">{entry.quantity_used} {material.unit}</div>
+                                       <div className="text-gray-500">{entry.used_by || "Unbekannt"} · {entry.usage_date && new Date(entry.usage_date).toLocaleDateString('de-DE')}</div>
+                                     </div>
+                                     {!readOnly && (
+                                       <div className="flex gap-1 ml-2 flex-shrink-0">
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingMaterial(entry); setShowMaterialForm(true); }}>
+                                           <Edit className="w-3 h-3 text-purple-600" />
+                                         </Button>
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async (e) => { e.stopPropagation(); if (window.confirm("Löschen?")) { await MontageLeistungMaterial.delete(entry.id); loadData(); } }}>
+                                           <Trash2 className="w-3 h-3 text-red-500" />
+                                         </Button>
+                                       </div>
+                                     )}
+                                   </li>
+                                 ))}
+                               </ul>
+                             </div>
+                           )}
+                         </div>
+                       ) : null;
+                     })}
+                   </div>
+                 )}
               </div>
             </CollapsibleContent>
           </Collapsible>
