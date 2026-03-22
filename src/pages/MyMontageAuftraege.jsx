@@ -1,61 +1,30 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { MontageAuftrag, User } from "@/entities/all";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Construction,
-  MapPin,
-  Calendar,
-  Building,
-  Search,
-  Filter,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-  Loader2,
-  FileText,
-  Edit3,
-  Save,
-  Eye,
-  RefreshCw
+  Construction, MapPin, Search, CheckCircle, Clock,
+  AlertTriangle, Loader2, FileText, Save, Eye, RefreshCw,
+  ChevronRight, X, Building2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 
-const statusColors = {
-  'Tiefbau ausstehend': 'bg-orange-100 text-orange-800 border-orange-200',
-  'Bereit zur Montage': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  'Montage abgeschlossen': 'bg-green-100 text-green-800 border-green-200',
-  'Rotberichtigung abgeschlossen': 'bg-purple-100 text-purple-800 border-purple-200'
-};
-
 export default function MyMontageAuftraegePage() {
   const [user, setUser] = useState(null);
   const [auftraege, setAuftraege] = useState([]);
-  const [filteredAuftraege, setFilteredAuftraege] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [showCompletedAuftraege, setShowCompletedAuftraege] = useState(false);
-  const [confirmDialog, setConfirmDialog] = useState({
-    show: false,
-    auftragId: null,
-    auftragTitle: null
-  });
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [confirmId, setConfirmId] = useState(null);
   const [completing, setCompleting] = useState(null);
-  const [showNotesDialog, setShowNotesDialog] = useState(false);
-  const [currentNotesAuftrag, setCurrentNotesAuftrag] = useState(null);
+  const [notesAuftrag, setNotesAuftrag] = useState(null);
   const [notesText, setNotesText] = useState('');
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useEffect(() => { loadData(); }, []);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -64,462 +33,300 @@ export default function MyMontageAuftraegePage() {
         User.me().catch(() => null),
         MontageAuftrag.list("-created_date").catch(() => [])
       ]);
-
       setUser(userData);
-
-      if (userData && userData.position === 'Monteur') {
-        const userAssignedAuftraege = (Array.isArray(auftraegeData) ? auftraegeData : []).filter(auftrag => {
-          // Prüfe assigned_monteur_id (alte Methode)
-          const matchesMonteurId = auftrag.assigned_monteur_id === userData.id;
-          
-          // Prüfe assigned_monteure Array (neue Methode)
-          const matchesMonteureArray = Array.isArray(auftrag.assigned_monteure) && 
-                                       auftrag.assigned_monteure.some(m => m && m.id === userData.id);
-          
-          // Prüfe created_by (als Fallback)
-          const matchesCreatedBy = auftrag.created_by === userData.email;
-          
-          return matchesMonteurId || matchesMonteureArray || matchesCreatedBy;
-        });
-        setAuftraege(userAssignedAuftraege);
+      if (userData?.position === 'Monteur') {
+        const mine = (Array.isArray(auftraegeData) ? auftraegeData : []).filter(a =>
+          a.assigned_monteur_id === userData.id ||
+          (Array.isArray(a.assigned_monteure) && a.assigned_monteure.some(m => m?.id === userData.id)) ||
+          a.created_by === userData.email
+        );
+        setAuftraege(mine);
       } else {
         setAuftraege([]);
       }
-    } catch (error) {
-      console.error("Fehler beim Laden der Montageaufträge:", error);
+    } catch (e) {
+      console.error(e);
       setAuftraege([]);
     }
     setIsLoading(false);
   };
 
-  const filterAuftraege = useCallback(() => {
-    let filtered = [...auftraege];
+  const filtered = auftraege
+    .filter(a => showCompleted ? a.monteur_completed : !a.monteur_completed)
+    .filter(a => !searchTerm || [a.sm_number, a.project_number, a.title, a.client, a.city]
+      .some(f => f?.toLowerCase().includes(searchTerm.toLowerCase())));
 
-    // Filter nach monteur_completed Status
-    if (showCompletedAuftraege) {
-      filtered = filtered.filter(auftrag => auftrag.monteur_completed === true);
-    } else {
-      filtered = filtered.filter(auftrag => !auftrag.monteur_completed);
-    }
+  const activeCount = auftraege.filter(a => !a.monteur_completed).length;
+  const doneCount = auftraege.filter(a => a.monteur_completed).length;
 
-    // Textsuche
-    if (searchTerm) {
-      filtered = filtered.filter(auftrag =>
-        auftrag.sm_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        auftrag.project_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        auftrag.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        auftrag.client?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        auftrag.city?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredAuftraege(filtered);
-  }, [auftraege, searchTerm, showCompletedAuftraege]);
-
-  useEffect(() => {
-    filterAuftraege();
-  }, [filterAuftraege]); // Depend on the memoized function
-
-  const handleMarkAsCompleted = (auftrag) => {
-    setConfirmDialog({
-      show: true,
-      auftragId: auftrag.id,
-      auftragTitle: auftrag.title
+  const handleComplete = async () => {
+    if (!confirmId) return;
+    setCompleting(confirmId);
+    setConfirmId(null);
+    await MontageAuftrag.update(confirmId, {
+      monteur_completed: true,
+      monteur_completed_date: new Date().toISOString().split('T')[0],
+      status: 'Montage fertig'
     });
-  };
-
-  const confirmMarkAsCompleted = async () => {
-    const { auftragId } = confirmDialog;
-    setConfirmDialog({ show: false, auftragId: null, auftragTitle: null });
-    setCompleting(auftragId);
-
-    try {
-      await MontageAuftrag.update(auftragId, {
-        monteur_completed: true,
-        monteur_completed_date: new Date().toISOString().split('T')[0],
-        status: 'Montage fertig'
-      });
-
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Markieren als fertig:", error);
-    }
     setCompleting(null);
-  };
-
-  const cancelMarkAsCompleted = () => {
-    setConfirmDialog({ show: false, auftragId: null, auftragTitle: null });
-  };
-
-  const handleNotesClick = (auftrag) => {
-    setCurrentNotesAuftrag(auftrag);
-    setNotesText(auftrag.notes || '');
-    setShowNotesDialog(true);
+    loadData();
   };
 
   const handleSaveNotes = async () => {
-    if (!currentNotesAuftrag) return;
-    
-    try {
-      await MontageAuftrag.update(currentNotesAuftrag.id, {
-        notes: notesText
-      });
-      setShowNotesDialog(false);
-      setCurrentNotesAuftrag(null);
-      setNotesText('');
-      loadData();
-    } catch (error) {
-      console.error("Fehler beim Speichern der Notizen:", error);
-      alert(`Fehler beim Speichern der Notizen: ${error.message}`);
-    }
+    if (!notesAuftrag) return;
+    await MontageAuftrag.update(notesAuftrag.id, { notes: notesText });
+    setNotesAuftrag(null);
+    loadData();
   };
 
-  const activeAuftraegeCount = auftraege.filter(a => !a.monteur_completed).length;
-  const completedAuftraegeCount = auftraege.filter(a => a.monteur_completed).length;
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+    </div>
+  );
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4 md:p-6 flex items-center justify-center">
-        <Card className="card-elevation border-none">
-          <CardContent className="p-6 lg:p-8 text-center">
-            <Loader2 className="w-8 h-8 text-blue-500 mx-auto mb-4 animate-spin" />
-            <h2 className="text-lg font-semibold text-gray-900">Montageaufträge werden geladen...</h2>
-          </CardContent>
-        </Card>
+  if (!user || user.position !== 'Monteur') return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="text-center">
+        <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+        <p className="font-semibold text-gray-700">Nur für Monteure zugänglich</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (!user || user.position !== 'Monteur') {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-pink-50 p-4 md:p-6 flex items-center justify-center">
-        <Card className="card-elevation border-none">
-          <CardContent className="p-6 lg:p-8 text-center">
-            <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-semibold text-gray-900">Zugriff verweigert</h2>
-            <p className="text-gray-600">Diese Seite ist nur für Monteure zugänglich.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const confirmAuftrag = auftraege.find(a => a.id === confirmId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-2 md:p-3 relative">
-      <button
-        onClick={loadData}
-        className="absolute top-2 right-2 md:top-3 md:right-3 p-2 hover:bg-white/50 rounded-lg transition-colors"
-        title="Aktualisieren"
-      >
-        <RefreshCw className="w-5 h-5 text-gray-600 hover:text-blue-600" />
-      </button>
-      <div className="max-w-7xl mx-auto">
-         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-2 md:mb-3"
-        >
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b sticky top-0 z-10 px-4 pt-4 pb-3">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-lg md:text-xl font-bold text-gray-900">
-              Meine Montageaufträge
-            </h1>
-            <p className="text-xs md:text-sm text-gray-600 mt-0.5">
-              {filteredAuftraege.length} von {showCompletedAuftraege ? completedAuftraegeCount : activeAuftraegeCount} Montageaufträgen
+            <h1 className="text-lg font-bold text-gray-900">Meine Aufträge</h1>
+            <p className="text-xs text-gray-500">{user.full_name}</p>
+          </div>
+          <button onClick={loadData} className="p-2 rounded-lg hover:bg-gray-100 transition-colors">
+            <RefreshCw className="w-4 h-4 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-3 bg-gray-100 rounded-lg p-1">
+          <button
+            onClick={() => setShowCompleted(false)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              !showCompleted ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            <Clock className="w-3.5 h-3.5" />
+            Aktiv ({activeCount})
+          </button>
+          <button
+            onClick={() => setShowCompleted(true)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-md text-xs font-semibold transition-all ${
+              showCompleted ? 'bg-white text-green-700 shadow-sm' : 'text-gray-500'
+            }`}
+          >
+            <CheckCircle className="w-3.5 h-3.5" />
+            Fertig ({doneCount})
+          </button>
+        </div>
+
+        {/* Suche */}
+        <div className="relative">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Suchen..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 h-9 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Liste */}
+      <div className="p-4 space-y-2 max-w-2xl mx-auto">
+        {filtered.length === 0 ? (
+          <div className="text-center py-16">
+            <Construction className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500 text-sm font-medium">
+              {showCompleted ? 'Keine fertig gemeldeten Aufträge' : 'Keine aktiven Aufträge'}
             </p>
           </div>
-        </motion.div>
-
-        {/* Toggle zwischen aktiven und abgeschlossenen Aufträgen */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-2 md:mb-3"
-        >
-          <div className="flex gap-2">
-            <Button
-              variant={!showCompletedAuftraege ? "default" : "outline"}
-              onClick={() => setShowCompletedAuftraege(false)}
-              className={`text-xs h-8 ${!showCompletedAuftraege ? "bg-gradient-to-r from-blue-500 to-indigo-600" : ""}`}
-            >
-              <Clock className="w-3 h-3 mr-1" />
-              Aktive ({activeAuftraegeCount})
-            </Button>
-            <Button
-              variant={showCompletedAuftraege ? "default" : "outline"}
-              onClick={() => setShowCompletedAuftraege(true)}
-              className={`text-xs h-8 ${showCompletedAuftraege ? "bg-gradient-to-r from-red-500 to-pink-600" : ""}`}
-            >
-              <CheckCircle className="w-3 h-3 mr-1" />
-              Fertig ({completedAuftraegeCount})
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Suchfeld */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-2 md:mb-3"
-        >
-          <div className="relative">
-            <Search className="w-3 h-3 absolute left-3 top-3 text-gray-400" />
-            <Input
-              placeholder="Nach Auftrag suchen..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 text-xs h-9"
-            />
-          </div>
-        </motion.div>
-
-        {/* Aufträge Grid */}
-        {filteredAuftraege.length === 0 ? (
-          <Card className="card-elevation border-none">
-            <CardContent className="p-8 text-center">
-              {showCompletedAuftraege ? (
-                <>
-                  <CheckCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    Noch keine fertig gemeldeten Aufträge
-                  </h3>
-                  <p className="text-gray-600">
-                    Markieren Sie aktive Montageaufträge als fertig, um sie hier zu sehen.
-                  </p>
-                </>
-              ) : (
-                <>
-                  <Construction className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    {auftraege.length === 0 ? 'Keine Montageaufträge zugewiesen' : 'Keine Aufträge gefunden'}
-                  </h3>
-                  <p className="text-gray-600">
-                    {auftraege.length === 0
-                      ? 'Ihnen wurden noch keine Montageaufträge zugewiesen.'
-                      : 'Probieren Sie andere Suchkriterien.'
-                    }
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-3">
-            <AnimatePresence>
-              {filteredAuftraege.map((auftrag, index) => {
-                const isCompleting = completing === auftrag.id;
+          <AnimatePresence>
+            {filtered.map((auftrag, i) => (
+              <motion.div
+                key={auftrag.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ delay: i * 0.03 }}
+                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+              >
+                {/* Card top bar */}
+                <div className={`h-1 w-full ${auftrag.monteur_completed ? 'bg-green-400' : auftrag.tiefbau_offen ? 'bg-blue-500' : 'bg-orange-400'}`} />
 
-                return (
-                  <motion.div
-                    key={auftrag.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <Card className="card-elevation border-none h-full hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
-                      <CardContent className="p-3 space-y-2">
-                        {/* Titel */}
-                        <div>
-                          <CardTitle className="text-sm font-bold text-gray-900 line-clamp-2">
-                            {auftrag.title}
-                          </CardTitle>
-                        </div>
+                <div className="p-4">
+                  {/* Title row */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">{auftrag.title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{auftrag.sm_number}</p>
+                    </div>
+                    {auftrag.tiefbau_offen && (
+                      <span className="flex-shrink-0 inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                        <Construction className="w-3 h-3" />
+                        Tiefbau offen
+                      </span>
+                    )}
+                  </div>
 
-                        {/* Tiefbau Status */}
-                        {auftrag.tiefbau_offen && (
-                          <div className="flex items-center gap-2 bg-blue-50 p-2 rounded border border-blue-200">
-                            <Construction className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                            <span className="text-sm font-medium text-blue-700">Tiefbau offen</span>
-                          </div>
-                        )}
+                  {/* Meta */}
+                  <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 mb-3">
+                    {auftrag.client && (
+                      <span className="flex items-center gap-1">
+                        <Building2 className="w-3 h-3" />{auftrag.client}
+                      </span>
+                    )}
+                    {auftrag.city && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />{auftrag.city}
+                      </span>
+                    )}
+                    {auftrag.art && (
+                      <span className="bg-gray-100 px-2 py-0.5 rounded-full">{auftrag.art}</span>
+                    )}
+                  </div>
 
-                        {/* Notizen */}
-                        {auftrag.notes && (
-                          <div className="bg-gray-50 rounded p-2 border border-gray-200">
-                            <p className="text-xs text-gray-600 line-clamp-3">
-                              {auftrag.notes}
-                            </p>
-                          </div>
-                        )}
+                  {/* Notizen preview */}
+                  {auftrag.notes && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
+                      <p className="text-xs text-amber-800 line-clamp-2">{auftrag.notes}</p>
+                    </div>
+                  )}
 
-                        {/* Action Buttons */}
-                        <div className="space-y-1.5 pt-1">
-                          {!auftrag.monteur_completed && (
-                            <Button
-                              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-xs h-8"
-                              onClick={() => handleMarkAsCompleted(auftrag)}
-                              disabled={isCompleting}
-                            >
-                              {isCompleting ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  Wird markiert...
-                                </>
-                              ) : (
-                                <>
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Fertigstellen
-                                </>
-                              )}
-                            </Button>
-                          )}
-                          <Link to={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)} className="block">
-                            <Button variant="default" className="w-full text-xs bg-blue-600 hover:bg-blue-700 h-8">
-                              <Eye className="w-3 h-3 mr-1" />
-                              Auftrag öffnen
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <Link to={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full h-8 text-xs gap-1.5">
+                        <Eye className="w-3.5 h-3.5" />
+                        Öffnen
+                      </Button>
+                    </Link>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 text-xs px-3 gap-1.5 border-blue-200 text-blue-700 hover:bg-blue-50"
+                      onClick={() => { setNotesAuftrag(auftrag); setNotesText(auftrag.notes || ''); }}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      Notizen
+                    </Button>
+
+                    {!auftrag.monteur_completed && (
+                      <Button
+                        size="sm"
+                        className="h-8 text-xs px-3 gap-1.5 bg-green-600 hover:bg-green-700"
+                        onClick={() => setConfirmId(auftrag.id)}
+                        disabled={completing === auftrag.id}
+                      >
+                        {completing === auftrag.id
+                          ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          : <CheckCircle className="w-3.5 h-3.5" />
+                        }
+                        Fertig
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         )}
       </div>
 
-      {/* Bestätigungsdialog für Fertigmeldung */}
+      {/* Confirm Dialog */}
       <AnimatePresence>
-        {confirmDialog.show && (
+        {confirmId && confirmAuftrag && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-            onClick={(e) => { if (e.target === e.currentTarget) cancelMarkAsCompleted(); }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center p-4 z-50"
+            onClick={(e) => { if (e.target === e.currentTarget) setConfirmId(null); }}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-md"
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 60, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-5"
             >
-              <Card className="card-elevation border-none">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-6 h-6 text-red-600" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Montage als fertig melden</h3>
-                      <p className="text-sm text-gray-600">Bestätigung erforderlich</p>
-                    </div>
-                  </div>
-
-                  <div className="mb-6">
-                    <p className="text-gray-700 mb-3">
-                      Möchten Sie den folgenden Montageauftrag wirklich als fertig melden?
-                    </p>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <p className="font-semibold text-gray-900">{confirmDialog.auftragTitle}</p>
-                    </div>
-                    <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
-                      <p className="text-sm text-red-800">
-                        ✓ Der Auftrag wird als fertig markiert und der Administrator wird benachrichtigt.
-                      </p>
-                      <p className="text-sm text-red-800 mt-1">
-                        ✓ Der Auftrag erscheint in Ihrer Liste der fertig gemeldeten Aufträge.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button
-                      variant="outline"
-                      onClick={cancelMarkAsCompleted}
-                      className="flex-1"
-                    >
-                      Abbrechen
-                    </Button>
-                    <Button
-                      onClick={confirmMarkAsCompleted}
-                      className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Bestätigen
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-gray-900">Auftrag fertig melden?</h3>
+                <button onClick={() => setConfirmId(null)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <p className="text-sm font-medium text-gray-800">{confirmAuftrag.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{confirmAuftrag.sm_number}</p>
+              </div>
+              <p className="text-xs text-gray-500 mb-4">Der Auftrag wird als fertig markiert und erscheint in der Fertigliste.</p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setConfirmId(null)}>Abbrechen</Button>
+                <Button className="flex-1 h-10 bg-green-600 hover:bg-green-700" onClick={handleComplete}>
+                  <CheckCircle className="w-4 h-4 mr-1.5" />
+                  Bestätigen
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Notizen Dialog */}
+      {/* Notes Dialog */}
       <AnimatePresence>
-        {showNotesDialog && currentNotesAuftrag && (
+        {notesAuftrag && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-            onClick={(e) => { if (e.target === e.currentTarget) setShowNotesDialog(false); }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50"
+            onClick={(e) => { if (e.target === e.currentTarget) setNotesAuftrag(null); }}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-2xl"
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 60, opacity: 0 }}
+              className="bg-white rounded-t-2xl sm:rounded-2xl shadow-xl w-full max-w-lg"
             >
-              <Card className="card-elevation border-none">
-                <CardHeader className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-t-lg">
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Notizen & Montageinformationen
-                  </CardTitle>
-                  <p className="text-sm text-blue-100 mt-1">
-                    {currentNotesAuftrag.sm_number} - {currentNotesAuftrag.title}
-                  </p>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="notes" className="text-base font-semibold mb-2 block">
-                        Montageinformationen und Notizen
-                      </Label>
-                      <Textarea
-                        id="notes"
-                        value={notesText}
-                        onChange={(e) => setNotesText(e.target.value)}
-                        placeholder="Hier können Sie alle relevanten Informationen zur Montage eintragen:
-- Durchgeführte Arbeiten
-- Besondere Vorkommnisse
-- Verwendete Materialien
-- Zeitaufwand
-- Kontaktpersonen vor Ort
-- Weitere Anmerkungen"
-                        className="min-h-[300px] font-mono text-sm"
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      Diese Notizen werden mit dem Montageauftrag gespeichert und können jederzeit bearbeitet werden.
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setShowNotesDialog(false);
-                      setCurrentNotesAuftrag(null);
-                      setNotesText('');
-                    }}
-                  >
-                    Abbrechen
-                  </Button>
-                  <Button onClick={handleSaveNotes} className="bg-blue-600 hover:bg-blue-700">
-                    <Save className="w-4 h-4 mr-2" />
-                    Notizen speichern
-                  </Button>
-                </CardFooter>
-              </Card>
+              <div className="flex items-center justify-between px-4 py-3 border-b">
+                <div>
+                  <h3 className="font-bold text-gray-900 text-sm">Notizen</h3>
+                  <p className="text-xs text-gray-500">{notesAuftrag.sm_number} – {notesAuftrag.title}</p>
+                </div>
+                <button onClick={() => setNotesAuftrag(null)} className="p-1 rounded-lg hover:bg-gray-100">
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+              <div className="p-4">
+                <Textarea
+                  value={notesText}
+                  onChange={(e) => setNotesText(e.target.value)}
+                  placeholder="Notizen zur Montage..."
+                  className="min-h-[200px] text-sm resize-none"
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-2 px-4 pb-4">
+                <Button variant="outline" className="flex-1 h-10" onClick={() => setNotesAuftrag(null)}>Abbrechen</Button>
+                <Button className="flex-1 h-10 bg-blue-600 hover:bg-blue-700" onClick={handleSaveNotes}>
+                  <Save className="w-4 h-4 mr-1.5" />
+                  Speichern
+                </Button>
+              </div>
             </motion.div>
           </motion.div>
         )}
