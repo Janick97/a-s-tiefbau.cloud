@@ -140,7 +140,6 @@ export default function MontageLeistungenPdfExport({ project, montageAuftrag, le
               <th style={th}>Einheit</th>
               <th style={th}>Menge</th>
               <th style={{ ...th, textAlign: 'left' }}>Monteure</th>
-              <th style={th}>Betrag</th>
             </tr>
           </thead>
           <tbody>
