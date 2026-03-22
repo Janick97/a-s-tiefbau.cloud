@@ -602,7 +602,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
       const [leist, matUsage, mats, items] = await Promise.all([
       MontageLeistung.filter({ montage_auftrag_id: montageAuftragId }, 'created_date'),
       MontageLeistungMaterial.filter({ montage_auftrag_id: montageAuftragId }, 'created_date'),
-      MontageMaterialInventory.list(),
+      MontageMaterial.list(),
       MontagePreisItem.list()]
       );
       setLeistungen(Array.isArray(leist) ? leist : []);
