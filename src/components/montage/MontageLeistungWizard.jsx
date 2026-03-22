@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MontageLeistung, MontagePreisItem, MontageMaterialInventory, User } from "@/entities/all";
+import { MontageLeistung, MontagePreisItem, User } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +56,7 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       const user = await User.me();
       setCurrentUser(user);
       const users = await User.list();
-      const monteurs = users.filter(u => u.position === 'Monteur' && u.id !== user.id);
+      const monteurs = users.filter(u => u.id !== user.id && (u.position === 'Monteur' || !u.position));
       setAllMonteure(monteurs);
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
