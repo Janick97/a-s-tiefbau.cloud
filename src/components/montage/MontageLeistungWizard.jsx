@@ -400,16 +400,26 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                               className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
                               onClick={() => handleLeistungToggle(leistung.id, Math.max(0.1, (selected.quantity || 1) - 1))}
                             >−</button>
-                            <Input
+                            <input
                               type="number"
                               min="0.1"
                               step="0.1"
-                              value={selected.quantity}
+                              value={selected.quantity === 0 ? '' : selected.quantity}
                               onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                if (!isNaN(val) && val > 0) handleLeistungToggle(leistung.id, val);
+                                const raw = e.target.value;
+                                if (raw === '' || raw === '-') {
+                                  handleLeistungToggle(leistung.id, 0);
+                                } else {
+                                  const val = parseFloat(raw);
+                                  if (!isNaN(val) && val > 0) handleLeistungToggle(leistung.id, val);
+                                }
                               }}
-                              className="w-14 h-7 text-sm text-center px-1"
+                              onBlur={(e) => {
+                                if (!e.target.value || parseFloat(e.target.value) <= 0) {
+                                  handleLeistungToggle(leistung.id, 1);
+                                }
+                              }}
+                              className="w-14 h-7 text-sm text-center border border-input rounded-md px-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-ring"
                             />
                             <button
                               type="button"
