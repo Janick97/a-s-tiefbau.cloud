@@ -192,9 +192,10 @@ export default function ProjectDetailPage() {
           setVaoSourceProject(sourceProject);
       }
 
+      let projectMontage = null;
       if (projectData.montage_auftrag_id) {
         try {
-          const projectMontage = await MontageAuftrag.get(projectData.montage_auftrag_id);
+          projectMontage = await MontageAuftrag.get(projectData.montage_auftrag_id);
           setMontageAuftrag(projectMontage || null);
         } catch (error) {
           console.error("Fehler beim Laden des Montageauftrags:", error);
