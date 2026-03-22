@@ -411,53 +411,71 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                   onChange={(e) => setSearchLeistung(e.target.value)}
                   className="h-10"
                 />
-                <div className="space-y-2 max-h-[450px] overflow-y-auto pr-2">
-                  {leistungsoptionen
-                    .filter(leistung =>
-                      leistung.description.toLowerCase().includes(searchLeistung.toLowerCase()) ||
-                      leistung.item_number.toLowerCase().includes(searchLeistung.toLowerCase())
-                    )
-                    .map(leistung => {
-                    const selected = formData.leistungen.find(l => l.id === leistung.id);
-                    return (
-                      <div
-                        key={leistung.id}
-                        className={`flex items-center gap-3 p-3 rounded border transition-all ${
-                          selected ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <Checkbox
-                          checked={!!selected}
-                          onCheckedChange={(checked) => {
-                            if (!checked) handleLeistungToggle(leistung.id, 0);
-                            else handleLeistungToggle(leistung.id, 1);
-                          }}
-                          className="flex-shrink-0 cursor-pointer"
-                        />
-                        <div
-                          className="flex-1 min-w-0 cursor-pointer"
-                          onClick={() => {
-                            if (!selected) handleLeistungToggle(leistung.id, 1);
-                            else handleLeistungToggle(leistung.id, 0);
-                          }}
-                        >
-                          <p className="text-sm font-medium text-gray-900">{leistung.description}</p>
-                          <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
+                
+                {/* Zusammenfassung */}
+                {formData.leistungen.length > 0 && (
+                  <Collapsible defaultOpen={true} className="border rounded-lg">
+                    <CollapsibleTrigger asChild>
+                      <button className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 transition-colors rounded-lg">
+                        <div className="text-left">
+                          <p className="font-semibold text-gray-900">{formData.leistungen.length} Leistung(en) ausgewählt</p>
+                          <p className="text-xs text-gray-600">
+                            {formData.leistungen.map(l => {
+                              const item = leistungsoptionen.find(lo => lo.id === l.id);
+                              return item ? `${item.description} (${l.quantity})` : '';
+                            }).filter(Boolean).join(', ')}
+                          </p>
                         </div>
-                        {selected && (
-                          <QuantityInput
-                            value={selected.quantity}
-                            onChange={(val) => handleLeistungToggle(leistung.id, val)}
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="border-t p-3 space-y-2">
+                      {formData.leistungen.map(l => {
+                        const item = leistungsoptionen.find(lo => lo.id === l.id);
+                        return item ? (
+                          <div key={l.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                            <span className="font-medium text-gray-800">{item.description}</span>
+                            <span className="text-gray-600">{l.quantity} {item.unit}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
+                )}
+                
+                {/* Verfügbare Leistungen zum Hinzufügen */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-2">Weitere Leistungen hinzufügen</p>
+                  <div className="space-y-2 max-h-[350px] overflow-y-auto pr-2">
+                    {leistungsoptionen
+                      .filter(leistung =>
+                        !formData.leistungen.find(l => l.id === leistung.id) &&
+                        (leistung.description.toLowerCase().includes(searchLeistung.toLowerCase()) ||
+                        leistung.item_number.toLowerCase().includes(searchLeistung.toLowerCase()))
+                      )
+                      .map(leistung => (
+                        <div
+                          key={leistung.id}
+                          className="flex items-center gap-3 p-3 rounded border bg-white border-gray-200 hover:border-gray-300 cursor-pointer transition-all"
+                          onClick={() => handleLeistungToggle(leistung.id, 1)}
+                        >
+                          <Checkbox
+                            checked={false}
+                            onCheckedChange={() => handleLeistungToggle(leistung.id, 1)}
+                            className="flex-shrink-0"
                           />
-                        )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900">{leistung.description}</p>
+                            <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
+                          </div>
+                        </div>
+                      ))}
+                    {leistungsoptionen.filter(l => !formData.leistungen.find(s => s.id === l.id) && (l.description.toLowerCase().includes(searchLeistung.toLowerCase()) || l.item_number.toLowerCase().includes(searchLeistung.toLowerCase()))).length === 0 && (
+                      <div className="text-center py-4 text-gray-500">
+                        <p className="text-sm">{searchLeistung ? 'Keine Leistungen gefunden' : 'Alle Leistungen bereits hinzugefügt'}</p>
                       </div>
-                    );
-                  })}
-                  {leistungsoptionen.filter(l => l.description.toLowerCase().includes(searchLeistung.toLowerCase()) || l.item_number.toLowerCase().includes(searchLeistung.toLowerCase())).length === 0 && searchLeistung && (
-                    <div className="text-center py-8 text-gray-500">
-                      <p className="text-sm">Keine Leistungen gefunden</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               </motion.div>
             )}
