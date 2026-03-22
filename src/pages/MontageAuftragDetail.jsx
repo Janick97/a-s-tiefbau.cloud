@@ -172,16 +172,6 @@ export default function MontageAuftragDetailPage() {
           </div>
         }
 
-        {/* Beweissicherungen anzeigen */}
-        <BeweissicherungsAnzeige
-          beweissicherungen={beweissicherungen}
-          canEdit={isMonteur && !readOnly}
-          onReload={async () => {
-            const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
-            setBeweissicherungen(Array.isArray(data) ? data : []);
-          }}
-        />
-
         {/* Übersicht der Leistungen */}
         <div>
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
