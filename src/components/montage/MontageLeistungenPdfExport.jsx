@@ -113,7 +113,6 @@ export default function MontageLeistungenPdfExport({ project, montageAuftrag, le
           { label: 'Materialarten', value: groupedMaterialsList.length, color: '#7c3aed', bg: '#f5f3ff' },
           { label: 'Monteure', value: monteureList.length, color: '#059669', bg: '#ecfdf5' },
         ].map((stat, i) => (
-
           <div key={i} style={{
             background: stat.bg,
             border: `1px solid ${stat.color}22`,
