@@ -7,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Package, MapPin, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
 import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDialog";
+import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
