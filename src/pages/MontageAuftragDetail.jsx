@@ -291,7 +291,7 @@ export default function MontageAuftragDetailPage() {
             exit={{ opacity: 0 }}
             className="bg-white w-full h-full flex flex-col">
             
-            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-teal-500 to-cyan-500">
+            <div className="bg-slate-400 px-4 py-2 flex items-center justify-between border-b from-teal-500 to-cyan-500">
               <h3 className="font-bold text-white text-lg">Projekt-Chat</h3>
               <button onClick={() => setShowChat(false)} className="p-2 rounded-lg hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
                 <X className="w-6 h-6 text-white" />
