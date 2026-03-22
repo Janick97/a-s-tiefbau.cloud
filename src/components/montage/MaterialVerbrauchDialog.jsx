@@ -106,7 +106,7 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
               </p>
             </CardHeader>
 
-            <CardContent className="p-6">
+            <CardContent className="p-6 flex-1 overflow-y-auto">
               {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
