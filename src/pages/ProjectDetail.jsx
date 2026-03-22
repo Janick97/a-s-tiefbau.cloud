@@ -1875,9 +1875,9 @@ export default function ProjectDetailPage() {
           project={project}
           montageAuftrag={montageAuftrag}
           leistungen={montageLeistungen}
-          materialUsage={[]}
+          materialUsage={montageMaterialUsage}
           priceItems={montagePreisItems}
-          materials={[]}
+          materials={montageMaterials}
         />
       </div>
 
