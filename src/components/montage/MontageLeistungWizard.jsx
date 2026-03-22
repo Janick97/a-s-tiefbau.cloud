@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, MapPin, Check, AlertCircle, Loader2, Navigation } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 function QuantityInput({ value, onChange }) {
   const [localValue, setLocalValue] = React.useState(String(value));
