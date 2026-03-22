@@ -63,7 +63,10 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
       if (art === 'kabel') {
         msg = `⚠️ Fehlerortung – Nachgemessen\nKabelstück muss ausgewechselt werden\nVon: ${kabelVon.trim()}\nBis: ${kabelBis.trim()}\n→ Tiefbau ist wieder erforderlich.`;
       } else {
-        msg = `⚠️ Fehlerortung – Nachgemessen\nWeitere Muffe muss freigelegt werden\n→ Tiefbau ist wieder erforderlich.`;
+        const muffeInfo = muffeZwei.trim()
+          ? `Muffe 1: ${muffeEins.trim()}\nMuffe 2: ${muffeZwei.trim()}`
+          : `Muffe: ${muffeEins.trim()}`;
+        msg = `⚠️ Fehlerortung – Nachgemessen\nWeitere Muffe muss freigelegt werden\n${muffeInfo}\n→ Tiefbau ist wieder erforderlich.`;
       }
       await sendChatMessage(projectId, msg, userName);
       await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false });
