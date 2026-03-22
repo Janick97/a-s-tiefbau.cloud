@@ -306,9 +306,9 @@ export default function ProjectChat({ projectId }) {
         }
                 <CardFooter className="p-4 border-t bg-gray-50">
                     <form onSubmit={handleSubmit} className="flex w-full items-start gap-3">
-                        <Avatar className="h-10 w-10 border">
-                            <AvatarFallback>{currentUser ? getInitials(currentUser.full_name) : '...'}</AvatarFallback>
-                        </Avatar>
+                        
+
+            
                         <Textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
