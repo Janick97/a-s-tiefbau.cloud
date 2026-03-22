@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem, ExcavationClosure, VisioNode } from "@/entities/all";
+import { Project, Excavation, PriceItem, PullingWork, ProjectMaterial, Material, TimesheetEntry, ProjectDocument, MontageAuftrag, User, MontageLeistung, MontagePreisItem, MontageLeistungMaterial, MontageMaterial, ExcavationClosure, VisioNode } from "@/entities/all";
 import { createPageUrl } from "@/utils";
 import { SendEmail } from "@/integrations/Core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
