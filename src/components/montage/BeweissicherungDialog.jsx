@@ -93,8 +93,8 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
               {isEdit ? "Beweissicherung bearbeiten" : "Beweissicherung"}
             </h2>
           </div>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
-            <X className="w-5 h-5 text-gray-500" />
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
 
