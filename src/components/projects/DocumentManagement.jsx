@@ -616,7 +616,7 @@ export default function DocumentManagement({ projectId, project, loadData, readO
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-200px)]">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold">Anlagenkorb ({documents.length})</h3>
