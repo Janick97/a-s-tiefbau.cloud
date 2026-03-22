@@ -328,6 +328,46 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
               </motion.div>
             }
 
+            {/* SCHRITT: Hausanschluss – Hausnummer eingeben */}
+            {step === 'hausanschluss_detail' &&
+            <motion.div key="hausanschluss_detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+               <p className="text-sm text-gray-600">Von welchem Haus muss die Hauseinführung ausgewechselt werden?</p>
+               <div className="space-y-3">
+                 <div>
+                   <Label className="text-sm font-semibold mb-1.5 block">Hausnummer / Standort *</Label>
+                   <Input
+                   value={hausanschlussHaus}
+                   onChange={(e) => setHausanschlussHaus(e.target.value)}
+                   placeholder="z.B. Hausnr. 45 oder VS 12"
+                   className="h-10"
+                   autoFocus />
+
+                 </div>
+                 <p className="text-xs text-gray-400">Diese Angabe wird automatisch im Chat gepostet.</p>
+               </div>
+               <Button
+               onClick={async () => {
+                 setIsSaving(true);
+                 try {
+                   const msg = `⚠️ Fehlerortung – Nachgemessen\nHausanschluss muss ausgewechselt werden\nStandort: ${hausanschlussHaus.trim()}\n→ Tiefbau ist wieder erforderlich.`;
+                   await sendChatMessage(projectId, msg, userName);
+                   await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false, status: 'Tiefbau ausstehend' });
+                   onReload && onReload();
+                   onClose();
+                 } catch (e) {
+                   console.error(e);
+                 }
+                 setIsSaving(false);
+               }}
+               disabled={!hausanschlussHaus.trim() || isSaving}
+               className="w-full bg-blue-600 hover:bg-blue-700 h-10">
+
+                 {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                 Im Chat posten & speichern
+               </Button>
+             </motion.div>
+            }
+
             {/* SCHRITT 4: Erinnerung nach "Störung behoben" */}
             {step === 'behoben_erinnerung' &&
             <motion.div key="behoben_erinnerung" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
