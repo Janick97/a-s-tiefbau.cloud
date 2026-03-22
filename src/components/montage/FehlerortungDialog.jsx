@@ -210,7 +210,44 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
               </motion.div>
             )}
 
-            {/* SCHRITT 3: Erinnerung nach "Störung behoben" */}
+            {/* SCHRITT 3: Kabelstück – Von/Bis angeben */}
+            {step === 'kabel_detail' && (
+              <motion.div key="kabel_detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                <p className="text-sm text-gray-600">Zwischen welchen Punkten muss das Kabelstück ausgewechselt werden?</p>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-sm font-semibold mb-1.5 block">Von (Muffe / Hausnummer)</Label>
+                    <Input
+                      value={kabelVon}
+                      onChange={(e) => setKabelVon(e.target.value)}
+                      placeholder="z.B. Muffe M12 / Hausnr. 14"
+                      className="h-10"
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold mb-1.5 block">Bis (Muffe / Hausnummer)</Label>
+                    <Input
+                      value={kabelBis}
+                      onChange={(e) => setKabelBis(e.target.value)}
+                      placeholder="z.B. Muffe M13 / Hausnr. 22"
+                      className="h-10"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400">Diese Angaben werden automatisch im Chat gepostet.</p>
+                </div>
+                <Button
+                  onClick={() => handleTiefbauErforderlich('kabel')}
+                  disabled={!kabelVon.trim() || !kabelBis.trim() || isSaving}
+                  className="w-full bg-red-600 hover:bg-red-700 h-10"
+                >
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Im Chat posten & speichern
+                </Button>
+              </motion.div>
+            )}
+
+            {/* SCHRITT 4: Erinnerung nach "Störung behoben" */}
             {step === 'behoben_erinnerung' && (
               <motion.div key="behoben_erinnerung" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 <div className="text-center py-2">
