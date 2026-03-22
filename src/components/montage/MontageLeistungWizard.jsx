@@ -369,17 +369,11 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                     .map(leistung => {
                     const selected = formData.leistungen.find(l => l.id === leistung.id);
                     return (
-                      <motion.div
+                      <div
                         key={leistung.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className={`flex items-center gap-3 p-3 rounded border transition-all cursor-pointer ${
+                        className={`flex items-center gap-3 p-3 rounded border transition-all ${
                           selected ? 'bg-blue-50 border-blue-300' : 'bg-white border-gray-200 hover:border-gray-300'
                         }`}
-                        onClick={() => {
-                          if (!selected) handleLeistungToggle(leistung.id, 1);
-                          else handleLeistungToggle(leistung.id, 0);
-                        }}
                       >
                         <Checkbox
                           checked={!!selected}
@@ -387,25 +381,44 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                             if (!checked) handleLeistungToggle(leistung.id, 0);
                             else handleLeistungToggle(leistung.id, 1);
                           }}
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 cursor-pointer"
                         />
-                        <div className="flex-1 min-w-0">
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => {
+                            if (!selected) handleLeistungToggle(leistung.id, 1);
+                            else handleLeistungToggle(leistung.id, 0);
+                          }}
+                        >
                           <p className="text-sm font-medium text-gray-900">{leistung.description}</p>
                           <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
                         </div>
                         {selected && (
-                          <div className="flex items-center gap-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <button
+                              type="button"
+                              className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
+                              onClick={() => handleLeistungToggle(leistung.id, Math.max(0.1, (selected.quantity || 1) - 1))}
+                            >−</button>
                             <Input
                               type="number"
                               min="0.1"
                               step="0.1"
                               value={selected.quantity}
-                              onChange={(e) => handleLeistungToggle(leistung.id, parseFloat(e.target.value))}
-                              className="w-14 h-8 text-xs text-center"
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (!isNaN(val) && val > 0) handleLeistungToggle(leistung.id, val);
+                              }}
+                              className="w-14 h-7 text-sm text-center px-1"
                             />
+                            <button
+                              type="button"
+                              className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
+                              onClick={() => handleLeistungToggle(leistung.id, (selected.quantity || 1) + 1)}
+                            >+</button>
                           </div>
                         )}
-                      </motion.div>
+                      </div>
                     );
                   })}
                   {leistungsoptionen.filter(l => l.description.toLowerCase().includes(searchLeistung.toLowerCase()) || l.item_number.toLowerCase().includes(searchLeistung.toLowerCase())).length === 0 && searchLeistung && (
