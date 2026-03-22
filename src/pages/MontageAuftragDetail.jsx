@@ -148,9 +148,9 @@ export default function MontageAuftragDetailPage() {
           
         </Card>
 
-        {/* Action Buttons - Drei große Buttons für Monteur */}
+        {/* Action Buttons - Drei große Buttons für Monteur (nur Mobile) */}
         {isMonteur && !readOnly &&
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="md:hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Button
             onClick={() => setShowLeistungWizard(true)}
             className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 text-base font-semibold">
