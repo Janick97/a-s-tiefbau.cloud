@@ -862,7 +862,15 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                       <div key={b.id} className="p-2 bg-white border rounded text-xs">
                         <div className="flex items-center justify-between mb-1">
                           <p className="font-medium text-red-700">{b.schaediger_name}</p>
-                          {b.erfassungsdatum && <span className="text-gray-400">{new Date(b.erfassungsdatum).toLocaleDateString('de-DE')}</span>}
+                          <div className="flex items-center gap-1">
+                            {b.erfassungsdatum && <span className="text-gray-400">{new Date(b.erfassungsdatum).toLocaleDateString('de-DE')}</span>}
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setEditingBeweissicherung(b)}>
+                              <Edit className="w-3 h-3 text-gray-500" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={async () => { if (window.confirm("Beweissicherung löschen?")) { await base44.entities.Beweissicherung.delete(b.id); onReloadBeweissicherungen && onReloadBeweissicherungen(); } }}>
+                              <Trash2 className="w-3 h-3 text-red-500" />
+                            </Button>
+                          </div>
                         </div>
                         {b.schadensursache && <p className="text-gray-500">Ursache: {b.schadensursache}</p>}
                         {b.schadensort_strasse && <p className="text-gray-500">{b.schadensort_strasse}, {b.schadensort_plz} {b.schadensort_ort}</p>}
