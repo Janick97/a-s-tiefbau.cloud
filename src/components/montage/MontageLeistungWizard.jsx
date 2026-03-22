@@ -322,9 +322,9 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                 {formData.alleineArbeiten === 'nein' && (
                   <div>
                     <Label className="text-base font-semibold mb-3 block">Mit welchen Monteuren haben Sie zusammengearbeitet?</Label>
-                    {allMonteure.length > 0 ? (
+                    {allMonteure.filter(m => m.id !== currentUser?.id).length > 0 ? (
                       <div className="space-y-2">
-                        {allMonteure.map(monteur => (
+                        {allMonteure.filter(m => m.id !== currentUser?.id).map(monteur => (
                           <motion.div
                             key={monteur.id}
                             initial={{ opacity: 0, x: -10 }}
