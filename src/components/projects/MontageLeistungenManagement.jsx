@@ -723,13 +723,13 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
             <CollapsibleTrigger className="w-full">
               <div className="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
                 <span className="text-sm flex items-center gap-2 text-gray-700">
-                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
-                  Erfasste Leistungen ({leistungen.length})
-                  {leistungen.length > 0 && !hidePrices && (
-                    <span className="text-xs text-green-600">
-                      €{leistungen.reduce((sum, l) => sum + (l.calculated_price || 0), 0).toFixed(2)}
-                    </span>
-                  )}
+                 <Wrench className="w-3.5 h-3.5 text-blue-500" />
+                 Erfasste Leistungen ({aggregatedLeistungen.length})
+                 {aggregatedLeistungen.length > 0 && !hidePrices && (
+                   <span className="text-xs text-green-600">
+                     €{aggregatedTotalRevenue.toFixed(2)}
+                   </span>
+                 )}
                 </span>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
               </div>
