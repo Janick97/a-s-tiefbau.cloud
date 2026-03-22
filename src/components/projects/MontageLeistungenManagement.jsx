@@ -701,7 +701,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                       <div className="text-right">
                         <p className="font-bold">{usage.quantity_used} {material.unit}</p>
                       </div>
-                      {isMonteur && !readOnly && (
+                      {!readOnly && (
                         <div className="flex gap-1 flex-shrink-0">
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => {setEditingMaterial(usage);setShowMaterialForm(true);}}>
                             <Edit className="w-3 h-3" />
