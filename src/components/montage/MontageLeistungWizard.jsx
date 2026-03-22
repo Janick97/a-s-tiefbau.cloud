@@ -194,18 +194,27 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       // Build list of all involved monteurs including the current user
       let allInvolvedMonteurs = [];
       if (formData.alleineArbeiten === 'ja') {
-        // Only current user
+        // Nur aktueller User
         allInvolvedMonteurs = [{ id: currentUser.id, full_name: currentUser.full_name }];
       } else {
-        // Current user + selected others
-        const selectedOthers = formData.mitarbeiterIds.map(id => {
-          const m = allMonteure.find(m => m.id === id);
-          return { id, full_name: m?.full_name || id };
-        });
-        allInvolvedMonteurs = [
-          { id: currentUser.id, full_name: currentUser.full_name },
-          ...selectedOthers
-        ];
+        // Ausgewählte Monteure - dedupliziert (falls aktueller User sich selbst ausgewählt hat)
+        const seenIds = new Set();
+        const selected = formData.mitarbeiterIds
+          .map(id => {
+            const m = allMonteure.find(m => m.id === id);
+            return { id, full_name: m?.full_name || id };
+          })
+          .filter(m => {
+            if (seenIds.has(m.id)) return false;
+            seenIds.add(m.id);
+            return true;
+          });
+        // Aktuellen User immer hinzufügen (falls nicht schon in selected)
+        if (!seenIds.has(currentUser.id)) {
+          allInvolvedMonteurs = [{ id: currentUser.id, full_name: currentUser.full_name }, ...selected];
+        } else {
+          allInvolvedMonteurs = selected;
+        }
       }
 
       const monteurCount = allInvolvedMonteurs.length;
