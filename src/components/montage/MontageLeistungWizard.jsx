@@ -639,10 +639,28 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                     )}
                   </div>
 
-                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
-                    <p className="text-xs text-gray-500">Leistungen</p>
-                    <p className="font-semibold text-gray-900">{formData.leistungen.length} Leistung(en)</p>
-                  </div>
+                  <Collapsible defaultOpen={true} className="border rounded-lg bg-blue-50 border-blue-200">
+                    <CollapsibleTrigger asChild>
+                      <button className="w-full flex items-center justify-between p-3 hover:bg-blue-100 transition-colors">
+                        <div className="text-left">
+                          <p className="text-xs text-gray-500 font-semibold">Leistungen</p>
+                          <p className="font-semibold text-gray-900">{formData.leistungen.length} Leistung(en)</p>
+                        </div>
+                        <ChevronDown className="w-4 h-4 text-gray-600" />
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="border-t border-blue-200 p-3 space-y-2 bg-white">
+                      {formData.leistungen.map(l => {
+                        const item = leistungsoptionen.find(lo => lo.id === l.id);
+                        return item ? (
+                          <div key={l.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                            <span className="font-medium text-gray-800">{item.description}</span>
+                            <span className="text-gray-600">{l.quantity} {item.unit}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </CollapsibleContent>
+                  </Collapsible>
 
                   <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
                     <p className="text-xs text-gray-500">Standort</p>
