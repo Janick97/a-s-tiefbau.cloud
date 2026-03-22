@@ -266,13 +266,25 @@ export default function VisualEditAgent() {
 
 		// Update classes for all matching elements
 		elements.forEach(element => {
+			// Check if this is an SVG element
+			const isSVG = element instanceof SVGElement;
+			
 			if (replace) {
 				// For reverts, replace classes completely
-				element.className = classes;
+				if (isSVG) {
+					element.setAttribute('class', classes);
+				} else {
+					element.className = classes;
+				}
 			} else {
 				// For normal updates, merge with existing classes
 				const currentClasses = element.className?.baseVal || element.className || '';
-				element.className = twMerge(currentClasses, classes);
+				const newClasses = twMerge(currentClasses, classes);
+				if (isSVG) {
+					element.setAttribute('class', newClasses);
+				} else {
+					element.className = newClasses;
+				}
 			}
 		});
 
