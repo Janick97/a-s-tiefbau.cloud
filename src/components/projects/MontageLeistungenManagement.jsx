@@ -577,7 +577,7 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
 
 }
 
-export default function MontageLeistungenManagement({ montageAuftragId, readOnly = false, isMonteur = false, beweissicherungen = [], onReloadBeweissicherungen }) {
+export default function MontageLeistungenManagement({ montageAuftragId, readOnly = false, isMonteur = false, beweissicherungen = [], onReloadBeweissicherungen, hidePrices = false }) {
   const [leistungen, setLeistungen] = useState([]);
   const [materialUsage, setMaterialUsage] = useState([]);
   const [materials, setMaterials] = useState([]);
