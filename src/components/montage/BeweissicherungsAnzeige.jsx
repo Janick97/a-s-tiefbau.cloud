@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ShieldAlert, MapPin, Clock, User, Camera, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ShieldAlert, MapPin, Clock, User, Camera, ChevronDown, ChevronUp, Pencil } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
+import BeweissicherungDialog from "./BeweissicherungDialog";
 
-export default function BeweissicherungsAnzeige({ beweissicherungen }) {
+export default function BeweissicherungsAnzeige({ beweissicherungen, canEdit = false, onReload }) {
   const [expandedId, setExpandedId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [editingBeweissicherung, setEditingBeweissicherung] = useState(null);
 
   if (!beweissicherungen || beweissicherungen.length === 0) return null;
 
@@ -34,6 +38,16 @@ export default function BeweissicherungsAnzeige({ beweissicherungen }) {
                     <Badge variant="outline" className="text-xs">
                       {new Date(b.erfassungsdatum).toLocaleDateString("de-DE")}
                     </Badge>
+                  )}
+                  {canEdit && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={(e) => { e.stopPropagation(); setEditingBeweissicherung(b); }}
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
                   )}
                   {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
                 </div>
@@ -124,6 +138,20 @@ export default function BeweissicherungsAnzeige({ beweissicherungen }) {
           </Card>
         );
       })}
+
+      {/* Edit Dialog */}
+      <AnimatePresence>
+        {editingBeweissicherung && (
+          <BeweissicherungDialog
+            existingBeweissicherung={editingBeweissicherung}
+            onClose={() => setEditingBeweissicherung(null)}
+            onSave={() => {
+              setEditingBeweissicherung(null);
+              onReload && onReload();
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Foto Vollbild Vorschau */}
       {previewUrl && (
