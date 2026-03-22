@@ -226,7 +226,11 @@ export default function MontageAuftragDetailPage() {
         <BeweissicherungDialog
           montageAuftragId={montageAuftrag.id}
           onClose={() => setShowBeweissicherungDialog(false)}
-          onSave={() => setShowBeweissicherungDialog(false)} />
+          onSave={async () => {
+            setShowBeweissicherungDialog(false);
+            const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
+            setBeweissicherungen(Array.isArray(data) ? data : []);
+          }} />
         }
       </AnimatePresence>
     </div>);
