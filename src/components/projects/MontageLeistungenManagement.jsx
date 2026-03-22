@@ -743,7 +743,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                               <p className="text-xs font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
                               <p className="text-[10px] text-gray-400">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
                             </div>
-                            <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>
+                            {!hidePrices && <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>}
                             <ChevronDown className={`w-3 h-3 text-gray-300 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                           </div>
                           {isExpanded && (
