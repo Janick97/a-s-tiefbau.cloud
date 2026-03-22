@@ -173,7 +173,14 @@ export default function MontageAuftragDetailPage() {
         }
 
         {/* Beweissicherungen anzeigen */}
-        <BeweissicherungsAnzeige beweissicherungen={beweissicherungen} />
+        <BeweissicherungsAnzeige
+          beweissicherungen={beweissicherungen}
+          canEdit={isMonteur && !readOnly}
+          onReload={async () => {
+            const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
+            setBeweissicherungen(Array.isArray(data) ? data : []);
+          }}
+        />
 
         {/* Übersicht der Leistungen */}
         <div>
