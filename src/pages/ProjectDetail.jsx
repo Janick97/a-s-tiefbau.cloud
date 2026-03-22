@@ -1306,7 +1306,7 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6 overflow-hidden">
                   {montageAuftrag ? (
                     <>
-                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={false} isMonteur={false} beweissicherungen={beweissicherungen} />
+                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={false} isMonteur={false} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={async () => { const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftrag.id }).catch(() => []); setBeweissicherungen(Array.isArray(data) ? data : []); }} />
                     </>
                   ) : (
                     <div className="text-center py-16">
