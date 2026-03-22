@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
@@ -16,6 +16,7 @@ import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDial
 import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import BeweissicherungsAnzeige from "../components/montage/BeweissicherungsAnzeige";
 import FehlerortungDialog from "../components/montage/FehlerortungDialog";
+import MontageDocumentsViewer from "../components/montage/MontageDocumentsViewer";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -30,6 +31,7 @@ export default function MontageAuftragDetailPage() {
   const [showBeweissicherungDialog, setShowBeweissicherungDialog] = useState(false);
   const [showFehlerortungDialog, setShowFehlerortungDialog] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
@@ -179,6 +181,12 @@ export default function MontageAuftragDetailPage() {
               Fehlerortung
             </Button>
             <Button
+            onClick={() => setShowDocuments(true)}
+            className="bg-teal-700 hover:bg-teal-800 text-white h-12 text-base font-semibold">
+              <FileText className="w-5 h-5 mr-2" />
+              Dokumente
+            </Button>
+            <Button
             onClick={() => setShowChat(true)}
             className="bg-slate-700 hover:bg-slate-800 text-white h-12 text-base font-semibold">
               <MessageCircle className="w-5 h-5 mr-2" />
@@ -246,6 +254,30 @@ export default function MontageAuftragDetailPage() {
             const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
             setBeweissicherungen(Array.isArray(data) ? data : []);
           }} />
+        }
+      </AnimatePresence>
+
+      {/* Documents Modal */}
+      <AnimatePresence>
+        {showDocuments &&
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-white w-full h-full flex flex-col"
+          >
+            <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-teal-500 to-cyan-500">
+              <h3 className="font-bold text-white text-lg">Projektdokumente</h3>
+              <button onClick={() => setShowDocuments(false)} className="p-2 rounded-lg hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+                <X className="w-6 h-6 text-white" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <MontageDocumentsViewer projectId={montageAuftrag.id} />
+            </div>
+          </motion.div>
+        </div>
         }
       </AnimatePresence>
 
