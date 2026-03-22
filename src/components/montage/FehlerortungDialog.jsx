@@ -150,7 +150,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                     value={tiefbauText}
                     onChange={(e) => setTiefbauText(e.target.value)}
                     placeholder="z.B. VS 10 freilegen, Kabelgraben in Musterstr."
-                    className="h-10"
+                    className="h-12 text-base"
                     autoFocus
                   />
                   <p className="text-xs text-gray-400 mt-1">Diese Nachricht wird automatisch im Chat gepostet.</p>
@@ -158,7 +158,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 <Button
                   onClick={handleEingemessen}
                   disabled={!tiefbauText.trim() || isSaving}
-                  className="w-full bg-blue-600 hover:bg-blue-700 h-10"
+                  className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base font-semibold"
                 >
                   {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Im Chat posten & speichern
