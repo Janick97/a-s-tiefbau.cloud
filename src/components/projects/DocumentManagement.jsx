@@ -131,20 +131,6 @@ export default function DocumentManagement({ projectId, project, loadData, readO
       const documentsData = await ProjectDocument.filter({ project_id: projectId }, "-created_date");
       const docs = Array.isArray(documentsData) ? documentsData : [];
       setDocuments(docs);
-      // Automatically expand all folders in readOnly mode
-      if (readOnly && docs.length > 0) {
-        const folderSet = new Set();
-        docs.forEach(doc => {
-          if (doc.folder) {
-            folderSet.add(doc.folder);
-            const parts = doc.folder.split('/');
-            for (let i = 1; i < parts.length; i++) {
-              folderSet.add(parts.slice(0, i).join('/'));
-            }
-          }
-        });
-        setExpandedFolders(folderSet);
-      }
     } catch (error) {
       console.error("Fehler beim Laden der Dokumente:", error);
       setDocuments([]);
