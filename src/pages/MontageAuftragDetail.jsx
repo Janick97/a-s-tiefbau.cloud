@@ -252,12 +252,12 @@ export default function MontageAuftragDetailPage() {
       {/* Chat Modal */}
       <AnimatePresence>
         {showChat &&
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
-            className="bg-white rounded-2xl shadow-2xl w-full sm:max-w-2xl sm:max-h-[90vh] h-[90vh] sm:h-auto flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="bg-white w-full h-full flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-teal-500 to-cyan-500">
               <h3 className="font-bold text-white text-lg">Projekt-Chat</h3>
