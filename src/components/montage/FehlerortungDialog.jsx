@@ -196,7 +196,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 </button>
 
                 <button
-                  onClick={() => handleTiefbauErforderlich('muffe')}
+                  onClick={() => { setMuffeEins(''); setMuffeZwei(''); setStep('muffe_detail'); }}
                   disabled={isSaving}
                   className="w-full p-3.5 rounded-xl border-2 border-orange-200 bg-orange-50 hover:bg-orange-100 transition-all text-left flex items-center gap-3"
                 >
