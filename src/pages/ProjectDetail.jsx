@@ -137,6 +137,8 @@ export default function ProjectDetailPage() {
   const [montageLeistungen, setMontageLeistungen] = useState([]);
   const [montagePreisItems, setMontagePreisItems] = useState([]);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
+  const [montageMaterialUsage, setMontageMaterialUsage] = useState([]);
+  const [montageMaterials, setMontageMaterials] = useState([]);
   const [showMontageConfirmModal, setShowMontageConfirmModal] = useState(false);
   const [currentProjectForCoverSheet, setCurrentProjectForCoverSheet] = useState(null);
   const [hasVisioplan, setHasVisioplan] = useState(false);
