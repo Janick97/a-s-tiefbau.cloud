@@ -746,57 +746,54 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                     )}
                   </div>
                 ) : (
-                  <div className="space-y-1.5">
-                    {leistungen.map((leistung, index) => {
-                      const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
-                      const isExpanded = expandedLeistungId === leistung.id;
-                      return (
-                        <div key={leistung.id} className="border rounded-lg overflow-hidden bg-white">
-                          <div
-                            className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-50 transition-colors"
-                            onClick={() => setExpandedLeistungId(isExpanded ? null : leistung.id)}
-                          >
-                            <span className="text-xs text-gray-400 font-mono flex-shrink-0">#{index + 1}</span>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
-                              <p className="text-[10px] text-gray-400">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
-                            </div>
-                            {!hidePrices && <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>}
-                            <ChevronDown className={`w-3 h-3 text-gray-300 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-                          </div>
-                          {isExpanded && (
-                            <div className="border-t p-2.5 bg-gray-50 space-y-1.5 text-xs">
-                              {leistung.location_name && <div><span className="text-gray-400">Standort: </span><span className="font-medium">{leistung.location_name}</span></div>}
-                              {leistung.monteur_name && <div><span className="text-gray-400">Monteur: </span><span className="font-medium text-blue-600">{leistung.monteur_name}</span></div>}
-                              {leistung.completion_date && <div><span className="text-gray-400">Datum: </span><span className="font-medium">{new Date(leistung.completion_date).toLocaleDateString('de-DE')}</span></div>}
-                              {leistung.work_description && <div className="p-2 bg-white rounded border text-gray-700">{leistung.work_description}</div>}
-                              {leistung.photos && leistung.photos.length > 0 && (
-                                <div className="flex gap-1 overflow-x-auto">
-                                  {leistung.photos.slice(0, 4).map((url, idx) => (
-                                    <img key={idx} src={url} alt={`Foto ${idx + 1}`} className="w-12 h-12 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={(e) => { e.stopPropagation(); setPreviewImages(leistung.photos); setCurrentImageIndex(idx); }} />
-                                  ))}
-                                  {leistung.photos.length > 4 && (
-                                    <button onClick={(e) => { e.stopPropagation(); setPreviewImages(leistung.photos); setCurrentImageIndex(0); }} className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-600 flex-shrink-0">+{leistung.photos.length - 4}</button>
-                                  )}
-                                </div>
-                              )}
-                              {!readOnly && (
-                                <div className="flex gap-1.5 pt-1 border-t">
-                                  <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={(e) => { e.stopPropagation(); setEditingLeistung(leistung); setShowForm(true); }}>
-                                    <Edit className="w-3 h-3 mr-1" /> Bearbeiten
-                                  </Button>
-                                  <Button variant="outline" size="sm" className="h-6 text-xs px-2 text-red-600 border-red-200 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDelete(leistung.id); }}>
-                                    <Trash2 className="w-3 h-3 mr-1" /> Löschen
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                   <div className="space-y-1.5">
+                     {aggregatedLeistungen.map((leistung, index) => {
+                       const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
+                       const isExpanded = expandedLeistungId === leistung.id;
+                       return (
+                         <div key={leistung.id} className="border rounded-lg overflow-hidden bg-white">
+                           <div
+                             className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                             onClick={() => setExpandedLeistungId(isExpanded ? null : leistung.id)}
+                           >
+                             <span className="text-xs text-gray-400 font-mono flex-shrink-0">#{index + 1}</span>
+                             <div className="flex-1 min-w-0">
+                               <p className="text-xs font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
+                               <p className="text-[10px] text-gray-400">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
+                             </div>
+                             {!hidePrices && <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>}
+                             <ChevronDown className={`w-3 h-3 text-gray-300 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                           </div>
+                           {isExpanded && (
+                             <div className="border-t p-2.5 bg-gray-50 space-y-2 text-xs">
+                               <div className="bg-blue-50 border border-blue-200 rounded p-2 text-blue-800">
+                                 <p className="font-semibold mb-1">Zusammenfassung ({leistung.entries.length} Einträge):</p>
+                                 <ul className="space-y-1">
+                                   {leistung.entries.map((entry, i) => (
+                                     <li key={entry.id} className="flex justify-between text-xs">
+                                       <span>{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</span>
+                                       <span className="text-gray-600">{new Date(entry.completion_date).toLocaleDateString('de-DE')}</span>
+                                     </li>
+                                   ))}
+                                 </ul>
+                               </div>
+                               {!readOnly && (
+                                 <div className="flex gap-1.5 pt-1 border-t">
+                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={(e) => { e.stopPropagation(); setEditingLeistung(leistung.entries[0]); setShowForm(true); }}>
+                                     <Edit className="w-3 h-3 mr-1" /> Bearbeiten
+                                   </Button>
+                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2 text-red-600 border-red-200 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); leistung.entries.forEach(entry => handleDelete(entry.id)); }}>
+                                     <Trash2 className="w-3 h-3 mr-1" /> Alle löschen
+                                   </Button>
+                                 </div>
+                               )}
+                             </div>
+                           )}
+                         </div>
+                       );
+                     })}
+                   </div>
+                 )}
               </div>
             </CollapsibleContent>
           </Collapsible>
