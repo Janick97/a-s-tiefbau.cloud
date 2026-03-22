@@ -132,6 +132,8 @@ export default function ProjectDetailPage() {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isExportingServicesOverview, setIsExportingServicesOverview] = useState(false);
   const [isExportingEVergabe, setIsExportingEVergabe] = useState(false);
+  const [isExportingMontage, setIsExportingMontage] = useState(false);
+  const montageExportRef = useRef(null);
   const [montageLeistungen, setMontageLeistungen] = useState([]);
   const [montagePreisItems, setMontagePreisItems] = useState([]);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
