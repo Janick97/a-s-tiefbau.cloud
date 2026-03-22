@@ -178,7 +178,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 </button>
 
                 <button
-                  onClick={() => handleTiefbauErforderlich('kabel')}
+                  onClick={() => { setKabelVon(''); setKabelBis(''); setStep('kabel_detail'); }}
                   disabled={isSaving}
                   className="w-full p-3.5 rounded-xl border-2 border-red-200 bg-red-50 hover:bg-red-100 transition-all text-left flex items-center gap-3"
                 >
