@@ -55,15 +55,17 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
     try {
       const user = await User.me();
       setCurrentUser(user);
-      const users = await User.list();
-      const monteurs = users.filter(u => u.id !== user.id && u.position === 'Monteur');
-      setAllMonteure(monteurs);
+      try {
+        const users = await User.list();
+        const monteurs = users.filter(u => u.id !== user.id && u.position === 'Monteur');
+        setAllMonteure(monteurs.length > 0 ? monteurs : (Array.isArray(availableMonteure) ? availableMonteure : []));
+      } catch {
+        // Fallback wenn User.list() nicht erlaubt (z.B. für Monteure)
+        setAllMonteure(Array.isArray(availableMonteure) ? availableMonteure : []);
+      }
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
-      // Fallback: Verwende die übergebenen verfügbaren Monteure wenn Laden fehlschlägt
-      if (Array.isArray(availableMonteure) && availableMonteure.length > 0) {
-        setAllMonteure(availableMonteure);
-      }
+      setAllMonteure(Array.isArray(availableMonteure) ? availableMonteure : []);
     }
   };
 
