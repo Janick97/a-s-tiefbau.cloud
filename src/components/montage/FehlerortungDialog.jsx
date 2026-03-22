@@ -83,6 +83,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
   step === 'behoben_erinnerung' ? null :
   step === 'kabel_detail' ? 'nachgemessen_ergebnis' :
   step === 'muffle_detail' ? 'nachgemessen_ergebnis' :
+  step === 'hausanschluss_detail' ? 'nachgemessen_ergebnis' :
   'start';
 
   return (
