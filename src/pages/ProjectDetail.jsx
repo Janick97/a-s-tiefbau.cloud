@@ -664,6 +664,66 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleExportMontagePdf = async () => {
+    if (!montageExportRef.current) {
+      alert("Fehler: Montage-Export-Komponente nicht gefunden.");
+      return;
+    }
+    setIsExportingMontage(true);
+    try {
+      const el = montageExportRef.current;
+      el.style.position = 'fixed';
+      el.style.left = '0';
+      el.style.top = '0';
+      el.style.zIndex = '9999';
+      el.style.width = '210mm';
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      el.style.top = '0';
+      el.style.zIndex = '';
+      el.style.width = '';
+
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`Montagebericht_${project.project_number || project.sm_number}.pdf`);
+    } catch (error) {
+      console.error("Fehler beim Erstellen des Montage-PDFs:", error);
+      alert("Fehler beim Erstellen des PDFs.");
+      if (montageExportRef.current) {
+        montageExportRef.current.style.position = 'absolute';
+        montageExportRef.current.style.left = '-9999px';
+      }
+    } finally {
+      setIsExportingMontage(false);
+    }
+  };
+
   const handleCreateMontageAuftrag = async () => {
     if (!project) {
       alert("Projektdaten nicht geladen!");
