@@ -707,7 +707,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                 <span className="text-sm flex items-center gap-2 text-gray-700">
                   <Wrench className="w-3.5 h-3.5 text-blue-500" />
                   Erfasste Leistungen ({leistungen.length})
-                  {leistungen.length > 0 && (
+                  {leistungen.length > 0 && !hidePrices && (
                     <span className="text-xs text-green-600">
                       €{leistungen.reduce((sum, l) => sum + (l.calculated_price || 0), 0).toFixed(2)}
                     </span>
