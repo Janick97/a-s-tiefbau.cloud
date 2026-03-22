@@ -462,73 +462,54 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
 
             {/* Step 3: Standort & GPS */}
             {currentStep === 3 && (
-              <motion.div key="standort" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
+              <motion.div key="standort" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                 <div>
-                  <Label className="text-base font-semibold mb-2 block">Standortbezeichnung</Label>
+                  <Label className="text-sm font-semibold mb-1 block">Standortbezeichnung *</Label>
                   <Input
                     value={formData.standortName}
                     onChange={(e) => setFormData({ ...formData, standortName: e.target.value })}
-                    placeholder="z.B. Haus Nr. 42, Kellerraum"
+                    placeholder="z.B. Musterstraße 12, Muffe M42, KVz-Standort..."
                     className="h-10 text-base"
+                    autoFocus
                   />
+                  <p className="text-xs text-gray-400 mt-1">Adresse, Muffenbezeichnung oder andere Standortangabe</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <Label className="text-base font-semibold">GPS-Standort</Label>
-                    <Button
-                      type="button"
-                      onClick={handleGetLocation}
-                      disabled={isGettingLocation}
-                      className="bg-blue-600 hover:bg-blue-700 text-white h-9"
-                    >
-                      {isGettingLocation ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Wird ermittelt...
-                        </>
-                      ) : (
-                        <>
-                          <Navigation className="w-4 h-4 mr-2" />
-                          GPS aktivieren
-                        </>
-                      )}
-                    </Button>
+                <div className="flex items-center justify-between p-3 border rounded-lg bg-gray-50">
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-700">GPS-Koordinaten</span>
+                    {formData.latitude && formData.longitude ? (
+                      <p className="text-xs text-green-600 mt-0.5">✓ {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}</p>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-0.5">Optional — nicht erfasst</p>
+                    )}
                   </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-sm text-gray-600 mb-2 block">Breitengrad</Label>
-                      <Input
-                        type="number"
-                        step="0.0001"
-                        value={formData.latitude || ''}
-                        onChange={(e) => setFormData({ ...formData, latitude: parseFloat(e.target.value) })}
-                        placeholder="z.B. 52.5200"
-                        className="h-10"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-sm text-gray-600 mb-2 block">Längengrad</Label>
-                      <Input
-                        type="number"
-                        step="0.0001"
-                        value={formData.longitude || ''}
-                        onChange={(e) => setFormData({ ...formData, longitude: parseFloat(e.target.value) })}
-                        placeholder="z.B. 13.4050"
-                        className="h-10"
-                      />
-                    </div>
-                  </div>
+                  <Button
+                    type="button"
+                    onClick={handleGetLocation}
+                    disabled={isGettingLocation}
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                  >
+                    {isGettingLocation ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Navigation className="w-4 h-4 mr-1" />
+                        GPS
+                      </>
+                    )}
+                  </Button>
                 </div>
 
                 <div>
-                  <Label className="text-base font-semibold mb-2 block">Notizen zur Montagestelle</Label>
+                  <Label className="text-sm font-semibold mb-1 block">Notizen</Label>
                   <Textarea
                     value={formData.notizen}
                     onChange={(e) => setFormData({ ...formData, notizen: e.target.value })}
                     placeholder="Besonderheiten, Probleme, Beobachtungen..."
-                    className="h-32 resize-none"
+                    className="h-24 resize-none"
                   />
                 </div>
               </motion.div>
