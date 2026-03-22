@@ -1062,6 +1062,12 @@ export default function ProjectDetailPage() {
                       <FileText className="w-4 h-4 mr-2 text-gray-600" />
                       Deckblatt Export
                     </DropdownMenuItem>
+                    {montageAuftrag && (
+                      <DropdownMenuItem onClick={handleExportMontagePdf}>
+                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                        Montagebericht Export
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
 
