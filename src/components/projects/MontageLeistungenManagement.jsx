@@ -594,6 +594,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
   const [beweissicherungOpen, setBeweissicherungOpen] = useState(false);
   const [expandedLeistungId, setExpandedLeistungId] = useState(null);
   const [previewBewUrl, setPreviewBewUrl] = useState(null);
+  const [editingBeweissicherung, setEditingBeweissicherung] = useState(null);
 
   const loadData = async () => {
     setIsLoading(true);
