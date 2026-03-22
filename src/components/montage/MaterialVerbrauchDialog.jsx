@@ -205,7 +205,7 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
               )}
             </CardContent>
 
-            <div className="border-t p-6 flex gap-3 justify-end bg-gray-50 rounded-b-lg">
+            <div className="border-t p-6 flex gap-3 justify-end bg-gray-50">
               <Button
                 variant="outline"
                 onClick={onClose}
