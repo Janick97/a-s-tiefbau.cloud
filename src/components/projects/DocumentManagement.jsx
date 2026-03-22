@@ -891,7 +891,8 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                 </div>
               </CardHeader>
               
-            <CardContent className={`${isMainExpanded && (!isFolderProtected(folder) || isFolderUnlocked(folder)) ? '' : 'hidden pb-0'} px-3 sm:px-6`}>
+            {isMainExpanded && (!isFolderProtected(folder) || isFolderUnlocked(folder)) && (
+            <CardContent className="px-3 sm:px-6">
               {(() => {
                 const sortedDocs = getSortedDocs(docs, folder);
                 const folderSelectedCount = sortedDocs.filter(d => selectedDocIds.has(d.id)).length;
@@ -1340,8 +1341,9 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                 </div>
               )}
               </>); })()}
-            </CardContent>
-            </Card>
+              </CardContent>
+              )}
+              </Card>
           );
         })}
       </div>
