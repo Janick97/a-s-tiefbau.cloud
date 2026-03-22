@@ -20,7 +20,7 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
 
   const loadMaterials = async () => {
     try {
-      const data = await MontageMaterialInventory.list();
+      const data = await MontageMaterial.list();
       setMaterials(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Fehler beim Laden der Materialien:', error);
