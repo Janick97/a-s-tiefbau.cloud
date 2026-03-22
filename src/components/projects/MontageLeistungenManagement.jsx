@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, Edit, Trash2, Camera, X, Wrench, Check, ChevronsUpDown, ChevronLeft, ChevronRight, ChevronDown, Package } from "lucide-react";
+import { Plus, Edit, Trash2, Camera, X, Wrench, Check, ChevronsUpDown, ChevronLeft, ChevronRight, ChevronDown, Package, ShieldAlert, FileStack } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { UploadFile } from "@/integrations/Core";
 import { Badge } from "@/components/ui/badge";
