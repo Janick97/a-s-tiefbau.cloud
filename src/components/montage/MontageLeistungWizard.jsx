@@ -394,39 +394,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                           <p className="text-xs text-gray-500">{leistung.item_number} · {leistung.unit}</p>
                         </div>
                         {selected && (
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <button
-                              type="button"
-                              className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
-                              onClick={() => handleLeistungToggle(leistung.id, Math.max(0.1, (selected.quantity || 1) - 1))}
-                            >−</button>
-                            <input
-                              type="number"
-                              min="0.1"
-                              step="0.1"
-                              value={selected.quantity === 0 ? '' : selected.quantity}
-                              onChange={(e) => {
-                                const raw = e.target.value;
-                                if (raw === '' || raw === '-') {
-                                  handleLeistungToggle(leistung.id, 0);
-                                } else {
-                                  const val = parseFloat(raw);
-                                  if (!isNaN(val) && val > 0) handleLeistungToggle(leistung.id, val);
-                                }
-                              }}
-                              onBlur={(e) => {
-                                if (!e.target.value || parseFloat(e.target.value) <= 0) {
-                                  handleLeistungToggle(leistung.id, 1);
-                                }
-                              }}
-                              className="w-14 h-7 text-sm text-center border border-input rounded-md px-1 bg-transparent focus:outline-none focus:ring-1 focus:ring-ring"
-                            />
-                            <button
-                              type="button"
-                              className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
-                              onClick={() => handleLeistungToggle(leistung.id, (selected.quantity || 1) + 1)}
-                            >+</button>
-                          </div>
+                          <QuantityInput
+                            value={selected.quantity}
+                            onChange={(val) => handleLeistungToggle(leistung.id, val)}
+                          />
                         )}
                       </div>
                     );
