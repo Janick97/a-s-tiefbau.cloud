@@ -190,43 +190,36 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Get monteur IDs (single user if alleine, or selected users)
-      const monteurIds = formData.alleineArbeiten === 'ja' 
-        ? [] 
-        : formData.mitarbeiterIds;
-      
-      const monteurCount = monteurIds.length > 0 ? monteurIds.length : 1;
-      
-      // Save MontageLeistung records, split among monteurs
+      // Build list of all involved monteurs including the current user
+      let allInvolvedMonteurs = [];
+      if (formData.alleineArbeiten === 'ja') {
+        // Only current user
+        allInvolvedMonteurs = [{ id: currentUser.id, full_name: currentUser.full_name }];
+      } else {
+        // Current user + selected others
+        const selectedOthers = formData.mitarbeiterIds.map(id => {
+          const m = allMonteure.find(m => m.id === id);
+          return { id, full_name: m?.full_name || id };
+        });
+        allInvolvedMonteurs = [
+          { id: currentUser.id, full_name: currentUser.full_name },
+          ...selectedOthers
+        ];
+      }
+
+      const monteurCount = allInvolvedMonteurs.length;
+
+      // Save MontageLeistung records, split equally among all involved monteurs
       for (const leistung of formData.leistungen) {
         const quantityPerMonteur = leistung.quantity / monteurCount;
-        
-        if (monteurIds.length > 0) {
-          // Multiple monteurs - create entry for each
-          for (const monteurId of monteurIds) {
-            const monteurData = allMonteure.find(m => m.id === monteurId);
-            await MontageLeistung.create({
-              montage_auftrag_id: montageAuftragId,
-              preis_item_id: leistung.id,
-              quantity: quantityPerMonteur,
-              location_name: formData.standortName,
-              monteur_name: monteurData?.full_name || 'Monteur',
-              monteur_user_id: monteurId,
-              completion_date: new Date().toISOString().split('T')[0],
-              work_description: formData.notizen,
-              photos: formData.fotos,
-              einmass_skizze: formData.einmassSkizzen
-            });
-          }
-        } else {
-          // Single monteur (alleine)
+        for (const monteur of allInvolvedMonteurs) {
           await MontageLeistung.create({
             montage_auftrag_id: montageAuftragId,
             preis_item_id: leistung.id,
-            quantity: leistung.quantity,
+            quantity: quantityPerMonteur,
             location_name: formData.standortName,
-            monteur_name: 'Monteur',
-            monteur_user_id: 'auto',
+            monteur_name: monteur.full_name,
+            monteur_user_id: monteur.id,
             completion_date: new Date().toISOString().split('T')[0],
             work_description: formData.notizen,
             photos: formData.fotos,
