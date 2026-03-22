@@ -94,7 +94,6 @@ export default function ProjectChat({ projectId }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
-    const [projectData, setProjectData] = useState(null);
     const commentsEndRef = useRef(null);
     const fileInputRef = useRef(null);
     // const { addNotification } = useChatNotifications();
