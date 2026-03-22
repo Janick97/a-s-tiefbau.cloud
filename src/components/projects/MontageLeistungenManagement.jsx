@@ -900,6 +900,17 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
         </div>
       )}
 
+      {/* Beweissicherung bearbeiten */}
+      <AnimatePresence>
+        {editingBeweissicherung && (
+          <BeweissicherungDialog
+            existingBeweissicherung={editingBeweissicherung}
+            onClose={() => setEditingBeweissicherung(null)}
+            onSave={() => { setEditingBeweissicherung(null); onReloadBeweissicherungen && onReloadBeweissicherungen(); }}
+          />
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {showForm &&
         <MontageLeistungForm
