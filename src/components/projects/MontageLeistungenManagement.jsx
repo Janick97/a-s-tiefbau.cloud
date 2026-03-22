@@ -685,147 +685,164 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
 
       
 
-      {/* Materialverbrauch - kompakt */}
-      {materialUsage.length > 0 &&
-      <Card className="border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold">Materialverbrauch ({materialUsage.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 pt-0">
-            <div className="space-y-1.5">
-              {materialUsage.map((usage) => {
-              const material = materials.find((m) => m.id === usage.material_id);
-              return material ?
-              <div key={usage.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-xs">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{material.name}</p>
-                      <p className="text-gray-600">{material.article_number}</p>
-                    </div>
-                    <div className="flex items-center gap-2 ml-2">
-                      <div className="text-right">
-                        <p className="font-bold">{usage.quantity_used} {material.unit}</p>
-                      </div>
-                      {!readOnly && (
-                        <div className="flex gap-1 flex-shrink-0">
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => {setEditingMaterial(usage);setShowMaterialForm(true);}}>
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={async () => {if (window.confirm("Löschen?")) {await MontageLeistungMaterial.delete(usage.id);loadData();}}}>
-                            <Trash2 className="w-3 h-3 text-red-600" />
-                          </Button>
+      {/* Leistungen - eingeklappte Sektion */}
+      <Collapsible open={leistungenOpen} onOpenChange={setLeistungenOpen}>
+        <Card className="border-none shadow-sm">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 rounded-t-xl transition-colors">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Wrench className="w-4 h-4 text-blue-600" />
+                  Erfasste Leistungen ({leistungen.length})
+                  {leistungen.length > 0 && (
+                    <span className="text-xs font-normal text-green-600 ml-1">
+                      €{leistungen.reduce((sum, l) => sum + (l.calculated_price || 0), 0).toFixed(2)}
+                    </span>
+                  )}
+                </CardTitle>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="p-3 pt-0">
+              {leistungen.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-sm text-gray-500 mb-2">Noch keine Leistungen erfasst</p>
+                  {!readOnly && (
+                    <Button onClick={() => setShowForm(true)} size="sm">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Erste Leistung erfassen
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {leistungen.map((leistung, index) => {
+                    const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
+                    const isExpanded = expandedLeistungId === leistung.id;
+                    return (
+                      <div key={leistung.id} className="border rounded-lg overflow-hidden">
+                        {/* Eingeklappte Zeile */}
+                        <div
+                          className="flex items-center gap-2 p-2.5 bg-white cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => setExpandedLeistungId(isExpanded ? null : leistung.id)}
+                        >
+                          <Badge variant="outline" className="font-mono text-xs flex-shrink-0">#{index + 1}</Badge>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
+                            <p className="text-xs text-gray-500">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
+                          </div>
+                          <span className="text-sm font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>
+                          <ChevronDown className={`w-4 h-4 text-gray-400 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                         </div>
-                      )}
-                    </div>
-                  </div> :
-              null;
-            })}
-            </div>
-          </CardContent>
+                        {/* Ausgeklappt */}
+                        {isExpanded && (
+                          <div className="border-t p-3 bg-gray-50 space-y-2 text-xs">
+                            <div className="grid grid-cols-2 gap-2">
+                              {leistung.location_name && (
+                                <div className="col-span-2"><span className="text-gray-500">Standort: </span><span className="font-medium">{leistung.location_name}</span></div>
+                              )}
+                              {leistung.monteur_name && (
+                                <div><span className="text-gray-500">Monteur: </span><span className="font-medium text-blue-600">{leistung.monteur_name}</span></div>
+                              )}
+                              {leistung.completion_date && (
+                                <div><span className="text-gray-500">Datum: </span><span className="font-medium">{new Date(leistung.completion_date).toLocaleDateString('de-DE')}</span></div>
+                              )}
+                            </div>
+                            {leistung.work_description && (
+                              <div className="p-2 bg-white rounded border"><p className="text-gray-700">{leistung.work_description}</p></div>
+                            )}
+                            {leistung.photos && leistung.photos.length > 0 && (
+                              <div className="flex gap-1 overflow-x-auto">
+                                {leistung.photos.slice(0, 4).map((url, idx) => (
+                                  <img key={idx} src={url} alt={`Foto ${idx + 1}`} className="w-14 h-14 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={(e) => { e.stopPropagation(); setPreviewImages(leistung.photos); setCurrentImageIndex(idx); }} />
+                                ))}
+                                {leistung.photos.length > 4 && (
+                                  <button onClick={(e) => { e.stopPropagation(); setPreviewImages(leistung.photos); setCurrentImageIndex(0); }} className="w-14 h-14 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-600 flex-shrink-0">+{leistung.photos.length - 4}</button>
+                                )}
+                              </div>
+                            )}
+                            {!readOnly && (
+                              <div className="flex gap-2 pt-1 border-t">
+                                <Button variant="outline" size="sm" className="h-7 text-xs" onClick={(e) => { e.stopPropagation(); setEditingLeistung(leistung); setShowForm(true); }}>
+                                  <Edit className="w-3 h-3 mr-1" /> Bearbeiten
+                                </Button>
+                                <Button variant="outline" size="sm" className="h-7 text-xs text-red-600 border-red-200 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDelete(leistung.id); }}>
+                                  <Trash2 className="w-3 h-3 mr-1" /> Löschen
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
         </Card>
-      }
+      </Collapsible>
 
-      {/* Leistungen - kompakt */}
-      {leistungen.length === 0 ?
-      <Card className="border-none">
-          <CardContent className="p-8 text-center">
-            <Wrench className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-            <h3 className="text-base font-medium text-gray-500 mb-2">Noch keine Leistungen</h3>
-            {!readOnly &&
-          <Button onClick={() => setShowForm(true)} size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Erste Leistung erfassen
-              </Button>
-          }
-          </CardContent>
-        </Card> :
-
-      <div className="space-y-2">
-          {leistungen.map((leistung, index) => {
-          const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
-          return (
-            <motion.div
-              key={leistung.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}>
-              
-                <Card className="border-l-4 border-l-blue-500">
-                  <CardContent className="p-3">
-                    <div className="flex justify-between items-start gap-2 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            #{index + 1}
-                          </Badge>
+      {/* Materialverbrauch - eingeklappte Sektion */}
+      <Collapsible open={materialOpen} onOpenChange={setMaterialOpen}>
+        <Card className="border-none shadow-sm">
+          <CollapsibleTrigger asChild>
+            <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 rounded-t-xl transition-colors">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <Package className="w-4 h-4 text-purple-600" />
+                  Materialverbrauch ({materialUsage.length})
+                </CardTitle>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${materialOpen ? 'rotate-180' : ''}`} />
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="p-3 pt-0">
+              {materialUsage.length === 0 ? (
+                <div className="text-center py-6">
+                  <p className="text-sm text-gray-500 mb-2">Kein Material erfasst</p>
+                  {!readOnly && (
+                    <Button onClick={() => setShowMaterialForm(true)} size="sm" variant="outline">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Material hinzufügen
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  {materialUsage.map((usage) => {
+                    const material = materials.find((m) => m.id === usage.material_id);
+                    return material ? (
+                      <div key={usage.id} className="flex justify-between items-center p-2 bg-gray-50 rounded text-xs">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{material.name}</p>
+                          <p className="text-gray-600">{material.article_number}</p>
                         </div>
-                        <h4 className="font-semibold text-sm text-gray-900 line-clamp-2">{priceItem?.description || "Unbekannt"}</h4>
-                        <p className="text-xs text-gray-500 font-mono">{priceItem?.item_number}</p>
-                      </div>
-                      {!readOnly &&
-                    <div className="flex gap-1 flex-shrink-0">
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {setEditingLeistung(leistung);setShowForm(true);}}>
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleDelete(leistung.id)}>
-                            <Trash2 className="w-3 h-3 text-red-600" />
-                          </Button>
+                        <div className="flex items-center gap-2 ml-2">
+                          <p className="font-bold">{usage.quantity_used} {material.unit}</p>
+                          {!readOnly && (
+                            <div className="flex gap-1 flex-shrink-0">
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setEditingMaterial(usage); setShowMaterialForm(true); }}>
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={async () => { if (window.confirm("Löschen?")) { await MontageLeistungMaterial.delete(usage.id); loadData(); } }}>
+                                <Trash2 className="w-3 h-3 text-red-600" />
+                              </Button>
+                            </div>
+                          )}
                         </div>
-                    }
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-xs mb-2">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Menge:</span>
-                        <span className="font-medium">{leistung.quantity} {priceItem?.unit}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Preis:</span>
-                        <span className="font-bold text-green-600">€{(leistung.calculated_price || 0).toFixed(2)}</span>
-                      </div>
-                      {leistung.location_name &&
-                    <div className="col-span-2">
-                          <span className="text-gray-600">Standort: </span>
-                          <span className="font-medium">{leistung.location_name}</span>
-                        </div>
-                    }
-                      {leistung.monteur_name &&
-                    <div className="col-span-2 pt-1 border-t">
-                          <span className="text-gray-600">Erfasst von: </span>
-                          <span className="font-medium text-blue-600">{leistung.monteur_name}</span>
-                        </div>
-                    }
-                      {leistung.completion_date &&
-                    <div className="col-span-2">
-                          <span className="text-gray-600">Datum: </span>
-                          <span className="font-medium">{new Date(leistung.completion_date).toLocaleDateString('de-DE')}</span>
-                        </div>
-                    }
-                    </div>
-
-                    {leistung.work_description &&
-                  <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
-                        <p className="text-gray-700 line-clamp-2">{leistung.work_description}</p>
-                      </div>
-                  }
-
-                    {leistung.photos && leistung.photos.length > 0 &&
-                  <div className="mt-2 flex gap-1 overflow-x-auto">
-                        {leistung.photos.slice(0, 4).map((url, idx) =>
-                    <img key={idx} src={url} alt={`Foto ${idx + 1}`} className="w-16 h-16 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={() => {setPreviewImages(leistung.photos);setCurrentImageIndex(idx);}} />
-                    )}
-                        {leistung.photos.length > 4 &&
-                    <button onClick={() => {setPreviewImages(leistung.photos);setCurrentImageIndex(0);}} className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-600 flex-shrink-0 hover:bg-gray-200">
-                            +{leistung.photos.length - 4}
-                          </button>
-                    }
-                      </div>
-                  }
-                  </CardContent>
-                </Card>
-              </motion.div>);
-
-        })}
-        </div>
-      }
+                    ) : null;
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       <AnimatePresence>
         {showForm &&
