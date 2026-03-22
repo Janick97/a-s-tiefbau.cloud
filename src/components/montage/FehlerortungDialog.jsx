@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { MontageAuftrag } from "@/entities/all";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Search, CheckCircle, AlertTriangle, ArrowLeft, Loader2 } from "lucide-react";
+import { X, Search, CheckCircle, AlertTriangle, ArrowLeft, Loader2, Plus, Package, ClipboardList } from "lucide-react";
 
-// Chat-Nachricht in den Projekt-Chat schreiben
 async function sendChatMessage(projectId, message, userName) {
   const { ProjectComment } = await import("@/entities/all");
   await ProjectComment.create({
@@ -18,16 +16,15 @@ async function sendChatMessage(projectId, message, userName) {
   });
 }
 
-export default function FehlerortungDialog({ montageAuftrag, user, onClose, onReload }) {
-  const [step, setStep] = useState('start'); // start | eingemessen | nachgemessen_ergebnis | behoben_erinnerung | weitere_vs
+export default function FehlerortungDialog({ montageAuftrag, user, onClose, onReload, onOpenLeistungWizard }) {
+  const [step, setStep] = useState('start');
   const [tiefbauText, setTiefbauText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const montageAuftragId = montageAuftrag.id;
-  const projectId = montageAuftrag.id; // Chat läuft auf dem MontageAuftrag als project_id
+  const projectId = montageAuftrag.id;
   const userName = user?.full_name || 'Monteur';
 
-  // Schritt: Eingemessen – Tiefbau erforderlich eingeben
   const handleEingemessen = async () => {
     if (!tiefbauText.trim()) return;
     setIsSaving(true);
@@ -42,43 +39,25 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
     setIsSaving(false);
   };
 
-  // Schritt: Nachgemessen – Störung behoben
   const handleStorungBehoben = async () => {
     setIsSaving(true);
     try {
       const msg = `✅ Fehlerortung – Nachgemessen\nErgebnis: Störung wurde behoben.`;
       await sendChatMessage(projectId, msg, userName);
       onReload && onReload();
-      onClose();
     } catch (e) {
       console.error(e);
     }
     setIsSaving(false);
+    setStep('behoben_erinnerung');
   };
 
-  // Schritt: Nachgemessen – Weitere VS / Sonstiges freilegen
-  const handleWeitereVS = async () => {
-    if (!tiefbauText.trim()) return;
-    setIsSaving(true);
-    try {
-      const msg = `🔍 Fehlerortung – Nachgemessen\nWeitere Maßnahme erforderlich: ${tiefbauText.trim()}`;
-      await sendChatMessage(projectId, msg, userName);
-      onReload && onReload();
-      onClose();
-    } catch (e) {
-      console.error(e);
-    }
-    setIsSaving(false);
-  };
-
-  // Schritt: Nachgemessen – Kabelstück oder weitere Muffe → Tiefbau zurücksetzen
   const handleTiefbauErforderlich = async (art) => {
     setIsSaving(true);
     try {
       const label = art === 'kabel' ? 'Kabelstück muss ausgewechselt werden' : 'Weitere Muffe muss freigelegt werden';
       const msg = `⚠️ Fehlerortung – Nachgemessen\n${label}\n→ Tiefbau ist wieder erforderlich.`;
       await sendChatMessage(projectId, msg, userName);
-      // Tiefbau-Status zurücksetzen
       await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false });
       onReload && onReload();
       onClose();
@@ -87,6 +66,10 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
     }
     setIsSaving(false);
   };
+
+  const backStep = step === 'eingemessen' || step === 'nachgemessen_ergebnis' ? 'start'
+    : step === 'behoben_erinnerung' ? null // kein Zurück nach Behoben
+    : 'start';
 
   return (
     <motion.div
@@ -105,9 +88,9 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b bg-yellow-50">
           <div className="flex items-center gap-2">
-            {step !== 'start' && (
+            {backStep && (
               <button
-                onClick={() => { setStep('start'); setTiefbauText(''); }}
+                onClick={() => { setStep(backStep); setTiefbauText(''); }}
                 className="p-1 rounded-lg hover:bg-yellow-100 transition-colors mr-1"
               >
                 <ArrowLeft className="w-4 h-4 text-gray-600" />
@@ -164,7 +147,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   disabled={!tiefbauText.trim() || isSaving}
                   className="w-full bg-blue-600 hover:bg-blue-700 h-10"
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                   Im Chat posten & speichern
                 </Button>
               </motion.div>
@@ -175,7 +158,6 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
               <motion.div key="nachgemessen" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-3">
                 <p className="text-sm text-gray-600 mb-1">Was ist das Ergebnis der Nachmessung?</p>
 
-                {/* Störung behoben */}
                 <button
                   onClick={handleStorungBehoben}
                   disabled={isSaving}
@@ -188,19 +170,6 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   </div>
                 </button>
 
-                {/* Weitere VS / Sonstiges */}
-                <button
-                  onClick={() => setStep('weitere_vs')}
-                  className="w-full p-3.5 rounded-xl border-2 border-yellow-200 bg-yellow-50 hover:bg-yellow-100 transition-all text-left flex items-center gap-3"
-                >
-                  <Search className="w-5 h-5 text-yellow-600 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold text-yellow-800 text-sm">Weitere VS / Sonstiges freilegen</div>
-                    <div className="text-xs text-yellow-600">Weitere Maßnahme erforderlich</div>
-                  </div>
-                </button>
-
-                {/* Kabelstück tauschen → Tiefbau zurücksetzen */}
                 <button
                   onClick={() => handleTiefbauErforderlich('kabel')}
                   disabled={isSaving}
@@ -213,7 +182,6 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   </div>
                 </button>
 
-                {/* Weitere Muffe → Tiefbau zurücksetzen */}
                 <button
                   onClick={() => handleTiefbauErforderlich('muffe')}
                   disabled={isSaving}
@@ -235,27 +203,45 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
               </motion.div>
             )}
 
-            {/* SCHRITT 3: Weitere VS – Tiefbau beschreiben */}
-            {step === 'weitere_vs' && (
-              <motion.div key="weitere_vs" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                <div>
-                  <Label className="text-sm font-semibold mb-2 block">Was soll freigelegt werden?</Label>
-                  <Input
-                    value={tiefbauText}
-                    onChange={(e) => setTiefbauText(e.target.value)}
-                    placeholder="z.B. VS 12 freilegen, nächste Muffe in Richtung..."
-                    className="h-10"
-                    autoFocus
-                  />
-                  <p className="text-xs text-gray-400 mt-1">Diese Nachricht wird automatisch im Chat gepostet.</p>
+            {/* SCHRITT 3: Erinnerung nach "Störung behoben" */}
+            {step === 'behoben_erinnerung' && (
+              <motion.div key="behoben_erinnerung" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                <div className="text-center py-2">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle className="w-6 h-6 text-green-600" />
+                  </div>
+                  <p className="font-bold text-gray-900">Störung erfolgreich behoben!</p>
+                  <p className="text-xs text-gray-500 mt-1">Der Chat wurde automatisch aktualisiert.</p>
                 </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <div className="flex items-start gap-2 mb-3">
+                    <ClipboardList className="w-4 h-4 text-amber-700 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-semibold text-amber-800">Vergessen Sie nicht:</p>
+                  </div>
+                  <ul className="text-xs text-amber-700 space-y-1.5 ml-6 list-disc">
+                    <li>Erbrachte Leistungen erfassen</li>
+                    <li>Verwendetes Material hinzufügen</li>
+                  </ul>
+                </div>
+
                 <Button
-                  onClick={handleWeitereVS}
-                  disabled={!tiefbauText.trim() || isSaving}
-                  className="w-full bg-yellow-600 hover:bg-yellow-700 h-10"
+                  onClick={() => {
+                    onClose();
+                    onOpenLeistungWizard && onOpenLeistungWizard();
+                  }}
+                  className="w-full bg-blue-600 hover:bg-blue-700 h-11 text-sm font-semibold"
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Im Chat posten & speichern
+                  <Plus className="w-4 h-4 mr-2" />
+                  Jetzt Leistung erfassen
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  className="w-full h-10 text-sm"
+                >
+                  Später erledigen
                 </Button>
               </motion.div>
             )}
