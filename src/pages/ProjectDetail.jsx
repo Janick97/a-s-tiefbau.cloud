@@ -237,7 +237,8 @@ export default function ProjectDetailPage() {
       const [
         excavationsData, priceItemsData, pullingWorksData,
         projectMaterialsData, materialsData, timesheetsData, documentsData,
-        montageLeistungenData, montagePreisItemsData, beweissicherungenData
+        montageLeistungenData, montagePreisItemsData, beweissicherungenData,
+        montageMaterialUsageData, montageMaterialsData
       ] = await Promise.all([
         Promise.all(relatedProjectIds.map(id => 
           Excavation.filter({ project_id: id }).catch(() => [])
