@@ -616,7 +616,7 @@ export default function DocumentManagement({ projectId, project, loadData, readO
   };
 
   return (
-    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-200px)] scrollbar-hide">
+    <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-200px)]">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           
@@ -1019,10 +1019,10 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                         className={`flex items-center justify-between p-2 sm:p-3 rounded-lg transition-colors ${selectedDocIds.has(doc.id) ? 'bg-blue-50 border border-blue-200' : 'bg-gray-50 hover:bg-gray-100'}`}>
                         
                       <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <Checkbox
-                            checked={selectedDocIds.has(doc.id)}
-                            onCheckedChange={() => toggleDocSelection(doc.id)}
-                            className="flex-shrink-0" />
+                        
+
+
+                          
                           
                         <FileText className="w-5 h-5 text-gray-500 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
