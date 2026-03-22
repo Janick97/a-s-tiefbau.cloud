@@ -16,7 +16,7 @@ import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDial
 import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import BeweissicherungsAnzeige from "../components/montage/BeweissicherungsAnzeige";
 import FehlerortungDialog from "../components/montage/FehlerortungDialog";
-import MontageDocumentsViewer from "../components/montage/MontageDocumentsViewer";
+import DocumentManagement from "../components/projects/DocumentManagement";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -274,7 +274,7 @@ export default function MontageAuftragDetailPage() {
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
-              <MontageDocumentsViewer projectId={montageAuftrag.id} />
+              <DocumentManagement projectId={montageAuftrag.id} project={{ id: montageAuftrag.id }} loadData={() => {}} />
             </div>
           </motion.div>
         </div>
