@@ -1508,9 +1508,6 @@ export default function DocumentManagement({ projectId, project, loadData, readO
         )}
       </AnimatePresence>
 
-      </>
-      )}
-
       {/* New Main Folder Dialog */}
       <AnimatePresence>
         {showNewMainFolderDialog && (
