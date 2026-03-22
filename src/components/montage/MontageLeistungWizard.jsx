@@ -56,15 +56,10 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
     try {
       const user = await User.me();
       setCurrentUser(user);
-      try {
-        const users = await User.list();
-        // Alle User mit Position Monteur anzeigen (inkl. aktueller User)
-        const monteurs = users.filter(u => u.position === 'Monteur');
-        setAllMonteure(monteurs.length > 0 ? monteurs : (Array.isArray(availableMonteure) ? availableMonteure : []));
-      } catch {
-        // Fallback wenn User.list() nicht erlaubt (z.B. für Monteure)
-        setAllMonteure(Array.isArray(availableMonteure) ? availableMonteure : []);
-      }
+      // Backend-Funktion verwenden, die Service-Role-Rechte hat
+      const result = await getMonteure({});
+      const monteure = result?.data?.monteure || [];
+      setAllMonteure(monteure.length > 0 ? monteure : (Array.isArray(availableMonteure) ? availableMonteure : []));
     } catch (error) {
       console.error('Fehler beim Laden der Monteure:', error);
       setAllMonteure(Array.isArray(availableMonteure) ? availableMonteure : []);
