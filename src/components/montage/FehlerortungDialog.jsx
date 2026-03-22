@@ -211,7 +211,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 onClick={async () => {
                   setIsSaving(true);
                   try {
-                    const msg = `⚠️ Fehlerortung – Nachgemessen\nGrube zu klein / Stahlplatte erforderlich\n→ Tiefbau ist wieder erforderlich.`;
+                    const msg = `⚠️ Fehlerortung – Nachgemessen\nGrube zu klein / Stahlplatte muss weg\n→ Tiefbau ist wieder erforderlich.`;
                     await sendChatMessage(projectId, msg, userName);
                     await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false, status: 'Tiefbau ausstehend' });
                     onReload && onReload();
@@ -226,7 +226,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 
                   <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                   <div>
-                    <div className="font-semibold text-amber-800 text-sm">Grube zu klein / Stahlplatte erforderlich</div>
+                    <div className="font-semibold text-amber-800 text-sm">Grube zu klein / Stahlplatte muss weg</div>
                     <div className="text-xs text-amber-600">→ Tiefbau-Status wird zurückgesetzt</div>
                   </div>
                 </button>
