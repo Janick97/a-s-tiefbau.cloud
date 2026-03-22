@@ -585,7 +585,11 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
                   <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
                     <p className="text-xs text-gray-500">Monteure</p>
                     <p className="font-semibold text-gray-900">
-                      {formData.alleineArbeiten === 'ja' ? 'Alleine' : `Mit ${formData.mitarbeiterIds.length} weiteren Monteur(en)`}
+                      {formData.alleineArbeiten === 'ja' ? 'Alleine' : (
+                        formData.mitarbeiterIds.length > 0
+                          ? formData.mitarbeiterIds.map(id => allMonteure.find(m => m.id === id)?.full_name || id).join(', ')
+                          : 'Niemand ausgewählt'
+                      )}
                     </p>
                   </div>
 
