@@ -19,7 +19,7 @@ async function sendChatMessage(projectId, message, userName) {
 }
 
 export default function FehlerortungDialog({ montageAuftrag, user, onClose, onReload }) {
-  const [step, setStep] = useState('start'); // start | eingemessen | nachgemessen_ergebnis
+  const [step, setStep] = useState('start'); // start | eingemessen | nachgemessen_ergebnis | behoben_erinnerung | weitere_vs
   const [tiefbauText, setTiefbauText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
