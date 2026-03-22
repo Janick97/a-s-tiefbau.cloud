@@ -1306,8 +1306,7 @@ export default function ProjectDetailPage() {
                 <div className="p-2 sm:p-4 lg:p-6 overflow-hidden">
                   {montageAuftrag ? (
                     <>
-                      <BeweissicherungsAnzeige beweissicherungen={beweissicherungen} canEdit={false} />
-                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={false} isMonteur={false} />
+                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={false} isMonteur={false} beweissicherungen={beweissicherungen} />
                     </>
                   ) : (
                     <div className="text-center py-16">
