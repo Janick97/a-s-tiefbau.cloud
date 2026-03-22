@@ -278,7 +278,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
             )}
 
             {/* SCHRITT: Muffe – Bezeichnung(en) eingeben */}
-            {step === 'muffe_detail' && (
+            {step === 'muffle_detail' && (
               <motion.div key="muffe_detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                 <p className="text-sm text-gray-600">Welche Muffe(n) muss/müssen freigelegt werden?</p>
                 <div className="space-y-3">
