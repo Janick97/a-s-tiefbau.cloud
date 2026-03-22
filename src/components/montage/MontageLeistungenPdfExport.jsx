@@ -170,20 +170,9 @@ export default function MontageLeistungenPdfExport({ project, montageAuftrag, le
                     </div>
                   ))}
                 </td>
-                <td style={{ ...td, textAlign: 'right', fontWeight: 'bold', color: '#059669' }}>
-                  €{g.totalPrice.toFixed(2)}
-                </td>
               </tr>
             ))}
           </tbody>
-          <tfoot>
-            <tr style={{ background: '#1e3a5f', color: '#fff' }}>
-              <td colSpan={5} style={{ ...td, fontWeight: 'bold', fontSize: '10pt' }}>Gesamtsumme</td>
-              <td style={{ ...td, textAlign: 'right', fontWeight: 'bold', fontSize: '11pt' }}>
-                €{totalRevenue.toFixed(2)}
-              </td>
-            </tr>
-          </tfoot>
         </table>
       )}
 
