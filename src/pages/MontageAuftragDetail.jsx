@@ -171,6 +171,12 @@ export default function MontageAuftragDetailPage() {
               <ShieldAlert className="w-5 h-5 mr-2" />
               Beweissicherung
             </Button>
+            <Button
+            onClick={() => setShowFehlerortungDialog(true)}
+            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white h-12 text-base font-semibold">
+              <MapPin className="w-5 h-5 mr-2" />
+              Fehlerortung
+            </Button>
           </div>
         }
 
