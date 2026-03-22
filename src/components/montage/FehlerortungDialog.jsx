@@ -253,6 +253,43 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
               </motion.div>
             )}
 
+            {/* SCHRITT: Muffe – Bezeichnung(en) eingeben */}
+            {step === 'muffe_detail' && (
+              <motion.div key="muffe_detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                <p className="text-sm text-gray-600">Welche Muffe(n) muss/müssen freigelegt werden?</p>
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-sm font-semibold mb-1.5 block">Muffe 1 *</Label>
+                    <Input
+                      value={muffeEins}
+                      onChange={(e) => setMuffeEins(e.target.value)}
+                      placeholder="z.B. Muffe M14 / VS 7"
+                      className="h-10"
+                      autoFocus
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-semibold mb-1.5 block">Muffe 2 <span className="font-normal text-gray-400">(optional)</span></Label>
+                    <Input
+                      value={muffeZwei}
+                      onChange={(e) => setMuffeZwei(e.target.value)}
+                      placeholder="z.B. Muffe M15 / VS 8"
+                      className="h-10"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-400">Diese Angaben werden automatisch im Chat gepostet.</p>
+                </div>
+                <Button
+                  onClick={() => handleTiefbauErforderlich('muffe')}
+                  disabled={!muffeEins.trim() || isSaving}
+                  className="w-full bg-orange-600 hover:bg-orange-700 h-10"
+                >
+                  {isSaving && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                  Im Chat posten & speichern
+                </Button>
+              </motion.div>
+            )}
+
             {/* SCHRITT 4: Erinnerung nach "Störung behoben" */}
             {step === 'behoben_erinnerung' && (
               <motion.div key="behoben_erinnerung" initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-4">
