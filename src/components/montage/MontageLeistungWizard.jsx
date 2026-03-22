@@ -12,6 +12,55 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, ArrowLeft, MapPin, Check, AlertCircle, Loader2, Navigation } from "lucide-react";
 import { UploadFile } from "@/integrations/Core";
 
+function QuantityInput({ value, onChange }) {
+  const [localValue, setLocalValue] = React.useState(String(value));
+
+  React.useEffect(() => {
+    setLocalValue(String(value));
+  }, [value]);
+
+  return (
+    <div className="flex items-center gap-1 flex-shrink-0">
+      <button
+        type="button"
+        className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
+        onClick={() => {
+          const next = Math.max(1, (parseFloat(localValue) || 1) - 1);
+          setLocalValue(String(next));
+          onChange(next);
+        }}
+      >−</button>
+      <input
+        inputMode="numeric"
+        pattern="[0-9]*"
+        value={localValue}
+        onChange={(e) => {
+          const raw = e.target.value.replace(/[^0-9.]/g, '');
+          setLocalValue(raw);
+          const val = parseFloat(raw);
+          if (!isNaN(val) && val > 0) onChange(val);
+        }}
+        onBlur={() => {
+          const val = parseFloat(localValue);
+          const safe = (!isNaN(val) && val > 0) ? val : 1;
+          setLocalValue(String(safe));
+          onChange(safe);
+        }}
+        className="w-12 h-7 text-sm text-center border border-gray-300 rounded-md px-1 bg-white focus:outline-none focus:ring-1 focus:ring-blue-400"
+      />
+      <button
+        type="button"
+        className="w-7 h-7 rounded border border-gray-300 bg-white text-gray-700 font-bold hover:bg-gray-100 flex items-center justify-center text-base"
+        onClick={() => {
+          const next = (parseFloat(localValue) || 1) + 1;
+          setLocalValue(String(next));
+          onChange(next);
+        }}
+      >+</button>
+    </div>
+  );
+}
+
 const WIZARD_STEPS = [
   { id: 'kategorie', title: 'Kategorie wählen', icon: '📡' },
   { id: 'team', title: 'Team & Monteure', icon: '👥' },
