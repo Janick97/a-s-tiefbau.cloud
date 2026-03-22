@@ -24,6 +24,7 @@ export default function MontageAuftragDetailPage() {
   const [error, setError] = useState(null);
   const [showLeistungWizard, setShowLeistungWizard] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  const [showBeweissicherungDialog, setShowBeweissicherungDialog] = useState(false);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
