@@ -1862,6 +1862,56 @@ export default function ProjectDetailPage() {
         )}
       </AnimatePresence>
 
+      {/* Montage PDF Export - positioned off-screen */}
+      <div ref={montageExportRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <MontageLeistungenPdfExport
+          project={project}
+          montageAuftrag={montageAuftrag}
+          leistungen={montageLeistungen}
+          materialUsage={[]}
+          priceItems={montagePreisItems}
+          materials={[]}
+        />
+      </div>
+
+      {/* Montage PDF Export Progress Dialog */}
+      <AnimatePresence>
+        {isExportingMontage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="w-full max-w-md mx-4"
+            >
+              <Card className="card-elevation border-none">
+                <CardContent className="p-8 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FileText className="w-8 h-8 text-white animate-pulse" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Montagebericht wird erstellt...</h3>
+                  <p className="text-gray-600 mb-4">Bitte warten Sie einen Moment</p>
+                  <div className="relative w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                    <motion.div
+                      className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-700"
+                      initial={{ width: '0%' }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 2, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-500 mt-3">Das PDF wird automatisch heruntergeladen</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Project Print Layout (for general print functionality) */}
       <ProjectPrintLayout
         project={project}
