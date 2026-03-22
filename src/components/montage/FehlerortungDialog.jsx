@@ -112,8 +112,8 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
             <Search className="w-4 h-4 text-yellow-700" />
             <h3 className="font-bold text-gray-900 text-sm">Fehlerortung</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-lg hover:bg-yellow-100 transition-colors">
-            <X className="w-4 h-4 text-gray-500" />
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-yellow-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <X className="w-6 h-6 text-gray-500" />
           </button>
         </div>
 
