@@ -85,13 +85,13 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
         onClick={onClose}
       >
         <motion.div
-          initial={{ scale: 0.9, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.9, y: 20 }}
-          className="w-full max-w-2xl"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="w-full h-full"
           onClick={(e) => e.stopPropagation()}
         >
-          <Card className="border-none shadow-2xl">
+          <Card className="border-none h-full rounded-none flex flex-col">
             <CardHeader className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
