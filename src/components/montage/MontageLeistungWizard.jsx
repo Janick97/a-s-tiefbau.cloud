@@ -57,7 +57,8 @@ export default function MontageLeistungWizard({ montageAuftragId, availableMonte
       setCurrentUser(user);
       try {
         const users = await User.list();
-        const monteurs = users.filter(u => u.id !== user.id && u.position === 'Monteur');
+        // Alle User mit Position Monteur anzeigen (inkl. aktueller User)
+        const monteurs = users.filter(u => u.position === 'Monteur');
         setAllMonteure(monteurs.length > 0 ? monteurs : (Array.isArray(availableMonteure) ? availableMonteure : []));
       } catch {
         // Fallback wenn User.list() nicht erlaubt (z.B. für Monteure)
