@@ -156,31 +156,31 @@ export default function MontageAuftragDetailPage() {
         <div className="md:hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Button
             onClick={() => setShowLeistungWizard(true)}
-            className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white h-12 text-base font-semibold">
+            className="bg-blue-700 hover:bg-blue-800 text-white h-12 text-base font-semibold">
               <Plus className="w-5 h-5 mr-2" />
               Leistung erfassen
             </Button>
             <Button
             onClick={() => setShowMaterialDialog(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white h-12 text-base font-semibold">
+            className="bg-purple-700 hover:bg-purple-800 text-white h-12 text-base font-semibold">
               <Package className="w-5 h-5 mr-2" />
               Material hinzufügen
             </Button>
             <Button
             onClick={() => setShowBeweissicherungDialog(true)}
-            className="bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white h-12 text-base font-semibold">
+            className="bg-red-700 hover:bg-red-800 text-white h-12 text-base font-semibold">
               <ShieldAlert className="w-5 h-5 mr-2" />
               Beweissicherung
             </Button>
             <Button
             onClick={() => setShowFehlerortungDialog(true)}
-            className="bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 text-white h-12 text-base font-semibold">
+            className="bg-amber-700 hover:bg-amber-800 text-white h-12 text-base font-semibold">
               <MapPin className="w-5 h-5 mr-2" />
               Fehlerortung
             </Button>
             <Button
             onClick={() => setShowChat(true)}
-            className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white h-12 text-base font-semibold">
+            className="bg-slate-700 hover:bg-slate-800 text-white h-12 text-base font-semibold">
               <MessageCircle className="w-5 h-5 mr-2" />
               Chat
             </Button>
