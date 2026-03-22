@@ -652,21 +652,38 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
 
   // Aggregiere Leistungen nach preis_item_id
   const aggregatedLeistungen = leistungen.reduce((acc, leistung) => {
-   const existing = acc.find(l => l.preis_item_id === leistung.preis_item_id);
-   if (existing) {
-     existing.quantity += leistung.quantity;
-     existing.calculated_price += leistung.calculated_price || 0;
-     existing.entries.push(leistung);
-   } else {
-     acc.push({
-       ...leistung,
-       entries: [leistung]
-     });
-   }
-   return acc;
+    const existing = acc.find(l => l.preis_item_id === leistung.preis_item_id);
+    if (existing) {
+      existing.quantity += leistung.quantity;
+      existing.calculated_price += leistung.calculated_price || 0;
+      existing.entries.push(leistung);
+    } else {
+      acc.push({
+        ...leistung,
+        entries: [leistung]
+      });
+    }
+    return acc;
   }, []);
 
   const aggregatedTotalRevenue = aggregatedLeistungen.reduce((sum, l) => sum + (l.calculated_price || 0), 0);
+
+  // Aggregiere Materialverbrauch nach material_id
+  const aggregatedMaterialUsage = materialUsage.reduce((acc, usage) => {
+    const existing = acc.find(m => m.material_id === usage.material_id);
+    if (existing) {
+      existing.quantity_used += usage.quantity_used;
+      existing.entries.push(usage);
+    } else {
+      acc.push({
+        ...usage,
+        entries: [usage]
+      });
+    }
+    return acc;
+  }, []);
+
+  const [expandedMaterialId, setExpandedMaterialId] = useState(null);
 
   if (isLoading) {
    return <div className="p-8 text-center">Lädt...</div>;
