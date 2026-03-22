@@ -48,6 +48,7 @@ export default function MontageAuftragDetailPage() {
 
         setMontageAuftrag(auftragData);
         setUser(userData);
+        setBeweissicherungen(Array.isArray(beweissicherungenData) ? beweissicherungenData : []);
       } catch (err) {
         console.error("Fehler beim Laden:", err);
         setError(err.message || "Ein Fehler ist aufgetreten.");
