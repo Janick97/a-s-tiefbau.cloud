@@ -1308,7 +1308,7 @@ export default function ProjectDetailPage() {
                   {montageAuftrag ? (
                     <>
                       <BeweissicherungsAnzeige beweissicherungen={beweissicherungen} />
-                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} />
+                      <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={false} isMonteur={false} />
                     </>
                   ) : (
                     <div className="text-center py-16">
