@@ -74,7 +74,8 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
   };
 
   const backStep = step === 'eingemessen' || step === 'nachgemessen_ergebnis' ? 'start'
-    : step === 'behoben_erinnerung' ? null // kein Zurück nach Behoben
+    : step === 'behoben_erinnerung' ? null
+    : step === 'kabel_detail' ? 'nachgemessen_ergebnis'
     : 'start';
 
   return (
