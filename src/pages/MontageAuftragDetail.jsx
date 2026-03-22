@@ -229,6 +229,7 @@ export default function MontageAuftragDetailPage() {
             const updated = await MontageAuftrag.get(montageAuftragId);
             setMontageAuftrag(updated);
           }}
+          onOpenLeistungWizard={() => setShowLeistungWizard(true)}
         />
         }
       </AnimatePresence>
