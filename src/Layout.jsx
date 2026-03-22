@@ -27,7 +27,8 @@ import {
   WifiOff,
   Network,
   Fuel,
-  CalendarDays } from
+  CalendarDays,
+  Ticket as TicketIcon } from
 "lucide-react";
 import {
   Sidebar,
@@ -136,6 +137,11 @@ const navigationItems = [
   title: "FTTH Visioplan",
   url: createPageUrl("FTTHVisioplan"),
   icon: Network
+},
+{
+  title: "Ticketsystem",
+  url: "/TicketSystem",
+  icon: TicketIcon
 }];
 
 
