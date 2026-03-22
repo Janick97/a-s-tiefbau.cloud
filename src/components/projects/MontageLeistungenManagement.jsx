@@ -647,6 +647,19 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
 
   return (
     <div className="space-y-3">
+      {/* Aktions-Buttons */}
+      {!readOnly && (
+        <div className="flex gap-2 flex-wrap">
+          <Button onClick={() => setShowForm(true)} size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="w-4 h-4 mr-2" />
+            Leistung hinzufügen
+          </Button>
+          <Button onClick={() => setShowMaterialForm(true)} size="sm" variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50">
+            <Package className="w-4 h-4 mr-2" />
+            Material hinzufügen
+          </Button>
+        </div>
+      )}
       
 
 
