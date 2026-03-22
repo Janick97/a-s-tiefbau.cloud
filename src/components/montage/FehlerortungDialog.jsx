@@ -132,7 +132,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   <div className="text-slate-800 mt-0.5 text-xs">Erstmessung – Tiefbau wird festgelegt</div>
                 </button>
                 <button
-                onClick={() => setStep('nachgemessen_ergebnis')} className="bg-lime-50 p-4 text-left rounded-xl w-full border-2 border-purple-200 hover:bg-purple-100 transition-all">
+                onClick={() => setStep('nachgemessen_ergebnis')} className="bg-slate-300 p-4 text-left rounded-xl w-full border-2 border-purple-200 hover:bg-purple-100 transition-all">
                 
                 
                   <div className="text-slate-800 font-semibold">🔁 Nachgemessen</div>
