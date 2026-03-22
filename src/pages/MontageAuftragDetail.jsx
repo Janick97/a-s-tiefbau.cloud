@@ -274,7 +274,7 @@ export default function MontageAuftragDetailPage() {
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
-              <DocumentManagement projectId={montageAuftrag.id} project={{ id: montageAuftrag.id }} loadData={() => {}} />
+              <DocumentManagement projectId={montageAuftrag.project_id || montageAuftrag.id} project={{ id: montageAuftrag.project_id || montageAuftrag.id }} loadData={() => {}} />
             </div>
           </motion.div>
         </div>
