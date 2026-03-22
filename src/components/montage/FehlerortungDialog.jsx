@@ -225,7 +225,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 }}
                 disabled={isSaving}
                 className="w-full p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 transition-all text-left flex items-center gap-3">
-                
+
                   <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
                   <div>
                     <div className="font-semibold text-amber-800 text-sm">Grube zu klein / Stahlplatte muss weg</div>
@@ -233,12 +233,24 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   </div>
                 </button>
 
-                {isSaving &&
-              <div className="flex items-center justify-center py-2 text-sm text-gray-500">
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Wird gespeichert...
+                <button
+                onClick={() => {setHausanschlussHaus('');setStep('hausanschluss_detail');}}
+                disabled={isSaving}
+                className="w-full p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 transition-all text-left flex items-center gap-3">
+
+                  <AlertTriangle className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold text-blue-800 text-sm">Hausanschluss auswechseln</div>
+                    <div className="text-xs text-blue-600">→ Tiefbau-Status wird zurückgesetzt</div>
                   </div>
-              }
+                </button>
+
+                {isSaving &&
+                <div className="flex items-center justify-center py-2 text-sm text-gray-500">
+                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                     Wird gespeichert...
+                   </div>
+                }
               </motion.div>
             }
 
