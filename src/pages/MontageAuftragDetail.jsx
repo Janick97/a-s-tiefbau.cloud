@@ -192,12 +192,6 @@ export default function MontageAuftragDetailPage() {
           <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Erfasste Leistungen & Material</h2>
           <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} hidePrices={isMonteur} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={async () => { const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []); setBeweissicherungen(Array.isArray(data) ? data : []); }} />
         </div>
-
-        {/* Chat */}
-        <div>
-          <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-3">Nachrichten</h2>
-          <ProjectChat projectId={montageAuftrag.id} />
-        </div>
         </div>
 
       {/* Leistung Wizard */}
