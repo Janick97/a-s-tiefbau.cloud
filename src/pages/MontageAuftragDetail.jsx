@@ -267,10 +267,10 @@ export default function MontageAuftragDetailPage() {
             exit={{ opacity: 0 }}
             className="bg-white w-full h-full flex flex-col">
             
-            <div className="bg-gray-50 px-4 py-1 flex items-center justify-between border-b">
-              <h3 className="font-bold text-gray-900 text-lg">Projektdokumente</h3>
+            <div className="bg-slate-400 text-black px-4 py-1 flex items-center justify-between border-b">
+              <h3 className="text-slate-50 text-lg font-bold">Projektdokumente</h3>
               <button onClick={() => setShowDocuments(false)} className="p-2 rounded-lg hover:bg-gray-200 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-                <X className="w-6 h-6 text-gray-500" />
+                <X className="text-slate-50 lucide lucide-x w-6 h-6" />
               </button>
             </div>
             <div className="flex-1 overflow-hidden">
