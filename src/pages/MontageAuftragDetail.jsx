@@ -15,6 +15,7 @@ import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
 import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDialog";
 import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import BeweissicherungsAnzeige from "../components/montage/BeweissicherungsAnzeige";
+import FehlerortungDialog from "../components/montage/FehlerortungDialog";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
