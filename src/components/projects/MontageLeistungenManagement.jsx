@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import BeweissicherungDialog from "@/components/montage/BeweissicherungDialog";
+import { base44 } from "@/api/base44Client";
 
 function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel }) {
   const [selectedItems, setSelectedItems] = useState(leistung ? [{
