@@ -69,7 +69,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
         msg = `⚠️ Fehlerortung – Nachgemessen\nWeitere Muffe muss freigelegt werden\n${muffeInfo}\n→ Tiefbau ist wieder erforderlich.`;
       }
       await sendChatMessage(projectId, msg, userName);
-      await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false });
+      await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false, status: 'Tiefbau ausstehend' });
       onReload && onReload();
       onClose();
     } catch (e) {
