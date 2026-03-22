@@ -1,0 +1,268 @@
+import React, { useState } from "react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
+import { X, Loader2, ShieldAlert, Upload, Check } from "lucide-react";
+import { UploadFile } from "@/integrations/Core";
+
+export default function BeweissicherungDialog({ montageAuftragId, onClose, onSave }) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [formData, setFormData] = useState({
+    schaediger_name: "",
+    schaediger_adresse: "",
+    schaediger_nummer: "",
+    schadensort_plz: "",
+    schadensort_ort: "",
+    schadensort_strasse: "",
+    schadensursache: "",
+    uhrzeit_schaden: "",
+    uhrzeit_beseitigung: "",
+    fotos: []
+  });
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handlePhotoUpload = async (files) => {
+    if (formData.fotos.length >= 5) {
+      alert("Maximal 5 Fotos erlaubt.");
+      return;
+    }
+    const remaining = 5 - formData.fotos.length;
+    const filesToUpload = Array.from(files).slice(0, remaining);
+    setUploadingPhotos(true);
+    try {
+      const urls = [];
+      for (const file of filesToUpload) {
+        const { file_url } = await UploadFile({ file });
+        urls.push(file_url);
+      }
+      setFormData(prev => ({ ...prev, fotos: [...prev.fotos, ...urls] }));
+    } catch (error) {
+      console.error("Upload Fehler:", error);
+      alert("Fehler beim Hochladen der Fotos");
+    }
+    setUploadingPhotos(false);
+  };
+
+  const removePhoto = (index) => {
+    setFormData(prev => ({ ...prev, fotos: prev.fotos.filter((_, i) => i !== index) }));
+  };
+
+  const handleSave = async () => {
+    if (!formData.schaediger_name) {
+      alert("Bitte den Namen des Schädigers angeben.");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const user = await base44.auth.me();
+      await base44.entities.Beweissicherung.create({
+        montage_auftrag_id: montageAuftragId,
+        ...formData,
+        erfasst_von: user.full_name,
+        erfasst_von_user_id: user.id,
+        erfassungsdatum: new Date().toISOString().split("T")[0]
+      });
+      onSave();
+    } catch (error) {
+      console.error("Fehler beim Speichern:", error);
+      alert("Fehler beim Speichern der Beweissicherung");
+    }
+    setIsLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="w-full max-w-lg bg-white rounded-xl shadow-2xl flex flex-col max-h-[90vh]"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-red-50 to-orange-50 rounded-t-xl">
+          <div className="flex items-center gap-3">
+            <ShieldAlert className="w-6 h-6 text-red-600" />
+            <h2 className="text-lg font-bold text-gray-900">Beweissicherung</h2>
+          </div>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-lg transition-colors">
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
+
+          {/* Schädiger */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Schädiger</h3>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm mb-1 block">Name *</Label>
+                <Input
+                  value={formData.schaediger_name}
+                  onChange={(e) => handleChange("schaediger_name", e.target.value)}
+                  placeholder="Name des Schädigers"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Adresse</Label>
+                <Input
+                  value={formData.schaediger_adresse}
+                  onChange={(e) => handleChange("schaediger_adresse", e.target.value)}
+                  placeholder="Straße, PLZ, Ort"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Telefonnummer</Label>
+                <Input
+                  value={formData.schaediger_nummer}
+                  onChange={(e) => handleChange("schaediger_nummer", e.target.value)}
+                  placeholder="+49 123 456789"
+                  type="tel"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Schadensort */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Schadensort</h3>
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm mb-1 block">PLZ</Label>
+                  <Input
+                    value={formData.schadensort_plz}
+                    onChange={(e) => handleChange("schadensort_plz", e.target.value)}
+                    placeholder="12345"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm mb-1 block">Ort</Label>
+                  <Input
+                    value={formData.schadensort_ort}
+                    onChange={(e) => handleChange("schadensort_ort", e.target.value)}
+                    placeholder="Stadt"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Straße</Label>
+                <Input
+                  value={formData.schadensort_strasse}
+                  onChange={(e) => handleChange("schadensort_strasse", e.target.value)}
+                  placeholder="Musterstraße 1"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Schadensdetails */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Schadensdetails</h3>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm mb-1 block">Schadensursache</Label>
+                <Input
+                  value={formData.schadensursache}
+                  onChange={(e) => handleChange("schadensursache", e.target.value)}
+                  placeholder="z.B. Bagger, Rakete, ..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-sm mb-1 block">Uhrzeit Schaden</Label>
+                  <Input
+                    type="time"
+                    value={formData.uhrzeit_schaden}
+                    onChange={(e) => handleChange("uhrzeit_schaden", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm mb-1 block">Uhrzeit Beseitigung</Label>
+                  <Input
+                    type="time"
+                    value={formData.uhrzeit_beseitigung}
+                    onChange={(e) => handleChange("uhrzeit_beseitigung", e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fotos */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">
+              Fotos ({formData.fotos.length}/5)
+            </h3>
+            {formData.fotos.length < 5 && (
+              <label className="block cursor-pointer mb-3">
+                <div className="border-2 border-dashed border-orange-300 bg-orange-50 rounded-lg p-5 text-center hover:bg-orange-100 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => handlePhotoUpload(e.target.files)}
+                    className="hidden"
+                  />
+                  {uploadingPhotos ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-orange-600" />
+                      <span className="text-sm text-orange-700">Wird hochgeladen...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-orange-500 mx-auto mb-1" />
+                      <p className="text-sm font-medium text-gray-700">Fotos hochladen</p>
+                      <p className="text-xs text-gray-500">Noch {5 - formData.fotos.length} Foto(s) möglich</p>
+                    </>
+                  )}
+                </div>
+              </label>
+            )}
+            {formData.fotos.length > 0 && (
+              <div className="grid grid-cols-5 gap-2">
+                {formData.fotos.map((url, i) => (
+                  <div key={i} className="relative aspect-square">
+                    <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover rounded-lg border" />
+                    <button
+                      onClick={() => removePhoto(i)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t p-4 flex gap-3 bg-gray-50 rounded-b-xl">
+          <Button variant="outline" onClick={onClose} className="flex-1">
+            Abbrechen
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isLoading}
+            className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          >
+            {isLoading ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Wird gespeichert...</>
+            ) : (
+              <><Check className="w-4 h-4 mr-2" />Speichern</>
+            )}
+          </Button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
