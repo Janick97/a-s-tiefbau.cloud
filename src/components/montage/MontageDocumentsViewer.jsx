@@ -17,8 +17,8 @@ export default function MontageDocumentsViewer({ projectId }) {
   const loadDocuments = async () => {
     setIsLoading(true);
     try {
-      // Lade ALLE Dokumente ohne Filter - alle Ordner für den Monteur
-      const docs = await base44.entities.ProjectDocument.list('-created_date', 1000);
+      // Lade alle Dokumente für dieses Projekt
+      const docs = await base44.entities.ProjectDocument.filter({ project_id: projectId }, '-created_date', 1000);
       setDocuments(Array.isArray(docs) ? docs : []);
     } catch (error) {
       console.error("Fehler beim Laden der Dokumente:", error);
