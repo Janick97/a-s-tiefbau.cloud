@@ -279,6 +279,8 @@ export default function ProjectDetailPage() {
       setMontageLeistungen(Array.isArray(montageLeistungenData) ? montageLeistungenData : []);
       setMontagePreisItems(Array.isArray(montagePreisItemsData) ? montagePreisItemsData : []);
       setBeweissicherungen(Array.isArray(beweissicherungenData) ? beweissicherungenData : []);
+      setMontageMaterialUsage(Array.isArray(montageMaterialUsageData) ? montageMaterialUsageData : []);
+      setMontageMaterials(Array.isArray(montageMaterialsData) ? montageMaterialsData : []);
 
       // Check if Visioplan exists for this project
       try {
