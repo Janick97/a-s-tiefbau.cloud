@@ -196,7 +196,7 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                 </button>
 
                 <button
-                  onClick={() => { setMuffeEins(''); setMuffeZwei(''); setStep('muffe_detail'); }}
+                  onClick={() => { setMuffeEins(''); setMuffeZwei(''); setStep('muffle_detail'); }}
                   disabled={isSaving}
                   className="w-full p-3.5 rounded-xl border-2 border-orange-200 bg-orange-50 hover:bg-orange-100 transition-all text-left flex items-center gap-3"
                 >
@@ -204,6 +204,30 @@ export default function FehlerortungDialog({ montageAuftrag, user, onClose, onRe
                   <div>
                     <div className="font-semibold text-orange-800 text-sm">Weitere Muffe muss freigelegt werden</div>
                     <div className="text-xs text-orange-600">→ Tiefbau-Status wird zurückgesetzt</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    setIsSaving(true);
+                    try {
+                      const msg = `⚠️ Fehlerortung – Nachgemessen\nGrube zu klein / Stahlplatte erforderlich\n→ Tiefbau ist wieder erforderlich.`;
+                      await sendChatMessage(projectId, msg, userName);
+                      await MontageAuftrag.update(montageAuftragId, { tiefbau_offen: false, status: 'Tiefbau ausstehend' });
+                      onReload && onReload();
+                      onClose();
+                    } catch (e) {
+                      console.error(e);
+                    }
+                    setIsSaving(false);
+                  }}
+                  disabled={isSaving}
+                  className="w-full p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 transition-all text-left flex items-center gap-3"
+                >
+                  <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                  <div>
+                    <div className="font-semibold text-amber-800 text-sm">Grube zu klein / Stahlplatte erforderlich</div>
+                    <div className="text-xs text-amber-600">→ Tiefbau-Status wird zurückgesetzt</div>
                   </div>
                 </button>
 
