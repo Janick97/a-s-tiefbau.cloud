@@ -27,7 +27,6 @@ export default function MontageLeistungenPdfExport({ project, montageAuftrag, le
   }, {});
 
   const groupedLeistungenList = Object.values(groupedLeistungen);
-  const totalRevenue = groupedLeistungenList.reduce((s, g) => s + g.totalPrice, 0);
 
   // Material zusammenfassen
   const groupedMaterials = materialUsage.reduce((acc, u) => {
