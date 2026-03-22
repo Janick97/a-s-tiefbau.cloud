@@ -651,10 +651,8 @@ export default function DocumentManagement({ projectId, project, loadData, readO
         </div>
       )}
 
-      {!readOnly && (
-      <>
       {/* Global Upload Progress Bar */}
-      {uploading && (
+      {!readOnly && uploading && (
         <Card className="border-orange-500 bg-orange-50">
           <CardContent className="p-4">
             <div className="space-y-2">
