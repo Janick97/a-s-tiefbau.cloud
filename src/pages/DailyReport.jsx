@@ -40,20 +40,11 @@ export default function DailyReport() {
     enabled: !!selectedUserId && (position === "Bauleiter" || !position),
   });
 
-  // Excavations – for Oberfläche (by various closure user fields)
+  // Excavations – for Oberfläche: load all, filter client-side (no $or support)
   const { data: oberflaecheExcs = [], isLoading: excLoadingO } = useQuery({
-    queryKey: ["excavations-oberflaeche", selectedUserId, dateStr],
-    queryFn: () => base44.entities.Excavation.filter(
-      { $or: [
-        { backfilled_by_user_id: selectedUserId },
-        { asphalt_trag_by_user_id: selectedUserId },
-        { asphalt_fein_by_user_id: selectedUserId },
-        { platten_pflaster_by_user_id: selectedUserId },
-        { closed_by_user_id: selectedUserId },
-      ]},
-      "-created_date", 500
-    ),
-    enabled: !!selectedUserId && (position === "Oberfläche" || !position),
+    queryKey: ["excavations-oberflaeche-all", dateStr],
+    queryFn: () => base44.entities.Excavation.list("-created_date", 1000),
+    enabled: !!selectedUserId && position === "Oberfläche",
   });
 
   // PriceItems – to distinguish Grube vs Graben
