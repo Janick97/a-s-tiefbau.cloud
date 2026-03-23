@@ -104,14 +104,11 @@ export default function DailyReport() {
     myExcs.forEach(exc => {
       const surface = exc.surface_type || "Unbekannt";
       const pi = priceMap[exc.price_item_id];
-      const type = pi?.type || (pi?.unit === "ST" ? "Grube" : "Graben");
+      // Unit "M" = Graben (Meter), "ST" = Grube (Stück)
+      const isGraben = pi?.unit === "M" || pi?.type === "Graben";
       if (!bySurface[surface]) bySurface[surface] = { gruben: 0, graben: 0 };
-      if (type === "Grube") bySurface[surface].gruben += exc.quantity || 1;
-      else bySurface[surface].graben += exc.quantity || 0;
-      // Also check surface_type_2
-      if (exc.surface_type_2 && exc.surface_type_2 !== surface) {
-        if (!bySurface[exc.surface_type_2]) bySurface[exc.surface_type_2] = { gruben: 0, graben: 0 };
-      }
+      if (isGraben) bySurface[surface].graben += exc.quantity || 0;
+      else bySurface[surface].gruben += exc.quantity || 1;
     });
 
     const myPulling = pullingWorks.filter(pw =>
@@ -135,9 +132,9 @@ export default function DailyReport() {
       const surface = exc.surface_type || "Unbekannt";
       if (!bySurface[surface]) bySurface[surface] = { gruben: 0, graben: 0 };
       const pi = priceMap[exc.price_item_id];
-      const type = pi?.type || "Grube";
-      if (type === "Grube") bySurface[surface].gruben += exc.quantity || 1;
-      else bySurface[surface].graben += exc.quantity || 0;
+      const isGraben = pi?.unit === "M" || pi?.type === "Graben";
+      if (isGraben) bySurface[surface].graben += exc.quantity || 0;
+      else bySurface[surface].gruben += exc.quantity || 1;
     };
 
     excavations.forEach(exc => {
