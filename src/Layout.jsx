@@ -203,7 +203,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       }
 
       if (item.title === 'Fahrzeugpflege') {
-        return user.position === 'Bauleiter' || user.position === 'Oberfläche' || user.position === 'Monteur';
+        return user.position === 'Bauleiter' || user.position === 'Oberfläche' || user.position === 'Monteur' || user.role === 'admin';
       }
 
       if (item.title === 'Fahrzeugpflege Kontrolle') {
