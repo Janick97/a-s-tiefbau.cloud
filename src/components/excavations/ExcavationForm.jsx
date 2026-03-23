@@ -1375,6 +1375,34 @@ export default function ExcavationForm({ excavation, projects = [], defaultProje
                 </CardContent>
               </Card>
 
+              {/* Statistik-Ausschluss: nur im Bearbeitungsmodus und nur für Admin/Büro */}
+              {excavation && (currentUser?.role === 'admin' || currentUser?.position === 'Büro') && (
+                <Card className={`border-2 ${formData.exclude_from_statistics ? 'border-red-300 bg-red-50' : 'bg-gray-50/50'}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Checkbox
+                        id="exclude_from_statistics"
+                        checked={formData.exclude_from_statistics}
+                        onCheckedChange={(checked) => handleInputChange('exclude_from_statistics', checked)}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <Label htmlFor="exclude_from_statistics" className="cursor-pointer font-semibold text-gray-800">
+                          Von Statistik ausschließen
+                        </Label>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Diese Leistung fließt dann nicht in Auswertungen, Kolonnen-Übersicht und Berichte ein. 
+                          Der Arbeitsprozess (Verfüllung, Schließung etc.) bleibt vollständig erhalten.
+                        </p>
+                        {formData.exclude_from_statistics && (
+                          <p className="text-xs font-semibold text-red-600 mt-1">⚠ Diese Leistung ist aktuell von der Statistik ausgeschlossen.</p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
             </CardContent>
 
             <CardFooter className="flex flex-col sm:flex-row justify-between gap-3 bg-gray-50 rounded-b-lg sticky bottom-0 py-4 backdrop-blur-sm">
