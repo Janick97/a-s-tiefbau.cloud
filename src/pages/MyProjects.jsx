@@ -140,12 +140,13 @@ export default function MyProjectsPage() {
 
       if (userData && userData.position === 'Bauleiter') {
         const userAssignedProjects = (Array.isArray(projectsData) ? projectsData : []).filter(project => {
-          if (project.assigned_bauleiter && Array.isArray(project.assigned_bauleiter)) {
-            return project.assigned_bauleiter.some(b => b.id === userData.id);
+          // Neues Feld: assigned_bauleiter Array (nur wenn Einträge vorhanden)
+          if (project.assigned_bauleiter && Array.isArray(project.assigned_bauleiter) && project.assigned_bauleiter.length > 0) {
+            if (project.assigned_bauleiter.some(b => b.id === userData.id)) return true;
           }
+          // Legacy-Felder als Fallback
           return project.assigned_foreman_id === userData.id ||
-                 project.assigned_foreman_name === userData.full_name ||
-                 project.created_by === userData.email;
+                 project.assigned_foreman_name === userData.full_name;
         });
         setMyProjects(userAssignedProjects);
       } else {
