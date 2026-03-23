@@ -109,11 +109,11 @@ export default function DailyReport() {
     myExcs.forEach((exc) => {
       const surface = exc.surface_type || "Unbekannt";
       const pi = priceMap[exc.price_item_id];
-      // Unit "M" = Graben (Meter), "ST" = Grube (Stück)
+      // Unit "M" = Graben (Meter): Länge steht in excavation_length, nicht quantity
       const isGraben = pi?.unit === "M" || pi?.type === "Graben";
       if (!bySurface[surface]) bySurface[surface] = { gruben: 0, graben: 0 };
-      if (isGraben) bySurface[surface].graben += exc.quantity || 0;
-      else bySurface[surface].gruben += exc.quantity || 1;
+      if (isGraben) bySurface[surface].graben += exc.excavation_length || exc.quantity || 0;
+      else bySurface[surface].gruben += 1;
     });
 
     const myPulling = pullingWorks.filter((pw) =>
@@ -138,8 +138,9 @@ export default function DailyReport() {
       if (!bySurface[surface]) bySurface[surface] = { gruben: 0, graben: 0 };
       const pi = priceMap[exc.price_item_id];
       const isGraben = pi?.unit === "M" || pi?.type === "Graben";
-      if (isGraben) bySurface[surface].graben += exc.quantity || 0;else
-      bySurface[surface].gruben += exc.quantity || 1;
+      // Graben: Länge steht in excavation_length, nicht quantity
+      if (isGraben) bySurface[surface].graben += exc.excavation_length || exc.quantity || 0;
+      else bySurface[surface].gruben += 1;
     };
 
     oberflaecheExcs.forEach((exc) => {
