@@ -33,11 +33,27 @@ export default function DailyReport() {
   const selectedUser = allUsers.find((u) => u.id === selectedUserId);
   const position = selectedUser?.position;
 
-  // Excavations – for Bauleiter and Oberfläche
-  const { data: excavations = [], isLoading: excLoading } = useQuery({
-    queryKey: ["excavations-daily"],
-    queryFn: () => base44.entities.Excavation.list(),
-    enabled: !!selectedUserId
+  // Excavations – for Bauleiter (by foreman_user_id + created on date)
+  const { data: bauleiterExcs = [], isLoading: excLoadingB } = useQuery({
+    queryKey: ["excavations-bauleiter", selectedUserId, dateStr],
+    queryFn: () => base44.entities.Excavation.filter({ foreman_user_id: selectedUserId }, "-created_date", 500),
+    enabled: !!selectedUserId && (position === "Bauleiter" || !position),
+  });
+
+  // Excavations – for Oberfläche (by various closure user fields)
+  const { data: oberflaecheExcs = [], isLoading: excLoadingO } = useQuery({
+    queryKey: ["excavations-oberflaeche", selectedUserId, dateStr],
+    queryFn: () => base44.entities.Excavation.filter(
+      { $or: [
+        { backfilled_by_user_id: selectedUserId },
+        { asphalt_trag_by_user_id: selectedUserId },
+        { asphalt_fein_by_user_id: selectedUserId },
+        { platten_pflaster_by_user_id: selectedUserId },
+        { closed_by_user_id: selectedUserId },
+      ]},
+      "-created_date", 500
+    ),
+    enabled: !!selectedUserId && (position === "Oberfläche" || !position),
   });
 
   // PriceItems – to distinguish Grube vs Graben
@@ -89,15 +105,13 @@ export default function DailyReport() {
     enabled: !!selectedUserId && position === "Monteur"
   });
 
-  const isLoading = excLoading || pullingLoading || leistungLoading || materialLoading;
+  const isLoading = excLoadingB || excLoadingO || pullingLoading || leistungLoading || materialLoading;
 
   // ---- BAULEITER DATA ----
   const bauleiterData = useMemo(() => {
     if (position !== "Bauleiter") return null;
-    const myExcs = excavations.filter((e) =>
-    e.foreman_user_id === selectedUserId &&
-    e.created_date?.startsWith(dateStr)
-    );
+    // Filter by date: created_date starts with dateStr
+    const myExcs = bauleiterExcs.filter((e) => e.created_date?.startsWith(dateStr));
     const priceMap = Object.fromEntries(priceItems.map((p) => [p.id, p]));
 
     const bySurface = {};
@@ -107,8 +121,8 @@ export default function DailyReport() {
       // Unit "M" = Graben (Meter), "ST" = Grube (Stück)
       const isGraben = pi?.unit === "M" || pi?.type === "Graben";
       if (!bySurface[surface]) bySurface[surface] = { gruben: 0, graben: 0 };
-      if (isGraben) bySurface[surface].graben += exc.quantity || 0;else
-      bySurface[surface].gruben += exc.quantity || 1;
+      if (isGraben) bySurface[surface].graben += exc.quantity || 0;
+      else bySurface[surface].gruben += exc.quantity || 1;
     });
 
     const myPulling = pullingWorks.filter((pw) =>
@@ -118,7 +132,7 @@ export default function DailyReport() {
     const totalKabel = myPulling.reduce((s, pw) => s + (pw.cable_length || 0), 0);
 
     return { bySurface, pulling: myPulling, totalKabel, count: myExcs.length };
-  }, [excavations, pullingWorks, priceItems, selectedUserId, dateStr, position, selectedUser]);
+  }, [bauleiterExcs, pullingWorks, priceItems, selectedUserId, dateStr, position, selectedUser]);
 
   // ---- OBERFLÄCHE DATA ----
   const oberflaecheData = useMemo(() => {
@@ -137,7 +151,7 @@ export default function DailyReport() {
       bySurface[surface].gruben += exc.quantity || 1;
     };
 
-    excavations.forEach((exc) => {
+    oberflaecheExcs.forEach((exc) => {
       addEntry(exc, "backfilled_date", "backfilled_by_user_id");
       addEntry(exc, "asphalt_trag_date", "asphalt_trag_by_user_id");
       addEntry(exc, "asphalt_fein_date", "asphalt_fein_by_user_id");
@@ -146,7 +160,7 @@ export default function DailyReport() {
     });
 
     return { bySurface };
-  }, [excavations, priceItems, selectedUserId, dateStr, position]);
+  }, [oberflaecheExcs, priceItems, selectedUserId, dateStr, position]);
 
   // ---- MONTEUR DATA ----
   const monteurData = useMemo(() => {
