@@ -617,6 +617,45 @@ export default function DocumentManagement({ projectId, project, loadData, readO
     return <ArrowUpDown className="w-3 h-3" />;
   };
 
+  const [zippingFolder, setZippingFolder] = React.useState(null);
+
+  const handleDownloadFolderAsZip = async (folder, e) => {
+    e.stopPropagation();
+    // Collect all docs in this folder and its subfolders
+    const folderDocs = documents.filter(doc => doc.folder === folder || doc.folder.startsWith(folder + '/'));
+    if (folderDocs.length === 0) return;
+
+    setZippingFolder(folder);
+    try {
+      const zip = new JSZip();
+      await Promise.all(folderDocs.map(async (doc) => {
+        try {
+          const response = await fetch(doc.file_url);
+          const blob = await response.blob();
+          // Preserve subfolder structure relative to the downloaded folder
+          const relativePath = doc.folder === folder
+            ? doc.file_name
+            : doc.folder.substring(folder.length + 1) + '/' + doc.file_name;
+          zip.file(relativePath, blob);
+        } catch (err) {
+          console.error('Fehler beim Laden der Datei:', doc.file_name, err);
+        }
+      }));
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${getFolderName(folder)}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('ZIP-Fehler:', err);
+    }
+    setZippingFolder(null);
+  };
+
   return (
     <div className="space-y-6 overflow-y-auto h-full">
       <div className="flex flex-col gap-3">
