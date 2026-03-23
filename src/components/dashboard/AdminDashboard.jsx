@@ -110,6 +110,7 @@ export default function AdminDashboard({
         { title: "Trassenauskunft", icon: MapPin, link: "https://trassenauskunftkabel.telekom.de/start.html", external: true },
         { title: "E-Vergabe", icon: FileText, link: "https://evergabe.telekom.de/", external: true },
         { title: "LWA Tool", icon: Wrench, link: "https://lwa.telekom.de/login", external: true },
+        { title: "Projektbesprechung", icon: Users, link: "https://astiefstraenbaugmbh.sharepoint.com/:x:/s/ASTief-StraenbauGmbH/IQAu04PPm2PDTILhAPkSPRD-AVKmde7-2r6DRXRoaKm-C6g?e=vWW4VP", external: true },
       ]
     },
     {
