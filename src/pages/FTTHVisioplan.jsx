@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/components/ui/use-toast";
 import { Lightbulb, Network, AlertTriangle, Plus, Download, Loader2 } from "lucide-react";
 import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
 
 import VisioCanvas from "@/components/visio/VisioCanvas";
 import NodeInfoPanel from "@/components/visio/NodeInfoPanel";
@@ -127,16 +128,33 @@ export default function FTTHVisioplanPage() {
   const handleStatusChange = (nodeId, newStatus) => updateNodeMutation.mutate({ nodeId, status: newStatus });
 
   const handleDownloadVisioplan = async () => {
-    const canvasElement = document.querySelector('.relative.w-full.h-\\[600px\\]');
+    const canvasElement = document.querySelector('.relative.w-full.h-\[650px\]');
     if (!canvasElement) return;
     try {
       const canvas = await html2canvas(canvasElement, { backgroundColor: '#ffffff', scale: 2, logging: false });
-      const link = document.createElement('a');
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+      const imgRatio = canvas.width / canvas.height;
+      const pdfRatio = usableWidth / usableHeight;
+      let imgW, imgH;
+      if (imgRatio > pdfRatio) {
+        imgW = usableWidth;
+        imgH = usableWidth / imgRatio;
+      } else {
+        imgH = usableHeight;
+        imgW = usableHeight * imgRatio;
+      }
       const currentProject = projects.find(p => p.id === selectedProjectId);
-      link.download = `Visioplan_${currentProject?.project_number || 'Export'}_${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL();
-      link.click();
-      toast({ title: "Download erfolgreich", description: "Visioplan wurde als PNG gespeichert." });
+      pdf.setFontSize(12);
+      pdf.text(`Visioplan – ${currentProject?.project_number || ''} ${currentProject?.title || ''}`, margin, margin - 2);
+      pdf.addImage(imgData, 'PNG', margin, margin, imgW, imgH);
+      pdf.save(`Visioplan_${currentProject?.project_number || 'Export'}_${new Date().toISOString().split('T')[0]}.pdf`);
+      toast({ title: "Download erfolgreich", description: "Visioplan wurde als PDF gespeichert." });
     } catch (error) {
       toast({ title: "Download fehlgeschlagen", description: error.message, variant: "destructive" });
     }
@@ -197,7 +215,7 @@ export default function FTTHVisioplanPage() {
                   <Plus className="w-4 h-4 mr-1" /> Verbindung
                 </Button>
                 <Button onClick={handleDownloadVisioplan} size="sm" variant="outline">
-                  <Download className="w-4 h-4 mr-1" /> PNG
+                  <Download className="w-4 h-4 mr-1" /> PDF
                 </Button>
               </>
             )}
