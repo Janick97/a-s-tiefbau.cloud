@@ -324,12 +324,6 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                 </div>
               </motion.div>
             )}
-                  {data.start_cable_meters && data.end_cable_meters && !metersBlown() && (
-                    <p className="text-xs text-red-500">Ende muss größer als Anfang sein.</p>
-                  )}
-                </div>
-              </motion.div>
-            )}
 
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
