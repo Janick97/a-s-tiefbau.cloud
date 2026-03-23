@@ -312,13 +312,9 @@ export default function FTTHVisioplanPage() {
 
         {/* Suchpanel */}
         <SearchPanel
-          nodes={nodes}
-          connections={connections}
           projects={projects}
           selectedProjectId={selectedProjectId}
           onProjectChange={setSelectedProjectId}
-          onHighlight={(elements) => setHighlightedElements(elements)}
-          onClearHighlight={() => setHighlightedElements({ nodeIds: [], connectionIds: [] })}
         />
 
         {/* Hinweis-Box */}
