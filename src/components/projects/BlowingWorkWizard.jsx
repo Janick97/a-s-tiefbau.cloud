@@ -123,6 +123,12 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         documentation_date: new Date().toISOString().split("T")[0],
       });
     }
+    // Visioplan-Verbindung mit eingeblasenen Metern aktualisieren
+    if (data.visio_connection_id) {
+      await base44.entities.VisioConnection.update(data.visio_connection_id, {
+        length_meters: blown,
+      });
+    }
     setSaving(false);
     onSaved?.();
     onClose();
