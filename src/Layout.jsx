@@ -180,7 +180,8 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
       if (user.position === 'Monteur') {
         return item.title === 'Dashboard' ||
-        item.title === 'Meine Montageaufträge';
+        item.title === 'Meine Montageaufträge' ||
+        item.title === 'Fahrzeugpflege';
       }
 
       if (user.position === 'Oberfläche') {
