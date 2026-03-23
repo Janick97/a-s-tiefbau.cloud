@@ -32,8 +32,10 @@ import {
   ArrowDown,
   MoveRight,
   Lock,
-  Unlock } from
+  Unlock,
+  FolderDown } from
 "lucide-react";
+import JSZip from "jszip";
 import { UploadFile } from "@/integrations/Core";
 import ImageViewer from "./ImageViewer";
 
