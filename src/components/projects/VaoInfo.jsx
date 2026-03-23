@@ -1,6 +1,6 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { base44 } from "@/api/base44Client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
@@ -19,9 +19,17 @@ const vaoStatusColors = {
   'Verlängerung beantragt': 'bg-orange-100 text-orange-800'
 };
 
-export default function VaoInfo({ project, vaoSourceProject }) {
-  // Determine which project's VAO info to display
+export default function VaoInfo({ project, vaoSourceProject, onProjectUpdate }) {
   const vaoProject = vaoSourceProject || project;
+  const [notes, setNotes] = useState(project?.vao_notes || '');
+  const [saving, setSaving] = useState(false);
+
+  const handleSaveNotes = async () => {
+    setSaving(true);
+    await base44.entities.Project.update(project.id, { vao_notes: notes });
+    onProjectUpdate?.({ ...project, vao_notes: notes });
+    setSaving(false);
+  };
 
   const getVAOStatus = () => {
     if (!vaoProject.vao_valid_to) return null;
@@ -118,6 +126,23 @@ export default function VaoInfo({ project, vaoSourceProject }) {
                 )}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Notizfeld */}
+        <div className="border-t pt-4">
+          <label className="text-sm font-medium text-gray-500 block mb-1">Notizen zur VAO</label>
+          <textarea
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-orange-400"
+            rows={3}
+            placeholder="Freie Notizen zur Verkehrsanordnung..."
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+          />
+          <div className="flex justify-end mt-1">
+            <Button size="sm" onClick={handleSaveNotes} disabled={saving}>
+              {saving ? 'Speichert...' : 'Notiz speichern'}
+            </Button>
           </div>
         </div>
       </CardContent>
