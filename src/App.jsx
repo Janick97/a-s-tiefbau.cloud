@@ -10,6 +10,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import TicketSystemPage from '@/pages/TicketSystem';
+import DailyReportPage from '@/pages/DailyReport';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -64,6 +65,11 @@ const AuthenticatedApp = () => {
       <Route path="/TicketSystem" element={
         <LayoutWrapper currentPageName="TicketSystem">
           <TicketSystemPage />
+        </LayoutWrapper>
+      } />
+      <Route path="/DailyReport" element={
+        <LayoutWrapper currentPageName="DailyReport">
+          <DailyReportPage />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
