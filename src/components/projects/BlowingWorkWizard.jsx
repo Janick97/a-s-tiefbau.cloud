@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { X, ChevronRight, ChevronLeft, Check, Wind } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, Check, Wind, Network, PenLine } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const CABLE_TYPES = {
@@ -64,8 +64,25 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
     cable_type: existingRecord?.cable_type ?? "",
     snr_color: existingRecord?.snr_color ?? "",
     notes: existingRecord?.notes ?? "",
+    visio_connection_id: existingRecord?.visio_connection_id ?? "",
   });
   const [saving, setSaving] = useState(false);
+  const [visioConnections, setVisioConnections] = useState([]);
+  const [visioNodes, setVisioNodes] = useState([]);
+  const [connectionMode, setConnectionMode] = useState(existingRecord?.visio_connection_id ? "visio" : "manual");
+
+  useEffect(() => {
+    const loadVisioData = async () => {
+      if (!project?.id) return;
+      const [connections, nodes] = await Promise.all([
+        base44.entities.VisioConnection.filter({ project_id: project.id }),
+        base44.entities.VisioNode.filter({ project_id: project.id }),
+      ]);
+      setVisioConnections(connections || []);
+      setVisioNodes(nodes || []);
+    };
+    loadVisioData();
+  }, [project?.id]);
 
   const metersBlown = () => {
     const start = parseFloat(data.start_cable_meters);
@@ -93,6 +110,7 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
       cable_type: data.cable_type,
       snr_color: data.snr_color,
       notes: data.notes,
+      visio_connection_id: data.visio_connection_id || "",
     };
     if (isEdit) {
       await base44.entities.BlowingWork.update(existingRecord.id, payload);
@@ -108,6 +126,23 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
     setSaving(false);
     onSaved?.();
     onClose();
+  };
+
+  const handleSelectVisioConnection = (connectionId) => {
+    if (!connectionId) {
+      setData(d => ({ ...d, visio_connection_id: "", point_a: "", point_b: "" }));
+      return;
+    }
+    const conn = visioConnections.find(c => c.id === connectionId);
+    if (!conn) return;
+    const nodeA = visioNodes.find(n => n.id === conn.from_node_id);
+    const nodeB = visioNodes.find(n => n.id === conn.to_node_id);
+    setData(d => ({
+      ...d,
+      visio_connection_id: connectionId,
+      point_a: nodeA?.node_name || "",
+      point_b: nodeB?.node_name || "",
+    }));
   };
 
   const snrColorObj = SNR_COLORS_BASE.find(c => c.name === data.snr_color || c.name + "/Strich" === data.snr_color);
@@ -164,10 +199,69 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Kabelmeter erfassen</h3>
-                  <p className="text-sm text-gray-500">Gib den Anfangs- und Endmeter des Kabels ein.</p>
+                  <h3 className="font-semibold text-gray-900 mb-1">Verbindung & Kabelmeter</h3>
+                  <p className="text-sm text-gray-500">Wähle eine Strecke aus dem Visioplan oder gib sie manuell ein.</p>
                 </div>
-                <div className="space-y-3">
+
+                {/* Mode Toggle */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConnectionMode("visio")}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                      connectionMode === "visio" ? "border-teal-500 bg-teal-50 text-teal-800" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    <Network className="w-4 h-4" /> Aus Visioplan
+                  </button>
+                  <button
+                    onClick={() => {
+                      setConnectionMode("manual");
+                      setData(d => ({ ...d, visio_connection_id: "" }));
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border-2 text-sm font-medium transition-all ${
+                      connectionMode === "manual" ? "border-teal-500 bg-teal-50 text-teal-800" : "border-gray-200 text-gray-600 hover:border-gray-300"
+                    }`}
+                  >
+                    <PenLine className="w-4 h-4" /> Manuell
+                  </button>
+                </div>
+
+                {connectionMode === "visio" ? (
+                  <div className="space-y-3">
+                    {visioConnections.length === 0 ? (
+                      <div className="text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                        <Network className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Keine Verbindungen im Visioplan vorhanden.</p>
+                        <p className="text-xs text-gray-400 mt-1">Bitte zuerst im Visioplan anlegen oder manuell eingeben.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Verbindung auswählen</Label>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {visioConnections.map(conn => {
+                            const nodeA = visioNodes.find(n => n.id === conn.from_node_id);
+                            const nodeB = visioNodes.find(n => n.id === conn.to_node_id);
+                            const label = `${nodeA?.node_name || "?"} → ${nodeB?.node_name || "?"}`;
+                            return (
+                              <button
+                                key={conn.id}
+                                onClick={() => handleSelectVisioConnection(conn.id)}
+                                className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all ${
+                                  data.visio_connection_id === conn.id
+                                    ? "border-teal-500 bg-teal-50"
+                                    : "border-gray-200 hover:border-gray-300"
+                                }`}
+                              >
+                                <div className="font-semibold text-sm text-gray-900">{label}</div>
+                                {conn.cable_type && <div className="text-xs text-gray-500 mt-0.5">{conn.cable_type}</div>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-sm font-medium">Punkt A (Startpunkt)</Label>
@@ -188,6 +282,16 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                       />
                     </div>
                   </div>
+                )}
+
+                {/* Show selected points */}
+                {data.point_a && data.point_b && (
+                  <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800 font-medium text-center">
+                    {data.point_a} → {data.point_b}
+                  </div>
+                )}
+
+                <div className="space-y-3">
                   <div>
                     <Label className="text-sm font-medium">Anfang Kabel (m)</Label>
                     <Input
@@ -214,6 +318,12 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
                       <Badge className="bg-teal-600 text-white text-base px-3">{metersBlown()} m</Badge>
                     </div>
                   )}
+                  {data.start_cable_meters && data.end_cable_meters && !metersBlown() && (
+                    <p className="text-xs text-red-500">Ende muss größer als Anfang sein.</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
                   {data.start_cable_meters && data.end_cable_meters && !metersBlown() && (
                     <p className="text-xs text-red-500">Ende muss größer als Anfang sein.</p>
                   )}
