@@ -144,6 +144,7 @@ const getInitialData = (excavation, projects = [], defaultProjectId = null, curr
     foreman_user_id: excavation?.foreman_user_id || null,
     notes: excavation?.notes || '',
     construction_justification: excavation?.construction_justification || '',
+    exclude_from_statistics: excavation?.exclude_from_statistics || false,
   };
 };
 
