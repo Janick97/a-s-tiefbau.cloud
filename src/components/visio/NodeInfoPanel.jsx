@@ -12,6 +12,7 @@ export default function NodeInfoPanel({ node, connections, onClose, onStatusChan
   const [newStatus, setNewStatus] = useState(node?.status || 'DUNKEL');
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(node?.node_name || '');
+  const [displayName, setDisplayName] = useState(node?.node_name || '');
   const queryClient = useQueryClient();
 
   if (!node) return null;
@@ -23,8 +24,10 @@ export default function NodeInfoPanel({ node, connections, onClose, onStatusChan
   const statusColors = { DUNKEL: 'bg-gray-500', LICHT: 'bg-green-500', STÖRUNG: 'bg-red-500' };
 
   const handleSaveName = async () => {
-    if (!nameValue.trim() || nameValue === node.node_name) { setEditingName(false); return; }
+    if (!nameValue.trim()) { setEditingName(false); return; }
+    if (nameValue.trim() === displayName) { setEditingName(false); return; }
     await base44.entities.VisioNode.update(node.id, { node_name: nameValue.trim() });
+    setDisplayName(nameValue.trim());
     queryClient.invalidateQueries(['visio-nodes']);
     setEditingName(false);
   };
@@ -59,10 +62,10 @@ export default function NodeInfoPanel({ node, connections, onClose, onStatusChan
               <Button size="icon" className="h-8 w-8" onClick={handleSaveName}><Check className="w-4 h-4" /></Button>
             </div>
           ) : (
-            <div className="flex items-center gap-2 group">
-              <span className="font-bold text-base">{node.node_name}</span>
-              <button onClick={() => { setNameValue(node.node_name); setEditingName(true); }}
-                className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-700 transition-opacity">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-base">{displayName}</span>
+              <button onClick={() => { setNameValue(displayName); setEditingName(true); }}
+                className="text-gray-400 hover:text-gray-700 transition-colors">
                 <Pencil className="w-3.5 h-3.5" />
               </button>
             </div>
