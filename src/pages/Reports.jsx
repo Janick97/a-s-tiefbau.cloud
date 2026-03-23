@@ -66,12 +66,14 @@ export default function ReportsPage() {
 
     if (reportType === 'month') {
       filteredExcavations = excavations.filter(exc => {
+        if (exc.exclude_from_statistics) return false;
         const excDate = new Date(exc.created_date);
         const excMonth = excDate.toISOString().substring(0, 7);
         return excMonth === selectedMonth;
       });
     } else {
       filteredExcavations = excavations.filter(exc => {
+        if (exc.exclude_from_statistics) return false;
         const excDate = new Date(exc.created_date);
         return excDate.getFullYear().toString() === selectedYear;
       });

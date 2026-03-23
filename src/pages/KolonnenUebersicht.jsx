@@ -76,7 +76,10 @@ export default function KolonnenUebersichtPage() {
     });
   };
 
-  const filteredExcavations = filterExcavationsByMonth(excavations, selectedMonth);
+  const filteredExcavations = filterExcavationsByMonth(
+    excavations.filter(exc => !exc.exclude_from_statistics),
+    selectedMonth
+  );
 
   const filteredUsers = useMemo(() => {
     let filtered = users;

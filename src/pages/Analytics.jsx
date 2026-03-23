@@ -197,7 +197,10 @@ export default function AnalyticsPage() {
     });
   };
 
-  const filteredExcavations = filterExcavationsByMonth(excavations, selectedMonth);
+  const filteredExcavations = filterExcavationsByMonth(
+    excavations.filter(exc => !exc.exclude_from_statistics),
+    selectedMonth
+  );
 
   const filteredMontageLeistungen = useMemo(() => {
     return montageLeistungen.filter(leistung => {

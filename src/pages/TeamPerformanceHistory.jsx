@@ -79,7 +79,7 @@ export default function TeamPerformanceHistoryPage() {
       const monthData = { month: month.label, monthValue: month.value };
       
       const filteredExcavations = excavations.filter(exc => {
-        if (!exc) return false;
+        if (!exc || exc.exclude_from_statistics) return false;
         const datesToCheck = [exc.created_date, exc.updated_date];
         for (const dateStr of datesToCheck) {
           if (dateStr) {
