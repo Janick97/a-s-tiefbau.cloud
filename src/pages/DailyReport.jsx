@@ -269,7 +269,7 @@ export default function DailyReport() {
           </div>
           {hasData && !isLoading && (
             <Button onClick={handlePdf} className="bg-orange-500 hover:bg-orange-600">
-              <FileText className="w-4 h-4 mr-2" /> PDF Export
+              <FileText className="w-4 h-4 mr-2" /> PDF
             </Button>
           )}
         </div>
