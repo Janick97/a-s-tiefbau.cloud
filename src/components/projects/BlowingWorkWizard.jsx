@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ const STEPS = [
 
 export default function BlowingWorkWizard({ project, onClose, onSaved, user, existingRecord }) {
   const isEdit = !!existingRecord;
+  const queryClient = useQueryClient();
   const [step, setStep] = useState(1);
   const [data, setData] = useState({
     start_cable_meters: existingRecord?.start_cable_meters ?? "",
@@ -123,11 +125,13 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         documentation_date: new Date().toISOString().split("T")[0],
       });
     }
-    // Visioplan-Verbindung mit eingeblasenen Metern aktualisieren
+    // Visioplan-Verbindung mit eingeblasenen Metern und Kabeltyp aktualisieren
     if (data.visio_connection_id) {
       await base44.entities.VisioConnection.update(data.visio_connection_id, {
         length_meters: blown,
+        cable_type: data.cable_type,
       });
+      queryClient.invalidateQueries(['visio-connections']);
     }
     setSaving(false);
     onSaved?.();
