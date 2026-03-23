@@ -901,6 +901,18 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                       {getSortIcon(folder)}
                       <span className="hidden sm:inline">{getSortLabel(folder)}</span>
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-blue-500 hover:text-blue-700"
+                      title="Ordner als ZIP herunterladen"
+                      disabled={zippingFolder === folder}
+                      onClick={(e) => handleDownloadFolderAsZip(folder, e)}>
+                      {zippingFolder === folder
+                        ? <div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                        : <FolderDown className="w-3.5 h-3.5" />
+                      }
+                    </Button>
                     {!readOnly &&
                     <>
                         <Button
