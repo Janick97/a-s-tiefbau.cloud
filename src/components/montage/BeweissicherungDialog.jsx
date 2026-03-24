@@ -22,6 +22,9 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
     schadensursache: existingBeweissicherung?.schadensursache || "",
     uhrzeit_schaden: existingBeweissicherung?.uhrzeit_schaden || "",
     uhrzeit_beseitigung: existingBeweissicherung?.uhrzeit_beseitigung || "",
+    kabel_typ: existingBeweissicherung?.kabel_typ || "",
+    kabel_geschuetzt: existingBeweissicherung?.kabel_geschuetzt ?? null,
+    kabel_tiefe_cm: existingBeweissicherung?.kabel_tiefe_cm || "",
     fotos: existingBeweissicherung?.fotos || []
   });
 
@@ -194,6 +197,49 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
                     value={formData.uhrzeit_beseitigung}
                     onChange={(e) => handleChange("uhrzeit_beseitigung", e.target.value)}
                   />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Kabeldetails */}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3 border-b pb-1">Kabeldetails</h3>
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm mb-1 block">Welches Kabel ist defekt?</Label>
+                <Input
+                  value={formData.kabel_typ}
+                  onChange={(e) => handleChange("kabel_typ", e.target.value)}
+                  placeholder="z.B. 4-faser SM, 2x12 Minikabel, Cu-Kabel..."
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-1 block">Tiefe des Kabels (cm)</Label>
+                <Input
+                  type="number"
+                  value={formData.kabel_tiefe_cm}
+                  onChange={(e) => handleChange("kabel_tiefe_cm", e.target.value)}
+                  placeholder="z.B. 60"
+                />
+              </div>
+              <div>
+                <Label className="text-sm mb-2 block">War das Kabel geschützt?</Label>
+                <div className="flex gap-3">
+                  {[{ val: true, label: 'Ja' }, { val: false, label: 'Nein' }].map(({ val, label }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      onClick={() => handleChange("kabel_geschuetzt", val)}
+                      className={`flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                        formData.kabel_geschuetzt === val
+                          ? 'border-blue-500 bg-blue-50 text-blue-700'
+                          : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
