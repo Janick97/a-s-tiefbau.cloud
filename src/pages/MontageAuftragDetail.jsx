@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { MontageAuftrag, MontagePreisItem, MontageMaterialInventory, User } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText, CheckCircle2, Circle, Users, Tag, Hash, AlertTriangle } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
 import MontageLeistungWizard from "../components/montage/MontageLeistungWizard";
@@ -21,7 +22,7 @@ import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
-  const location = useLocation();
+  const { toast } = useToast();
   const [montageAuftrag, setMontageAuftrag] = useState(null);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,25 +99,30 @@ export default function MontageAuftragDetailPage() {
   const readOnly = user?.role !== 'admin' && !isAssignedMonteur;
   const isMonteur = user?.position === 'Monteur';
 
-  const handleStatusChange = async (newStatus) => {
+  const reloadBeweissicherungen = useCallback(async () => {
+    const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
+    setBeweissicherungen(Array.isArray(data) ? data : []);
+  }, [montageAuftragId]);
+
+  const handleStatusChange = useCallback(async (newStatus) => {
     try {
       await MontageAuftrag.update(montageAuftrag.id, { status: newStatus });
-      setMontageAuftrag({ ...montageAuftrag, status: newStatus });
+      setMontageAuftrag((prev) => ({ ...prev, status: newStatus }));
+      toast({ title: "Status aktualisiert ✓" });
     } catch (error) {
-      console.error("Fehler beim Aktualisieren des Status:", error);
-      alert("Fehler beim Aktualisieren des Status");
+      toast({ title: "Fehler beim Aktualisieren des Status", variant: "destructive" });
     }
-  };
+  }, [montageAuftrag?.id, toast]);
 
-  const handleArtChange = async (newArt) => {
+  const handleArtChange = useCallback(async (newArt) => {
     try {
       await MontageAuftrag.update(montageAuftrag.id, { art: newArt });
-      setMontageAuftrag({ ...montageAuftrag, art: newArt });
+      setMontageAuftrag((prev) => ({ ...prev, art: newArt }));
+      toast({ title: "Auftragsart aktualisiert ✓" });
     } catch (error) {
-      console.error("Fehler beim Aktualisieren der Auftragsart:", error);
-      alert("Fehler beim Aktualisieren der Auftragsart");
+      toast({ title: "Fehler beim Aktualisieren der Auftragsart", variant: "destructive" });
     }
-  };
+  }, [montageAuftrag?.id, toast]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-2 md:p-8">
@@ -139,18 +145,76 @@ export default function MontageAuftragDetailPage() {
           }
         </div>
 
-        {/* Kerninformationen entfernt */}
-        <Card className="border-none">
-          
+        {/* Auftragsinformationen */}
+        <Card className="border border-gray-200 shadow-sm">
+          <CardContent className="p-4 space-y-3">
+            {/* SM-Nummer & Status */}
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Hash className="w-4 h-4 text-gray-400" />
+                <span className="font-mono font-semibold">{montageAuftrag.sm_number}</span>
+                {montageAuftrag.project_number && <span className="text-gray-400">· {montageAuftrag.project_number}</span>}
+              </div>
+              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full ${
+                montageAuftrag.status === 'Montage abgeschlossen' || montageAuftrag.status === 'Rotberichtigung abgeschlossen' ? 'bg-green-100 text-green-700' :
+                montageAuftrag.status === 'Bereit zur Montage' ? 'bg-blue-100 text-blue-700' :
+                'bg-amber-100 text-amber-700'
+              }`}>
+                {montageAuftrag.status || 'Kein Status'}
+              </span>
+            </div>
 
+            {/* Art & Kunde */}
+            <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+              {montageAuftrag.art && (
+                <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" />{montageAuftrag.art}</span>
+              )}
+              {montageAuftrag.city && (
+                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{montageAuftrag.city}</span>
+              )}
+              {montageAuftrag.client && (
+                <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" />{montageAuftrag.client}</span>
+              )}
+            </div>
 
+            {/* Zugewiesene Monteure */}
+            {Array.isArray(montageAuftrag.assigned_monteure) && montageAuftrag.assigned_monteure.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {montageAuftrag.assigned_monteure.map((m) => m && (
+                  <span key={m.id} className={`text-xs px-2 py-0.5 rounded-full border ${
+                    m.id === user?.id ? 'bg-blue-50 border-blue-300 text-blue-700 font-semibold' : 'bg-gray-50 border-gray-200 text-gray-600'
+                  }`}>
+                    {m.id === user?.id ? '👤 ' : ''}{m.name}
+                  </span>
+                ))}
+              </div>
+            )}
 
-
-
-
-
-
-          
+            {/* Fortschritts-Checkliste */}
+            <div className="border-t pt-3">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Fortschritt</p>
+              <div className="space-y-1.5">
+                {[
+                  { label: 'Auftrag erhalten', done: true },
+                  { label: 'Bereit zur Montage', done: montageAuftrag.status !== 'Tiefbau ausstehend' },
+                  { label: 'Tiefbau gemeldet (offen)', done: !!montageAuftrag.tiefbau_offen, warn: montageAuftrag.tiefbau_offen },
+                  { label: 'Montage abgeschlossen', done: montageAuftrag.monteur_completed },
+                ].map(({ label, done, warn }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    {done
+                      ? warn
+                        ? <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                        : <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                    }
+                    <span className={`text-xs ${
+                      done ? warn ? 'text-amber-700 font-medium' : 'text-green-700 font-medium' : 'text-gray-400'
+                    }`}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Action Buttons - Drei große Buttons für Monteur (nur Mobile) */}
@@ -198,7 +262,7 @@ export default function MontageAuftragDetailPage() {
         {/* Übersicht der Leistungen */}
         <div>
           
-          <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} hidePrices={isMonteur} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={async () => {const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);setBeweissicherungen(Array.isArray(data) ? data : []);}} />
+          <MontageLeistungenManagement montageAuftragId={montageAuftrag.id} readOnly={readOnly} isMonteur={isMonteur} hidePrices={isMonteur} beweissicherungen={beweissicherungen} onReloadBeweissicherungen={reloadBeweissicherungen} />
         </div>
         </div>
 
@@ -249,11 +313,7 @@ export default function MontageAuftragDetailPage() {
         <BeweissicherungDialog
           montageAuftragId={montageAuftrag.id}
           onClose={() => setShowBeweissicherungDialog(false)}
-          onSave={async () => {
-            setShowBeweissicherungDialog(false);
-            const data = await base44.entities.Beweissicherung.filter({ montage_auftrag_id: montageAuftragId }).catch(() => []);
-            setBeweissicherungen(Array.isArray(data) ? data : []);
-          }} />
+          onSave={async () => { setShowBeweissicherungDialog(false); reloadBeweissicherungen(); }} />
         }
       </AnimatePresence>
 
