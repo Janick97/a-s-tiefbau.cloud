@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { MontageAuftrag, Project, User as UserEntity, ProjectComment } from "@/entities/all";
+import { MontageAuftrag, Project, User as UserEntity } from "@/entities/all";
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -272,7 +273,7 @@ export default function MontageAuftraegePage() {
         status: 'Bereit zur Montage',
         tiefbau_offen_history: [...history, { date: now, user: userName, text: 'Tiefbau offen gemeldet (Buero)' }]
       }),
-      ProjectComment.create({
+      base44.entities.ProjectComment.create({
         project_id: tiefbauConfirmAuftrag.id,
         comment: 'Tiefbau offen gemeldet von: ' + userName,
         user_full_name: userName,
