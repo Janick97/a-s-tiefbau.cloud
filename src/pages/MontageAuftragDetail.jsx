@@ -15,6 +15,7 @@ import MaterialVerbrauchDialog from "../components/montage/MaterialVerbrauchDial
 import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import FehlerortungDialog from "../components/montage/FehlerortungDialog";
 import DocumentManagement from "../components/projects/DocumentManagement";
+import MontageAuftragPdfReport from "../components/montage/MontageAuftragPdfReport";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -273,15 +274,16 @@ export default function MontageAuftragDetailPage() {
           </div>
         )}
 
-        {/* Chat & Dokumente für Admin/Büro */}
+        {/* Chat, Dokumente & PDF für Admin/Büro */}
         {!isMonteur && (
-          <div className="flex gap-3">
+          <div className="flex gap-3 flex-wrap">
             <Button onClick={() => setShowDocuments(true)} variant="outline" className="flex-1">
               <FileText className="w-4 h-4 mr-2" />Dokumente
             </Button>
             <Button onClick={() => setShowChat(true)} variant="outline" className="flex-1">
               <MessageCircle className="w-4 h-4 mr-2" />Chat
             </Button>
+            <MontageAuftragPdfReport montageAuftrag={montageAuftrag} />
           </div>
         )}
 
