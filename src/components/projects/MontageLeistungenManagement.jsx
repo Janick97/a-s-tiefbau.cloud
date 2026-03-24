@@ -200,7 +200,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
   return (
     <>
     <Dialog open={!showContinueDialog} onOpenChange={onCancel}>
-      <DialogContent className="w-full max-w-full h-screen sm:max-w-2xl sm:max-h-[95vh] sm:h-auto max-h-none sm:rounded-lg rounded-none overflow-y-auto overflow-x-hidden p-4 sm:p-6 [&>button]:z-10">
+      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 !left-0 !top-0 !w-screen !max-w-none !h-screen !rounded-none overflow-y-auto overflow-x-hidden p-4 sm:!relative sm:!inset-auto sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:!left-[50%] sm:!top-[50%] sm:!w-auto sm:!max-w-2xl sm:!h-auto sm:!max-h-[95vh] sm:!rounded-lg [&>button]:z-10">
         <DialogHeader className="pb-2">
           <DialogTitle className="text-lg sm:text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
         </DialogHeader>
