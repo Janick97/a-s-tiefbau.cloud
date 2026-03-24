@@ -199,12 +199,18 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
 
   return (
     <>
-    <Dialog open={!showContinueDialog} onOpenChange={onCancel}>
-      <DialogContent className="!fixed !inset-0 !translate-x-0 !translate-y-0 !left-0 !top-0 !w-screen !max-w-none !h-screen !rounded-none overflow-y-auto overflow-x-hidden p-4 sm:!relative sm:!inset-auto sm:!translate-x-[-50%] sm:!translate-y-[-50%] sm:!left-[50%] sm:!top-[50%] sm:!w-auto sm:!max-w-2xl sm:!h-auto sm:!max-h-[95vh] sm:!rounded-lg [&>button]:z-10">
-        <DialogHeader className="pb-2">
-          <DialogTitle className="text-lg sm:text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-3 pb-20 sm:pb-0">
+    {!showContinueDialog && (
+    <div className="fixed inset-0 z-50 flex items-start justify-center sm:items-center bg-black/50">
+      <div className="relative w-full h-full sm:h-auto sm:max-h-[95vh] sm:max-w-2xl sm:rounded-lg bg-white overflow-y-auto overflow-x-hidden flex flex-col">
+        <button onClick={onCancel} className="absolute top-4 right-4 z-10 rounded-sm opacity-70 hover:opacity-100 transition-opacity">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Schließen</span>
+        </button>
+        <div className="p-4">
+        <div className="pb-2">
+          <h2 className="text-lg sm:text-base font-semibold">{leistung ? "Bearbeiten" : "Neue Leistung"}</h2>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-3 pb-4">
           {/* Positionen - mehrere auswählbar, wenn nicht im Edit-Modus */}
           <div>
             <Label className="text-sm flex items-center justify-between">
@@ -446,15 +452,17 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
             )}
           </div>
 
-          <DialogFooter className="gap-2 pt-4 border-t mt-4">
+          <div className="flex gap-2 pt-4 border-t mt-4 flex-col sm:flex-row sm:justify-end">
             <Button type="button" variant="outline" onClick={onCancel} className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm">Abbrechen</Button>
             <Button type="submit" disabled={uploading} className="flex-1 sm:flex-none bg-blue-600 h-12 sm:h-10 text-base sm:text-sm">
               {leistung ? "Aktualisieren" : "Weiter"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
+    )}
 
 
 
