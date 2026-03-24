@@ -1,6 +1,6 @@
-// v2
+// v3
 import React, { useState } from "react";
-import { MontageAuftrag } from "@/entities/all";
+import { MontageAuftrag, ProjectComment } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, CheckCircle, AlertTriangle, ArrowLeft, Loader2, Plus, Package, ClipboardList } from "lucide-react";
 
 async function sendChatMessage(projectId, message, userName) {
-  const { ProjectComment } = await import("@/entities/all");
   await ProjectComment.create({
     project_id: projectId,
     comment: message,
