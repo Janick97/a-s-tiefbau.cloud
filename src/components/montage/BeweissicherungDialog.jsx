@@ -86,15 +86,15 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
         className="w-full h-full bg-white flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b bg-gradient-to-r from-red-50 to-orange-50 rounded-t-xl">
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-400 border-b">
           <div className="flex items-center gap-3">
-            <ShieldAlert className="w-6 h-6 text-red-600" />
-            <h2 className="text-lg font-bold text-gray-900">
+            <ShieldAlert className="w-5 h-5 text-white" />
+            <h2 className="text-base font-bold text-white">
               {isEdit ? "Beweissicherung bearbeiten" : "Beweissicherung"}
             </h2>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-            <X className="w-6 h-6 text-gray-500" />
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/20 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+            <X className="w-6 h-6 text-white" />
           </button>
         </div>
 
