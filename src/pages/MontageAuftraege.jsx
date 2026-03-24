@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { MontageAuftrag, Project, User as UserEntity } from "@/entities/all";
+import { MontageAuftrag, Project, User as UserEntity, ProjectComment } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -262,11 +262,25 @@ export default function MontageAuftraegePage() {
     
     setUpdatingAuftrag(tiefbauConfirmAuftrag.id);
     try {
-      await MontageAuftrag.update(tiefbauConfirmAuftrag.id, {
-        tiefbau_offen: true,
-        tiefbau_offen_date: new Date().toISOString(),
-        status: 'Bereit zur Montage'
-      });
+      const now = new Date().toISOString();
+      const currentUser = await UserEntity.me().catch(() => null);
+      const userName = currentUser?.full_name || 'Büro';
+      const currentAuftrag = await MontageAuftrag.get(tiefbauConfirmAuftrag.id);
+      const history = Array.isArray(currentAuftrag?.tiefbau_offen_history) ? currentAuftrag.tiefbau_offen_history : [];
+      await Promise.all([
+        MontageAuftrag.update(tiefbauConfirmAuftrag.id, {
+          tiefbau_offen: true,
+          tiefbau_offen_date: now,
+          status: 'Bereit zur Montage',
+          tiefbau_offen_history: [...history, { date: now, user: userName, text: 'Tiefbau offen gemeldet (Büro)' }]
+        }),
+        ProjectComment.create({
+          project_id: tiefbauConfirmAuftrag.id,
+          comment: `📍 Tiefbau offen gemeldet\nGemeldet von: ${userName}`,
+          user_full_name: userName,
+          attachments: []
+        })
+      ]);
       setShowTiefbauConfirm(false);
       setTiefbauConfirmAuftrag(null);
       await loadData();
