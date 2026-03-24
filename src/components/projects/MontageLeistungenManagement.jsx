@@ -208,7 +208,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
         </button>
         <div className="p-4">
         <div className="pb-2">
-          <h2 className="text-lg sm:text-base font-semibold">{leistung ? "Bearbeiten" : "Neue Leistung"}</h2>
+          <h2 className="text-lg sm:text-base font-semibold">{leistung ? "Leistung bearbeiten" : "Neue Leistung"}</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-3 pb-4">
           {/* Positionen - mehrere auswählbar, wenn nicht im Edit-Modus */}
