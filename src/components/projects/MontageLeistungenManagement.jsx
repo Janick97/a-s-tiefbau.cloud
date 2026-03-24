@@ -200,7 +200,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
   return (
     <>
     <Dialog open={!showContinueDialog} onOpenChange={onCancel}>
-      <DialogContent className="w-screen h-screen sm:max-w-2xl sm:max-h-[95vh] sm:w-auto sm:h-auto max-w-none max-h-none sm:rounded-lg rounded-none overflow-y-auto overflow-x-hidden p-4 sm:p-6">
+      <DialogContent className="w-full max-w-full h-screen sm:max-w-2xl sm:max-h-[95vh] sm:h-auto max-h-none sm:rounded-lg rounded-none overflow-y-auto overflow-x-hidden p-4 sm:p-6 [&>button]:z-10">
         <DialogHeader className="pb-2">
           <DialogTitle className="text-lg sm:text-base">{leistung ? "Bearbeiten" : "Neue Leistung"}</DialogTitle>
         </DialogHeader>
@@ -230,7 +230,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
                             <Button
                                 variant="outline"
                                 role="combobox"
-                                className="w-full justify-between h-9 text-xs">
+                                className="w-full justify-between h-9 text-xs min-w-0">
                                 
                               {selectedPriceItem ?
                                 <span className="truncate">{selectedPriceItem.item_number} - {selectedPriceItem.description}</span> :
