@@ -448,7 +448,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0 fixed sm:relative bottom-0 left-0 right-0 p-4 bg-white border-t sm:border-0 sm:p-0">
+          <DialogFooter className="gap-2 pt-4 border-t mt-4">
             <Button type="button" variant="outline" onClick={onCancel} className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm">Abbrechen</Button>
             <Button type="submit" disabled={uploading} className="flex-1 sm:flex-none bg-blue-600 h-12 sm:h-10 text-base sm:text-sm">
               {leistung ? "Aktualisieren" : "Weiter"}
