@@ -199,8 +199,8 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
 
   return (
     <>
-    {!showContinueDialog && (
-    <div className="fixed inset-0 z-50 flex items-start justify-center sm:items-center bg-black/50">
+    {!showContinueDialog &&
+      <div className="fixed inset-0 z-50 flex items-start justify-center sm:items-center bg-black/50">
       <div className="relative w-full h-full sm:h-auto sm:max-h-[95vh] sm:max-w-2xl sm:rounded-lg bg-white overflow-y-auto overflow-x-hidden flex flex-col">
         <button onClick={onCancel} className="absolute top-4 right-4 z-10 rounded-sm opacity-70 hover:opacity-100 transition-opacity">
           <X className="h-4 w-4" />
@@ -216,33 +216,33 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
             <Label className="text-sm flex items-center justify-between">
               <span>Positionen *</span>
               {!leistung &&
-                <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-7 text-xs">
+                  <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-7 text-xs">
                   <Plus className="w-3 h-3 mr-1" />
                   Position hinzufügen
                 </Button>
-                }
+                  }
             </Label>
             
             <div className="space-y-2 mt-2">
               {selectedItems.map((item, index) => {
-                  const selectedPriceItem = priceItems.find((p) => p.id === item.preis_item_id);
-                  return (
-                    <div key={index} className="border rounded-lg p-3 bg-gray-50">
+                    const selectedPriceItem = priceItems.find((p) => p.id === item.preis_item_id);
+                    return (
+                      <div key={index} className="border rounded-lg p-3 bg-gray-50">
                     <div className="flex items-start gap-2 mb-2">
                       <div className="flex-1">
                         <Label className="text-xs mb-1">Position</Label>
                         <Popover open={comboOpen === index} onOpenChange={(open) => setComboOpen(open ? index : false)}>
                           <PopoverTrigger asChild>
                             <Button
-                                variant="outline"
-                                role="combobox"
-                                className="w-full justify-between h-9 text-xs min-w-0">
+                                  variant="outline"
+                                  role="combobox"
+                                  className="w-full justify-between h-9 text-xs min-w-0">
                                 
                               {selectedPriceItem ?
-                                <span className="truncate">{selectedPriceItem.item_number} - {selectedPriceItem.description}</span> :
+                                  <span className="truncate">{selectedPriceItem.item_number} - {selectedPriceItem.description}</span> :
 
-                                "Position suchen..."
-                                }
+                                  "Position suchen..."
+                                  }
                               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                           </PopoverTrigger>
@@ -252,19 +252,19 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
                               <CommandEmpty>Keine Position gefunden.</CommandEmpty>
                               <CommandGroup className="max-h-[300px] overflow-auto">
                                 {priceItems.map((priceItem) =>
-                                  <CommandItem
-                                    key={priceItem.id}
-                                    value={`${priceItem.item_number} ${priceItem.description}`}
-                                    onSelect={() => {
-                                      updateItem(index, 'preis_item_id', priceItem.id);
-                                      setComboOpen(false);
-                                    }}>
+                                    <CommandItem
+                                      key={priceItem.id}
+                                      value={`${priceItem.item_number} ${priceItem.description}`}
+                                      onSelect={() => {
+                                        updateItem(index, 'preis_item_id', priceItem.id);
+                                        setComboOpen(false);
+                                      }}>
                                     
                                     <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        item.preis_item_id === priceItem.id ? "opacity-100" : "opacity-0"
-                                      )} />
+                                        className={cn(
+                                          "mr-2 h-4 w-4",
+                                          item.preis_item_id === priceItem.id ? "opacity-100" : "opacity-0"
+                                        )} />
                                     
                                     <div className="flex-1">
                                       <div className="font-medium text-xs">{priceItem.item_number}</div>
@@ -272,96 +272,96 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
                                       <div className="text-xs text-green-600 font-semibold">€{priceItem.price.toFixed(2)}</div>
                                     </div>
                                   </CommandItem>
-                                  )}
+                                    )}
                               </CommandGroup>
                             </Command>
                           </PopoverContent>
                         </Popover>
                       </div>
                       {!leistung && selectedItems.length > 1 &&
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeItem(index)}
-                          className="h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeItem(index)}
+                            className="h-9 w-9 p-0 text-red-500 hover:text-red-700 hover:bg-red-50">
                           
                           <X className="w-4 h-4" />
                         </Button>
-                        }
+                          }
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
                         <Label className="text-xs">Menge *</Label>
                         <Input
-                            type="number"
-                            step="0.01"
-                            value={item.quantity}
-                            onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
-                            required
-                            className="h-9 text-sm" />
+                              type="number"
+                              step="0.01"
+                              value={item.quantity}
+                              onChange={(e) => updateItem(index, 'quantity', parseFloat(e.target.value) || 0)}
+                              required
+                              className="h-9 text-sm" />
                           
                       </div>
                       {selectedPriceItem &&
-                        <div>
+                          <div>
                           <Label className="text-xs">Preis</Label>
                           <Input
-                            value={`€${(selectedPriceItem.price * item.quantity).toFixed(2)}`}
-                            disabled
-                            className="h-9 text-sm font-bold bg-green-50" />
+                              value={`€${(selectedPriceItem.price * item.quantity).toFixed(2)}`}
+                              disabled
+                              className="h-9 text-sm font-bold bg-green-50" />
                           
                         </div>
-                        }
+                          }
                     </div>
                   </div>);
 
-                })}
+                  })}
             </div>
           </div>
 
           {/* Gesamtpreis anzeigen wenn mehrere Positionen */}
           {selectedItems.length > 1 &&
-            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm font-medium text-green-800">Gesamtsumme:</span>
                 <span className="text-lg font-bold text-green-700">
                   €{selectedItems.reduce((sum, item) => {
-                    const priceItem = priceItems.find((p) => p.id === item.preis_item_id);
-                    return sum + (priceItem ? priceItem.price * item.quantity : 0);
-                  }, 0).toFixed(2)}
+                      const priceItem = priceItems.find((p) => p.id === item.preis_item_id);
+                      return sum + (priceItem ? priceItem.price * item.quantity : 0);
+                    }, 0).toFixed(2)}
                 </span>
               </div>
             </div>
-            }
+              }
 
           {/* Gemeinsame Daten für alle Positionen */}
           <div className="border-t pt-3">
             <p className="text-xs text-gray-600 mb-2">
               {!leistung && selectedItems.length > 1 ?
-                "Die folgenden Daten gelten für alle ausgewählten Positionen:" :
-                "Weitere Angaben:"}
+                  "Die folgenden Daten gelten für alle ausgewählten Positionen:" :
+                  "Weitere Angaben:"}
             </p>
             
             <div className="space-y-3">
               <div>
                 <Label className="text-sm">Standort</Label>
                 <Input
-                    value={sharedData.location_name}
-                    onChange={(e) => setSharedData({ ...sharedData, location_name: e.target.value })}
-                    placeholder="z.B. Schrank 12, KVz 456"
-                    className="h-9 text-sm" />
+                      value={sharedData.location_name}
+                      onChange={(e) => setSharedData({ ...sharedData, location_name: e.target.value })}
+                      placeholder="z.B. Schrank 12, KVz 456"
+                      className="h-9 text-sm" />
                   
               </div>
 
               <div>
                 <Label className="text-sm">Beschreibung</Label>
                 <Textarea
-                    value={sharedData.work_description}
-                    onChange={(e) => setSharedData({ ...sharedData, work_description: e.target.value })}
-                    placeholder="Durchgeführte Arbeiten..."
-                    rows={2}
-                    className="text-sm" />
+                      value={sharedData.work_description}
+                      onChange={(e) => setSharedData({ ...sharedData, work_description: e.target.value })}
+                      placeholder="Durchgeführte Arbeiten..."
+                      rows={2}
+                      className="text-sm" />
                   
               </div>
             </div>
@@ -370,12 +370,12 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
           <div>
             <Label className="text-sm">Fotos</Label>
             <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handlePhotoUpload}
-                className="hidden"
-                id="photo-upload" />
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  id="photo-upload" />
             <label htmlFor="photo-upload">
               <Button type="button" variant="outline" size="sm" className="w-full" asChild>
                 <span>
@@ -384,41 +384,41 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
                 </span>
               </Button>
             </label>
-            {sharedData.photos && sharedData.photos.length > 0 && (
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {sharedData.photos.map((url, idx) => (
+            {sharedData.photos && sharedData.photos.length > 0 &&
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                {sharedData.photos.map((url, idx) =>
                   <div key={idx} className="relative group aspect-square">
                     <img
                       src={url}
                       alt={`Foto ${idx + 1}`}
                       className="w-full h-full object-cover rounded-lg cursor-pointer border border-gray-200 group-hover:border-blue-400 transition-all"
-                      onClick={() => onPreviewImages && onPreviewImages(sharedData.photos, idx)}
-                    />
+                      onClick={() => onPreviewImages && onPreviewImages(sharedData.photos, idx)} />
+                    
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removePhoto(url)}
-                    >
+                      onClick={() => removePhoto(url)}>
+                      
                       <X className="h-3 w-3" />
                     </Button>
                     <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[9px] px-1 rounded">{idx + 1}</div>
                   </div>
-                ))}
+                  )}
               </div>
-            )}
+                }
           </div>
 
           <div>
             <Label className="text-sm">Einmaß-Skizze</Label>
             <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleSkizzeUpload}
-                className="hidden"
-                id="skizze-upload" />
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleSkizzeUpload}
+                  className="hidden"
+                  id="skizze-upload" />
             <label htmlFor="skizze-upload">
               <Button type="button" variant="outline" size="sm" className="w-full bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100" asChild>
                 <span>
@@ -427,29 +427,29 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
                 </span>
               </Button>
             </label>
-            {sharedData.einmass_skizze && sharedData.einmass_skizze.length > 0 && (
-              <div className="mt-2 grid grid-cols-3 gap-2">
-                {sharedData.einmass_skizze.map((url, idx) => (
+            {sharedData.einmass_skizze && sharedData.einmass_skizze.length > 0 &&
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                {sharedData.einmass_skizze.map((url, idx) =>
                   <div key={idx} className="relative group aspect-square">
                     <img
                       src={url}
                       alt={`Skizze ${idx + 1}`}
                       className="w-full h-full object-cover rounded-lg cursor-pointer border-2 border-amber-300 group-hover:border-amber-500 transition-all"
-                      onClick={() => { setFormPreviewImages(sharedData.einmass_skizze); setFormPreviewIndex(idx); }}
-                    />
+                      onClick={() => {setFormPreviewImages(sharedData.einmass_skizze);setFormPreviewIndex(idx);}} />
+                    
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => removeSkizze(url)}
-                    >
+                      onClick={() => removeSkizze(url)}>
+                      
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
-                ))}
+                  )}
               </div>
-            )}
+                }
           </div>
 
           <div className="flex gap-2 pt-4 border-t mt-4 flex-col sm:flex-row sm:justify-end">
@@ -462,7 +462,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, o
         </div>
       </div>
     </div>
-    )}
+      }
 
 
 
@@ -553,23 +553,23 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
               placeholder="Nach Material suchen..."
               value={searchMaterial}
               onChange={(e) => setSearchMaterial(e.target.value)}
-              className="h-9 text-sm mb-2"
-            />
+              className="h-9 text-sm mb-2" />
+            
             <Select value={selectedMaterial} onValueChange={setSelectedMaterial} required>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="Material wählen..." />
               </SelectTrigger>
               <SelectContent className="max-h-[250px]">
-                {materials
-                  .filter(mat => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase()))
-                  .map((mat) =>
+                {materials.
+                filter((mat) => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase())).
+                map((mat) =>
                 <SelectItem key={mat.id} value={mat.id} className="text-xs">
                     {mat.name} ({mat.current_stock} {mat.unit}) - {mat.article_number}
                   </SelectItem>
                 )}
-                {materials.filter(mat => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase())).length === 0 && (
-                  <div className="text-xs text-gray-500 p-2">Keine Materialien gefunden</div>
-                )}
+                {materials.filter((mat) => mat.name.toLowerCase().includes(searchMaterial.toLowerCase()) || mat.article_number?.toLowerCase().includes(searchMaterial.toLowerCase())).length === 0 &&
+                <div className="text-xs text-gray-500 p-2">Keine Materialien gefunden</div>
+                }
               </SelectContent>
             </Select>
           </div>
@@ -671,7 +671,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
 
   // Aggregiere Leistungen nach preis_item_id
   const aggregatedLeistungen = leistungen.reduce((acc, leistung) => {
-    const existing = acc.find(l => l.preis_item_id === leistung.preis_item_id);
+    const existing = acc.find((l) => l.preis_item_id === leistung.preis_item_id);
     if (existing) {
       existing.quantity += leistung.quantity;
       existing.calculated_price += leistung.calculated_price || 0;
@@ -689,7 +689,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
 
   // Aggregiere Materialverbrauch nach material_id
   const aggregatedMaterialUsage = materialUsage.reduce((acc, usage) => {
-    const existing = acc.find(m => m.material_id === usage.material_id);
+    const existing = acc.find((m) => m.material_id === usage.material_id);
     if (existing) {
       existing.quantity_used += usage.quantity_used;
       existing.entries.push(usage);
@@ -705,14 +705,14 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
   const [expandedMaterialId, setExpandedMaterialId] = useState(null);
 
   if (isLoading) {
-   return <div className="p-8 text-center">Lädt...</div>;
+    return <div className="p-8 text-center">Lädt...</div>;
   }
 
   return (
     <div className="space-y-3">
       {/* Aktions-Buttons */}
-      {!readOnly && (
-        <div className="hidden md:flex gap-2 flex-wrap">
+      {!readOnly &&
+      <div className="hidden md:flex gap-2 flex-wrap">
           <Button onClick={() => setShowForm(true)} size="sm" className="bg-blue-600 hover:bg-blue-700">
             <Plus className="w-4 h-4 mr-2" />
             Leistung hinzufügen
@@ -722,7 +722,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
             Material hinzufügen
           </Button>
         </div>
-      )}
+      }
       
 
 
@@ -761,53 +761,53 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                 <span className="text-sm flex items-center gap-2 text-gray-700">
                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
                  Erfasste Leistungen ({aggregatedLeistungen.length})
-                 {aggregatedLeistungen.length > 0 && !hidePrices && (
-                   <span className="text-xs text-green-600">
+                 {aggregatedLeistungen.length > 0 && !hidePrices &&
+                  <span className="text-xs text-green-600">
                      €{aggregatedTotalRevenue.toFixed(2)}
                    </span>
-                 )}
+                  }
                 </span>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
               </div>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-2 pb-2">
-                {leistungen.length === 0 ? (
-                  <div className="text-center py-4">
+                {leistungen.length === 0 ?
+                <div className="text-center py-4">
                     <p className="text-xs text-gray-400 mb-2">Noch keine Leistungen erfasst</p>
-                    {!readOnly && (
-                      <Button onClick={() => setShowForm(true)} size="sm" className="h-7 text-xs">
+                    {!readOnly &&
+                  <Button onClick={() => setShowForm(true)} size="sm" className="h-7 text-xs">
                         <Plus className="w-3 h-3 mr-1" /> Leistung erfassen
                       </Button>
-                    )}
-                  </div>
-                ) : (
-                   <div className="space-y-1.5">
+                  }
+                  </div> :
+
+                <div className="space-y-1.5">
                      {aggregatedLeistungen.map((leistung, index) => {
-                       const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
-                       const isExpanded = expandedLeistungId === leistung.id;
-                       return (
-                         <div key={leistung.id} className="border rounded-lg overflow-hidden bg-white">
+                    const priceItem = priceItems.find((p) => p.id === leistung.preis_item_id);
+                    const isExpanded = expandedLeistungId === leistung.id;
+                    return (
+                      <div key={leistung.id} className="border rounded-lg overflow-hidden bg-white">
                            <div
-                             className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-50 transition-colors"
-                             onClick={() => setExpandedLeistungId(isExpanded ? null : leistung.id)}
-                           >
+                          className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={() => setExpandedLeistungId(isExpanded ? null : leistung.id)}>
+                          
                              <span className="text-xs text-gray-400 font-mono flex-shrink-0">#{index + 1}</span>
                              <div className="flex-1 min-w-0">
                                <p className="text-xs font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
                                <p className="text-[10px] text-gray-400">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
-                               {(() => { const totalPhotos = leistung.entries.reduce((s, e) => s + (e.photos?.length || 0), 0); return totalPhotos > 0 ? <span className="text-[10px] text-blue-500 flex items-center gap-0.5"><Camera className="w-2.5 h-2.5" />{totalPhotos} Foto{totalPhotos > 1 ? 's' : ''}</span> : null; })()}
+                               {(() => {const totalPhotos = leistung.entries.reduce((s, e) => s + (e.photos?.length || 0), 0);return totalPhotos > 0 ? <span className="text-[10px] text-blue-500 flex items-center gap-0.5"><Camera className="w-2.5 h-2.5" />{totalPhotos} Foto{totalPhotos > 1 ? 's' : ''}</span> : null;})()}
                              </div>
-                             {!hidePrices && <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>}
+                             
                              <ChevronDown className={`w-3 h-3 text-gray-300 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                            </div>
-                           {isExpanded && (
-                             <div className="border-t p-2.5 bg-gray-50 space-y-2 text-xs">
+                           {isExpanded &&
+                        <div className="border-t p-2.5 bg-gray-50 space-y-2 text-xs">
                                <div className="bg-blue-50 border border-blue-200 rounded p-2">
                                  <p className="font-semibold mb-2 text-blue-800">Zusammenfassung ({leistung.entries.length} Einträge):</p>
                                  <ul className="space-y-2">
-                                   {leistung.entries.map((entry, i) => (
-                                         <li key={entry.id} className="p-2 bg-white rounded border border-blue-100 text-xs">
+                                   {leistung.entries.map((entry, i) =>
+                              <li key={entry.id} className="p-2 bg-white rounded border border-blue-100 text-xs">
                                            <div className="flex items-center justify-between">
                                              <div>
                                                <div className="font-medium">{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</div>
@@ -815,75 +815,75 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                                                {entry.location_name && <div className="text-gray-500 mt-0.5">📍 {entry.location_name}</div>}
                                                {entry.work_description && <div className="text-gray-400 mt-0.5 italic">{entry.work_description}</div>}
                                              </div>
-                                             {!readOnly && (
-                                               <div className="flex gap-1 ml-2 flex-shrink-0">
-                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingLeistung(entry); setShowForm(true); }}>
+                                             {!readOnly &&
+                                  <div className="flex gap-1 ml-2 flex-shrink-0">
+                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation();setEditingLeistung(entry);setShowForm(true);}}>
                                                    <Edit className="w-3 h-3 text-blue-600" />
                                                  </Button>
-                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}>
+                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation();handleDelete(entry.id);}}>
                                                    <Trash2 className="w-3 h-3 text-red-500" />
                                                  </Button>
                                                </div>
-                                             )}
+                                  }
                                            </div>
                                            {/* Fotos der Leistung */}
-                                           {entry.photos && entry.photos.length > 0 && (
-                                             <div className="mt-2">
+                                           {entry.photos && entry.photos.length > 0 &&
+                                <div className="mt-2">
                                                <p className="text-[10px] text-gray-400 mb-1 flex items-center gap-1"><Camera className="w-3 h-3" /> Fotos ({entry.photos.length})</p>
                                                <div className="grid grid-cols-4 gap-1">
-                                                 {entry.photos.map((url, photoIdx) => (
-                                                   <div
-                                                     key={photoIdx}
-                                                     className="relative aspect-square cursor-pointer rounded overflow-hidden border border-gray-200 hover:border-blue-400 hover:scale-105 transition-all"
-                                                     onClick={(e) => { e.stopPropagation(); setPreviewImages(entry.photos); setCurrentImageIndex(photoIdx); }}
-                                                   >
+                                                 {entry.photos.map((url, photoIdx) =>
+                                    <div
+                                      key={photoIdx}
+                                      className="relative aspect-square cursor-pointer rounded overflow-hidden border border-gray-200 hover:border-blue-400 hover:scale-105 transition-all"
+                                      onClick={(e) => {e.stopPropagation();setPreviewImages(entry.photos);setCurrentImageIndex(photoIdx);}}>
+                                      
                                                      <img src={url} alt={`Foto ${photoIdx + 1}`} className="w-full h-full object-cover" />
-                                                     {photoIdx === 3 && entry.photos.length > 4 && (
-                                                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-bold">+{entry.photos.length - 4}</div>
-                                                     )}
+                                                     {photoIdx === 3 && entry.photos.length > 4 &&
+                                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-bold">+{entry.photos.length - 4}</div>
+                                      }
                                                    </div>
-                                                 ))}
+                                    )}
                                                </div>
                                              </div>
-                                           )}
+                                }
                                            {/* Einmaß-Skizzen */}
-                                           {entry.einmass_skizze && entry.einmass_skizze.length > 0 && (
-                                             <div className="mt-2">
+                                           {entry.einmass_skizze && entry.einmass_skizze.length > 0 &&
+                                <div className="mt-2">
                                                <p className="text-[10px] text-amber-600 mb-1 flex items-center gap-1"><Camera className="w-3 h-3" /> Einmaß-Skizze ({entry.einmass_skizze.length})</p>
                                                <div className="grid grid-cols-4 gap-1">
-                                                 {entry.einmass_skizze.map((url, skIdx) => (
-                                                   <div
-                                                     key={skIdx}
-                                                     className="relative aspect-square cursor-pointer rounded overflow-hidden border-2 border-amber-300 hover:border-amber-500 hover:scale-105 transition-all"
-                                                     onClick={(e) => { e.stopPropagation(); setPreviewImages(entry.einmass_skizze); setCurrentImageIndex(skIdx); }}
-                                                   >
+                                                 {entry.einmass_skizze.map((url, skIdx) =>
+                                    <div
+                                      key={skIdx}
+                                      className="relative aspect-square cursor-pointer rounded overflow-hidden border-2 border-amber-300 hover:border-amber-500 hover:scale-105 transition-all"
+                                      onClick={(e) => {e.stopPropagation();setPreviewImages(entry.einmass_skizze);setCurrentImageIndex(skIdx);}}>
+                                      
                                                      <img src={url} alt={`Skizze ${skIdx + 1}`} className="w-full h-full object-cover" />
                                                    </div>
-                                                 ))}
+                                    )}
                                                </div>
                                              </div>
-                                           )}
+                                }
                                          </li>
-                                       ))}
+                              )}
                                      </ul>
                                </div>
-                               {!readOnly && (
-                                 <div className="flex gap-1.5 pt-1 border-t">
-                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={(e) => { e.stopPropagation(); setEditingLeistung(leistung.entries[0]); setShowForm(true); }}>
+                               {!readOnly &&
+                          <div className="flex gap-1.5 pt-1 border-t">
+                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={(e) => {e.stopPropagation();setEditingLeistung(leistung.entries[0]);setShowForm(true);}}>
                                      <Edit className="w-3 h-3 mr-1" /> Bearbeiten
                                    </Button>
-                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2 text-red-600 border-red-200 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); leistung.entries.forEach(entry => handleDelete(entry.id)); }}>
+                                   <Button variant="outline" size="sm" className="h-6 text-xs px-2 text-red-600 border-red-200 hover:bg-red-50" onClick={(e) => {e.stopPropagation();leistung.entries.forEach((entry) => handleDelete(entry.id));}}>
                                      <Trash2 className="w-3 h-3 mr-1" /> Alle löschen
                                    </Button>
                                  </div>
-                               )}
+                          }
                              </div>
-                           )}
-                         </div>
-                       );
-                     })}
+                        }
+                         </div>);
+
+                  })}
                    </div>
-                 )}
+                }
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -903,67 +903,67 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-2 pb-2">
-                {materialUsage.length === 0 ? (
-                  <div className="text-center py-4">
+                {materialUsage.length === 0 ?
+                <div className="text-center py-4">
                     <p className="text-xs text-gray-400 mb-2">Kein Material erfasst</p>
-                    {!readOnly && (
-                      <Button onClick={() => setShowMaterialForm(true)} size="sm" variant="outline" className="h-7 text-xs">
+                    {!readOnly &&
+                  <Button onClick={() => setShowMaterialForm(true)} size="sm" variant="outline" className="h-7 text-xs">
                         <Plus className="w-3 h-3 mr-1" /> Material hinzufügen
                       </Button>
-                    )}
-                  </div>
-                ) : (
-                   <div className="space-y-1.5">
+                  }
+                  </div> :
+
+                <div className="space-y-1.5">
                      {aggregatedMaterialUsage.map((usage) => {
-                       const material = materials.find((m) => m.id === usage.material_id);
-                       const isExpanded = expandedMaterialId === usage.material_id;
-                       return material ? (
-                         <div key={usage.material_id} className="border rounded-lg overflow-hidden bg-white">
+                    const material = materials.find((m) => m.id === usage.material_id);
+                    const isExpanded = expandedMaterialId === usage.material_id;
+                    return material ?
+                    <div key={usage.material_id} className="border rounded-lg overflow-hidden bg-white">
                            <div
-                             className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-50 transition-colors"
-                             onClick={() => setExpandedMaterialId(isExpanded ? null : usage.material_id)}
-                           >
+                        className="flex items-center justify-between p-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() => setExpandedMaterialId(isExpanded ? null : usage.material_id)}>
+                        
                              <div className="flex-1 min-w-0">
                                <p className="font-medium text-xs text-gray-900">{material.name}</p>
                                <p className="text-[10px] text-gray-400">{material.article_number}</p>
                              </div>
                              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                                <p className="font-bold text-xs text-gray-700">{usage.quantity_used} {material.unit}</p>
-                               {usage.entries.length > 1 && (
-                                 <Badge variant="outline" className="text-[10px]">{usage.entries.length}x</Badge>
-                               )}
+                               {usage.entries.length > 1 &&
+                          <Badge variant="outline" className="text-[10px]">{usage.entries.length}x</Badge>
+                          }
                                <ChevronDown className={`w-3 h-3 text-gray-300 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                              </div>
                            </div>
-                           {isExpanded && (
-                             <div className="border-t p-2 bg-gray-50 space-y-2">
+                           {isExpanded &&
+                      <div className="border-t p-2 bg-gray-50 space-y-2">
                                <ul className="space-y-1.5">
-                                 {usage.entries.map((entry) => (
-                                   <li key={entry.id} className="flex items-center justify-between p-2 bg-white rounded border border-purple-100 text-xs">
+                                 {usage.entries.map((entry) =>
+                          <li key={entry.id} className="flex items-center justify-between p-2 bg-white rounded border border-purple-100 text-xs">
                                      <div>
                                        <div className="font-medium">{entry.quantity_used} {material.unit}</div>
                                        <div className="text-gray-500">{entry.used_by || "Unbekannt"} · {entry.usage_date && new Date(entry.usage_date).toLocaleDateString('de-DE')}</div>
                                      </div>
-                                     {!readOnly && (
-                                       <div className="flex gap-1 ml-2 flex-shrink-0">
-                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingMaterial(entry); setShowMaterialForm(true); }}>
+                                     {!readOnly &&
+                            <div className="flex gap-1 ml-2 flex-shrink-0">
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => {e.stopPropagation();setEditingMaterial(entry);setShowMaterialForm(true);}}>
                                            <Edit className="w-3 h-3 text-purple-600" />
                                          </Button>
-                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async (e) => { e.stopPropagation(); if (window.confirm("Löschen?")) { await MontageLeistungMaterial.delete(entry.id); loadData(); } }}>
+                                         <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={async (e) => {e.stopPropagation();if (window.confirm("Löschen?")) {await MontageLeistungMaterial.delete(entry.id);loadData();}}}>
                                            <Trash2 className="w-3 h-3 text-red-500" />
                                          </Button>
                                        </div>
-                                     )}
+                            }
                                    </li>
-                                 ))}
+                          )}
                                </ul>
                              </div>
-                           )}
-                         </div>
-                       ) : null;
-                     })}
+                      }
+                         </div> :
+                    null;
+                  })}
                    </div>
-                 )}
+                }
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -983,12 +983,12 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
             </CollapsibleTrigger>
             <CollapsibleContent>
               <div className="px-2 pb-2">
-                {beweissicherungen.length === 0 ? (
-                  <p className="text-xs text-gray-400 text-center py-4">Keine Beweissicherungen erfasst</p>
-                ) : (
-                  <div className="space-y-1">
-                    {beweissicherungen.map((b) => (
-                      <div key={b.id} className="p-2 bg-white border rounded text-xs">
+                {beweissicherungen.length === 0 ?
+                <p className="text-xs text-gray-400 text-center py-4">Keine Beweissicherungen erfasst</p> :
+
+                <div className="space-y-1">
+                    {beweissicherungen.map((b) =>
+                  <div key={b.id} className="p-2 bg-white border rounded text-xs">
                         <div className="flex items-center justify-between mb-1">
                           <p className="font-medium text-red-700">{b.schaediger_name}</p>
                           <div className="flex items-center gap-1">
@@ -996,25 +996,25 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                             <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setEditingBeweissicherung(b)}>
                               <Edit className="w-3 h-3 text-gray-500" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={async () => { if (window.confirm("Beweissicherung löschen?")) { await base44.entities.Beweissicherung.delete(b.id); onReloadBeweissicherungen && onReloadBeweissicherungen(); } }}>
+                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={async () => {if (window.confirm("Beweissicherung löschen?")) {await base44.entities.Beweissicherung.delete(b.id);onReloadBeweissicherungen && onReloadBeweissicherungen();}}}>
                               <Trash2 className="w-3 h-3 text-red-500" />
                             </Button>
                           </div>
                         </div>
                         {b.schadensursache && <p className="text-gray-500">Ursache: {b.schadensursache}</p>}
                         {b.schadensort_strasse && <p className="text-gray-500">{b.schadensort_strasse}, {b.schadensort_plz} {b.schadensort_ort}</p>}
-                        {b.fotos && b.fotos.length > 0 && (
-                          <div className="flex gap-1 mt-1.5 overflow-x-auto">
-                            {b.fotos.slice(0, 4).map((url, i) => (
-                              <img key={i} src={url} alt={`Foto ${i + 1}`} className="w-10 h-10 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={() => setPreviewBewUrl(url)} />
-                            ))}
+                        {b.fotos && b.fotos.length > 0 &&
+                    <div className="flex gap-1 mt-1.5 overflow-x-auto">
+                            {b.fotos.slice(0, 4).map((url, i) =>
+                      <img key={i} src={url} alt={`Foto ${i + 1}`} className="w-10 h-10 object-cover rounded cursor-pointer hover:opacity-80 flex-shrink-0" onClick={() => setPreviewBewUrl(url)} />
+                      )}
                             {b.fotos.length > 4 && <span className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center text-[10px] text-gray-500 flex-shrink-0">+{b.fotos.length - 4}</span>}
                           </div>
-                        )}
+                    }
                       </div>
-                    ))}
+                  )}
                   </div>
-                )}
+                }
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -1023,21 +1023,21 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
       </Card>
 
       {/* Beweissicherung Foto Vorschau */}
-      {previewBewUrl && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4" onClick={() => setPreviewBewUrl(null)}>
+      {previewBewUrl &&
+      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[100] p-4" onClick={() => setPreviewBewUrl(null)}>
           <img src={previewBewUrl} alt="Vorschau" className="max-w-full max-h-full object-contain rounded-lg" />
         </div>
-      )}
+      }
 
       {/* Beweissicherung bearbeiten */}
       <AnimatePresence>
-        {editingBeweissicherung && (
-          <BeweissicherungDialog
-            existingBeweissicherung={editingBeweissicherung}
-            onClose={() => setEditingBeweissicherung(null)}
-            onSave={() => { setEditingBeweissicherung(null); onReloadBeweissicherungen && onReloadBeweissicherungen(); }}
-          />
-        )}
+        {editingBeweissicherung &&
+        <BeweissicherungDialog
+          existingBeweissicherung={editingBeweissicherung}
+          onClose={() => setEditingBeweissicherung(null)}
+          onSave={() => {setEditingBeweissicherung(null);onReloadBeweissicherungen && onReloadBeweissicherungen();}} />
+
+        }
       </AnimatePresence>
 
       <AnimatePresence>
@@ -1047,7 +1047,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
           montageAuftragId={montageAuftragId}
           onSubmit={handleSubmit}
           onCancel={() => {setShowForm(false);setEditingLeistung(null);}}
-          onPreviewImages={(imgs, idx) => { setPreviewImages(imgs); setCurrentImageIndex(idx); }} />
+          onPreviewImages={(imgs, idx) => {setPreviewImages(imgs);setCurrentImageIndex(idx);}} />
 
         }
       </AnimatePresence>
