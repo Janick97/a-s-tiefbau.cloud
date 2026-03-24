@@ -761,11 +761,11 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                 <span className="text-sm flex items-center gap-2 text-gray-700">
                  <Wrench className="w-3.5 h-3.5 text-blue-500" />
                  Erfasste Leistungen ({aggregatedLeistungen.length})
-                 {aggregatedLeistungen.length > 0 && !hidePrices &&
-                  <span className="text-xs text-green-600">
-                     €{aggregatedTotalRevenue.toFixed(2)}
-                   </span>
-                  }
+                 
+
+
+
+                  
                 </span>
                 <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${leistungenOpen ? 'rotate-180' : ''}`} />
               </div>
