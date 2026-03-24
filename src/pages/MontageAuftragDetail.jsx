@@ -6,7 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText, CheckCircle2, Circle, Users, Tag, Hash, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText, CheckCircle2, Circle, Users, Tag, Hash, AlertTriangle, ChevronDown } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
@@ -32,6 +32,7 @@ export default function MontageAuftragDetailPage() {
   const [showChat, setShowChat] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
+  const [tiefbauHistoryOpen, setTiefbauHistoryOpen] = useState(false);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
@@ -190,21 +191,59 @@ export default function MontageAuftragDetailPage() {
                 {[
                   { label: 'Auftrag erhalten', done: true },
                   { label: 'Bereit zur Montage', done: montageAuftrag.status !== 'Tiefbau ausstehend' },
-                  { label: 'Tiefbau gemeldet (offen)', done: !!montageAuftrag.tiefbau_offen },
-                  { label: 'Montage abgeschlossen', done: !!montageAuftrag.monteur_completed },
                 ].map(({ label, done, warn }) => (
                   <div key={label} className="flex items-center gap-2">
-                    {done
-                      ? warn
-                        ? <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                        : <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />
-                    }
-                    <span className={`text-xs ${done ? warn ? 'text-amber-700 font-medium' : 'text-green-700 font-medium' : 'text-gray-400'}`}>
-                      {label}
-                    </span>
+                    {done ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
+                    <span className={`text-xs ${done ? 'text-green-700 font-medium' : 'text-gray-400'}`}>{label}</span>
                   </div>
                 ))}
+
+                {/* Tiefbau offen – separater Block mit Datum & History */}
+                <div>
+                  <div className="flex items-center gap-2">
+                    {montageAuftrag.tiefbau_offen
+                      ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                      : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
+                    <span className={`text-xs ${montageAuftrag.tiefbau_offen ? 'text-green-700 font-medium' : 'text-gray-400'}`}>
+                      Tiefbau gemeldet (offen)
+                    </span>
+                    {montageAuftrag.tiefbau_offen_date && (
+                      <span className="text-[10px] text-gray-400 ml-1">
+                        {new Date(montageAuftrag.tiefbau_offen_date).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                    {Array.isArray(montageAuftrag.tiefbau_offen_history) && montageAuftrag.tiefbau_offen_history.length > 0 && (
+                      <button
+                        onClick={() => setTiefbauHistoryOpen(o => !o)}
+                        className="ml-auto flex items-center gap-0.5 text-[10px] text-blue-500 hover:text-blue-700"
+                      >
+                        Historie ({montageAuftrag.tiefbau_offen_history.length})
+                        <ChevronDown className={`w-3 h-3 transition-transform ${tiefbauHistoryOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                    )}
+                  </div>
+                  {tiefbauHistoryOpen && Array.isArray(montageAuftrag.tiefbau_offen_history) && (
+                    <div className="ml-6 mt-1.5 space-y-1">
+                      {montageAuftrag.tiefbau_offen_history.map((entry, i) => (
+                        <div key={i} className="text-[10px] bg-blue-50 border border-blue-100 rounded px-2 py-1">
+                          <span className="text-gray-500">{new Date(entry.date).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}</span>
+                          <span className="text-blue-700 font-medium ml-1">{entry.user}</span>
+                          {entry.text && <p className="text-gray-600 mt-0.5">{entry.text}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Montage abgeschlossen */}
+                <div className="flex items-center gap-2">
+                  {montageAuftrag.monteur_completed
+                    ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    : <Circle className="w-4 h-4 text-gray-300 flex-shrink-0" />}
+                  <span className={`text-xs ${montageAuftrag.monteur_completed ? 'text-green-700 font-medium' : 'text-gray-400'}`}>
+                    Montage abgeschlossen
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>
