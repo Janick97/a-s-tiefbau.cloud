@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 import BeweissicherungDialog from "@/components/montage/BeweissicherungDialog";
 import { base44 } from "@/api/base44Client";
 
-function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel }) {
+function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel, onPreviewImages }) {
   const [selectedItems, setSelectedItems] = useState(leistung ? [{
     preis_item_id: leistung.preis_item_id,
     quantity: leistung.quantity
@@ -35,8 +35,6 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
   const [uploading, setUploading] = useState(false);
   const [comboOpen, setComboOpen] = useState(false);
   const [showContinueDialog, setShowContinueDialog] = useState(false);
-  const [formPreviewImages, setFormPreviewImages] = useState([]);
-  const [formPreviewIndex, setFormPreviewIndex] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
@@ -388,7 +386,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
                       src={url}
                       alt={`Foto ${idx + 1}`}
                       className="w-full h-full object-cover rounded-lg cursor-pointer border border-gray-200 group-hover:border-blue-400 transition-all"
-                      onClick={() => { setFormPreviewImages(sharedData.photos); setFormPreviewIndex(idx); }}
+                      onClick={() => onPreviewImages && onPreviewImages(sharedData.photos, idx)}
                     />
                     <Button
                       type="button"
@@ -458,30 +456,7 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
       </DialogContent>
     </Dialog>
 
-    {/* Foto Lightbox innerhalb des Formulars */}
-    {formPreviewImages.length > 0 && (
-      <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[200] p-4" onClick={() => setFormPreviewImages([])}>
-        <div className="relative max-w-3xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-          <img
-            src={formPreviewImages[formPreviewIndex]}
-            alt={`Bild ${formPreviewIndex + 1}`}
-            className="w-full max-h-[80vh] object-contain rounded-lg"
-          />
-          <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
-            {formPreviewIndex > 0 && (
-              <button onClick={() => setFormPreviewIndex(i => i - 1)} className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"><ChevronLeft className="w-6 h-6" /></button>
-            )}
-            {formPreviewIndex < formPreviewImages.length - 1 && (
-              <button onClick={() => setFormPreviewIndex(i => i + 1)} className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full ml-auto"><ChevronRight className="w-6 h-6" /></button>
-            )}
-          </div>
-          <button onClick={() => setFormPreviewImages([])} className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"><X className="w-5 h-5" /></button>
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
-            <span className="bg-black/60 text-white px-3 py-1 rounded-full text-sm">{formPreviewIndex + 1} / {formPreviewImages.length}</span>
-          </div>
-        </div>
-      </div>
-    )}
+
 
     {/* Dialog für "Weitere Leistung erfassen" */}
     <Dialog open={showContinueDialog} onOpenChange={handleFinish}>
@@ -1063,7 +1038,8 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
           leistung={editingLeistung}
           montageAuftragId={montageAuftragId}
           onSubmit={handleSubmit}
-          onCancel={() => {setShowForm(false);setEditingLeistung(null);}} />
+          onCancel={() => {setShowForm(false);setEditingLeistung(null);}}
+          onPreviewImages={(imgs, idx) => { setPreviewImages(imgs); setCurrentImageIndex(idx); }} />
 
         }
       </AnimatePresence>
@@ -1085,7 +1061,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
+          className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[300] p-4"
           onClick={() => setPreviewImages([])}>
           
             <motion.div
