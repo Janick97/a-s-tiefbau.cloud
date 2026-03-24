@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Wrench, MapPin, Calendar, User, Plus, Edit, Trash2, Clock, AlertCircle, Building, Save, FileText, Construction, ExternalLink, Link, Edit3, Users, X, CheckCircle } from "lucide-react";
+import { Search, Wrench, Plus, Trash2, Clock, AlertCircle, Save, FileText, Construction, ExternalLink, Edit3, Users, X, CheckCircle, MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createPageUrl } from "@/utils";
 
@@ -207,37 +208,21 @@ export default function MontageAuftraegePage() {
   const [showMonteurDialog, setShowMonteurDialog] = useState(false);
   const [currentMonteurAuftrag, setCurrentMonteurAuftrag] = useState(null);
   const [selectedMonteure, setSelectedMonteure] = useState([]);
+  const [monteurFilter, setMonteurFilter] = useState('alle');
 
   useEffect(() => {
-    loadData();
+    loadStaticData();
   }, []);
 
-  const loadData = async () => {
+  const loadStaticData = async () => {
     setIsLoading(true);
     try {
-      console.log("Lade Montageaufträge, Projekte und Monteure...");
       const [auftraegeData, projectsData, usersData] = await Promise.all([
         MontageAuftrag.filter({ archived: { $ne: true } }, '-created_date'),
         Project.list(),
         UserEntity.list()
       ]);
-      console.log("Geladene Montageaufträge:", auftraegeData);
-      console.log("Geladene Projekte:", projectsData);
-      
-      // Automatisch Status auf "Montage abgeschlossen" setzen, wenn Monteur fertig gemeldet hat
-      const updatedAuftraege = Array.isArray(auftraegeData) ? auftraegeData : [];
-      for (const auftrag of updatedAuftraege) {
-        if (auftrag.monteur_completed && auftrag.status !== 'Montage abgeschlossen') {
-          try {
-            await MontageAuftrag.update(auftrag.id, { status: 'Montage abgeschlossen' });
-            auftrag.status = 'Montage abgeschlossen';
-          } catch (error) {
-            console.error("Fehler beim automatischen Status-Update:", error);
-          }
-        }
-      }
-      
-      setAuftraege(updatedAuftraege);
+      setAuftraege(Array.isArray(auftraegeData) ? auftraegeData : []);
       setProjects(Array.isArray(projectsData) ? projectsData : []);
       setMonteure(Array.isArray(usersData) ? usersData.filter(u => u.position === 'Monteur') : []);
     } catch (error) {
@@ -247,6 +232,15 @@ export default function MontageAuftraegePage() {
       setMonteure([]);
     }
     setIsLoading(false);
+  };
+
+  const loadData = async () => {
+    try {
+      const auftraegeData = await MontageAuftrag.filter({ archived: { $ne: true } }, '-created_date');
+      setAuftraege(Array.isArray(auftraegeData) ? auftraegeData : []);
+    } catch (error) {
+      console.error("Fehler beim Laden der Aufträge:", error);
+    }
   };
 
   const handleTiefbauOffen = (auftrag) => {
@@ -423,6 +417,13 @@ export default function MontageAuftraegePage() {
       filtered = filtered.filter(auftrag => auftrag.art === artFilter);
     }
 
+    if (monteurFilter !== 'alle') {
+      filtered = filtered.filter(auftrag =>
+        Array.isArray(auftrag.assigned_monteure) &&
+        auftrag.assigned_monteure.some(m => m?.id === monteurFilter)
+      );
+    }
+
     // Sortierung: "Bereit zur Montage" immer oben
     filtered = filtered.sort((a, b) => {
       if (a.status === 'Bereit zur Montage' && b.status !== 'Bereit zur Montage') return -1;
@@ -431,7 +432,7 @@ export default function MontageAuftraegePage() {
     });
 
     setFilteredAuftraege(filtered);
-  }, [auftraege, searchTerm, statusFilter, artFilter]);
+  }, [auftraege, searchTerm, statusFilter, artFilter, monteurFilter]);
 
   const getProjectForAuftrag = (auftrag) => {
     if (!auftrag.project_id) return null;
@@ -538,6 +539,17 @@ export default function MontageAuftraegePage() {
                   <SelectItem value="Störung">Störung</SelectItem>
                   <SelectItem value="FTTH">FTTH</SelectItem>
                   <SelectItem value="Messauftrag">Messauftrag</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={monteurFilter} onValueChange={setMonteurFilter}>
+                <SelectTrigger className="h-9 md:h-10 text-xs md:text-sm">
+                  <SelectValue placeholder="Monteur..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alle">Alle Monteure</SelectItem>
+                  {monteure.map(m => (
+                    <SelectItem key={m.id} value={m.id}>{m.full_name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -689,21 +701,12 @@ export default function MontageAuftraegePage() {
 
                           {/* Action Buttons */}
                           <div className="flex flex-col gap-2 flex-shrink-0">
-                            <a href={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)}>
+                            <a href={createPageUrl(`MontageAuftragDetail?id=${auftrag.id}`)}>  
                               <Button size="sm" className="bg-blue-600 hover:bg-blue-700 h-8 w-full">
                                 <ExternalLink className="w-3 h-3 md:mr-1" />
                                 <span className="hidden md:inline">Auftrag</span>
                               </Button>
                             </a>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleMonteurClick(auftrag)}
-                              className="bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100 h-8 w-full"
-                            >
-                              <Users className="w-3 h-3 md:mr-1" />
-                              <span className="hidden md:inline">Monteure</span>
-                            </Button>
                             {!auftrag.tiefbau_offen && (
                               <Button
                                 variant="outline"
@@ -713,27 +716,27 @@ export default function MontageAuftraegePage() {
                                 className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 h-8 w-full"
                               >
                                 <Construction className="w-3 h-3 md:mr-1" />
-                                <span className="hidden md:inline">Tiefbau offen</span>
+                                <span className="hidden md:inline">TB offen</span>
                               </Button>
                             )}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleNotesClick(auftrag)}
-                              className="h-8 w-full"
-                            >
-                              <Edit3 className="w-3 h-3 md:mr-1" />
-                              <span className="hidden md:inline">Notizen</span>
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDelete(auftrag.id)}
-                              className="text-red-600 hover:text-red-700 h-8 w-full"
-                            >
-                              <Trash2 className="w-3 h-3 md:mr-1" />
-                              <span className="hidden md:inline">Löschen</span>
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-8 w-full">
+                                  <MoreVertical className="w-3 h-3" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleMonteurClick(auftrag)}>
+                                  <Users className="w-4 h-4 mr-2" />Monteure zuweisen
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleNotesClick(auftrag)}>
+                                  <Edit3 className="w-4 h-4 mr-2" />Notizen bearbeiten
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(auftrag.id)} className="text-red-600 focus:text-red-600">
+                                  <Trash2 className="w-4 h-4 mr-2" />Löschen
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       </CardContent>
