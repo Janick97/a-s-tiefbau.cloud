@@ -35,6 +35,8 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
   const [uploading, setUploading] = useState(false);
   const [comboOpen, setComboOpen] = useState(false);
   const [showContinueDialog, setShowContinueDialog] = useState(false);
+  const [formPreviewImages, setFormPreviewImages] = useState([]);
+  const [formPreviewIndex, setFormPreviewIndex] = useState(0);
 
   useEffect(() => {
     const loadData = async () => {
@@ -370,33 +372,38 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
                 onChange={handlePhotoUpload}
                 className="hidden"
                 id="photo-upload" />
-              
             <label htmlFor="photo-upload">
               <Button type="button" variant="outline" size="sm" className="w-full" asChild>
                 <span>
                   <Camera className="w-4 h-4 mr-2" />
-                  {uploading ? "Lädt..." : `Fotos (${sharedData.photos?.length || 0})`}
+                  {uploading ? "Lädt..." : `Fotos hinzufügen (${sharedData.photos?.length || 0} vorhanden)`}
                 </span>
               </Button>
             </label>
-            {sharedData.photos && sharedData.photos.length > 0 &&
-              <div className="mt-2 grid grid-cols-4 gap-1">
-                {sharedData.photos.map((url, idx) =>
-                <div key={idx} className="relative">
-                    <img src={url} alt={`${idx + 1}`} className="w-full h-16 object-cover rounded" />
+            {sharedData.photos && sharedData.photos.length > 0 && (
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {sharedData.photos.map((url, idx) => (
+                  <div key={idx} className="relative group aspect-square">
+                    <img
+                      src={url}
+                      alt={`Foto ${idx + 1}`}
+                      className="w-full h-full object-cover rounded-lg cursor-pointer border border-gray-200 group-hover:border-blue-400 transition-all"
+                      onClick={() => { setFormPreviewImages(sharedData.photos); setFormPreviewIndex(idx); }}
+                    />
                     <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
-                    onClick={() => removePhoto(url)}>
-                    
-                      <X className="h-3 h-3" />
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removePhoto(url)}
+                    >
+                      <X className="h-3 w-3" />
                     </Button>
+                    <div className="absolute bottom-1 right-1 bg-black/50 text-white text-[9px] px-1 rounded">{idx + 1}</div>
                   </div>
-                )}
+                ))}
               </div>
-              }
+            )}
           </div>
 
           <div>
@@ -408,33 +415,37 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
                 onChange={handleSkizzeUpload}
                 className="hidden"
                 id="skizze-upload" />
-              
             <label htmlFor="skizze-upload">
               <Button type="button" variant="outline" size="sm" className="w-full bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100" asChild>
                 <span>
                   <Camera className="w-4 h-4 mr-2" />
-                  {uploading ? "Lädt..." : `Einmaß-Skizze (${sharedData.einmass_skizze?.length || 0})`}
+                  {uploading ? "Lädt..." : `Einmaß-Skizze hinzufügen (${sharedData.einmass_skizze?.length || 0} vorhanden)`}
                 </span>
               </Button>
             </label>
-            {sharedData.einmass_skizze && sharedData.einmass_skizze.length > 0 &&
-              <div className="mt-2 grid grid-cols-4 gap-1">
-                {sharedData.einmass_skizze.map((url, idx) =>
-                <div key={idx} className="relative">
-                    <img src={url} alt={`Skizze ${idx + 1}`} className="w-full h-16 object-cover rounded border-2 border-amber-300" />
+            {sharedData.einmass_skizze && sharedData.einmass_skizze.length > 0 && (
+              <div className="mt-2 grid grid-cols-3 gap-2">
+                {sharedData.einmass_skizze.map((url, idx) => (
+                  <div key={idx} className="relative group aspect-square">
+                    <img
+                      src={url}
+                      alt={`Skizze ${idx + 1}`}
+                      className="w-full h-full object-cover rounded-lg cursor-pointer border-2 border-amber-300 group-hover:border-amber-500 transition-all"
+                      onClick={() => { setFormPreviewImages(sharedData.einmass_skizze); setFormPreviewIndex(idx); }}
+                    />
                     <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0"
-                    onClick={() => removeSkizze(url)}>
-                    
-                      <X className="h-3 h-3" />
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => removeSkizze(url)}
+                    >
+                      <X className="h-3 w-3" />
                     </Button>
                   </div>
-                )}
+                ))}
               </div>
-              }
+            )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0 fixed sm:relative bottom-0 left-0 right-0 p-4 bg-white border-t sm:border-0 sm:p-0">
@@ -446,6 +457,31 @@ function MontageLeistungForm({ leistung, montageAuftragId, onSubmit, onCancel })
         </form>
       </DialogContent>
     </Dialog>
+
+    {/* Foto Lightbox innerhalb des Formulars */}
+    {formPreviewImages.length > 0 && (
+      <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[200] p-4" onClick={() => setFormPreviewImages([])}>
+        <div className="relative max-w-3xl w-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+          <img
+            src={formPreviewImages[formPreviewIndex]}
+            alt={`Bild ${formPreviewIndex + 1}`}
+            className="w-full max-h-[80vh] object-contain rounded-lg"
+          />
+          <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
+            {formPreviewIndex > 0 && (
+              <button onClick={() => setFormPreviewIndex(i => i - 1)} className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"><ChevronLeft className="w-6 h-6" /></button>
+            )}
+            {formPreviewIndex < formPreviewImages.length - 1 && (
+              <button onClick={() => setFormPreviewIndex(i => i + 1)} className="pointer-events-auto bg-white/20 hover:bg-white/40 text-white p-2 rounded-full ml-auto"><ChevronRight className="w-6 h-6" /></button>
+            )}
+          </div>
+          <button onClick={() => setFormPreviewImages([])} className="absolute top-2 right-2 bg-white/20 hover:bg-white/40 text-white p-2 rounded-full"><X className="w-5 h-5" /></button>
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+            <span className="bg-black/60 text-white px-3 py-1 rounded-full text-sm">{formPreviewIndex + 1} / {formPreviewImages.length}</span>
+          </div>
+        </div>
+      </div>
+    )}
 
     {/* Dialog für "Weitere Leistung erfassen" */}
     <Dialog open={showContinueDialog} onOpenChange={handleFinish}>
