@@ -777,6 +777,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                              <div className="flex-1 min-w-0">
                                <p className="text-xs font-medium text-gray-900 truncate">{priceItem?.description || "Unbekannt"}</p>
                                <p className="text-[10px] text-gray-400">{priceItem?.item_number} · {leistung.quantity} {priceItem?.unit}</p>
+                               {(() => { const totalPhotos = leistung.entries.reduce((s, e) => s + (e.photos?.length || 0), 0); return totalPhotos > 0 ? <span className="text-[10px] text-blue-500 flex items-center gap-0.5"><Camera className="w-2.5 h-2.5" />{totalPhotos} Foto{totalPhotos > 1 ? 's' : ''}</span> : null; })()}
                              </div>
                              {!hidePrices && <span className="text-xs font-bold text-green-600 flex-shrink-0">€{(leistung.calculated_price || 0).toFixed(2)}</span>}
                              <ChevronDown className={`w-3 h-3 text-gray-300 flex-shrink-0 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -787,24 +788,65 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
                                  <p className="font-semibold mb-2 text-blue-800">Zusammenfassung ({leistung.entries.length} Einträge):</p>
                                  <ul className="space-y-2">
                                    {leistung.entries.map((entry, i) => (
-                                     <li key={entry.id} className="flex items-center justify-between p-2 bg-white rounded border border-blue-100 text-xs">
-                                       <div>
-                                         <div className="font-medium">{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</div>
-                                         <div className="text-gray-500">{new Date(entry.completion_date).toLocaleDateString('de-DE')}</div>
-                                       </div>
-                                       {!readOnly && (
-                                         <div className="flex gap-1 ml-2 flex-shrink-0">
-                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingLeistung(entry); setShowForm(true); }}>
-                                             <Edit className="w-3 h-3 text-blue-600" />
-                                           </Button>
-                                           <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}>
-                                             <Trash2 className="w-3 h-3 text-red-500" />
-                                           </Button>
-                                         </div>
-                                       )}
-                                     </li>
-                                   ))}
-                                 </ul>
+                                         <li key={entry.id} className="p-2 bg-white rounded border border-blue-100 text-xs">
+                                           <div className="flex items-center justify-between">
+                                             <div>
+                                               <div className="font-medium">{entry.quantity} {priceItem?.unit} - {entry.monteur_name || "Unbekannt"}</div>
+                                               <div className="text-gray-500">{new Date(entry.completion_date).toLocaleDateString('de-DE')}</div>
+                                               {entry.location_name && <div className="text-gray-500 mt-0.5">📍 {entry.location_name}</div>}
+                                               {entry.work_description && <div className="text-gray-400 mt-0.5 italic">{entry.work_description}</div>}
+                                             </div>
+                                             {!readOnly && (
+                                               <div className="flex gap-1 ml-2 flex-shrink-0">
+                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); setEditingLeistung(entry); setShowForm(true); }}>
+                                                   <Edit className="w-3 h-3 text-blue-600" />
+                                                 </Button>
+                                                 <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={(e) => { e.stopPropagation(); handleDelete(entry.id); }}>
+                                                   <Trash2 className="w-3 h-3 text-red-500" />
+                                                 </Button>
+                                               </div>
+                                             )}
+                                           </div>
+                                           {/* Fotos der Leistung */}
+                                           {entry.photos && entry.photos.length > 0 && (
+                                             <div className="mt-2">
+                                               <p className="text-[10px] text-gray-400 mb-1 flex items-center gap-1"><Camera className="w-3 h-3" /> Fotos ({entry.photos.length})</p>
+                                               <div className="grid grid-cols-4 gap-1">
+                                                 {entry.photos.map((url, photoIdx) => (
+                                                   <div
+                                                     key={photoIdx}
+                                                     className="relative aspect-square cursor-pointer rounded overflow-hidden border border-gray-200 hover:border-blue-400 hover:scale-105 transition-all"
+                                                     onClick={(e) => { e.stopPropagation(); setPreviewImages(entry.photos); setCurrentImageIndex(photoIdx); }}
+                                                   >
+                                                     <img src={url} alt={`Foto ${photoIdx + 1}`} className="w-full h-full object-cover" />
+                                                     {photoIdx === 3 && entry.photos.length > 4 && (
+                                                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white text-xs font-bold">+{entry.photos.length - 4}</div>
+                                                     )}
+                                                   </div>
+                                                 ))}
+                                               </div>
+                                             </div>
+                                           )}
+                                           {/* Einmaß-Skizzen */}
+                                           {entry.einmass_skizze && entry.einmass_skizze.length > 0 && (
+                                             <div className="mt-2">
+                                               <p className="text-[10px] text-amber-600 mb-1 flex items-center gap-1"><Camera className="w-3 h-3" /> Einmaß-Skizze ({entry.einmass_skizze.length})</p>
+                                               <div className="grid grid-cols-4 gap-1">
+                                                 {entry.einmass_skizze.map((url, skIdx) => (
+                                                   <div
+                                                     key={skIdx}
+                                                     className="relative aspect-square cursor-pointer rounded overflow-hidden border-2 border-amber-300 hover:border-amber-500 hover:scale-105 transition-all"
+                                                     onClick={(e) => { e.stopPropagation(); setPreviewImages(entry.einmass_skizze); setCurrentImageIndex(skIdx); }}
+                                                   >
+                                                     <img src={url} alt={`Skizze ${skIdx + 1}`} className="w-full h-full object-cover" />
+                                                   </div>
+                                                 ))}
+                                               </div>
+                                             </div>
+                                           )}
+                                         </li>
+                                       ))}
+                                     </ul>
                                </div>
                                {!readOnly && (
                                  <div className="flex gap-1.5 pt-1 border-t">
