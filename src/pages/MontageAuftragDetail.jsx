@@ -273,6 +273,18 @@ export default function MontageAuftragDetailPage() {
           </div>
         )}
 
+        {/* Chat & Dokumente für Admin/Büro */}
+        {!isMonteur && (
+          <div className="flex gap-3">
+            <Button onClick={() => setShowDocuments(true)} variant="outline" className="flex-1">
+              <FileText className="w-4 h-4 mr-2" />Dokumente
+            </Button>
+            <Button onClick={() => setShowChat(true)} variant="outline" className="flex-1">
+              <MessageCircle className="w-4 h-4 mr-2" />Chat
+            </Button>
+          </div>
+        )}
+
         {/* Leistungen */}
         <div>
           <MontageLeistungenManagement
