@@ -190,7 +190,7 @@ export default function MontageAuftragDetailPage() {
                 {[
                   { label: 'Auftrag erhalten', done: true },
                   { label: 'Bereit zur Montage', done: montageAuftrag.status !== 'Tiefbau ausstehend' },
-                  { label: 'Tiefbau gemeldet (offen)', done: !!montageAuftrag.tiefbau_offen, warn: montageAuftrag.tiefbau_offen },
+                  { label: 'Tiefbau gemeldet (offen)', done: !!montageAuftrag.tiefbau_offen },
                   { label: 'Montage abgeschlossen', done: !!montageAuftrag.monteur_completed },
                 ].map(({ label, done, warn }) => (
                   <div key={label} className="flex items-center gap-2">
