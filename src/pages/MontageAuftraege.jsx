@@ -259,36 +259,30 @@ export default function MontageAuftraegePage() {
 
   const handleConfirmTiefbauOffen = async () => {
     if (!tiefbauConfirmAuftrag) return;
-    
     setUpdatingAuftrag(tiefbauConfirmAuftrag.id);
-    try {
-      const now = new Date().toISOString();
-      const currentUser = await UserEntity.me().catch(() => null);
-      const userName = currentUser?.full_name || 'Büro';
-      const currentAuftrag = await MontageAuftrag.get(tiefbauConfirmAuftrag.id);
-      const history = Array.isArray(currentAuftrag?.tiefbau_offen_history) ? currentAuftrag.tiefbau_offen_history : [];
-      await Promise.all([
-        MontageAuftrag.update(tiefbauConfirmAuftrag.id, {
-          tiefbau_offen: true,
-          tiefbau_offen_date: now,
-          status: 'Bereit zur Montage',
-          tiefbau_offen_history: [...history, { date: now, user: userName, text: 'Tiefbau offen gemeldet (Büro)' }]
-        }),
-        ProjectComment.create({
-          project_id: tiefbauConfirmAuftrag.id,
-          comment: `📍 Tiefbau offen gemeldet\nGemeldet von: ${userName}`,
-          user_full_name: userName,
-          attachments: []
-        })
-      ]);
-      setShowTiefbauConfirm(false);
-      setTiefbauConfirmAuftrag(null);
-      await loadData();
-    } catch (error) {
-      console.error("Fehler beim Aktualisieren:", error);
-      alert(`Fehler: ${error.message}`);
-    }
+    const now = new Date().toISOString();
+    const currentUser = await UserEntity.me().catch(() => null);
+    const userName = currentUser?.full_name || 'Buero';
+    const currentAuftrag = await MontageAuftrag.get(tiefbauConfirmAuftrag.id);
+    const history = Array.isArray(currentAuftrag?.tiefbau_offen_history) ? currentAuftrag.tiefbau_offen_history : [];
+    await Promise.all([
+      MontageAuftrag.update(tiefbauConfirmAuftrag.id, {
+        tiefbau_offen: true,
+        tiefbau_offen_date: now,
+        status: 'Bereit zur Montage',
+        tiefbau_offen_history: [...history, { date: now, user: userName, text: 'Tiefbau offen gemeldet (Buero)' }]
+      }),
+      ProjectComment.create({
+        project_id: tiefbauConfirmAuftrag.id,
+        comment: 'Tiefbau offen gemeldet von: ' + userName,
+        user_full_name: userName,
+        attachments: []
+      })
+    ]);
+    setShowTiefbauConfirm(false);
+    setTiefbauConfirmAuftrag(null);
     setUpdatingAuftrag(null);
+    await loadData();
   };
 
   const handleSubmit = async (formData) => {
