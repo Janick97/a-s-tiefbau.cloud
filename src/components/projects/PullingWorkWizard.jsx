@@ -457,8 +457,8 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                   </div>
                 )}
 
-                {/* Rohrdurchmesser (nur bei Leerrohr + Status Leer) */}
-                {data.pull_into === "Leerrohr" && data.pipeStatus === "leer" && (
+                {/* Rohrdurchmesser (nur bei Leerrohr + Status gewählt) */}
+                {data.pull_into === "Leerrohr" && data.pipeStatus && (
                   <div>
                     <Label className="text-sm font-medium">Rohrdurchmesser</Label>
                     <div className="grid grid-cols-3 gap-2 mt-2">
