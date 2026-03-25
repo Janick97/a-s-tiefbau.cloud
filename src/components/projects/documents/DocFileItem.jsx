@@ -6,6 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Eye, Download, Trash2, Edit, FolderInput, Check, X, CheckSquare, Square, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
+async function downloadFile(url, fileName) {
+  const res = await fetch(url);
+  const blob = await res.blob();
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
 export default function DocFileItem({
   doc, readOnly, isSelected, onToggleSelect,
   editingFileName, newFileName, onStartEdit, onCancelEdit, onSaveEdit, setNewFileName,
@@ -65,7 +77,7 @@ export default function DocFileItem({
           {!readOnly && <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => onStartEdit(doc)} title="Umbenennen"><Edit className="w-3.5 h-3.5" /></Button>}
           <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Vorschau" onClick={() => onPreview(doc)}><Eye className="w-3.5 h-3.5" /></Button>
           {!readOnly && <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700" onClick={() => onMove(doc)} title="Verschieben"><FolderInput className="w-3.5 h-3.5" /></Button>}
-          <a href={doc.file_url} download={doc.file_name}><Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen"><Download className="w-3.5 h-3.5" /></Button></a>
+          <Button size="sm" variant="ghost" className="h-8 w-8 p-0" title="Herunterladen" onClick={() => downloadFile(doc.file_url, doc.file_name)}><Download className="w-3.5 h-3.5" /></Button>
           {!readOnly && (
             <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-400 hover:text-red-600 hover:bg-red-50"
               onClick={() => onDelete(doc.id)} title="Löschen" disabled={loadingId === doc.id}>
