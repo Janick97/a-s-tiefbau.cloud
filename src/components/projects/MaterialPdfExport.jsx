@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function MaterialPdfExport({ project, projectMaterials, allMaterials, excavations, priceItems }) {
+export default function MaterialPdfExport({ project, projectMaterials, allMaterials, excavations, priceItems, montageMaterialUsage = [], montageMaterials = [] }) {
   if (!project) return null;
 
   // Merge project materials with material details
@@ -25,6 +25,25 @@ export default function MaterialPdfExport({ project, projectMaterials, allMateri
   }, {});
 
   const totalRevenue = (excavations || []).reduce((s, e) => s + (e.calculated_price || 0), 0);
+
+  // Montage material rows - aggregate by material_id
+  const montageAggregated = {};
+  (montageMaterialUsage || []).forEach(usage => {
+    const mat = (montageMaterials || []).find(m => m.id === usage.material_id);
+    const key = usage.material_id || usage.material_name || 'unknown';
+    if (!montageAggregated[key]) {
+      montageAggregated[key] = {
+        name: mat?.name || usage.material_name || '–',
+        article: mat?.article_number || '–',
+        unit: mat?.unit || '–',
+        quantity: 0,
+        usedBy: new Set(),
+      };
+    }
+    montageAggregated[key].quantity += (usage.quantity_used || 0);
+    if (usage.used_by) montageAggregated[key].usedBy.add(usage.used_by);
+  });
+  const montageRows = Object.values(montageAggregated);
 
   return (
     <div style={{ width: "210mm", padding: "16mm", fontFamily: "Arial, sans-serif", fontSize: "10pt", color: "#1a1a1a", background: "#fff" }}>
@@ -83,9 +102,41 @@ export default function MaterialPdfExport({ project, projectMaterials, allMateri
         ))
       )}
 
+      {/* Montagematerialien */}
+      {montageRows.length > 0 && (
+        <div style={{ marginBottom: "16px" }}>
+          <div style={{ fontSize: "10pt", fontWeight: "bold", background: "#eff6ff", color: "#1d4ed8", padding: "4px 8px", borderLeft: "4px solid #3b82f6", marginBottom: "4px" }}>
+            Montagematerialien (Verbrauch)
+          </div>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "9pt" }}>
+            <thead>
+              <tr style={{ background: "#f9fafb" }}>
+                <th style={th}>Artikel-Nr.</th>
+                <th style={th}>Bezeichnung</th>
+                <th style={{ ...th, textAlign: "center" }}>Menge</th>
+                <th style={{ ...th, textAlign: "center" }}>Einheit</th>
+                <th style={th}>Verwendet von</th>
+              </tr>
+            </thead>
+            <tbody>
+              {montageRows.map((r, i) => (
+                <tr key={i} style={{ background: i % 2 === 0 ? "#fff" : "#f9fafb" }}>
+                  <td style={td}>{r.article}</td>
+                  <td style={{ ...td, fontWeight: "500" }}>{r.name}</td>
+                  <td style={{ ...td, textAlign: "center" }}>{r.quantity}</td>
+                  <td style={{ ...td, textAlign: "center" }}>{r.unit}</td>
+                  <td style={{ ...td, color: "#666" }}>{[...r.usedBy].join(", ")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       {/* Footer */}
-      <div style={{ marginTop: "24px", borderTop: "1px solid #e5e7eb", paddingTop: "8px", display: "flex", justifyContent: "space-between", fontSize: "9pt", color: "#666" }}>
-        <div>Gesamtanzahl Positionen: <strong>{materialRows.length}</strong></div>
+      <div style={{ marginTop: "24px",
+        borderTop: "1px solid #e5e7eb", paddingTop: "8px", display: "flex", justifyContent: "space-between", fontSize: "9pt", color: "#666" }}>
+        <div>Tiefbau-Positionen: <strong>{materialRows.length}</strong> | Montagematerial-Positionen: <strong>{montageRows.length}</strong></div>
         {totalRevenue > 0 && (
           <div>Gesamtumsatz Leistungen: <strong>€{totalRevenue.toLocaleString("de-DE")}</strong></div>
         )}

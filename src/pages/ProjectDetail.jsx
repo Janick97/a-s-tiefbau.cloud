@@ -1928,9 +1928,10 @@ export default function ProjectDetailPage() {
           allMaterials={materials}
           excavations={excavations}
           priceItems={priceItems}
+          montageMaterialUsage={montageMaterialUsage}
+          montageMaterials={montageMaterials}
         />
       </div>
-
       {/* Montage PDF Export - positioned off-screen */}
       <div ref={montageExportRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
         <MontageLeistungenPdfExport
@@ -1992,7 +1993,6 @@ export default function ProjectDetailPage() {
         priceItems={priceItems}
         materials={materials}
       />
-
 
       </>
   );
