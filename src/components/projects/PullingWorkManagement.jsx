@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { PullingWork, Material } from "@/entities/all"; // Added Material
+import { PullingWork, Material } from "@/entities/all";
+import { base44 } from "@/api/base44Client"; // Added Material
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,6 +23,7 @@ const statusLabels = {
 };
 
 export default function PullingWorkManagement({ projectId }) {
+  const [currentUser, setCurrentUser] = useState(null);
   const [pullingWorks, setPullingWorks] = useState([]);
   const [materials, setMaterials] = useState([]); // Added materials state
   const [isLoading, setIsLoading] = useState(true);
@@ -31,7 +33,8 @@ export default function PullingWorkManagement({ projectId }) {
   const [selectedWork, setSelectedWork] = useState(null); // Added selectedWork state
 
   useEffect(() => {
-    loadData(); // Changed to loadData
+    loadData();
+    base44.auth.me().then(u => setCurrentUser(u)).catch(() => {});
   }, [projectId]);
 
   const loadData = async () => { // New loadData function
@@ -234,6 +237,7 @@ export default function PullingWorkManagement({ projectId }) {
           <PullingWorkWizard
             existingWork={editingWork}
             project={{ id: projectId }}
+            user={currentUser}
             onClose={() => { setShowForm(false); setEditingWork(null); }}
             onSaved={() => { setShowForm(false); setEditingWork(null); loadData(); }}
           />

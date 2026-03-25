@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, ChevronLeft, ChevronRight, Check, Cable } from "lucide-react";
 import { Material, PullingWork, ProjectMaterial } from "@/entities/all";
+import { base44 } from "@/api/base44Client";
 
 // ─── Farben (gleiche wie beim Einblasen) ──────────────────────────────────────
 const SNR_COLORS = [
@@ -143,6 +144,14 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   // ─── Save ─────────────────────────────────────────────────────────────────
   const handleSave = async () => {
+    let foremanName = existingWork?.foreman || "Nicht zugewiesen";
+    let foremanUserId = existingWork?.foreman_user_id || "";
+    if (!isEdit) {
+      try {
+        const me = user || await base44.auth.me();
+        if (me?.full_name) { foremanName = me.full_name; foremanUserId = me.id || ""; }
+      } catch {}
+    }
     const payload = {
       project_id: project.id,
       location_name: project.title || "",
@@ -156,7 +165,8 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
       connected_colors: data.selectedColors,
       notes: data.notes,
       status: existingWork?.status || "planned",
-      foreman: existingWork?.foreman || "Nicht zugewiesen",
+      foreman: foremanName,
+      foreman_user_id: foremanUserId,
     };
 
     if (isEdit) {
