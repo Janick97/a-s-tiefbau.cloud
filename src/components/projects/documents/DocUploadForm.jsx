@@ -9,6 +9,14 @@ import { Upload, FolderOpen, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function DocUploadForm({ uploadForm, setUploadForm, handleFileUpload, uploading, onClose, folderOptions, allFolders, getFolderDepth, getFolderName, onCreateSubfolder }) {
+  const [isDragOver, setIsDragOver] = React.useState(false);
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) setUploadForm((prev) => ({ ...prev, files }));
+  };
   return (
     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
       <Card className="border-dashed border-2 border-orange-300 bg-orange-50/30">
@@ -22,8 +30,13 @@ export default function DocUploadForm({ uploadForm, setUploadForm, handleFileUpl
           <form onSubmit={handleFileUpload} className="space-y-4">
             {/* Drag zone */}
             <div
-              className="border-2 border-dashed border-orange-300 rounded-lg p-6 text-center hover:border-orange-400 hover:bg-orange-50 transition-colors cursor-pointer"
-              onClick={() => document.getElementById('doc-file-input').click()}
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
+              isDragOver ? 'border-orange-500 bg-orange-100 scale-[1.01]' : 'border-orange-300 hover:border-orange-400 hover:bg-orange-50'
+            }`}
+            onClick={() => document.getElementById('doc-file-input').click()}
+            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={handleDrop}
             >
               <Upload className="w-8 h-8 mx-auto mb-2 text-orange-400" />
               {uploadForm.files.length > 0 ? (
@@ -33,7 +46,7 @@ export default function DocUploadForm({ uploadForm, setUploadForm, handleFileUpl
                 </div>
               ) : (
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Klicken zum Auswählen</p>
+                  <p className="text-sm font-medium text-gray-700">Klicken zum Auswählen oder Dateien hierher ziehen</p>
                   <p className="text-xs text-gray-400 mt-1">Mehrere Dateien möglich</p>
                 </div>
               )}
