@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { X, ChevronLeft, ChevronRight, Check, Cable } from "lucide-react";
-import { Material } from "@/entities/all";
+import { Material, PullingWork, ProjectMaterial } from "@/entities/all";
 
 // ─── Farben (gleiche wie beim Einblasen) ──────────────────────────────────────
 const SNR_COLORS = [
@@ -143,7 +143,6 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   // ─── Save ─────────────────────────────────────────────────────────────────
   const handleSave = async () => {
-    const { PullingWork, ProjectMaterial } = await import("@/entities/all");
     const payload = {
       project_id: project.id,
       location_name: project.title || "",
