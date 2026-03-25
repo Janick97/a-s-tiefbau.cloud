@@ -80,6 +80,19 @@ const PULL_INTO_OPTIONS = [
   "Sonstiges",
 ];
 
+// ─── Rohr-Status (belegt/leer) ────────────────────────────────────────────────
+const PIPE_STATUS = [
+  { id: "belegt", label: "Belegt", desc: "Rohr war bereits mit Kabel belegt" },
+  { id: "leer", label: "Leer", desc: "Rohr war noch leer" },
+];
+
+// ─── Rohrdurchmesser (mm) ────────────────────────────────────────────────────
+const PIPE_SIZES = [
+  { id: "50", label: "50 mm" },
+  { id: "110", label: "110 mm" },
+  { id: "125", label: "125 mm" },
+];
+
 const STEPS = [
   { id: 1, title: "Was wird eingezogen?" },
   { id: 2, title: "Details" },
@@ -99,6 +112,8 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     point_a: existingWork?.start_point || "",
     point_b: existingWork?.end_point || "",
     pull_into: existingWork?.work_description?.split("|")[0] || "",
+    pipeStatus: existingWork?.work_description?.split("|")[1] || "",
+    pipeSize: existingWork?.work_description?.split("|")[2] || "",
     meters: existingWork?.cable_length || "",
     notes: existingWork?.notes || "",
   });
@@ -131,7 +146,12 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     return true;
   };
 
-  const step2Valid = () => data.point_a && data.point_b && data.pull_into && data.meters;
+  const step2Valid = () => {
+    if (!data.point_a || !data.point_b || !data.pull_into || !data.meters) return false;
+    if (data.pull_into === "Leerrohr" && !data.pipeStatus) return false;
+    if (data.pipeStatus === "leer" && !data.pipeSize) return false;
+    return true;
+  };
 
   // ─── Build display label ──────────────────────────────────────────────────
   const getMaterialLabel = () => {
@@ -152,6 +172,11 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
         if (me?.full_name) { foremanName = me.full_name; foremanUserId = me.id || ""; }
       } catch {}
     }
+    // Build work_description with pipe info
+    let workDesc = data.pull_into;
+    if (data.pipeStatus) workDesc += `|${data.pipeStatus}`;
+    if (data.pipeSize) workDesc += `|${data.pipeSize}`;
+
     const payload = {
       project_id: project.id,
       location_name: project.title || "",
@@ -161,7 +186,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
       cable_length: parseFloat(data.meters) || 0,
       start_point: data.point_a,
       end_point: data.point_b,
-      work_description: data.pull_into,
+      work_description: workDesc,
       connected_colors: data.selectedColors,
       notes: data.notes,
       status: existingWork?.status || "planned",
@@ -387,7 +412,13 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                     {PULL_INTO_OPTIONS.map(opt => (
                       <button
                         key={opt}
-                        onClick={() => setField("pull_into", opt)}
+                        onClick={() => {
+                          setField("pull_into", opt);
+                          if (opt !== "Leerrohr") {
+                            setField("pipeStatus", "");
+                            setField("pipeSize", "");
+                          }
+                        }}
                         className={`px-3 py-2 rounded-xl border-2 text-sm text-left transition-all ${
                           data.pull_into === opt
                             ? "border-blue-500 bg-blue-50 font-medium"
@@ -399,6 +430,54 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                     ))}
                   </div>
                 </div>
+
+                {/* Rohr-Status: Belegt oder Leer (nur bei Leerrohr) */}
+                {data.pull_into === "Leerrohr" && (
+                  <div>
+                    <Label className="text-sm font-medium">Rohr-Status</Label>
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {PIPE_STATUS.map(status => (
+                        <button
+                          key={status.id}
+                          onClick={() => {
+                            setField("pipeStatus", status.id);
+                            if (status.id !== "leer") setField("pipeSize", "");
+                          }}
+                          className={`p-2.5 rounded-xl border-2 text-sm transition-all ${
+                            data.pipeStatus === status.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          <p className="font-semibold">{status.label}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{status.desc}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rohrdurchmesser (nur bei Leerrohr + Status Leer) */}
+                {data.pull_into === "Leerrohr" && data.pipeStatus === "leer" && (
+                  <div>
+                    <Label className="text-sm font-medium">Rohrdurchmesser</Label>
+                    <div className="grid grid-cols-3 gap-2 mt-2">
+                      {PIPE_SIZES.map(size => (
+                        <button
+                          key={size.id}
+                          onClick={() => setField("pipeSize", size.id)}
+                          className={`px-3 py-2 rounded-xl border-2 text-sm font-medium transition-all ${
+                            data.pipeSize === size.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          {size.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div>
                   <Label className="text-sm font-medium">Eingezogene Meter (m)</Label>
@@ -436,6 +515,12 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                   <div className="border-t pt-3">
                     <Row label="Punkt A → Punkt B" value={<span className="font-semibold text-blue-700">{data.point_a} → {data.point_b}</span>} />
                     <Row label="Eingezogen in" value={data.pull_into} />
+                    {data.pipeStatus && (
+                      <>
+                        <Row label="Rohr-Status" value={PIPE_STATUS.find(p => p.id === data.pipeStatus)?.label} />
+                        {data.pipeSize && <Row label="Rohrdurchmesser" value={PIPE_SIZES.find(s => s.id === data.pipeSize)?.label} />}
+                      </>
+                    )}
                     <Row label="Meter" value={<Badge className="bg-blue-600 text-white">{data.meters} m</Badge>} />
                   </div>
                   {data.notes && <Row label="Notizen" value={data.notes} />}
