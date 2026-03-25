@@ -408,12 +408,16 @@ export default function MontageAuftragDetailPage() {
 
       {/* Material Dialog */}
       <AnimatePresence>
-        {showMaterialDialog && (
-          <MaterialVerbrauchDialog
-            montageAuftragId={montageAuftrag.id}
-            onClose={() => setShowMaterialDialog(false)}
-          />
-        )}
+       {showMaterialDialog && (
+         <MaterialVerbrauchDialog
+           montageAuftragId={montageAuftrag.id}
+           onClose={() => setShowMaterialDialog(false)}
+           onSave={() => {
+             setShowMaterialDialog(false);
+             window.location.reload();
+           }}
+         />
+       )}
       </AnimatePresence>
 
       {/* Beweissicherung Dialog */}
