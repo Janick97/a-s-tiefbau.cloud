@@ -679,8 +679,23 @@ export default function DocumentManagement({ projectId, project, loadData, readO
                 </div>
               </div>
               <div className="pt-20 pb-4 px-4 max-h-[90vh] overflow-auto">
-                {previewDoc.file_type?.includes('pdf') || previewDoc.file_name?.toLowerCase().endsWith('.pdf') || previewDoc.file_name?.match(/\.(docx?|xlsx?|pptx?)$/i)
-                  ? <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`} className="w-full h-[70vh] border-0" title={previewDoc.file_name} />
+                {previewDoc.file_type?.includes('pdf') || previewDoc.file_name?.toLowerCase().endsWith('.pdf')
+                  ? (
+                    <div className="w-full h-[75vh]">
+                      <embed
+                        src={previewDoc.file_url + '#toolbar=1&navpanes=1'}
+                        type="application/pdf"
+                        className="w-full h-full rounded-lg border"
+                      />
+                      <p className="text-xs text-center text-gray-400 mt-2">
+                        PDF wird nicht angezeigt?{' '}
+                        <a href={previewDoc.file_url} target="_blank" rel="noopener noreferrer" className="text-orange-500 hover:underline">Im Browser öffnen</a>
+                      </p>
+                    </div>
+                  ) : previewDoc.file_name?.match(/\.(docx?|xlsx?|pptx?)$/i)
+                  ? (
+                    <iframe src={`https://docs.google.com/viewer?url=${encodeURIComponent(previewDoc.file_url)}&embedded=true`} className="w-full h-[70vh] border-0" title={previewDoc.file_name} />
+                  )
                   : (
                     <div className="text-center py-16">
                       <FileText className="w-16 h-16 mx-auto mb-4 text-gray-200" />
