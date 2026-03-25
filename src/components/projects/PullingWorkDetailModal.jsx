@@ -13,7 +13,7 @@ const PULL_INTO_LABELS = {
   "Mehrfachrohr": "Mehrfachrohr",
   "Erdreich (direkt)": "Erdreich (direkt)",
   "Gebäude": "Gebäude",
-  "Sonstiges": "Sonstiges",
+  "Sonstiges": "Sonstiges"
 };
 
 const statusLabels = {
@@ -57,10 +57,10 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
                 <p className="font-medium text-lg text-gray-900">{pullingWork.cable_length || "N/A"} m</p>
               </div>
               <div>
-                <p className="text-gray-500">Status</p>
-                <Badge className={statusLabels[pullingWork.status]?.includes("Geplant") ? "bg-blue-100 text-blue-800" : statusLabels[pullingWork.status]?.includes("Arbeit") ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}>
-                  {statusLabels[pullingWork.status] || "Unbekannt"}
-                </Badge>
+                
+                
+
+                
               </div>
             </div>
           </div>
@@ -73,12 +73,12 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
                 <p className="text-xs text-gray-500">Kategorie</p>
                 <p className="text-sm font-medium text-gray-900">{category || "-"}</p>
               </div>
-              {material && (
-                <div>
+              {material &&
+              <div>
                   <p className="text-xs text-gray-500">Material / Farben</p>
                   <p className="text-sm font-medium text-gray-900">{material}</p>
                 </div>
-              )}
+              }
             </div>
           </div>
 
@@ -89,16 +89,16 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-gray-900">{PULL_INTO_LABELS[pullInto] || pullInto}</p>
               </div>
-              {pipeStatus && (
-                <div className="text-xs text-gray-600">
+              {pipeStatus &&
+              <div className="text-xs text-gray-600">
                   <span className="font-medium">Rohr-Status:</span> {pipeStatus === "belegt" ? "Belegt" : "Leer"}
                 </div>
-              )}
-              {pipeSize && (
-                <div className="text-xs text-gray-600">
+              }
+              {pipeSize &&
+              <div className="text-xs text-gray-600">
                   <span className="font-medium">Durchmesser:</span> {pipeSize} mm
                 </div>
-              )}
+              }
             </div>
           </div>
 
@@ -106,39 +106,39 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
           <div className="space-y-3">
             <h4 className="font-semibold text-gray-900">Weitere Details</h4>
             <div className="space-y-2 text-sm">
-              {pullingWork.foreman && (
-                <div className="flex justify-between">
+              {pullingWork.foreman &&
+              <div className="flex justify-between">
                   <span className="text-gray-600">Bauleiter:</span>
                   <span className="font-medium text-gray-900">{pullingWork.foreman}</span>
                 </div>
-              )}
-              {pullingWork.completion_date && (
-                <div className="flex justify-between">
+              }
+              {pullingWork.completion_date &&
+              <div className="flex justify-between">
                   <span className="text-gray-600">Fertigstellung:</span>
                   <span className="font-medium text-gray-900">
                     {new Date(pullingWork.completion_date).toLocaleDateString("de-DE")}
                   </span>
                 </div>
-              )}
+              }
             </div>
           </div>
 
           {/* Notizen */}
-          {pullingWork.notes && (
-            <div className="space-y-3">
+          {pullingWork.notes &&
+          <div className="space-y-3">
               <h4 className="font-semibold text-gray-900">Notizen</h4>
               <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 italic">
                 {pullingWork.notes}
               </div>
             </div>
-          )}
+          }
 
           {/* Metadaten */}
           <div className="text-xs text-gray-400 space-y-1 pt-2 border-t">
             <p>Erstellt: {new Date(pullingWork.created_date).toLocaleDateString("de-DE")}</p>
-            {pullingWork.updated_date && (
-              <p>Aktualisiert: {new Date(pullingWork.updated_date).toLocaleDateString("de-DE")}</p>
-            )}
+            {pullingWork.updated_date &&
+            <p>Aktualisiert: {new Date(pullingWork.updated_date).toLocaleDateString("de-DE")}</p>
+            }
           </div>
         </div>
 
@@ -148,20 +148,20 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
           </Button>
           <Button
             variant="outline"
-            onClick={() => { onEdit(pullingWork); onClose(); }}
-            className="text-blue-600 border-blue-200 hover:bg-blue-50"
-          >
+            onClick={() => {onEdit(pullingWork);onClose();}}
+            className="text-blue-600 border-blue-200 hover:bg-blue-50">
+            
             <Edit className="w-4 h-4 mr-2" /> Bearbeiten
           </Button>
           <Button
             variant="outline"
-            onClick={() => { onDelete(pullingWork.id); onClose(); }}
-            className="text-red-600 border-red-200 hover:bg-red-50"
-          >
+            onClick={() => {onDelete(pullingWork.id);onClose();}}
+            className="text-red-600 border-red-200 hover:bg-red-50">
+            
             <Trash2 className="w-4 h-4 mr-2" /> Löschen
           </Button>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
