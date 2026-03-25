@@ -634,20 +634,23 @@ export default function EVergabeEditor({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
         <div>
-          <h3 className="text-xl font-bold">E-Vergabe Export</h3>
-          <p className="text-sm text-gray-600">Bearbeiten Sie die Positionen und fügen Sie Bilder hinzu</p>
+          <h3 className="text-lg sm:text-xl font-bold">E-Vergabe Export</h3>
+          <p className="text-xs sm:text-sm text-gray-600">Bearbeiten Sie die Positionen und fügen Sie Bilder hinzu</p>
         </div>
         <Button 
           onClick={handleExportPDF}
           disabled={isExporting || (selectedExcIds.size === 0 && selectedMlIds.size === 0)}
-          className="bg-purple-600 hover:bg-purple-700"
+          className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-xs sm:text-sm"
         >
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="w-4 h-4 sm:mr-2" />
           {isExporting
             ? 'Exportiere...'
-            : `Als PDF exportieren (${selectedExcIds.size + selectedMlIds.size} Position${selectedExcIds.size + selectedMlIds.size !== 1 ? 'en' : ''})`
+            : <>
+                <span className="hidden sm:inline">Als PDF exportieren ({selectedExcIds.size + selectedMlIds.size})</span>
+                <span className="sm:hidden">PDF ({selectedExcIds.size + selectedMlIds.size})</span>
+              </>
           }
         </Button>
       </div>
