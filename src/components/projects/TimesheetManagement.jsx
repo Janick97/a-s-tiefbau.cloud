@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Clock, FileDown, Signature, Construction, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -416,45 +417,99 @@ export default function TimesheetManagement({ projectId, project }) {
                             </Button>
                         </div>
                     ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Mitarbeiter</TableHead>
-                                    <TableHead>Tätigkeit</TableHead>
-                                    <TableHead>Art</TableHead>
-                                    <TableHead className="text-right">Stunden</TableHead>
-                                    <TableHead className="text-right">Aktionen</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                        <>
+                            {/* Desktop: Tabelle */}
+                            <div className="hidden md:block">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Mitarbeiter</TableHead>
+                                            <TableHead>Tätigkeit</TableHead>
+                                            <TableHead>Art</TableHead>
+                                            <TableHead className="text-right">Stunden</TableHead>
+                                            <TableHead className="text-right">Aktionen</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <AnimatePresence>
+                                            {entries.map((entry, index) => (
+                                                <motion.tr
+                                                    key={entry.id}
+                                                    initial={{ opacity: 0 }}
+                                                    animate={{ opacity: 1 }}
+                                                    exit={{ opacity: 0 }}
+                                                    transition={{ delay: index * 0.05 }}
+                                                >
+                                                    <TableCell className="font-medium">{entry.employee_name}</TableCell>
+                                                    <TableCell className="text-gray-600 text-sm">{entry.work_description}</TableCell>
+                                                    <TableCell>
+                                                        {entry.hours_type === 'overtime' && <span className="text-orange-600 font-medium text-sm">Überstunden</span>}
+                                                        {entry.hours_type === 'night_shift' && <span className="text-purple-600 font-medium text-sm">Nachtzulage</span>}
+                                                        {(!entry.hours_type || entry.hours_type === 'normal') && <span className="text-gray-600 text-sm">Normal</span>}
+                                                    </TableCell>
+                                                    <TableCell className="text-right font-semibold">{entry.hours.toFixed(2)}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <div className="flex justify-end gap-0.5">
+                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(entry)} title="Bearbeiten"><Edit className="w-4 h-4" /></Button>
+                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(entry.id)} title="Löschen"><Trash2 className="w-4 h-4" /></Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </motion.tr>
+                                            ))}
+                                        </AnimatePresence>
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* Mobile: Card-Liste */}
+                            <div className="md:hidden space-y-3">
                                 <AnimatePresence>
                                     {entries.map((entry, index) => (
-                                        <motion.tr
+                                        <motion.div
                                             key={entry.id}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
                                             transition={{ delay: index * 0.05 }}
+                                            className="border border-gray-200 rounded-lg p-4 bg-white"
                                         >
-                                            <TableCell className="font-medium">{entry.employee_name}</TableCell>
-                                            <TableCell className="text-gray-600">{entry.work_description}</TableCell>
-                                            <TableCell>
-                                                {entry.hours_type === 'overtime' && <span className="text-orange-600 font-medium">Überstunden</span>}
-                                                {entry.hours_type === 'night_shift' && <span className="text-purple-600 font-medium">Nachtzulage</span>}
-                                                {(!entry.hours_type || entry.hours_type === 'normal') && <span className="text-gray-600">Normal</span>}
-                                            </TableCell>
-                                            <TableCell className="text-right font-semibold">{entry.hours.toFixed(2)}</TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-0.5">
-                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(entry)} title="Bearbeiten"><Edit className="w-4 h-4" /></Button>
-                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(entry.id)} title="Löschen"><Trash2 className="w-4 h-4" /></Button>
+                                            <div className="flex items-start justify-between gap-3 mb-3">
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-bold text-gray-900 truncate">{entry.employee_name}</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{entry.work_description}</p>
                                                 </div>
-                                            </TableCell>
-                                        </motion.tr>
+                                                <p className="text-lg font-bold text-blue-600 flex-shrink-0">{entry.hours.toFixed(2)}h</p>
+                                            </div>
+                                            
+                                            <div className="flex items-center justify-between mb-3">
+                                                {entry.hours_type === 'overtime' && <Badge className="bg-orange-100 text-orange-800 text-xs">Überstunden</Badge>}
+                                                {entry.hours_type === 'night_shift' && <Badge className="bg-purple-100 text-purple-800 text-xs">Nachtzulage</Badge>}
+                                                {(!entry.hours_type || entry.hours_type === 'normal') && <Badge className="bg-gray-100 text-gray-700 text-xs">Normal</Badge>}
+                                            </div>
+                                            
+                                            <div className="flex gap-2 justify-end">
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    onClick={() => handleEdit(entry)}
+                                                    className="flex-1 h-9 text-xs"
+                                                >
+                                                    <Edit className="w-4 h-4 mr-1" /> Bearbeiten
+                                                </Button>
+                                                <Button 
+                                                    variant="outline" 
+                                                    size="sm" 
+                                                    onClick={() => handleDelete(entry.id)}
+                                                    className="flex-1 h-9 text-red-600 hover:text-red-700 hover:bg-red-50 text-xs"
+                                                >
+                                                    <Trash2 className="w-4 h-4 mr-1" /> Löschen
+                                                </Button>
+                                            </div>
+                                        </motion.div>
                                     ))}
                                 </AnimatePresence>
-                            </TableBody>
-                        </Table>
+                            </div>
+                        </>
                     )}
                 </CardContent>
                 {entries.length > 0 && (
