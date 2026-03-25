@@ -23,7 +23,7 @@ export default function MontageAuftragCard({ auftrag, index, completing, onCompl
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 text-sm leading-tight line-clamp-2">{auftrag.title}</p>
-            <p className="text-xs text-gray-400 mt-0.5">{auftrag.sm_number}</p>
+            
           </div>
           {auftrag.tiefbau_offen &&
           <span className="flex-shrink-0 inline-flex items-center gap-1 bg-blue-100 text-blue-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
