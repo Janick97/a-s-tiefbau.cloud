@@ -311,6 +311,9 @@ export default function ProjectDetailPage() {
   // Scroll to top when component mounts or projectId changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+    // Also scroll the inner layout container
+    const scrollContainer = document.querySelector('main > div.overflow-auto, main > div.flex-1.overflow-auto');
+    if (scrollContainer) scrollContainer.scrollTop = 0;
   }, [projectId]);
 
   const handleExcavationSubmit = async (excavationData, excavationId = null) => {
