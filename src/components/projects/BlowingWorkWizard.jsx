@@ -137,11 +137,23 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
     if (!isEdit && data.cable_type) {
       const { Material, ProjectMaterial } = await import("@/entities/all");
       const allMaterials = await Material.list().catch(() => []);
-      const matched = allMaterials.find(m =>
+      let matched = allMaterials.find(m =>
         m.name?.toLowerCase().includes(data.cable_type.toLowerCase()) ||
         data.cable_type.toLowerCase().includes(m.name?.toLowerCase() || "")
       );
-      if (matched) {
+      // Falls kein Material gefunden, neues anlegen
+      if (!matched) {
+        matched = await Material.create({
+          name: data.cable_type,
+          article_number: `EINBLASEN-${Date.now()}`,
+          unit: "M",
+          category: "Kabel",
+          current_stock: 0,
+          min_stock: 0,
+          unit_cost: 0,
+        }).catch(() => null);
+      }
+      if (matched?.id) {
         await ProjectMaterial.create({
           project_id: project.id,
           material_id: matched.id,
