@@ -312,11 +312,10 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                           <span className="font-mono text-xs text-gray-500 mr-2">{mat.article}</span>
                           {mat.name}
                         </button>
-                      ))}
-                      </div>
-                      )}
-                      </div>
-                      )}
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Kupferkabel → aus Materialdatenbank */}
                 {data.category === "kupferkabel" && (
