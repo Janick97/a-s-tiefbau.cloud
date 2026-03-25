@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert, PriceItem, InternalContact } from "@/entities/all";
+import React, { useState, useEffect } from "react";
+import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert, PriceItem } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,8 +25,7 @@ import {
   TrendingUp,
   Package,
   Eye,
-  RefreshCw,
-  Phone
+  RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
@@ -277,80 +276,58 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Navigation */}
-          <div className="w-full max-w-md space-y-3">
-            <Link to={createPageUrl("MyMontageAuftraege")} className="block">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -2 }}
-                transition={{ duration: 0.2 }}
-              >
-                <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-slate-100">
-                        <Construction className="w-6 h-6 text-slate-700" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900">Meine Montageaufträge</h3>
-                        <p className="text-sm text-gray-500 mt-1">Zeige alle Aufträge</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-            <Link to={createPageUrl("MyVehicleMaintenance")} className="block">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -2 }}
-                transition={{ duration: 0.2, delay: 0.05 }}
-              >
-                <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-slate-100">
-                        <Droplets className="w-6 h-6 text-slate-700" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900">Fahrzeugpflege</h3>
-                        <p className="text-sm text-gray-500 mt-1">Fahrzeugpflege einreichen</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-            <Link to={createPageUrl("InternalPhoneBook")} className="block">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                whileHover={{ y: -2 }}
-                transition={{ duration: 0.2, delay: 0.1 }}
-              >
-                <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-slate-100">
-                        <Phone className="w-6 h-6 text-slate-700" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-semibold text-gray-900">Telefonbuch</h3>
-                        <p className="text-sm text-gray-500 mt-1">Interne Kontakte</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            </Link>
-          </div>
+           <div className="w-full max-w-md space-y-3">
+             <Link to={createPageUrl("MyMontageAuftraege")} className="block">
+               <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 whileHover={{ y: -2 }}
+                 transition={{ duration: 0.2 }}
+               >
+                 <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
+                   <CardContent className="p-6">
+                     <div className="flex items-center gap-4">
+                       <div className="p-3 rounded-lg bg-slate-100">
+                         <Construction className="w-6 h-6 text-slate-700" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h3 className="text-lg font-semibold text-gray-900">Meine Montageaufträge</h3>
+                         <p className="text-sm text-gray-500 mt-1">Zeige alle Aufträge</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </motion.div>
+             </Link>
+             <Link to={createPageUrl("MyVehicleMaintenance")} className="block">
+               <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 whileHover={{ y: -2 }}
+                 transition={{ duration: 0.2, delay: 0.05 }}
+               >
+                 <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
+                   <CardContent className="p-6">
+                     <div className="flex items-center gap-4">
+                       <div className="p-3 rounded-lg bg-slate-100">
+                         <Droplets className="w-6 h-6 text-slate-700" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h3 className="text-lg font-semibold text-gray-900">Fahrzeugpflege</h3>
+                         <p className="text-sm text-gray-500 mt-1">Fahrzeugpflege einreichen</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </motion.div>
+             </Link>
+           </div>
           </div>
           </div>
           );
           }
 
-           // Oberfläche Dashboard
+          // Oberfläche Dashboard
   if (user && user.position === 'Oberfläche') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-3 md:p-6 lg:p-8">
