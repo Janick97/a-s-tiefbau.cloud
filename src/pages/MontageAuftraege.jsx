@@ -248,7 +248,8 @@ export default function MontageAuftraegePage() {
     try {
       await MontageAuftrag.update(auftrag.id, {
         tiefbau_offen: false,
-        tiefbau_offen_date: null
+        tiefbau_offen_date: null,
+        status: 'Tiefbau ausstehend'
       });
       loadData();
     } catch (error) {
