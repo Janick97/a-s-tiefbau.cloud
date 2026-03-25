@@ -87,31 +87,38 @@ export default function PullingWorkDetail({ pullingWork, isOpen, onClose, onEdit
         <div className="p-6 sm:p-8 space-y-6">
           {/* Route: Punkt A → Punkt B */}
           {(pullingWork.start_point || pullingWork.end_point) && (
-            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-100">
-              <p className="text-xs font-semibold text-gray-600 mb-4 uppercase tracking-wide">Strecke</p>
-              <div className="flex items-center justify-between gap-2 sm:gap-4">
-                <div className="text-center flex-1 bg-white rounded-lg p-3 border border-gray-200">
-                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Von</p>
-                  <p className="font-bold text-gray-900 text-lg sm:text-xl">{pullingWork.start_point || "–"}</p>
+            <div className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl p-4 sm:p-5 border border-blue-100">
+              <p className="text-xs font-semibold text-gray-600 mb-3 sm:mb-4 uppercase tracking-wide">Strecke</p>
+              
+              {/* Mobile: Stacked layout, Desktop: Row layout */}
+              <div className="space-y-3 sm:space-y-4">
+                {/* Main route line */}
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <div className="flex-1 bg-white rounded-lg p-3 border border-gray-200">
+                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Von</p>
+                    <p className="font-bold text-gray-900 text-base sm:text-lg">{pullingWork.start_point || "–"}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-blue-500 flex-shrink-0">
+                    <div className="h-0.5 w-4 sm:w-8 bg-blue-300" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <div className="h-0.5 w-4 sm:w-8 bg-blue-300" />
+                  </div>
+                  <div className="flex-1 bg-white rounded-lg p-3 border border-gray-200">
+                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Nach</p>
+                    <p className="font-bold text-gray-900 text-base sm:text-lg">{pullingWork.end_point || "–"}</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-blue-500 flex-shrink-0">
-                  <div className="h-0.5 w-6 sm:w-10 bg-blue-300" />
-                  <ArrowRight className="w-5 h-5" />
-                  <div className="h-0.5 w-6 sm:w-10 bg-blue-300" />
-                </div>
-                <div className="text-center flex-1 bg-white rounded-lg p-3 border border-gray-200">
-                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Nach</p>
-                  <p className="font-bold text-gray-900 text-lg sm:text-xl">{pullingWork.end_point || "–"}</p>
-                </div>
+                
+                {/* Length box */}
+                {pullingWork.cable_length && (
+                  <div className="bg-white rounded-lg p-3 sm:p-4 border-2 border-blue-300 text-center">
+                    <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Gesamtlänge</p>
+                    <p className="font-bold text-blue-700 text-xl sm:text-2xl flex items-center justify-center gap-2">
+                      <Ruler className="w-5 h-5" />{pullingWork.cable_length} m
+                    </p>
+                  </div>
+                )}
               </div>
-              {pullingWork.cable_length && (
-                <div className="mt-4 bg-white rounded-lg p-3 border-2 border-blue-300 text-center">
-                  <p className="text-xs text-gray-500 font-semibold mb-1 uppercase">Gesamtlänge</p>
-                  <p className="font-bold text-blue-700 text-xl flex items-center justify-center gap-2">
-                    <Ruler className="w-5 h-5" />{pullingWork.cable_length} m
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
