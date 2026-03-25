@@ -29,9 +29,7 @@ export default function MyVehicleMaintenancePage() {
   const [uploadingReportId, setUploadingReportId] = useState(null);
 
   // Wizard state
-  const [step, setStep] = useState(1); // 1 = Kennzeichen, 2 = Fotos, 3 = Bestätigung
-  const [busKennzeichen, setBusKennzeichen] = useState(PREFIX);
-  const [lkwKennzeichen, setLkwKennzeichen] = useState(PREFIX);
+  const [step, setStep] = useState(1); // 1 = Fotos, 2 = Bestätigung
   const [photos, setPhotos] = useState([]);
 
   const currentWeek = getWeekNumber(new Date());
@@ -58,19 +56,9 @@ export default function MyVehicleMaintenancePage() {
     r => r.week === currentWeek && r.year === currentYear
   );
 
-  const busValid = busKennzeichen.trim().length > PREFIX.trim().length;
-  const lkwValid = lkwKennzeichen.trim().length > PREFIX.trim().length;
-  const kennzeichenValid = busValid || lkwValid;
 
-  const handleKennzeichenChange = (setter) => (e) => {
-    const val = e.target.value;
-    // Ensure the prefix is always present
-    if (!val.startsWith(PREFIX)) {
-      setter(PREFIX);
-    } else {
-      setter(val.toUpperCase());
-    }
-  };
+
+
 
   const handlePhotoUpload = async (e) => {
     const files = Array.from(e.target.files);
@@ -106,10 +94,6 @@ export default function MyVehicleMaintenancePage() {
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    const parts = [];
-    if (busValid) parts.push(`Bus: ${busKennzeichen.trim()}`);
-    if (lkwValid) parts.push(`LKW: ${lkwKennzeichen.trim()}`);
-    const vehicleInfo = parts.join(" | ");
 
     try {
       await VehicleMaintenance.create({
@@ -120,12 +104,9 @@ export default function MyVehicleMaintenancePage() {
         year: currentYear,
         submission_date: new Date().toISOString(),
         photos,
-        vehicle_info: vehicleInfo,
         status: "pending"
       });
       setStep(1);
-      setBusKennzeichen(PREFIX);
-      setLkwKennzeichen(PREFIX);
       setPhotos([]);
       await loadData();
     } catch {
@@ -190,7 +171,7 @@ export default function MyVehicleMaintenancePage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             {/* Step indicators */}
             <div className="flex items-center justify-center gap-2 mb-6">
-              {[1, 2, 3].map(s => (
+              {[1, 2].map(s => (
                 <React.Fragment key={s}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                     step === s ? 'bg-blue-600 text-white shadow-md' :
@@ -198,7 +179,7 @@ export default function MyVehicleMaintenancePage() {
                   }`}>
                     {step > s ? <Check className="w-4 h-4" /> : s}
                   </div>
-                  {s < 3 && <div className={`h-1 w-10 rounded transition-all ${step > s ? 'bg-green-400' : 'bg-gray-200'}`} />}
+                  {s < 2 && <div className={`h-1 w-10 rounded transition-all ${step > s ? 'bg-green-400' : 'bg-gray-200'}`} />}
                 </React.Fragment>
               ))}
             </div>
@@ -207,83 +188,29 @@ export default function MyVehicleMaintenancePage() {
               <CardContent className="p-6">
                 <AnimatePresence mode="wait">
 
-                  {/* STEP 1: Kennzeichen */}
+                  {/* STEP 1: Fotos */}
                   {step === 1 && (
-                    <motion.div key="step1" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Car className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <h2 className="font-bold text-lg text-gray-900">Kennzeichen eingeben</h2>
-                          <p className="text-sm text-gray-500">Mindestens ein Kennzeichen muss vollständig eingetragen sein</p>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="font-semibold text-gray-700">🚌 Bus Kennzeichen</Label>
-                        <Input
-                          value={busKennzeichen}
-                          onChange={handleKennzeichenChange(setBusKennzeichen)}
-                          className={`text-lg font-mono tracking-wider ${busValid ? 'border-green-400 focus-visible:ring-green-400' : ''}`}
-                          placeholder={PREFIX + "1234"}
-                        />
-                        {busValid && <p className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Eingetragen</p>}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label className="font-semibold text-gray-700">🚛 LKW Kennzeichen</Label>
-                        <Input
-                          value={lkwKennzeichen}
-                          onChange={handleKennzeichenChange(setLkwKennzeichen)}
-                          className={`text-lg font-mono tracking-wider ${lkwValid ? 'border-green-400 focus-visible:ring-green-400' : ''}`}
-                          placeholder={PREFIX + "5678"}
-                        />
-                        {lkwValid && <p className="text-xs text-green-600 flex items-center gap-1"><Check className="w-3 h-3" /> Eingetragen</p>}
-                      </div>
-
-                      {!kennzeichenValid && (
-                        <p className="text-sm text-orange-600 flex items-center gap-2 bg-orange-50 p-3 rounded-lg">
-                          <AlertCircle className="w-4 h-4 shrink-0" />
-                          Bitte mindestens ein Kennzeichen vollständig eintragen
-                        </p>
-                      )}
-
-                      <Button
-                        className="w-full"
-                        size="lg"
-                        disabled={!kennzeichenValid}
-                        onClick={() => setStep(2)}
-                      >
-                        Weiter
-                        <ChevronRight className="w-4 h-4 ml-1" />
-                      </Button>
-                    </motion.div>
-                  )}
-
-                  {/* STEP 2: Fotos */}
-                  {step === 2 && (
                     <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
                       <div className="flex items-center gap-3 mb-4">
-                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                          <Camera className="w-5 h-5 text-purple-600" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Camera className="w-5 h-5 text-blue-600" />
                         </div>
                         <div>
-                          <h2 className="font-bold text-lg text-gray-900">Fotos hochladen</h2>
-                          <p className="text-sm text-gray-500">Außen, Cockpit, Fußraum, Armaturenbrett</p>
+                          <h2 className="font-bold text-lg text-gray-900">Fahrzeugzustand dokumentieren</h2>
+                          <p className="text-sm text-gray-500">Fotos der Fahrzeugpflege hochladen</p>
                         </div>
                       </div>
 
                       <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-blue-300 rounded-xl bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors">
                         {isUploading ? (
                           <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                        ) : (
-                          <>
+                          ) : (
+                          <div className="flex flex-col items-center">
                             <Upload className="w-8 h-8 text-blue-500 mb-2" />
                             <span className="text-sm font-medium text-blue-700">Fotos auswählen</span>
                             <span className="text-xs text-blue-500 mt-1">Mehrere Fotos möglich</span>
-                          </>
-                        )}
+                          </div>
+                          )}
                         <input type="file" multiple accept="image/*" className="hidden" onChange={handlePhotoUpload} disabled={isUploading} />
                       </label>
 
@@ -303,19 +230,14 @@ export default function MyVehicleMaintenancePage() {
                         </div>
                       )}
 
-                      {photos.length > 0 && (
-                        <p className="text-sm text-green-600 font-medium text-center">{photos.length} Foto{photos.length !== 1 ? 's' : ''} hochgeladen</p>
-                      )}
 
-                      <div className="flex gap-3">
-                        <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
-                          <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
-                        </Button>
+
+                      <div className="flex gap-2">
                         <Button
-                          className="flex-1"
+                          className="w-full"
                           size="lg"
                           disabled={photos.length === 0}
-                          onClick={() => setStep(3)}
+                          onClick={() => setStep(2)}
                         >
                           Weiter <ChevronRight className="w-4 h-4 ml-1" />
                         </Button>
@@ -323,8 +245,8 @@ export default function MyVehicleMaintenancePage() {
                     </motion.div>
                   )}
 
-                  {/* STEP 3: Bestätigung */}
-                  {step === 3 && (
+                  {/* STEP 2: Bestätigung */}
+                  {step === 2 && (
                     <motion.div key="step3" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -334,12 +256,6 @@ export default function MyVehicleMaintenancePage() {
                           <h2 className="font-bold text-lg text-gray-900">Zusammenfassung</h2>
                           <p className="text-sm text-gray-500">Bitte prüfen und abschicken</p>
                         </div>
-                      </div>
-
-                      <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                        <p className="text-sm text-gray-500 font-medium uppercase tracking-wide text-xs">Kennzeichen</p>
-                        {busValid && <p className="font-mono font-semibold text-gray-900">🚌 Bus: {busKennzeichen.trim()}</p>}
-                        {lkwValid && <p className="font-mono font-semibold text-gray-900">🚛 LKW: {lkwKennzeichen.trim()}</p>}
                       </div>
 
                       <div className="bg-gray-50 rounded-xl p-4">
@@ -352,7 +268,7 @@ export default function MyVehicleMaintenancePage() {
                       </div>
 
                       <div className="flex gap-3">
-                        <Button variant="outline" className="flex-1" onClick={() => setStep(2)} disabled={isSubmitting}>
+                        <Button variant="outline" className="flex-1" onClick={() => setStep(1)} disabled={isSubmitting}>
                           <ChevronLeft className="w-4 h-4 mr-1" /> Zurück
                         </Button>
                         <Button className="flex-1 bg-green-600 hover:bg-green-700" size="lg" onClick={handleSubmit} disabled={isSubmitting}>
