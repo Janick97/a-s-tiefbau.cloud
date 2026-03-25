@@ -27,29 +27,21 @@ const statusLabels = {
   completed: "Abgeschlossen"
 };
 
-// Farbpalette für die Darstellung
-const COLOR_PALETTE = [
-{ hex: '#FF0000', name: 'Rot' },
-{ hex: '#90EE90', name: 'Hellgrün' },
-{ hex: '#0000FF', name: 'Blau' },
-{ hex: '#FFFF00', name: 'Gelb' },
-{ hex: '#FFFFFF', name: 'Weiß' },
-{ hex: '#808080', name: 'Grau' },
-{ hex: '#8B4513', name: 'Braun' },
-{ hex: '#800080', name: 'Lila' },
-{ hex: '#00FFFF', name: 'Cyan' },
-{ hex: '#000000', name: 'Schwarz' },
-{ hex: '#FFA500', name: 'Orange' },
-{ hex: '#FF8080', name: 'Hellrot' },
-{ hex: '#C8F7C5', name: 'Sehr Hellgrün' },
-{ hex: '#ADD8E6', name: 'Hellblau' },
-{ hex: '#FFFF99', name: 'Hellgelb' },
-{ hex: '#F5F5F5', name: 'Sehr Hellgrau' },
-{ hex: '#D3D3D3', name: 'Hellgrau' },
-{ hex: '#DEB887', name: 'Hellbraun' },
-{ hex: '#DA70D6', name: 'Helllila' },
-{ hex: '#E0FFFF', name: 'Hellcyan' },
-{ hex: '#696969', name: 'Dunkelgrau' }];
+// Farbpalette – Name → Hex (gleiche Werte wie im Wizard)
+const SNR_COLOR_MAP = {
+  "Rot":     "#ff0000",
+  "Grün":    "#00cc00",
+  "Blau":    "#0000ff",
+  "Gelb":    "#ffff00",
+  "Weiß":    "#ffffff",
+  "Grau":    "#b0b0b0",
+  "Braun":   "#7b3f00",
+  "Violett": "#8080c0",
+  "Türkis":  "#00ffff",
+  "Schwarz": "#000000",
+  "Orange":  "#ff9900",
+  "Rosa":    "#ffb6c1",
+};
 
 
 export default function PullingWorkDetail({
@@ -64,10 +56,9 @@ export default function PullingWorkDetail({
   const selectedMaterial = materials.find((m) => m.id === pullingWork.material_id);
   const connectedColors = pullingWork.connected_colors || [];
 
-  const getColorName = (hex) => {
-    const color = COLOR_PALETTE.find((c) => c.hex === hex);
-    return color ? color.name : hex;
-  };
+  // nameOrHex kann ein Farbname ("Rot") oder ein Hex-Code sein
+  const resolveHex = (nameOrHex) => SNR_COLOR_MAP[nameOrHex] || nameOrHex;
+  const resolveName = (nameOrHex) => SNR_COLOR_MAP[nameOrHex] ? nameOrHex : nameOrHex;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -202,20 +193,18 @@ export default function PullingWorkDetail({
                       Konnektierte Farben ({connectedColors.length})
                     </label>
                     <div className="flex flex-wrap gap-3">
-                      {connectedColors.map((colorHex, index) =>
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border shadow-sm">
-                    
+                      {connectedColors.map((colorNameOrHex, index) =>
+                      <div
+                      key={index}
+                      className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border shadow-sm">
                           <div
-                      className="w-6 h-6 rounded border-2 border-gray-300"
-                      style={{ backgroundColor: colorHex }} />
-                    
+                      className="w-6 h-6 rounded-full border-2 border-gray-300 shadow-sm"
+                      style={{ backgroundColor: resolveHex(colorNameOrHex) }} />
                           <span className="text-sm font-medium text-gray-900">
-                            {getColorName(colorHex)}
+                            {resolveName(colorNameOrHex)}
                           </span>
                         </div>
-                  )}
+                      )}
                     </div>
                   </div>
               }
