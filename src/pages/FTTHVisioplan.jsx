@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -31,6 +31,7 @@ export default function FTTHVisioplanPage() {
   const [showAddConnectionDialog, setShowAddConnectionDialog] = useState(false);
   const [highlightedElements, setHighlightedElements] = useState({ nodeIds: [], connectionIds: [] });
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const canvasRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -128,7 +129,7 @@ export default function FTTHVisioplanPage() {
   const handleStatusChange = (nodeId, newStatus) => updateNodeMutation.mutate({ nodeId, status: newStatus });
 
   const handleDownloadVisioplan = async () => {
-    const canvasElement = document.querySelector('.relative.w-full.h-\[650px\]');
+    const canvasElement = canvasRef.current;
     if (!canvasElement) return;
     try {
       const canvas = await html2canvas(canvasElement, { backgroundColor: '#ffffff', scale: 2, logging: false });
@@ -278,7 +279,7 @@ export default function FTTHVisioplanPage() {
             </div>
           </div>
         ) : (
-          <div className="relative">
+          <div className="relative" ref={canvasRef}>
             <VisioCanvas
               nodes={nodes}
               connections={connections}
