@@ -51,17 +51,17 @@ export default function ExcavationsManagement({
   useEffect(() => {
     const loadUserData = async () => {
       try {
-        const userData = currentUser || await User.me();
+        const userData = currentUser || (await User.me());
         setInternalUser(userData);
-        
+
         // Lade alle Bauleiter und Oberfläche-User für die Auswahl
         if (userData?.role === 'admin') {
           const allUsers = await User.list();
-          const bauleiterUsers = allUsers.filter(u => 
-            u.position === 'Bauleiter' || u.position === 'Oberfläche'
+          const bauleiterUsers = allUsers.filter((u) =>
+          u.position === 'Bauleiter' || u.position === 'Oberfläche'
           );
           setBauleiterList(bauleiterUsers);
-          
+
           // Lade alle Projekte für den Move-Dialog
           const projectsData = await Project.list("-created_date");
           setAllProjects(Array.isArray(projectsData) ? projectsData : []);
@@ -94,7 +94,7 @@ export default function ExcavationsManagement({
   const [removeConfirmData, setRemoveConfirmData] = useState(null); // { excavation, statusLabel, color, onConfirm }
 
   const priceItemsMap = useMemo(() => {
-    return new Map(priceItems.map(item => [item.id, item]));
+    return new Map(priceItems.map((item) => [item.id, item]));
   }, [priceItems]);
 
   const handleAdd = () => {
@@ -103,18 +103,18 @@ export default function ExcavationsManagement({
   };
 
   const toggleSelectionMode = () => {
-    setSelectionMode(prev => !prev);
+    setSelectionMode((prev) => !prev);
     setSelectedIds([]);
   };
 
   const handleSelectExcavation = (id) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedIds((prev) =>
+    prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
   const handleMoveExcavations = async (targetProjectId) => {
-    await Promise.all(selectedIds.map(id => Excavation.update(id, { project_id: targetProjectId })));
+    await Promise.all(selectedIds.map((id) => Excavation.update(id, { project_id: targetProjectId })));
     setShowMoveDialog(false);
     setSelectionMode(false);
     setSelectedIds([]);
@@ -132,7 +132,7 @@ export default function ExcavationsManagement({
   };
 
   const getExcavationIndex = (excavation) => {
-    return excavations.findIndex(e => e.id === excavation.id);
+    return excavations.findIndex((e) => e.id === excavation.id);
   };
 
   const handleEditFromDetail = (excavation) => {
@@ -176,7 +176,7 @@ export default function ExcavationsManagement({
   };
 
   const handleClosureSubmit = async () => {
-    const selectedUser = bauleiterList.find(u => u.id === closureDialogData.selectedUserId);
+    const selectedUser = bauleiterList.find((u) => u.id === closureDialogData.selectedUserId);
     if (!selectedUser) {
       alert("Bitte wählen Sie einen Bauleiter aus.");
       return;
@@ -225,7 +225,7 @@ export default function ExcavationsManagement({
   };
 
   const handleBackfillSubmit = async () => {
-    const selectedUser = bauleiterList.find(u => u.id === backfillDialogData.selectedUserId);
+    const selectedUser = bauleiterList.find((u) => u.id === backfillDialogData.selectedUserId);
     if (!selectedUser) {
       alert("Bitte wählen Sie einen Bauleiter aus.");
       return;
@@ -282,7 +282,7 @@ export default function ExcavationsManagement({
   };
 
   const handleAsphaltTragSubmit = async () => {
-    const selectedUser = bauleiterList.find(u => u.id === asphaltTragDialogData.selectedUserId);
+    const selectedUser = bauleiterList.find((u) => u.id === asphaltTragDialogData.selectedUserId);
     if (!selectedUser) {
       alert("Bitte wählen Sie einen Bauleiter aus.");
       return;
@@ -331,7 +331,7 @@ export default function ExcavationsManagement({
   };
 
   const handleAsphaltFeinSubmit = async () => {
-    const selectedUser = bauleiterList.find(u => u.id === asphaltFeinDialogData.selectedUserId);
+    const selectedUser = bauleiterList.find((u) => u.id === asphaltFeinDialogData.selectedUserId);
     if (!selectedUser) {
       alert("Bitte wählen Sie einen Bauleiter aus.");
       return;
@@ -367,7 +367,7 @@ export default function ExcavationsManagement({
   // Einzigartige Werte für Filter-Dropdowns
   const uniqueLocations = useMemo(() => {
     const locations = new Set();
-    excavations.forEach(exc => {
+    excavations.forEach((exc) => {
       if (exc.street && exc.city) {
         locations.add(`${exc.street}, ${exc.city}`);
       }
@@ -377,7 +377,7 @@ export default function ExcavationsManagement({
 
   const uniquePositions = useMemo(() => {
     const positions = new Set();
-    excavations.forEach(exc => {
+    excavations.forEach((exc) => {
       const priceItem = priceItemsMap.get(exc.price_item_id);
       if (priceItem) {
         positions.add(`${priceItem.item_number} - ${priceItem.description}`);
@@ -387,16 +387,16 @@ export default function ExcavationsManagement({
   }, [excavations, priceItemsMap]);
 
   const filteredExcavations = useMemo(() => {
-    return excavations.filter(exc => {
+    return excavations.filter((exc) => {
       // Location Filter
       const excLocation = `${exc.street}, ${exc.city}`;
       const matchesLocation = !filterLocation || excLocation === filterLocation;
-      
+
       // Position Filter
       const priceItem = priceItemsMap.get(exc.price_item_id);
       const excPosition = priceItem ? `${priceItem.item_number} - ${priceItem.description}` : '';
       const matchesPosition = !filterPosition || excPosition === filterPosition;
-      
+
       // Date Range Filter
       let matchesDate = true;
       if (filterDateFrom || filterDateTo) {
@@ -414,7 +414,7 @@ export default function ExcavationsManagement({
           matchesDate = false;
         }
       }
-      
+
       return matchesLocation && matchesPosition && matchesDate;
     });
   }, [excavations, filterLocation, filterPosition, filterDateFrom, filterDateTo, priceItemsMap]);
@@ -425,13 +425,13 @@ export default function ExcavationsManagement({
         <div className="text-center py-8 text-gray-500">
           <Shovel className="w-12 h-12 mx-auto mb-3 text-gray-300" />
           <p>Noch keine Ausgrabungen angelegt</p>
-          {showAddButton && (
-            <Button onClick={() => setShowForm(true)} className="mt-3">
+          {showAddButton &&
+          <Button onClick={() => setShowForm(true)} className="mt-3">
               Erste Ausgrabung hinzufügen
             </Button>
-          )}
-        </div>
-      );
+          }
+        </div>);
+
     }
 
     return (
@@ -467,9 +467,9 @@ export default function ExcavationsManagement({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={null}>Alle Positionen</SelectItem>
-                      {uniquePositions.map((pos) => (
-                        <SelectItem key={pos} value={pos}>{pos}</SelectItem>
-                      ))}
+                      {uniquePositions.map((pos) =>
+                      <SelectItem key={pos} value={pos}>{pos}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </TableHead>
@@ -480,9 +480,9 @@ export default function ExcavationsManagement({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={null}>Alle Adressen</SelectItem>
-                      {uniqueLocations.map((loc) => (
-                        <SelectItem key={loc} value={loc}>{loc}</SelectItem>
-                      ))}
+                      {uniqueLocations.map((loc) =>
+                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </TableHead>
@@ -493,15 +493,15 @@ export default function ExcavationsManagement({
                       placeholder="Von"
                       value={filterDateFrom}
                       onChange={(e) => setFilterDateFrom(e.target.value)}
-                      className="h-8 text-xs"
-                    />
+                      className="h-8 text-xs" />
+                    
                     <Input
                       type="date"
                       placeholder="Bis"
                       value={filterDateTo}
                       onChange={(e) => setFilterDateTo(e.target.value)}
-                      className="h-8 text-xs"
-                    />
+                      className="h-8 text-xs" />
+                    
                   </div>
                 </TableHead>
                 <TableHead className="py-2"></TableHead>
@@ -510,111 +510,111 @@ export default function ExcavationsManagement({
             </TableHeader>
             <TableBody>
               <AnimatePresence>
-                {filteredExcavations.map((excavation, index) => (
-                  <motion.tr
-                    key={excavation.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ delay: index * 0.05 }}
-                    className={`hover:bg-gray-50 cursor-pointer transition-colors ${
-                      excavation.is_closed && excavation.is_backfilled ? 'bg-green-50 hover:bg-green-100' : ''
-                    } ${selectionMode && selectedIds.includes(excavation.id) ? 'bg-blue-50 hover:bg-blue-100' : ''}`}
-                    onClick={() => selectionMode ? handleSelectExcavation(excavation.id) : handleViewDetail(excavation)}
-                  >
-                    {selectionMode && (
-                      <TableCell onClick={(e) => e.stopPropagation()}>
+                {filteredExcavations.map((excavation, index) =>
+                <motion.tr
+                  key={excavation.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={`hover:bg-gray-50 cursor-pointer transition-colors ${
+                  excavation.is_closed && excavation.is_backfilled ? 'bg-green-50 hover:bg-green-100' : ''} ${
+                  selectionMode && selectedIds.includes(excavation.id) ? 'bg-blue-50 hover:bg-blue-100' : ''}`}
+                  onClick={() => selectionMode ? handleSelectExcavation(excavation.id) : handleViewDetail(excavation)}>
+                  
+                    {selectionMode &&
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                         <Checkbox
-                          checked={selectedIds.includes(excavation.id)}
-                          onCheckedChange={() => handleSelectExcavation(excavation.id)}
-                          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                        />
+                      checked={selectedIds.includes(excavation.id)}
+                      onCheckedChange={() => handleSelectExcavation(excavation.id)}
+                      className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600" />
+                    
                       </TableCell>
-                    )}
+                  }
                     <TableCell>
                       <Badge variant="outline" className="font-mono text-xs">
                         #{index + 1}
                       </Badge>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      {(excavation.surface_type === 'Platten' || excavation.surface_type === 'Pflaster' || 
-                        excavation.surface_type_2 === 'Platten' || excavation.surface_type_2 === 'Pflaster') ? (
-                        <div className="flex flex-col items-center gap-1">
+                      {excavation.surface_type === 'Platten' || excavation.surface_type === 'Pflaster' ||
+                    excavation.surface_type_2 === 'Platten' || excavation.surface_type_2 === 'Pflaster' ?
+                    <div className="flex flex-col items-center gap-1">
                           <Checkbox
-                            checked={excavation.is_closed || false}
-                            onCheckedChange={(checked) => handleClosureToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
-                          />
-                          {excavation.is_closed && excavation.closed_date && (
-                            <div className="text-xs text-green-600 text-center">
+                        checked={excavation.is_closed || false}
+                        onCheckedChange={(checked) => handleClosureToggle(excavation, checked)}
+                        className="data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600" />
+                      
+                          {excavation.is_closed && excavation.closed_date &&
+                      <div className="text-xs text-green-600 text-center">
                               <div>{new Date(excavation.closed_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.closed_by && (
-                                <div className="text-green-700 font-medium">{excavation.closed_by}</div>
-                              )}
+                              {excavation.closed_by &&
+                        <div className="text-green-700 font-medium">{excavation.closed_by}</div>
+                        }
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
-                      )}
+                      }
+                        </div> :
+
+                    <div className="text-center text-xs text-gray-400">-</div>
+                    }
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
-                        <div className="flex flex-col items-center gap-1">
+                      {excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt' ?
+                    <div className="flex flex-col items-center gap-1">
                           <Checkbox
-                            checked={excavation.asphalt_fein_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900"
-                          />
-                          {excavation.asphalt_fein_completed && excavation.asphalt_fein_date && (
-                            <div className="text-xs text-gray-900 text-center">
+                        checked={excavation.asphalt_fein_completed || false}
+                        onCheckedChange={(checked) => handleAsphaltFeinToggle(excavation, checked)}
+                        className="data-[state=checked]:bg-gray-900 data-[state=checked]:border-gray-900" />
+                      
+                          {excavation.asphalt_fein_completed && excavation.asphalt_fein_date &&
+                      <div className="text-xs text-gray-900 text-center">
                               <div>{new Date(excavation.asphalt_fein_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_fein_by && (
-                                <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
-                              )}
+                              {excavation.asphalt_fein_by &&
+                        <div className="text-gray-900 font-medium">{excavation.asphalt_fein_by}</div>
+                        }
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
-                      )}
+                      }
+                        </div> :
+
+                    <div className="text-center text-xs text-gray-400">-</div>
+                    }
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
-                      {(excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt') ? (
-                        <div className="flex flex-col items-center gap-1">
+                      {excavation.surface_type === 'Asphalt' || excavation.surface_type_2 === 'Asphalt' ?
+                    <div className="flex flex-col items-center gap-1">
                           <Checkbox
-                            checked={excavation.asphalt_trag_completed || false}
-                            onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
-                            className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700"
-                          />
-                          {excavation.asphalt_trag_completed && excavation.asphalt_trag_date && (
-                            <div className="text-xs text-gray-700 text-center">
+                        checked={excavation.asphalt_trag_completed || false}
+                        onCheckedChange={(checked) => handleAsphaltTragToggle(excavation, checked)}
+                        className="data-[state=checked]:bg-gray-700 data-[state=checked]:border-gray-700" />
+                      
+                          {excavation.asphalt_trag_completed && excavation.asphalt_trag_date &&
+                      <div className="text-xs text-gray-700 text-center">
                               <div>{new Date(excavation.asphalt_trag_date).toLocaleDateString('de-DE')}</div>
-                              {excavation.asphalt_trag_by && (
-                                <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
-                              )}
+                              {excavation.asphalt_trag_by &&
+                        <div className="text-gray-800 font-medium">{excavation.asphalt_trag_by}</div>
+                        }
                             </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center text-xs text-gray-400">-</div>
-                      )}
+                      }
+                        </div> :
+
+                    <div className="text-center text-xs text-gray-400">-</div>
+                    }
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <div className="flex flex-col items-center gap-1">
                         <Checkbox
-                          checked={excavation.is_backfilled || false}
-                          onCheckedChange={(checked) => handleBackfillToggle(excavation, checked)}
-                          className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600"
-                        />
-                        {excavation.is_backfilled && excavation.backfilled_date && (
-                          <div className="text-xs text-orange-600 text-center">
+                        checked={excavation.is_backfilled || false}
+                        onCheckedChange={(checked) => handleBackfillToggle(excavation, checked)}
+                        className="data-[state=checked]:bg-orange-600 data-[state=checked]:border-orange-600" />
+                      
+                        {excavation.is_backfilled && excavation.backfilled_date &&
+                      <div className="text-xs text-orange-600 text-center">
                             <div>{new Date(excavation.backfilled_date).toLocaleDateString('de-DE')}</div>
-                            {excavation.backfilled_by && (
-                              <div className="text-orange-700 font-medium">{excavation.backfilled_by}</div>
-                            )}
+                            {excavation.backfilled_by &&
+                        <div className="text-orange-700 font-medium">{excavation.backfilled_by}</div>
+                        }
                           </div>
-                        )}
+                      }
                       </div>
                     </TableCell>
                     <TableCell>
@@ -643,30 +643,30 @@ export default function ExcavationsManagement({
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEdit(excavation);
-                          }}
-                        >
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(excavation);
+                        }}>
+                        
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onExcavationDelete(excavation.id);
-                          }}
-                          className="text-red-500 hover:text-red-700"
-                        >
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onExcavationDelete(excavation.id);
+                        }}
+                        className="text-red-500 hover:text-red-700">
+                        
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>
                   </motion.tr>
-                ))}
+                )}
               </AnimatePresence>
             </TableBody>
           </Table>
@@ -681,14 +681,14 @@ export default function ExcavationsManagement({
                 key={excavation.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
+                transition={{ delay: index * 0.05 }}>
+                
                 <Card
                   className={`card-elevation border-l-4 ${
-                    excavation.is_closed && excavation.is_backfilled ? 'border-green-500' : 'border-orange-400'
-                  }`}
-                  onClick={() => handleViewDetail(excavation)}
-                >
+                  excavation.is_closed && excavation.is_backfilled ? 'border-green-500' : 'border-orange-400'}`
+                  }
+                  onClick={() => handleViewDetail(excavation)}>
+                  
                   <CardContent className="p-3">
                     <div className="space-y-3">
                       {/* Header */}
@@ -710,17 +710,17 @@ export default function ExcavationsManagement({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => { e.stopPropagation(); handleEdit(excavation); }}
-                            className="p-1"
-                          >
+                            onClick={(e) => {e.stopPropagation();handleEdit(excavation);}}
+                            className="p-1">
+                            
                             <Edit className="w-3 h-3" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => { e.stopPropagation(); onExcavationDelete(excavation.id); }}
-                            className="p-1"
-                          >
+                            onClick={(e) => {e.stopPropagation();onExcavationDelete(excavation.id);}}
+                            className="p-1">
+                            
                             <Trash2 className="w-3 h-3 text-red-500" />
                           </Button>
                         </div>
@@ -728,24 +728,24 @@ export default function ExcavationsManagement({
 
                       {/* Status badges */}
                       <div className="flex flex-wrap gap-1">
-                        <Badge className={`${statusColors[excavation.status]} text-xs px-2 py-0.5`}>
-                          {statusLabels[excavation.status]}
-                        </Badge>
-                        {excavation.foreman && (
-                          <Badge variant="outline" className="text-xs px-2 py-0.5">
+                        
+
+                        
+                        {excavation.foreman &&
+                        <Badge variant="outline" className="text-xs px-2 py-0.5">
                             {excavation.foreman}
                           </Badge>
-                        )}
-                        {excavation.is_closed && (
-                          <Badge className="bg-green-100 text-green-800 text-xs px-2 py-0.5">
+                        }
+                        {excavation.is_closed &&
+                        <Badge className="bg-green-100 text-green-800 text-xs px-2 py-0.5">
                             Geschlossen
                           </Badge>
-                        )}
-                        {excavation.is_backfilled && (
-                          <Badge className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5">
+                        }
+                        {excavation.is_backfilled &&
+                        <Badge className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5">
                             Verfüllt
                           </Badge>
-                        )}
+                        }
                       </div>
 
                       {/* Details */}
@@ -776,28 +776,28 @@ export default function ExcavationsManagement({
                           variant="outline"
                           size="sm"
                           className="flex-1 text-xs py-1"
-                          onClick={(e) => { e.stopPropagation(); toggleClosed(excavation); }}
-                        >
+                          onClick={(e) => {e.stopPropagation();toggleClosed(excavation);}}>
+                          
                           {excavation.is_closed ? 'Öffnen' : 'Schließen'}
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
                           className="flex-1 text-xs py-1"
-                          onClick={(e) => { e.stopPropagation(); toggleBackfilled(excavation); }}
-                        >
+                          onClick={(e) => {e.stopPropagation();toggleBackfilled(excavation);}}>
+                          
                           {excavation.is_backfilled ? 'Nicht verfüllt' : 'Verfüllen'}
                         </Button>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
-            );
+              </motion.div>);
+
           })}
         </div>
-      </div>
-    );
+      </div>);
+
   };
 
   return (
@@ -805,102 +805,102 @@ export default function ExcavationsManagement({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div className="flex items-center gap-4">
           <h3 className="text-xl font-bold">Ausgrabungen ({filteredExcavations.length} von {excavations.length})</h3>
-          {(filterLocation || filterPosition || filterDateFrom || filterDateTo) && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => {
-                setFilterLocation('');
-                setFilterPosition('');
-                setFilterDateFrom('');
-                setFilterDateTo('');
-              }}
-            >
+          {(filterLocation || filterPosition || filterDateFrom || filterDateTo) &&
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setFilterLocation('');
+              setFilterPosition('');
+              setFilterDateFrom('');
+              setFilterDateTo('');
+            }}>
+            
               Filter löschen
             </Button>
-          )}
+          }
         </div>
         <div className="flex gap-2 w-full md:w-auto">
-          {selectionMode && selectedIds.length > 0 && (
-            <Button
-              size="sm"
-              onClick={() => setShowMoveDialog(true)}
-              className="hidden md:inline-flex bg-blue-600 hover:bg-blue-700"
-            >
+          {selectionMode && selectedIds.length > 0 &&
+          <Button
+            size="sm"
+            onClick={() => setShowMoveDialog(true)}
+            className="hidden md:inline-flex bg-blue-600 hover:bg-blue-700">
+            
               <ArrowRight className="w-4 h-4 mr-2" />
               {selectedIds.length} verschieben
             </Button>
-          )}
+          }
           <Button
             size="sm"
             variant={selectionMode ? "outline" : "secondary"}
             onClick={toggleSelectionMode}
-            className={`hidden md:inline-flex ${selectionMode ? "border-orange-400 text-orange-600" : ""}`}
-          >
+            className={`hidden md:inline-flex ${selectionMode ? "border-orange-400 text-orange-600" : ""}`}>
+            
             {selectionMode ? <Square className="w-4 h-4 mr-2" /> : <CheckSquare className="w-4 h-4 mr-2" />}
             {selectionMode ? "Abbrechen" : "Auswählen"}
           </Button>
-          {showAddButton && (
-            <Button onClick={() => setShowForm(true)} className="w-full md:w-auto">
+          {showAddButton &&
+          <Button onClick={() => setShowForm(true)} className="w-full md:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Neue Ausgrabung
             </Button>
-          )}
+          }
         </div>
       </div>
 
       <AnimatePresence>
-        {showForm && (
-          <ExcavationWizard
-            excavation={editingExcavation}
-            projects={[project]}
-            defaultProjectId={projectId}
-            onSubmit={handleSubmit}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingExcavation(null);
-            }}
-          />
-        )}
+        {showForm &&
+        <ExcavationWizard
+          excavation={editingExcavation}
+          projects={[project]}
+          defaultProjectId={projectId}
+          onSubmit={handleSubmit}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingExcavation(null);
+          }} />
+
+        }
       </AnimatePresence>
 
       <AnimatePresence>
-        {showEditForm && editingExcavation && (
-          <ExcavationForm
-            excavation={editingExcavation}
-            projects={[project]}
-            defaultProjectId={projectId}
-            excavationIndex={getExcavationIndex(editingExcavation)}
-            onSubmit={async (data) => {
-              await onExcavationSubmit(data, editingExcavation.id);
-              setShowEditForm(false);
-              setEditingExcavation(null);
-            }}
-            onCancel={() => {
-              setShowEditForm(false);
-              setEditingExcavation(null);
-            }}
-          />
-        )}
+        {showEditForm && editingExcavation &&
+        <ExcavationForm
+          excavation={editingExcavation}
+          projects={[project]}
+          defaultProjectId={projectId}
+          excavationIndex={getExcavationIndex(editingExcavation)}
+          onSubmit={async (data) => {
+            await onExcavationSubmit(data, editingExcavation.id);
+            setShowEditForm(false);
+            setEditingExcavation(null);
+          }}
+          onCancel={() => {
+            setShowEditForm(false);
+            setEditingExcavation(null);
+          }} />
+
+        }
       </AnimatePresence>
 
       {renderContent()}
 
       {/* Closure Dialog */}
-      {showClosureDialog && closureDialogData && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowClosureDialog(false); }}
-        >
+      {showClosureDialog && closureDialogData &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        onClick={(e) => {if (e.target === e.currentTarget) setShowClosureDialog(false);}}>
+        
           <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            className="w-full max-w-md"
-          >
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-md">
+          
             <Card className="card-elevation border-none">
               <CardHeader className="bg-green-500 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
@@ -921,48 +921,48 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="closed_date">Datum der Schließung</Label>
                   <Input
-                    id="closed_date"
-                    type="date"
-                    value={closureDialogData.closedDate}
-                    onChange={(e) => setClosureDialogData(prev => ({
-                      ...prev,
-                      closedDate: e.target.value
-                    }))}
-                  />
+                  id="closed_date"
+                  type="date"
+                  value={closureDialogData.closedDate}
+                  onChange={(e) => setClosureDialogData((prev) => ({
+                    ...prev,
+                    closedDate: e.target.value
+                  }))} />
+                
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="closed_by">Geschlossen durch</Label>
                   <Select
-                    value={closureDialogData.selectedUserId || ''}
-                    onValueChange={(value) => setClosureDialogData(prev => ({
-                      ...prev,
-                      selectedUserId: value
-                    }))}
-                  >
+                  value={closureDialogData.selectedUserId || ''}
+                  onValueChange={(value) => setClosureDialogData((prev) => ({
+                    ...prev,
+                    selectedUserId: value
+                  }))}>
+                  
                     <SelectTrigger>
                       <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {bauleiterList.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
+                      {bauleiterList.map((user) =>
+                    <SelectItem key={user.id} value={user.id}>
                           {user.full_name}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
                 
-                {closureDialogData.selectedUserId && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                {closureDialogData.selectedUserId &&
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                     <p className="text-sm text-green-800">
                       <strong>Provision:</strong> 30% = €{((closureDialogData.excavation.calculated_price || 0) * 0.3).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-green-700 mt-1">
-                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === closureDialogData.selectedUserId)?.full_name} gebucht.
+                      Die Provision wird auf das Konto von {bauleiterList.find((u) => u.id === closureDialogData.selectedUserId)?.full_name} gebucht.
                     </p>
                   </div>
-                )}
+              }
               </CardContent>
               <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowClosureDialog(false)}>
@@ -976,23 +976,23 @@ export default function ExcavationsManagement({
             </Card>
           </motion.div>
         </motion.div>
-      )}
+      }
 
       {/* Backfill Dialog */}
-      {showBackfillDialog && backfillDialogData && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowBackfillDialog(false); }}
-        >
+      {showBackfillDialog && backfillDialogData &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        onClick={(e) => {if (e.target === e.currentTarget) setShowBackfillDialog(false);}}>
+        
           <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            className="w-full max-w-md"
-          >
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-md">
+          
             <Card className="card-elevation border-none">
               <CardHeader className="bg-orange-500 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
@@ -1013,48 +1013,48 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="backfilled_date">Datum der Verfüllung</Label>
                   <Input
-                    id="backfilled_date"
-                    type="date"
-                    value={backfillDialogData.backfilledDate}
-                    onChange={(e) => setBackfillDialogData(prev => ({
-                      ...prev,
-                      backfilledDate: e.target.value
-                    }))}
-                  />
+                  id="backfilled_date"
+                  type="date"
+                  value={backfillDialogData.backfilledDate}
+                  onChange={(e) => setBackfillDialogData((prev) => ({
+                    ...prev,
+                    backfilledDate: e.target.value
+                  }))} />
+                
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="backfilled_by">Verfüllt durch</Label>
                   <Select
-                    value={backfillDialogData.selectedUserId || ''}
-                    onValueChange={(value) => setBackfillDialogData(prev => ({
-                      ...prev,
-                      selectedUserId: value
-                    }))}
-                  >
+                  value={backfillDialogData.selectedUserId || ''}
+                  onValueChange={(value) => setBackfillDialogData((prev) => ({
+                    ...prev,
+                    selectedUserId: value
+                  }))}>
+                  
                     <SelectTrigger>
                       <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {bauleiterList.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
+                      {bauleiterList.map((user) =>
+                    <SelectItem key={user.id} value={user.id}>
                           {user.full_name}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
                 
-                {backfillDialogData.selectedUserId && (
-                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                {backfillDialogData.selectedUserId &&
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                     <p className="text-sm text-orange-800">
                       <strong>Provision:</strong> 20% = €{((backfillDialogData.excavation.calculated_price || 0) * 0.2).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-orange-700 mt-1">
-                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === backfillDialogData.selectedUserId)?.full_name} gebucht.
+                      Die Provision wird auf das Konto von {bauleiterList.find((u) => u.id === backfillDialogData.selectedUserId)?.full_name} gebucht.
                     </p>
                   </div>
-                )}
+              }
               </CardContent>
               <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowBackfillDialog(false)} className="w-full sm:w-auto">
@@ -1069,23 +1069,23 @@ export default function ExcavationsManagement({
             </Card>
           </motion.div>
         </motion.div>
-      )}
+      }
 
       {/* Asphalt Trag Dialog */}
-      {showAsphaltTragDialog && asphaltTragDialogData && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowAsphaltTragDialog(false); }}
-        >
+      {showAsphaltTragDialog && asphaltTragDialogData &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        onClick={(e) => {if (e.target === e.currentTarget) setShowAsphaltTragDialog(false);}}>
+        
           <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            className="w-full max-w-md"
-          >
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-md">
+          
             <Card className="card-elevation border-none">
               <CardHeader className="bg-gray-700 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
@@ -1106,48 +1106,48 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="asphalt_trag_date">Datum der Fertigstellung</Label>
                   <Input
-                    id="asphalt_trag_date"
-                    type="date"
-                    value={asphaltTragDialogData.date}
-                    onChange={(e) => setAsphaltTragDialogData(prev => ({
-                      ...prev,
-                      date: e.target.value
-                    }))}
-                  />
+                  id="asphalt_trag_date"
+                  type="date"
+                  value={asphaltTragDialogData.date}
+                  onChange={(e) => setAsphaltTragDialogData((prev) => ({
+                    ...prev,
+                    date: e.target.value
+                  }))} />
+                
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="asphalt_trag_by">Fertiggestellt durch</Label>
                   <Select
-                    value={asphaltTragDialogData.selectedUserId || ''}
-                    onValueChange={(value) => setAsphaltTragDialogData(prev => ({
-                      ...prev,
-                      selectedUserId: value
-                    }))}
-                  >
+                  value={asphaltTragDialogData.selectedUserId || ''}
+                  onValueChange={(value) => setAsphaltTragDialogData((prev) => ({
+                    ...prev,
+                    selectedUserId: value
+                  }))}>
+                  
                     <SelectTrigger>
                       <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {bauleiterList.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
+                      {bauleiterList.map((user) =>
+                    <SelectItem key={user.id} value={user.id}>
                           {user.full_name}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
                 
-                {asphaltTragDialogData.selectedUserId && (
-                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
+                {asphaltTragDialogData.selectedUserId &&
+              <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
                     <p className="text-sm text-gray-800">
                       <strong>Provision:</strong> 15% = €{((asphaltTragDialogData.excavation.calculated_price || 0) * 0.15).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-gray-700 mt-1">
-                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === asphaltTragDialogData.selectedUserId)?.full_name} gebucht.
+                      Die Provision wird auf das Konto von {bauleiterList.find((u) => u.id === asphaltTragDialogData.selectedUserId)?.full_name} gebucht.
                     </p>
                   </div>
-                )}
+              }
               </CardContent>
               <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowAsphaltTragDialog(false)} className="w-full sm:w-auto">
@@ -1162,23 +1162,23 @@ export default function ExcavationsManagement({
             </Card>
           </motion.div>
         </motion.div>
-      )}
+      }
 
       {/* Asphalt Fein Dialog */}
-      {showAsphaltFeinDialog && asphaltFeinDialogData && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
-          onClick={(e) => { if (e.target === e.currentTarget) setShowAsphaltFeinDialog(false); }}
-        >
+      {showAsphaltFeinDialog && asphaltFeinDialogData &&
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+        onClick={(e) => {if (e.target === e.currentTarget) setShowAsphaltFeinDialog(false);}}>
+        
           <motion.div
-            initial={{ scale: 0.9, y: 20 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.9, y: 20 }}
-            className="w-full max-w-md"
-          >
+          initial={{ scale: 0.9, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.9, y: 20 }}
+          className="w-full max-w-md">
+          
             <Card className="card-elevation border-none">
               <CardHeader className="bg-gray-900 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
@@ -1199,48 +1199,48 @@ export default function ExcavationsManagement({
                 <div className="space-y-2">
                   <Label htmlFor="asphalt_fein_date">Datum der Fertigstellung</Label>
                   <Input
-                    id="asphalt_fein_date"
-                    type="date"
-                    value={asphaltFeinDialogData.date}
-                    onChange={(e) => setAsphaltFeinDialogData(prev => ({
-                      ...prev,
-                      date: e.target.value
-                    }))}
-                  />
+                  id="asphalt_fein_date"
+                  type="date"
+                  value={asphaltFeinDialogData.date}
+                  onChange={(e) => setAsphaltFeinDialogData((prev) => ({
+                    ...prev,
+                    date: e.target.value
+                  }))} />
+                
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="asphalt_fein_by">Fertiggestellt durch</Label>
                   <Select
-                    value={asphaltFeinDialogData.selectedUserId || ''}
-                    onValueChange={(value) => setAsphaltFeinDialogData(prev => ({
-                      ...prev,
-                      selectedUserId: value
-                    }))}
-                  >
+                  value={asphaltFeinDialogData.selectedUserId || ''}
+                  onValueChange={(value) => setAsphaltFeinDialogData((prev) => ({
+                    ...prev,
+                    selectedUserId: value
+                  }))}>
+                  
                     <SelectTrigger>
                       <SelectValue placeholder="Bauleiter/Oberfläche auswählen..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {bauleiterList.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
+                      {bauleiterList.map((user) =>
+                    <SelectItem key={user.id} value={user.id}>
                           {user.full_name}
                         </SelectItem>
-                      ))}
+                    )}
                     </SelectContent>
                   </Select>
                 </div>
                 
-                {asphaltFeinDialogData.selectedUserId && (
-                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
+                {asphaltFeinDialogData.selectedUserId &&
+              <div className="bg-gray-100 border border-gray-300 rounded-lg p-3">
                     <p className="text-sm text-gray-800">
                       <strong>Provision:</strong> 15% = €{((asphaltFeinDialogData.excavation.calculated_price || 0) * 0.15).toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                     <p className="text-xs text-gray-700 mt-1">
-                      Die Provision wird auf das Konto von {bauleiterList.find(u => u.id === asphaltFeinDialogData.selectedUserId)?.full_name} gebucht.
+                      Die Provision wird auf das Konto von {bauleiterList.find((u) => u.id === asphaltFeinDialogData.selectedUserId)?.full_name} gebucht.
                     </p>
                   </div>
-                )}
+              }
               </CardContent>
               <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
                 <Button variant="outline" onClick={() => setShowAsphaltFeinDialog(false)} className="w-full sm:w-auto">
@@ -1255,24 +1255,24 @@ export default function ExcavationsManagement({
             </Card>
           </motion.div>
         </motion.div>
-      )}
+      }
 
       {/* Status Remove Confirmation Dialog */}
       <AnimatePresence>
-        {removeConfirmData && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]"
-          >
+        {removeConfirmData &&
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+          
             <motion.div
-              initial={{ scale: 0.85, y: 30, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.85, y: 30, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="w-full max-w-sm"
-            >
+            initial={{ scale: 0.85, y: 30, opacity: 0 }}
+            animate={{ scale: 1, y: 0, opacity: 1 }}
+            exit={{ scale: 0.85, y: 30, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+            className="w-full max-w-sm">
+            
               <Card className="border-none shadow-2xl overflow-hidden">
                 {/* Top accent bar */}
                 <div className="h-1.5 w-full bg-gradient-to-r from-red-400 via-red-500 to-orange-400" />
@@ -1311,20 +1311,20 @@ export default function ExcavationsManagement({
                   {/* Buttons */}
                   <div className="flex gap-3">
                     <Button
-                      variant="outline"
-                      className="flex-1"
-                      onClick={() => setRemoveConfirmData(null)}
-                    >
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => setRemoveConfirmData(null)}>
+                    
                       <X className="w-4 h-4 mr-1" />
                       Abbrechen
                     </Button>
                     <Button
-                      className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                      onClick={async () => {
-                        await removeConfirmData.onConfirm();
-                        setRemoveConfirmData(null);
-                      }}
-                    >
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                    onClick={async () => {
+                      await removeConfirmData.onConfirm();
+                      setRemoveConfirmData(null);
+                    }}>
+                    
                       <Trash2 className="w-4 h-4 mr-1" />
                       Ja, entfernen
                     </Button>
@@ -1333,7 +1333,7 @@ export default function ExcavationsManagement({
               </Card>
             </motion.div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
 
       <ExcavationDetail
@@ -1347,16 +1347,16 @@ export default function ExcavationsManagement({
         projectTitle={project?.title}
         priceItem={getSelectedPriceItem(selectedExcavation?.price_item_id)}
         currentUser={internalUser}
-        excavationIndex={selectedExcavation ? getExcavationIndex(selectedExcavation) : undefined}
-      />
+        excavationIndex={selectedExcavation ? getExcavationIndex(selectedExcavation) : undefined} />
+      
 
       <MoveExcavationsDialog
         open={showMoveDialog}
         onClose={() => setShowMoveDialog(false)}
-        selectedExcavations={excavations.filter(e => selectedIds.includes(e.id))}
-        projects={allProjects.filter(p => p.id !== projectId)}
-        onMove={handleMoveExcavations}
-      />
-    </div>
-  );
+        selectedExcavations={excavations.filter((e) => selectedIds.includes(e.id))}
+        projects={allProjects.filter((p) => p.id !== projectId)}
+        onMove={handleMoveExcavations} />
+      
+    </div>);
+
 }
