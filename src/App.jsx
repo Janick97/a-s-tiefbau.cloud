@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import TicketSystemPage from '@/pages/TicketSystem';
 import DailyReportPage from '@/pages/DailyReport';
+import InternalPhoneBook from '@/pages/InternalPhoneBook';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -70,6 +71,11 @@ const AuthenticatedApp = () => {
       <Route path="/DailyReport" element={
         <LayoutWrapper currentPageName="DailyReport">
           <DailyReportPage />
+        </LayoutWrapper>
+      } />
+      <Route path="/InternalPhoneBook" element={
+        <LayoutWrapper currentPageName="InternalPhoneBook">
+          <InternalPhoneBook />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

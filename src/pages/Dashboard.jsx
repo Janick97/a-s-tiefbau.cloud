@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert, PriceItem } from "@/entities/all";
+import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert, PriceItem, InternalContact } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -321,7 +321,29 @@ export default function DashboardPage() {
                  </Card>
                </motion.div>
              </Link>
-           </div>
+             <Link to={createPageUrl("InternalPhoneBook")} className="block">
+               <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 whileHover={{ y: -2 }}
+                 transition={{ duration: 0.2, delay: 0.1 }}
+               >
+                 <Card className="card-elevation border-none hover:shadow-lg transition-shadow cursor-pointer">
+                   <CardContent className="p-6">
+                     <div className="flex items-center gap-4">
+                       <div className="p-3 rounded-lg bg-slate-100">
+                         <Phone className="w-6 h-6 text-slate-700" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <h3 className="text-lg font-semibold text-gray-900">Telefonbuch</h3>
+                         <p className="text-sm text-gray-500 mt-1">Interne Kontakte</p>
+                       </div>
+                     </div>
+                   </CardContent>
+                 </Card>
+               </motion.div>
+             </Link>
+             </div>
           </div>
           </div>
           );
