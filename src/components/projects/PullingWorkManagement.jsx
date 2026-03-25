@@ -150,45 +150,70 @@ export default function PullingWorkManagement({ projectId }) {
           {pullingWorks.map((work, i) => (
             <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card className="border-l-4 border-blue-400 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetail(work)}>
-                <CardContent className="p-3 sm:p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0 space-y-1.5">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2 py-0.5">
-                          {work.location_name}
-                        </Badge>
-                        <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">{work.cable_type}</span>
-                        {work.cable_length && <span className="text-xs sm:text-sm text-gray-600">{work.cable_length}m</span>}
+                <CardContent className="p-4 sm:p-5">
+                  <div className="space-y-3">
+                    {/* Header row: Location and Actions */}
+                    <div className="flex items-center justify-between gap-3">
+                      <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2.5 py-1 flex-shrink-0">
+                        {work.location_name}
+                      </Badge>
+                      <div className="flex gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="icon"
+                          className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                          onClick={() => handleEdit(work)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                          onClick={() => handleDelete(work.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
-                      <div className="text-xs sm:text-sm text-gray-600">
-                        {work.street} {work.house_number}, {work.city}
+                    </div>
+
+                    {/* Cable info row */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
+                      <div>
+                        <p className="text-gray-500 font-medium">Kabel</p>
+                        <p className="text-gray-900 font-medium truncate">{work.cable_type || '-'}</p>
                       </div>
-                      {work.work_description && <p className="text-xs text-gray-600 italic">{work.work_description}</p>}
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        <Badge variant="outline" className={statusColors[work.status]}>
+                      <div>
+                        <p className="text-gray-500 font-medium">Länge</p>
+                        <p className="text-gray-900 font-medium">{work.cable_length ? `${work.cable_length}m` : '-'}</p>
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <p className="text-gray-500 font-medium">Status</p>
+                        <Badge variant="outline" className={`${statusColors[work.status]} text-xs`}>
                           {statusLabels[work.status]}
                         </Badge>
-                        {work.foreman && <span className="text-xs text-gray-500">Bauleiter: {work.foreman}</span>}
                       </div>
                     </div>
-                    <div className="flex gap-0.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 h-8 w-8"
-                        onClick={() => handleEdit(work)}
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
-                        onClick={() => handleDelete(work.id)}
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+
+                    {/* Location and Foreman */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm border-t pt-3">
+                      <div>
+                        <p className="text-gray-500 font-medium">Adresse</p>
+                        <p className="text-gray-900">{work.street} {work.house_number}, {work.city}</p>
+                      </div>
+                      {work.foreman && (
+                        <div>
+                          <p className="text-gray-500 font-medium">Bauleiter</p>
+                          <p className="text-gray-900">{work.foreman}</p>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Work description */}
+                    {work.work_description && (
+                      <div className="text-xs text-gray-600 italic border-t pt-2">
+                        <p className="text-gray-500 font-medium mb-1">Details</p>
+                        {work.work_description}
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
