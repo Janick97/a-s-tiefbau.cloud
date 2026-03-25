@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Project, ProjectDocument, Excavation } from "@/entities/all";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Folder,
   FolderOpen,
-  File,
   Image,
   FileText,
   Download,
@@ -16,9 +16,11 @@ import {
   ChevronRight,
   ChevronDown,
   Loader2,
-  Archive
+  X,
+  Filter
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import JSZip from "jszip";
 
 export default function ProjectExplorerPage() {
   const [projects, setProjects] = useState([]);
@@ -26,8 +28,11 @@ export default function ProjectExplorerPage() {
   const [excavations, setExcavations] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [expandedProjects, setExpandedProjects] = useState(new Set());
   const [expandedFolders, setExpandedFolders] = useState(new Set());
+  const [lightboxPhoto, setLightboxPhoto] = useState(null);
+  const [showMorePhotos, setShowMorePhotos] = useState({});
 
   useEffect(() => {
     loadData();
@@ -93,51 +98,60 @@ export default function ProjectExplorerPage() {
 
   const [downloadingProject, setDownloadingProject] = useState(null);
 
-  const downloadFile = (url, filename) => {
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.target = '_blank';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const downloadAllProjectFiles = async (project) => {
     setDownloadingProject(project.id);
-    
     try {
       const projectDocs = getProjectDocuments(project.id);
       const projectExcs = getProjectExcavations(project.id);
       const photos = getAllPhotosFromExcavations(projectExcs);
       const bauakten = projectDocs.filter(doc => doc.folder === 'Bauakte');
 
-      // Download Bauakten
-      bauakten.forEach((doc, index) => {
-        setTimeout(() => downloadFile(doc.file_url, `Bauakte_${doc.file_name}`), index * 300);
-      });
+      const zip = new JSZip();
+      const bauaktenFolder = zip.folder("Bauakten");
+      const fotosFolder = zip.folder("Fotos");
 
-      // Download Fotos
-      photos.forEach((photo, index) => {
-        const filename = `Foto_${photo.excavation}_${photo.type}_${index + 1}.jpg`;
-        setTimeout(() => downloadFile(photo.url, filename), (bauakten.length + index) * 300);
-      });
+      // Fetch and add Bauakten
+      for (const doc of bauakten) {
+        const response = await fetch(doc.file_url);
+        const blob = await response.blob();
+        bauaktenFolder.file(doc.file_name, blob);
+      }
 
-      alert(`Download gestartet: ${bauakten.length} Bauakten und ${photos.length} Fotos werden heruntergeladen.\n\nTipp: Erstellen Sie einen neuen Ordner für dieses Projekt, bevor Sie die Downloads akzeptieren.`);
+      // Fetch and add Fotos
+      for (let i = 0; i < photos.length; i++) {
+        const photo = photos[i];
+        const response = await fetch(photo.url);
+        const blob = await response.blob();
+        const ext = photo.url.split('.').pop().split('?')[0] || 'jpg';
+        fotosFolder.file(`${photo.excavation}_${photo.type}_${i + 1}.${ext}`, blob);
+      }
 
+      const content = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(content);
+      link.download = `${project.project_number}_${project.title}.zip`;
+      link.click();
     } catch (error) {
-      console.error("Fehler beim Download:", error);
+      console.error("Fehler beim ZIP-Download:", error);
       alert("Fehler beim Download. Bitte versuchen Sie es erneut.");
     } finally {
-      setTimeout(() => setDownloadingProject(null), (bauakten.length + photos.length) * 300 + 1000);
+      setDownloadingProject(null);
     }
   };
 
-  const filteredProjects = projects.filter(p => 
-    p.project_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.client?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const totalPhotos = useMemo(() => excavations.reduce((sum, exc) => sum +
+    (exc.photos_before?.length || 0) + (exc.photos_after?.length || 0) +
+    (exc.photos_environment?.length || 0) + (exc.photos_backfill?.length || 0) +
+    (exc.photos_surface?.length || 0), 0), [excavations]);
+
+  const filteredProjects = useMemo(() => projects.filter(p => {
+    const matchesSearch =
+      p.project_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.client?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || p.project_status === statusFilter || p.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  }), [projects, searchTerm, statusFilter]);
 
   if (isLoading) {
     return (
@@ -165,72 +179,37 @@ export default function ProjectExplorerPage() {
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Projekt-Explorer</h1>
-              <p className="text-gray-600">Durchsuchen und downloaden Sie Projektdateien</p>
+              <p className="text-gray-600">{filteredProjects.length} von {projects.length} Projekten · {documents.length} Dokumente · {totalPhotos} Fotos</p>
             </div>
           </div>
 
-          {/* Statistics */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card className="card-elevation border-none">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <Folder className="w-8 h-8 text-blue-600" />
-                  <div>
-                    <p className="text-2xl font-bold">{projects.length}</p>
-                    <p className="text-sm text-gray-600">Projekte</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-elevation border-none">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <FileText className="w-8 h-8 text-green-600" />
-                  <div>
-                    <p className="text-2xl font-bold">{documents.length}</p>
-                    <p className="text-sm text-gray-600">Dokumente</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="card-elevation border-none">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <Image className="w-8 h-8 text-purple-600" />
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {excavations.reduce((sum, exc) => {
-                        return sum + 
-                          (exc.photos_before?.length || 0) +
-                          (exc.photos_after?.length || 0) +
-                          (exc.photos_environment?.length || 0) +
-                          (exc.photos_backfill?.length || 0) +
-                          (exc.photos_surface?.length || 0);
-                      }, 0)}
-                    </p>
-                    <p className="text-sm text-gray-600">Fotos</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Search & Filter */}
+          <div className="flex gap-3 flex-col sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Input
+                placeholder="Suche nach Projektnummer, Titel oder Kunde..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-white shadow-sm"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-gray-500" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-52 bg-white shadow-sm">
+                  <SelectValue placeholder="Status filtern" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Alle Status</SelectItem>
+                  <SelectItem value="active">Aktiv</SelectItem>
+                  <SelectItem value="planning">Planung</SelectItem>
+                  <SelectItem value="completed">Abgeschlossen</SelectItem>
+                  <SelectItem value="on_hold">Pausiert</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-
-          {/* Search */}
-          <Card className="card-elevation border-none">
-            <CardContent className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <Input
-                  placeholder="Suche nach Projektnummer, Titel oder Kunde..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </CardContent>
-          </Card>
         </motion.div>
 
         {/* Explorer Tree */}
@@ -403,37 +382,30 @@ export default function ProjectExplorerPage() {
                                         exit={{ height: 0, opacity: 0 }}
                                         className="pl-8 space-y-1 mt-1"
                                       >
-                                        {photos.slice(0, 20).map((photo, index) => (
-                                          <div
-                                            key={index}
-                                            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded group"
-                                          >
-                                            <Image className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                                            <div className="flex-1 min-w-0">
-                                              <span className="text-sm text-gray-700 truncate block">
-                                                {photo.excavation} - {photo.type}
-                                              </span>
-                                            </div>
-                                            <a
-                                              href={photo.url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              onClick={(e) => e.stopPropagation()}
+                                        {/* Photo Grid */}
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 pt-1">
+                                          {photos.slice(0, showMorePhotos[project.id] ? photos.length : 18).map((photo, index) => (
+                                            <div
+                                              key={index}
+                                              className="relative group cursor-pointer aspect-square rounded-lg overflow-hidden border border-gray-200 hover:border-purple-400 transition-colors"
+                                              onClick={() => setLightboxPhoto(photo)}
                                             >
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                className="opacity-0 group-hover:opacity-100 transition-opacity h-7 px-2"
-                                              >
-                                                <Download className="w-3 h-3" />
-                                              </Button>
-                                            </a>
-                                          </div>
-                                        ))}
-                                        {photos.length > 20 && (
-                                          <div className="text-xs text-gray-500 p-2">
-                                            ... und {photos.length - 20} weitere Fotos
-                                          </div>
+                                              <img src={photo.url} alt={`${photo.excavation} ${photo.type}`} className="w-full h-full object-cover" />
+                                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end justify-start">
+                                                <span className="text-[9px] text-white font-medium bg-black/50 px-1 py-0.5 rounded-tr opacity-0 group-hover:opacity-100 transition-opacity truncate max-w-full">{photo.type}</span>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                        {photos.length > 18 && (
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="mt-2 text-xs text-purple-600"
+                                            onClick={() => setShowMorePhotos(prev => ({ ...prev, [project.id]: !prev[project.id] }))}
+                                          >
+                                            {showMorePhotos[project.id] ? `Weniger anzeigen` : `Alle ${photos.length} Fotos anzeigen`}
+                                          </Button>
                                         )}
                                       </motion.div>
                                     )}
@@ -458,6 +430,43 @@ export default function ProjectExplorerPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={() => setLightboxPhoto(null)}
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 text-white hover:bg-white/20"
+              onClick={() => setLightboxPhoto(null)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+            <div className="text-center" onClick={e => e.stopPropagation()}>
+              <img
+                src={lightboxPhoto.url}
+                alt={lightboxPhoto.type}
+                className="max-h-[80vh] max-w-full rounded-lg shadow-2xl"
+              />
+              <p className="text-white/80 mt-3 text-sm">
+                {lightboxPhoto.excavation} · {lightboxPhoto.type}
+              </p>
+              <a href={lightboxPhoto.url} target="_blank" rel="noopener noreferrer">
+                <Button size="sm" className="mt-2 bg-white/20 hover:bg-white/30 text-white">
+                  <Download className="w-4 h-4 mr-2" /> Herunterladen
+                </Button>
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
