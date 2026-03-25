@@ -329,6 +329,19 @@ export default function MontageAuftragDetailPage() {
             onReloadBeweissicherungen={reloadBeweissicherungen}
           />
         </div>
+      </div>
+
+      {/* Documents Modal */}
+      <AnimatePresence>
+        {showDocuments && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="bg-white w-full h-full flex flex-col">
+              <div className="bg-slate-400 text-black px-4 py-1 flex items-center justify-between border-b">
+                <h3 className="text-slate-50 text-lg font-bold">Projektdokumente</h3>
+                <button onClick={() => setShowDocuments(false)} className="p-2 rounded-lg hover:bg-gray-200 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
+                  <X className="text-slate-50 w-6 h-6" />
+                </button>
+              </div>
               <div className="flex-1 overflow-hidden">
                 <DocumentManagement projectId={montageAuftrag.project_id || montageAuftrag.id} project={{ id: montageAuftrag.project_id || montageAuftrag.id }} loadData={() => {}} readOnly={user?.position === 'Monteur'} />
               </div>
