@@ -6,7 +6,7 @@ import { createPageUrl } from "@/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText, CheckCircle2, Circle, Users, Tag, Hash, AlertTriangle, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, Package, MapPin, Loader2, ShieldAlert, MessageCircle, X, FileText, CheckCircle2, Circle, Users, Tag, Hash, AlertTriangle, ChevronDown, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
@@ -16,6 +16,7 @@ import BeweissicherungDialog from "../components/montage/BeweissicherungDialog";
 import FehlerortungDialog from "../components/montage/FehlerortungDialog";
 import DocumentManagement from "../components/projects/DocumentManagement";
 import MontageAuftragPdfReport from "../components/montage/MontageAuftragPdfReport";
+import AuditLog from "../components/montage/AuditLog";
 import ProjectChat from "../components/projects/ProjectChat";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -34,6 +35,7 @@ export default function MontageAuftragDetailPage() {
   const [showDocuments, setShowDocuments] = useState(false);
   const [beweissicherungen, setBeweissicherungen] = useState([]);
   const [tiefbauHistoryOpen, setTiefbauHistoryOpen] = useState(false);
+  const [showAuditLog, setShowAuditLog] = useState(false);
 
   const montageAuftragId = new URLSearchParams(location.search).get("id");
 
@@ -71,25 +73,41 @@ export default function MontageAuftragDetailPage() {
     setBeweissicherungen(Array.isArray(data) ? data : []);
   }, [montageAuftragId]);
 
+  const appendAuditEntry = useCallback(async (action, from, to, note) => {
+    try {
+      const current = await MontageAuftrag.get(montageAuftrag.id);
+      const log = Array.isArray(current?.audit_log) ? current.audit_log : [];
+      const entry = { timestamp: new Date().toISOString(), user: user?.full_name || 'Unbekannt', user_id: user?.id || '', action, from: from || '', to: to || '', note: note || '' };
+      await MontageAuftrag.update(montageAuftrag.id, { audit_log: [...log, entry] });
+      setMontageAuftrag(prev => ({ ...prev, audit_log: [...log, entry] }));
+    } catch (e) {
+      console.error('Audit log failed:', e);
+    }
+  }, [montageAuftrag?.id, user]);
+
   const handleStatusChange = useCallback(async (newStatus) => {
     try {
+      const oldStatus = montageAuftrag.status;
       await MontageAuftrag.update(montageAuftrag.id, { status: newStatus });
       setMontageAuftrag((prev) => ({ ...prev, status: newStatus }));
       toast({ title: "Status aktualisiert ✓" });
+      appendAuditEntry('status_change', oldStatus, newStatus);
     } catch {
       toast({ title: "Fehler beim Aktualisieren des Status", variant: "destructive" });
     }
-  }, [montageAuftrag?.id, toast]);
+  }, [montageAuftrag?.id, montageAuftrag?.status, toast, appendAuditEntry]);
 
   const handleArtChange = useCallback(async (newArt) => {
     try {
+      const oldArt = montageAuftrag.art || '-';
       await MontageAuftrag.update(montageAuftrag.id, { art: newArt });
       setMontageAuftrag((prev) => ({ ...prev, art: newArt }));
       toast({ title: "Auftragsart aktualisiert ✓" });
+      appendAuditEntry('art_change', oldArt, newArt);
     } catch {
       toast({ title: "Fehler beim Aktualisieren der Auftragsart", variant: "destructive" });
     }
-  }, [montageAuftrag?.id, toast]);
+  }, [montageAuftrag?.id, montageAuftrag?.art, toast, appendAuditEntry]);
 
   if (isLoading) {
     return (
@@ -284,6 +302,9 @@ export default function MontageAuftragDetailPage() {
               <MessageCircle className="w-4 h-4 mr-2" />Chat
             </Button>
             <MontageAuftragPdfReport montageAuftrag={montageAuftrag} />
+            <Button onClick={() => setShowAuditLog(true)} variant="outline" className="flex-1 border-slate-300">
+              <Clock className="w-4 h-4 mr-2" />Änderungslog
+            </Button>
           </div>
         )}
 
@@ -379,6 +400,29 @@ export default function MontageAuftragDetailPage() {
               </div>
               <div className="flex-1 overflow-hidden">
                 <ProjectChat projectId={montageAuftrag.id} />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Audit Log Modal */}
+      <AnimatePresence>
+        {showAuditLog && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="bg-white w-full max-w-lg mx-4 rounded-xl shadow-2xl flex flex-col max-h-[85vh]">
+              <div className="bg-slate-700 px-4 py-3 flex items-center justify-between rounded-t-xl">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-white" />
+                  <h3 className="font-bold text-white">Änderungslog</h3>
+                  <span className="text-slate-300 text-xs">({(montageAuftrag.audit_log || []).length} Einträge)</span>
+                </div>
+                <button onClick={() => setShowAuditLog(false)} className="p-1.5 rounded hover:bg-white/20 transition-colors">
+                  <X className="w-5 h-5 text-white" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <AuditLog entries={montageAuftrag.audit_log || []} />
               </div>
             </motion.div>
           </div>

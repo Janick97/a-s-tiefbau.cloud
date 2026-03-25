@@ -377,6 +377,20 @@ export default function MontageAuftraegePage() {
         updateData.archived_date = new Date().toISOString();
       }
 
+      // Audit-Log Eintrag
+      let currentUser = null;
+      try { currentUser = await base44.auth.me(); } catch {}
+      const log = Array.isArray(auftrag.audit_log) ? auftrag.audit_log : [];
+      updateData.audit_log = [...log, {
+        timestamp: new Date().toISOString(),
+        user: currentUser?.full_name || 'Büro',
+        user_id: currentUser?.id || '',
+        action: 'status_change',
+        from: auftrag.status || '',
+        to: newStatus,
+        note: ''
+      }];
+
       await MontageAuftrag.update(auftrag.id, updateData);
       loadData();
     } catch (error) {
