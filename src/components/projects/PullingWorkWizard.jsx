@@ -436,7 +436,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
         </div>
 
         {/* Footer */}
-        <div className="border-t p-4 flex gap-2 flex-shrink-0">
+        <div className="border-t p-4 flex gap-2 flex-shrink-0" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
           {step > 1 && (
             <Button variant="outline" onClick={() => setStep(s => s - 1)} className="flex-1">
               <ChevronLeft className="w-4 h-4 mr-1" /> Zurück

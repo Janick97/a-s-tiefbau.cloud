@@ -563,9 +563,7 @@ export default function ProjectDetailOberflaechePage() {
                 <Button
                   onClick={() => {
                     setShowTiefbauMenu(false);
-                    setEditingPulling(null);
-                    setShowPullingForm(true);
-                    setActiveAction('pulling');
+                    setTimeout(() => { setEditingPulling(null); setShowPullingForm(true); setActiveAction('pulling'); }, 100);
                   }}
                   className="w-full h-14 text-lg font-bold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
                   size="lg"
