@@ -76,6 +76,7 @@ const PULL_INTO_OPTIONS = [
   "Mikro-Rohr",
   "Kabelformstein",
   "Kabelkanal",
+  "Mehrfachrohr",
   "Erdreich (direkt)",
   "Gebäude",
   "Sonstiges",
@@ -111,6 +112,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     selectedMaterial: existingWork?.cable_type?.split("|")[1] || "",
     selectedMaterialId: null,
     selectedTubes: [],
+    pulledIntoTubes: [],
     point_a: existingWork?.start_point || "",
     point_b: existingWork?.end_point || "",
     pull_into: existingWork?.work_description?.split("|")[0] || "",
@@ -152,6 +154,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     if (!data.point_a || !data.point_b || !data.pull_into || !data.meters) return false;
     if (data.pull_into === "Leerrohr" && !data.pipeStatus) return false;
     if (data.pipeStatus === "leer" && !data.pipeSize) return false;
+    if (data.pull_into === "Mehrfachrohr" && data.pulledIntoTubes.length === 0) return false;
     return true;
   };
 
@@ -451,6 +454,9 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                             setField("pipeStatus", "");
                             setField("pipeSize", "");
                           }
+                          if (opt !== "Mehrfachrohr") {
+                            setField("pulledIntoTubes", "");
+                          }
                         }}
                         className={`px-3 py-2 rounded-xl border-2 text-sm text-left transition-all ${
                           data.pull_into === opt
@@ -509,6 +515,16 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                         </button>
                       ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Mehrfachrohr-Auswahl (wenn Mehrfachrohr ausgewählt) */}
+                {data.pull_into === "Mehrfachrohr" && (
+                  <div>
+                    <MultiTubeSelector
+                      selectedTubes={data.pulledIntoTubes}
+                      onChange={(tubes) => setField("pulledIntoTubes", tubes)}
+                    />
                   </div>
                 )}
 
