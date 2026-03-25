@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Project, User, Excavation, MontageAuftrag, Task, KolonnenSollwert, PriceItem, InternalContact } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
