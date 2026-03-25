@@ -130,21 +130,6 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
       >
         <rect id="background" width="1200" height="800" fill="white" />
 
-        {/* PDF Export Rahmen */}
-        <rect
-          id="pdf-export-border"
-          x="2" y="2" width="1196" height="796"
-          fill="none"
-          stroke="#f97316"
-          strokeWidth="3"
-          strokeDasharray="16,8"
-          opacity="0.7"
-          className="pointer-events-none"
-        />
-        <text id="pdf-export-label" x="10" y="18" fontSize="11" fill="#f97316" opacity="0.8" className="pointer-events-none" fontWeight="600">
-          ← PDF Export Bereich →
-        </text>
-
         {/* Verbindungen */}
         <g>
           {visibleConnections.map(conn => {
