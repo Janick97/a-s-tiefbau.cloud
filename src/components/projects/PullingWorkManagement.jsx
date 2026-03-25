@@ -147,8 +147,8 @@ export default function PullingWorkManagement({ projectId }) {
         </div>
       ) : (
         <div className="space-y-3">
-          {pullingWorks.map((work, i) =>
-        <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+          {pullingWorks.map((work, i) => (
+            <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card className="border-l-4 border-blue-400">
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex items-start justify-between gap-2">
@@ -225,6 +225,4 @@ export default function PullingWorkManagement({ projectId }) {
         materials={materials} />
     </div>
   );
-}
-
 }
