@@ -94,6 +94,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     category: existingWork?.cable_type?.split("|")[0] || "",
     selectedColors: existingWork?.connected_colors || [],
     selectedMaterial: existingWork?.cable_type?.split("|")[1] || "",
+    selectedMaterialId: null,
     point_a: existingWork?.start_point || "",
     point_b: existingWork?.end_point || "",
     pull_into: existingWork?.work_description?.split("|")[0] || "",
@@ -142,7 +143,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   // ─── Save ─────────────────────────────────────────────────────────────────
   const handleSave = async () => {
-    const { PullingWork } = await import("@/entities/all");
+    const { PullingWork, ProjectMaterial } = await import("@/entities/all");
     const payload = {
       project_id: project.id,
       location_name: project.title || "",
@@ -164,6 +165,17 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     } else {
       await PullingWork.create(payload);
     }
+
+    // Automatisch zum Material-Tab hinzufügen wenn Kabel ausgewählt
+    if (data.category === "kupferkabel" && data.selectedMaterialId && !isEdit) {
+      await ProjectMaterial.create({
+        project_id: project.id,
+        material_id: data.selectedMaterialId,
+        quantity: parseFloat(data.meters) || 1,
+        notes: `Einzug: ${data.point_a} → ${data.point_b}`,
+      }).catch(() => {});
+    }
+
     onSaved?.();
     onClose();
   };
@@ -301,9 +313,10 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                           {mat.name}
                         </button>
                       ))}
-                    </div>
-                  </div>
-                )}
+                      </div>
+                      )}
+                      </div>
+                      )}
 
                 {/* Kupferkabel → aus Materialdatenbank */}
                 {data.category === "kupferkabel" && (
@@ -315,43 +328,19 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                       <div className="space-y-1.5 max-h-64 overflow-y-auto pr-1">
                         {copperMaterials.map(mat => (
                           <button
-                            key={mat.id}
-                            onClick={() => setField("selectedMaterial", `${mat.article_number} – ${mat.name}`)}
-                            className={`w-full text-left px-3 py-2 rounded-lg border-2 text-sm transition-all ${
-                              data.selectedMaterial === `${mat.article_number} – ${mat.name}`
-                                ? "border-blue-500 bg-blue-50 font-medium"
-                                : "border-gray-200 hover:border-gray-300"
-                            }`}
-                          >
-                            <span className="font-mono text-xs text-gray-500 mr-2">{mat.article_number}</span>
-                            {mat.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Mehrfachrohr */}
-                {data.category === "mehrfachrohr" && (
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Material auswählen</p>
-                    <div className="space-y-1.5">
-                      {MEHRFACHROHR_MATERIALS.map(mat => (
-                        <button
-                          key={mat.article}
-                          onClick={() => setField("selectedMaterial", `${mat.article} – ${mat.name}`)}
-                          className={`w-full text-left px-3 py-2 rounded-lg border-2 text-sm transition-all ${
-                            data.selectedMaterial === `${mat.article} – ${mat.name}`
-                              ? "border-blue-500 bg-blue-50 font-medium"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <span className="font-mono text-xs text-gray-500 mr-2">{mat.article}</span>
-                          {mat.name}
-                        </button>
-                      ))}
-                    </div>
+                             key={mat.id}
+                             onClick={() => { setField("selectedMaterial", `${mat.article_number} – ${mat.name}`); setField("selectedMaterialId", mat.id); }}
+                             className={`w-full text-left px-3 py-2 rounded-lg border-2 text-sm transition-all ${
+                               data.selectedMaterial === `${mat.article_number} – ${mat.name}`
+                                 ? "border-blue-500 bg-blue-50 font-medium"
+                                 : "border-gray-200 hover:border-gray-300"
+                             }`}
+                           >
+                             <span className="font-mono text-xs text-gray-500 mr-2">{mat.article_number}</span>
+                             {mat.name}
+                           </button>
+                         ))}
+                        </div>
                   </div>
                 )}
               </motion.div>
