@@ -234,15 +234,23 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          <BauleiterDashboard 
-            projects={projects}
-            excavations={excavations}
-            user={user}
-            tasks={tasks}
-            sollwert={sollwert}
-            widgetSettings={widgetSettings}
-            onToggleWidget={handleToggleWidget}
-          />
+          <div className="w-full max-w-md space-y-3">
+            <NavigationCard
+              title="Meine Aufträge"
+              description="Alle zugewiesenen Projekte"
+              icon={FolderOpen}
+              color="from-blue-400 to-blue-600"
+              link={createPageUrl("MyProjects")}
+              stats={assignedProjects.length}
+            />
+            <NavigationCard
+              title="Fahrzeugpflege"
+              description="Fahrzeugzustand erfassen"
+              icon={Droplets}
+              color="from-slate-400 to-slate-600"
+              link={createPageUrl("MyVehicleMaintenance")}
+            />
+          </div>
         </div>
       </div>
     );
@@ -354,14 +362,23 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          <OberflaecheDashboard 
-            excavations={excavations}
-            user={user}
-            tasks={tasks}
-            sollwert={sollwert}
-            widgetSettings={widgetSettings}
-            onToggleWidget={handleToggleWidget}
-          />
+          <div className="w-full max-w-md space-y-3">
+            <NavigationCard
+              title="Meine Aufträge"
+              description="Alle zugewiesenen Projekte"
+              icon={FolderOpen}
+              color="from-blue-400 to-blue-600"
+              link={createPageUrl("MyProjectsOberflaeche")}
+              stats={assignedProjects.length}
+            />
+            <NavigationCard
+              title="Fahrzeugpflege"
+              description="Fahrzeugzustand erfassen"
+              icon={Droplets}
+              color="from-slate-400 to-slate-600"
+              link={createPageUrl("MyVehicleMaintenance")}
+            />
+          </div>
         </div>
       </div>
     );
