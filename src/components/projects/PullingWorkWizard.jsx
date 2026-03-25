@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, ChevronLeft, ChevronRight, Check, Cable } from "lucide-react";
 import { Material, PullingWork, ProjectMaterial } from "@/entities/all";
 import { base44 } from "@/api/base44Client";
+import MultiTubeSelector from "./MultiTubeSelector";
 
 // ─── Farben (gleiche wie beim Einblasen) ──────────────────────────────────────
 const SNR_COLORS = [
@@ -109,6 +110,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     selectedColors: existingWork?.connected_colors || [],
     selectedMaterial: existingWork?.cable_type?.split("|")[1] || "",
     selectedMaterialId: null,
+    selectedTubes: [],
     point_a: existingWork?.start_point || "",
     point_b: existingWork?.end_point || "",
     pull_into: existingWork?.work_description?.split("|")[0] || "",
@@ -142,7 +144,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
     if (data.category === "einzelne_snr" && data.selectedColors.length === 0) return false;
     if (data.category === "snr_verband" && !data.selectedMaterial) return false;
     if (data.category === "kupferkabel" && !data.selectedMaterial) return false;
-    if (data.category === "mehrfachrohr" && !data.selectedMaterial) return false;
+    if (data.category === "mehrfachrohr" && (!data.selectedMaterial || data.selectedTubes.length === 0)) return false;
     return true;
   };
 
@@ -348,6 +350,37 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                         </button>
                         ))}
                     </div>
+                  </div>
+                )}
+
+                {/* Mehrfachrohr → Material + Rohr-Selektion */}
+                {data.category === "mehrfachrohr" && (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-700 mb-2">Material auswählen</p>
+                      <div className="space-y-1.5">
+                        {MEHRFACHROHR_MATERIALS.map(mat => (
+                          <button
+                            key={mat.article}
+                            onClick={() => setField("selectedMaterial", `${mat.article} – ${mat.name}`)}
+                            className={`w-full text-left px-3 py-2 rounded-lg border-2 text-sm transition-all ${
+                              data.selectedMaterial === `${mat.article} – ${mat.name}`
+                                ? "border-blue-500 bg-blue-50 font-medium"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <span className="font-mono text-xs text-gray-500 mr-2">{mat.article}</span>
+                            {mat.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {data.selectedMaterial && (
+                      <MultiTubeSelector
+                        selectedTubes={data.selectedTubes}
+                        onChange={(tubes) => setField("selectedTubes", tubes)}
+                      />
+                    )}
                   </div>
                 )}
 
