@@ -72,7 +72,7 @@ const CATEGORIES = [
 
 // ─── In was wurde eingezogen (Rohrtypen) ──────────────────────────────────────
 const PULL_INTO_OPTIONS = [
-  "Leerrohr",
+  "HDPE Leerrohr",
   "Mikro-Rohr",
   "Kabelformstein",
   "Kabelkanal",
