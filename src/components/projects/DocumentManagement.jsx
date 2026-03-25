@@ -660,17 +660,30 @@ export default function DocumentManagement({ projectId, project, loadData, readO
     <div className="space-y-6 overflow-y-auto h-full">
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
-          
+          <h3 className="font-semibold text-gray-700 text-sm">Dokumente</h3>
+          {!readOnly && (
           <div className="flex gap-1.5">
-            
-
-
-            
-            
-
-
-            
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setShowUploadForm(!showUploadForm)}
+            >
+              <Upload className="w-4 h-4 mr-1" />
+              Hochladen
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setNewMainFolderName("");
+                setShowNewMainFolderDialog(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Neuer Ordner
+            </Button>
           </div>
+          )}
         </div>
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
