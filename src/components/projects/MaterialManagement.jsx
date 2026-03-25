@@ -363,16 +363,16 @@ export default function MaterialManagement({ project, projectMaterials, allMater
     
     return (
         <div className="p-4 md:p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <h3 className="text-xl font-bold">Materialien</h3>
-                <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleExportPDF} disabled={isExporting}>
-                        <FileDown className="w-4 h-4 mr-2" />
-                        {isExporting ? 'Exportiere...' : 'PDF Export'}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <h3 className="text-lg sm:text-xl font-bold">Materialien</h3>
+                <div className="flex gap-2 flex-wrap">
+                    <Button variant="outline" onClick={handleExportPDF} disabled={isExporting} className="flex-1 sm:flex-none text-xs sm:text-sm">
+                        <FileDown className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">{isExporting ? 'Exportiere...' : 'PDF'}</span>
                     </Button>
-                    <Button onClick={handleAdd}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Material hinzufügen
+                    <Button onClick={handleAdd} className="flex-1 sm:flex-none text-xs sm:text-sm">
+                        <Plus className="w-4 h-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Material</span>
                     </Button>
                 </div>
             </div>
