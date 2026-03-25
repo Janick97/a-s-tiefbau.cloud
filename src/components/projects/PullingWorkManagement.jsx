@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Edit, Trash2, Cable, MapPin } from "lucide-react";
+import { Plus, Edit, Trash2, Cable, ChevronRight } from "lucide-react";
 import PullingWorkWizard from "./PullingWorkWizard";
 import PullingWorkDetail from "./PullingWorkDetail";
 
@@ -137,89 +137,70 @@ export default function PullingWorkManagement({ projectId }) {
         </Button>
       </div>
 
-      {pullingWorks.length === 0 ?
-      <div className="text-center py-12 text-gray-400">
+      {pullingWorks.length === 0 ? (
+        <div className="text-center py-12 text-gray-400">
           <Cable className="w-12 h-12 mx-auto mb-3 opacity-20" />
           <p className="font-medium text-sm">Noch keine Einzieharbeiten angelegt</p>
           <Button onClick={handleAdd} className="mt-4 bg-blue-600 hover:bg-blue-700 text-sm">
             <Plus className="w-4 h-4 mr-2" /> Ersten Eintrag erstellen
           </Button>
-        </div> :
-
-      <div className="space-y-3">
+        </div>
+      ) : (
+        <div className="space-y-3">
           {pullingWorks.map((work, i) =>
         <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="border-l-4 border-blue-400 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetail(work)}>
-                <CardContent className="p-4 sm:p-5">
-                  <div className="space-y-3">
-                    {/* Header: Location & Actions */}
-                    <div className="flex items-center justify-between gap-3">
-                      <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2.5 py-1 flex-shrink-0">
-                        {work.location_name}
-                      </Badge>
-                      <div className="flex gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <Button size="icon" className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" onClick={() => handleEdit(work)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button size="icon" className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200" onClick={() => handleDelete(work.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+              <Card className="border-l-4 border-blue-400">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2 py-0.5">
+                          {work.cable_length ? `${work.cable_length} m` : 'N/A'}
+                        </Badge>
+                        {(work.start_point || work.end_point) && (
+                          <span className="text-xs sm:text-sm font-semibold text-gray-800 flex items-center gap-1">
+                            {work.start_point} <ChevronRight className="w-3 h-3 text-gray-500" /> {work.end_point}
+                          </span>
+                        )}
+                        <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">{work.cable_type || '-'}</span>
                       </div>
+                      <div className="text-xs text-gray-500 space-y-0.5">
+                        {work.work_description && (
+                          <p>
+                            Eingezogen in: <span className="font-medium text-gray-700">{work.work_description.split('|')[0]}</span>
+                            {work.work_description.split('|')[1] && ` • ${work.work_description.split('|')[1] === 'belegt' ? 'Belegt' : 'Leer'}`}
+                            {work.work_description.split('|')[2] && ` • Ø ${work.work_description.split('|')[2]} mm`}
+                          </p>
+                        )}
+                        {work.notes && <p className="text-gray-500 italic">{work.notes}</p>}
+                      </div>
+                      {work.foreman && <p className="text-xs text-gray-400">von {work.foreman}</p>}
                     </div>
-
-                    {/* Route: Point A → Point B */}
-                    {(work.start_point || work.end_point) && (
-                      <div className="flex items-center gap-2 text-xs sm:text-sm">
-                        <MapPin className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
-                        <p className="font-medium text-gray-700">
-                          {work.start_point} <span className="text-gray-400 mx-1">→</span> {work.end_point}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Cable Type & Length (compact) */}
-                    <div className="text-xs sm:text-sm">
-                      <p className="text-gray-500 font-medium mb-0.5">Kabel</p>
-                      <p className="text-gray-900 font-medium">
-                        {work.cable_type} {work.cable_length && `• ${work.cable_length}m`}
-                      </p>
+                    <div className="flex gap-0.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 h-8 w-8"
+                        onClick={() => handleEdit(work)}
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                        onClick={() => handleDelete(work.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
                     </div>
-
-                    {/* Pull-Into & Details */}
-                    {work.work_description && (
-                      <div className="text-xs sm:text-sm border-t pt-2.5">
-                        <p className="text-gray-500 font-medium mb-1">Eingezogen in</p>
-                        {(() => {
-                          const parts = work.work_description.split('|');
-                          const pullInto = parts[0];
-                          const status = parts[1];
-                          const size = parts[2];
-                          
-                          return (
-                            <div className="space-y-1">
-                              <p className="text-gray-900 font-medium">{pullInto}</p>
-                              {status && <p className="text-gray-600">Status: <span className="font-medium">{status === 'belegt' ? 'Belegt' : 'Leer'}</span></p>}
-                              {size && <p className="text-gray-600">Ø: <span className="font-medium">{size}mm</span></p>}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-
-                    {/* Foreman */}
-                    {work.foreman && (
-                      <div className="text-xs sm:text-sm border-t pt-2.5">
-                        <p className="text-gray-500 font-medium mb-0.5">Bauleiter</p>
-                        <p className="text-gray-900">{work.foreman}</p>
-                      </div>
-                    )}
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
-        )}
+          ))}
         </div>
-      }
+      )}
 
       <AnimatePresence>
         {showForm &&
@@ -229,7 +210,6 @@ export default function PullingWorkManagement({ projectId }) {
           user={currentUser}
           onClose={() => {setShowForm(false);setEditingWork(null);}}
           onSaved={() => {setShowForm(false);setEditingWork(null);loadData();}} />
-
         }
       </AnimatePresence>
 
@@ -243,7 +223,8 @@ export default function PullingWorkManagement({ projectId }) {
         }}
         onEdit={handleEditFromDetail}
         materials={materials} />
-      
-    </div>);
+    </div>
+  );
+}
 
 }
