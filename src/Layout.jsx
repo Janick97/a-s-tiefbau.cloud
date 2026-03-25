@@ -108,11 +108,7 @@ const navigationItems = [
   icon: BarChart3,
   hasSubmenu: true
 },
-{
-  title: "Büro-User Auswertung",
-  url: createPageUrl("BueroUserAuswertung"),
-  icon: Users
-},
+
 {
   title: "Berichte",
   url: createPageUrl("Reports"),
