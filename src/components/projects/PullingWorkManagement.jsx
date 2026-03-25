@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Cable, ChevronRight } from "lucide-react";
 import PullingWorkWizard from "./PullingWorkWizard";
-import PullingWorkDetail from "./PullingWorkDetail";
+import PullingWorkDetailModal from "./PullingWorkDetailModal";
 
 const statusColors = {
   planned: "bg-blue-100 text-blue-800",
@@ -149,7 +149,7 @@ export default function PullingWorkManagement({ projectId }) {
         <div className="space-y-3">
           {pullingWorks.map((work, i) => (
             <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-              <Card className="border-l-4 border-blue-400">
+              <Card className="border-l-4 border-blue-400 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetail(work)}>
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 space-y-1.5">
@@ -213,8 +213,7 @@ export default function PullingWorkManagement({ projectId }) {
         }
       </AnimatePresence>
 
-      {/* PullingWorkDetail component */}
-      <PullingWorkDetail
+      <PullingWorkDetailModal
         pullingWork={selectedWork}
         isOpen={showDetail}
         onClose={() => {
@@ -222,7 +221,8 @@ export default function PullingWorkManagement({ projectId }) {
           setSelectedWork(null);
         }}
         onEdit={handleEditFromDetail}
-        materials={materials} />
+        onDelete={handleDelete}
+      />
     </div>
   );
 }
