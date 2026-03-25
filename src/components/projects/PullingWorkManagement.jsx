@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PullingWork, Material } from "@/entities/all";
-import { base44 } from "@/api/base44Client"; // Added Material
+import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,27 +25,27 @@ const statusLabels = {
 export default function PullingWorkManagement({ projectId }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [pullingWorks, setPullingWorks] = useState([]);
-  const [materials, setMaterials] = useState([]); // Added materials state
+  const [materials, setMaterials] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [showDetail, setShowDetail] = useState(false); // Added showDetail state
+  const [showDetail, setShowDetail] = useState(false);
   const [editingWork, setEditingWork] = useState(null);
-  const [selectedWork, setSelectedWork] = useState(null); // Added selectedWork state
+  const [selectedWork, setSelectedWork] = useState(null);
 
   useEffect(() => {
     loadData();
     base44.auth.me().then((u) => setCurrentUser(u)).catch(() => {});
   }, [projectId]);
 
-  const loadData = async () => {// New loadData function
+  const loadData = async () => {
     setIsLoading(true);
     try {
-      const [worksData, materialsData] = await Promise.all([// Use Promise.all to fetch both
-      PullingWork.filter({ project_id: projectId }),
-      Material.list() // Fetch materials
+      const [worksData, materialsData] = await Promise.all([
+        PullingWork.filter({ project_id: projectId }),
+        Material.list()
       ]);
       setPullingWorks(Array.isArray(worksData) ? worksData : []);
-      setMaterials(Array.isArray(materialsData) ? materialsData : []); // Set materials
+      setMaterials(Array.isArray(materialsData) ? materialsData : []);
     } catch (error) {
       console.error("Fehler beim Laden der Einzieharbeiten:", error);
       setPullingWorks([]);
@@ -54,19 +54,19 @@ export default function PullingWorkManagement({ projectId }) {
     setIsLoading(false);
   };
 
-  const loadPullingWorks = loadData; // Alias for compatibility with existing calls
+  const loadPullingWorks = loadData;
 
   const handleAdd = () => {
     setEditingWork(null);
     setShowForm(true);
-    setShowDetail(false); // Ensure detail view is closed when adding new
+    setShowDetail(false);
     setSelectedWork(null);
   };
 
   const handleEdit = (work) => {
     setEditingWork(work);
     setShowForm(true);
-    setShowDetail(false); // Ensure detail view is closed when editing
+    setShowDetail(false);
     setSelectedWork(null);
   };
 
@@ -79,7 +79,7 @@ export default function PullingWorkManagement({ projectId }) {
       }
       setShowForm(false);
       setEditingWork(null);
-      await loadPullingWorks(); // This now calls loadData
+      await loadPullingWorks();
     } catch (error) {
       console.error("Fehler beim Speichern der Einzieharbeit:", error);
     }
@@ -89,8 +89,8 @@ export default function PullingWorkManagement({ projectId }) {
     if (window.confirm("Sind Sie sicher, dass Sie diese Einzieharbeit löschen möchten?")) {
       try {
         await PullingWork.delete(workId);
-        await loadPullingWorks(); // This now calls loadData
-        if (selectedWork && selectedWork.id === workId) {// If deleted work was in detail view
+        await loadPullingWorks();
+        if (selectedWork && selectedWork.id === workId) {
           setShowDetail(false);
           setSelectedWork(null);
         }
@@ -100,21 +100,21 @@ export default function PullingWorkManagement({ projectId }) {
     }
   };
 
-  const handleViewDetail = (work) => {// New handler for viewing details
+  const handleViewDetail = (work) => {
     setSelectedWork(work);
     setShowDetail(true);
-    setShowForm(false); // Ensure form is closed when viewing details
+    setShowForm(false);
     setEditingWork(null);
   };
 
-  const handleEditFromDetail = (work) => {// New handler for editing from detail view
+  const handleEditFromDetail = (work) => {
     setShowDetail(false);
     setSelectedWork(null);
     setEditingWork(work);
     setShowForm(true);
   };
 
-  const getMaterialDetails = (materialId) => {// Helper function
+  const getMaterialDetails = (materialId) => {
     return materials.find((m) => m.id === materialId) || null;
   };
 
@@ -152,68 +152,67 @@ export default function PullingWorkManagement({ projectId }) {
               <Card className="border-l-4 border-blue-400 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetail(work)}>
                 <CardContent className="p-4 sm:p-5">
                   <div className="space-y-3">
-                    {/* Header row: Location and Actions */}
+                    {/* Header: Location & Actions */}
                     <div className="flex items-center justify-between gap-3">
                       <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2.5 py-1 flex-shrink-0">
                         {work.location_name}
                       </Badge>
                       <div className="flex gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                      size="icon"
-                      className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
-                      onClick={() => handleEdit(work)}>
-                      
+                        <Button size="icon" className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200" onClick={() => handleEdit(work)}>
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button
-                      size="icon"
-                      className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
-                      onClick={() => handleDelete(work.id)}>
-                      
+                        <Button size="icon" className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200" onClick={() => handleDelete(work.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
 
-                    {/* Cable info row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs sm:text-sm">
-                      <div>
-                        <p className="text-gray-500 font-medium">Kabel</p>
-                        <p className="text-gray-900 font-medium truncate">{work.cable_type || '-'}</p>
+                    {/* Route: Point A → Point B */}
+                    {(work.start_point || work.end_point) && (
+                      <div className="flex items-center gap-2 text-xs sm:text-sm">
+                        <MapPin className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
+                        <p className="font-medium text-gray-700">
+                          {work.start_point} <span className="text-gray-400 mx-1">→</span> {work.end_point}
+                        </p>
                       </div>
-                      <div>
-                        <p className="text-gray-500 font-medium">Länge</p>
-                        <p className="text-gray-900 font-medium">{work.cable_length ? `${work.cable_length}m` : '-'}</p>
-                      </div>
-                      <div className="col-span-2 sm:col-span-1">
-                        
-                        
+                    )}
 
-                    
-                      </div>
+                    {/* Cable Type & Length (compact) */}
+                    <div className="text-xs sm:text-sm">
+                      <p className="text-gray-500 font-medium mb-0.5">Kabel</p>
+                      <p className="text-gray-900 font-medium">
+                        {work.cable_type} {work.cable_length && `• ${work.cable_length}m`}
+                      </p>
                     </div>
 
-                    {/* Location and Foreman */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm border-t pt-3">
-                      <div>
-                        
-                        
+                    {/* Pull-Into & Details */}
+                    {work.work_description && (
+                      <div className="text-xs sm:text-sm border-t pt-2.5">
+                        <p className="text-gray-500 font-medium mb-1">Eingezogen in</p>
+                        {(() => {
+                          const parts = work.work_description.split('|');
+                          const pullInto = parts[0];
+                          const status = parts[1];
+                          const size = parts[2];
+                          
+                          return (
+                            <div className="space-y-1">
+                              <p className="text-gray-900 font-medium">{pullInto}</p>
+                              {status && <p className="text-gray-600">Status: <span className="font-medium">{status === 'belegt' ? 'Belegt' : 'Leer'}</span></p>}
+                              {size && <p className="text-gray-600">Ø: <span className="font-medium">{size}mm</span></p>}
+                            </div>
+                          );
+                        })()}
                       </div>
-                      {work.foreman &&
-                  <div>
-                          <p className="text-gray-500 font-medium">Bauleiter</p>
-                          <p className="text-gray-900">{work.foreman}</p>
-                        </div>
-                  }
-                    </div>
+                    )}
 
-                    {/* Work description */}
-                    {work.work_description &&
-                <div className="text-xs text-gray-600 italic border-t pt-2">
-                        <p className="text-gray-500 font-medium mb-1">Details</p>
-                        {work.work_description}
+                    {/* Foreman */}
+                    {work.foreman && (
+                      <div className="text-xs sm:text-sm border-t pt-2.5">
+                        <p className="text-gray-500 font-medium mb-0.5">Bauleiter</p>
+                        <p className="text-gray-900">{work.foreman}</p>
                       </div>
-                }
+                    )}
                   </div>
                 </CardContent>
               </Card>
