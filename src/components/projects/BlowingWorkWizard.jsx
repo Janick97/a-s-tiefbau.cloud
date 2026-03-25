@@ -125,13 +125,30 @@ export default function BlowingWorkWizard({ project, onClose, onSaved, user, exi
         documentation_date: new Date().toISOString().split("T")[0],
       });
     }
-    // Visioplan-Verbindung mit eingeblasenen Metern und Kabeltyp aktualisieren
+    // Visioplan-Verbindung aktualisieren
     if (data.visio_connection_id) {
       await base44.entities.VisioConnection.update(data.visio_connection_id, {
         length_meters: blown,
         cable_type: data.cable_type,
       });
       queryClient.invalidateQueries(['visio-connections']);
+    }
+    // Kabel in Projektmaterial als verbraucht buchen
+    if (!isEdit && data.cable_type) {
+      const { Material, ProjectMaterial } = await import("@/entities/all");
+      const allMaterials = await Material.list().catch(() => []);
+      const matched = allMaterials.find(m =>
+        m.name?.toLowerCase().includes(data.cable_type.toLowerCase()) ||
+        data.cable_type.toLowerCase().includes(m.name?.toLowerCase() || "")
+      );
+      if (matched) {
+        await ProjectMaterial.create({
+          project_id: project.id,
+          material_id: matched.id,
+          quantity: blown,
+          notes: `Einblasen: ${data.point_a} → ${data.point_b}`,
+        }).catch(() => {});
+      }
     }
     setSaving(false);
     onSaved?.();
