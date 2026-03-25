@@ -328,7 +328,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
       </style>
 
       <div className="min-h-screen flex w-full bg-gradient-to-br from-gray-50 to-gray-100">
-        <Sidebar className="border-none shadow-lg no-print">
+        <Sidebar className="border-none shadow-lg no-print z-50">
           <div className="sidebar-gradient h-full flex flex-col">
             <SidebarHeader className="border-b border-gray-200 px-4 py-3 flex-shrink-0">
               <div className="flex items-center gap-3">
