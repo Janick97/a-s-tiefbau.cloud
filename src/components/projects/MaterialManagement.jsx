@@ -394,35 +394,40 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                             return (
                                 <div
                                     key={pm.id}
-                                    className={`p-4 border rounded-lg shadow-sm transition-colors duration-300 flex items-center gap-4 ${
+                                    className={`p-3 sm:p-4 border rounded-lg shadow-sm transition-colors duration-300 flex flex-col sm:flex-row sm:items-center gap-3 ${
                                         pm.is_booked_in_psl ? 'bg-green-50/70 border-green-200' : 'bg-white'
                                     }`}
                                 >
-                                    {updatingMaterialId === pm.id ? (
-                                        <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
-                                    ) : (
-                                        <Checkbox
-                                            id={`psl-booked-${pm.id}`}
-                                            checked={pm.is_booked_in_psl || false}
-                                            onCheckedChange={(checked) => handleBookingToggle(pm.id, checked)}
-                                            aria-label="In PSL gebucht"
-                                        />
-                                    )}
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-semibold text-gray-800">{material.name}</p>
-                                        <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                                        {updatingMaterialId === pm.id ? (
+                                            <Loader2 className="w-5 h-5 animate-spin text-gray-400 mt-0.5 flex-shrink-0" />
+                                        ) : (
+                                            <Checkbox
+                                                id={`psl-booked-${pm.id}`}
+                                                checked={pm.is_booked_in_psl || false}
+                                                onCheckedChange={(checked) => handleBookingToggle(pm.id, checked)}
+                                                aria-label="In PSL gebucht"
+                                                className="mt-1 flex-shrink-0"
+                                            />
+                                        )}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{material.name}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Art-Nr.: {material.article_number}</p>
+                                        </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-medium text-gray-800">{pm.quantity} {material.unit}</p>
-                                        <Badge variant="outline">{material.category}</Badge>
-                                    </div>
-                                    <div className="flex gap-1">
-                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(pm)}>
-                                            <Edit className="w-4 h-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" onClick={() => handleDelete(pm.id)} className="text-red-500 hover:text-red-600">
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
+                                    <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end">
+                                        <div className="text-right">
+                                            <p className="font-medium text-gray-800 text-sm sm:text-base">{pm.quantity} {material.unit}</p>
+                                            <Badge variant="outline" className="text-xs mt-1">{material.category}</Badge>
+                                        </div>
+                                        <div className="flex gap-1 flex-shrink-0">
+                                            <Button variant="ghost" size="sm" onClick={() => handleEdit(pm)} className="h-8 w-8">
+                                                <Edit className="w-4 h-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="sm" onClick={() => handleDelete(pm.id)} className="h-8 w-8 text-red-500 hover:text-red-600">
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -435,17 +440,17 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                             return (
                                 <div
                                     key={`exc-${group.material_id}`}
-                                    className="p-4 border rounded-lg shadow-sm bg-blue-50/50 border-blue-200"
+                                    className="p-3 sm:p-4 border rounded-lg shadow-sm bg-blue-50/50 border-blue-200"
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800">{material.name}</p>
-                                            <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{material.name}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Art-Nr.: {material.article_number}</p>
                                             <p className="text-xs text-blue-600 mt-1">Aus Leistungen dokumentiert</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-medium text-gray-800">{group.total_quantity.toFixed(2)} {material.unit}</p>
-                                            <Badge variant="outline">{material.category}</Badge>
+                                            <p className="font-medium text-gray-800 text-sm sm:text-base">{group.total_quantity.toFixed(2)} {material.unit}</p>
+                                            <Badge variant="outline" className="text-xs mt-1">{material.category}</Badge>
                                         </div>
                                     </div>
                                 </div>
@@ -471,17 +476,17 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                             return (
                                 <div
                                     key={`montage-${group.material_id}`}
-                                    className="p-4 border rounded-lg shadow-sm bg-purple-50/50 border-purple-200"
+                                    className="p-3 sm:p-4 border rounded-lg shadow-sm bg-purple-50/50 border-purple-200"
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-semibold text-gray-800">{material.name}</p>
-                                            <p className="text-sm text-gray-500">Art-Nr.: {material.article_number}</p>
+                                            <p className="font-semibold text-gray-800 text-sm sm:text-base">{material.name}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Art-Nr.: {material.article_number}</p>
                                             <p className="text-xs text-purple-600 mt-1">Aus Montageleistungen dokumentiert</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-medium text-gray-800">{group.total_quantity.toFixed(2)} {material.unit}</p>
-                                            <Badge variant="outline">{material.category}</Badge>
+                                            <p className="font-medium text-gray-800 text-sm sm:text-base">{group.total_quantity.toFixed(2)} {material.unit}</p>
+                                            <Badge variant="outline" className="text-xs mt-1">{material.category}</Badge>
                                         </div>
                                     </div>
                                 </div>
