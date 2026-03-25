@@ -62,8 +62,8 @@ const MEHRFACHROHR_MATERIALS = [
 
 // ─── Einzieh-Kategorien ───────────────────────────────────────────────────────
 const CATEGORIES = [
-  { id: "einzelne_snr",  label: "Kabel",  desc: "Einzelne SNR-Farbe einziehen" },
-  { id: "snr_verband",   label: "Kabel",     desc: "Kabel aus Materialliste" },
+  { id: "einzelne_snr",  label: "Einzelne SNR",  desc: "Einzelne SNR-Farbe einziehen" },
+  { id: "snr_verband",   label: "SNRVerband",     desc: "SNR-Verband mit Artikelnummer" },
   { id: "kupferkabel",   label: "Kupferkabel",    desc: "Kupferkabel aus Materialliste" },
   { id: "mehrfachrohr",  label: "Mehrfachrohr",   desc: "HDPE Mehrfachrohr" },
 ];
