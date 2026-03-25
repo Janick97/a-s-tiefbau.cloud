@@ -125,13 +125,15 @@ export default function PullingWorkDetail({ pullingWork, isOpen, onClose, onEdit
               <p className="text-xs font-bold text-gray-600 mb-2 uppercase tracking-wider">Eingezogen in</p>
               <p className="font-bold text-gray-900 text-lg">{pullingWork.work_description || "–"}</p>
             </div>
-            {materialLabel && (
-              <div className="bg-purple-50 rounded-xl p-5 border-2 border-purple-200 sm:col-span-2">
-                <p className="text-xs font-bold text-gray-600 mb-2 uppercase tracking-wider">Material</p>
-                <p className="font-bold text-gray-900 text-lg">{materialLabel}</p>
-              </div>
-            )}
           </div>
+
+          {/* Material Section */}
+          {materialLabel && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-5 border-2 border-purple-300 shadow-sm">
+              <p className="text-xs font-bold text-purple-700 mb-3 uppercase tracking-wider">📦 Material</p>
+              <p className="font-bold text-gray-900 text-lg text-center py-3 bg-white rounded-lg border border-purple-200">{materialLabel}</p>
+            </div>
+          )}
 
           {/* Farben */}
           {connectedColors.length > 0 && (
