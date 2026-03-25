@@ -385,18 +385,23 @@ export default function TimesheetManagement({ projectId, project }) {
             </div>
             
             <Card className="card-elevation border-none no-print">
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <CardTitle className="flex items-center gap-2">
                         <Clock className="w-5 h-5" />
-                        Stundenzettel ({entries.length} Einträge)
+                        <span className="hidden sm:inline">Stundenzettel</span>
+                        <span className="sm:hidden">Stunden</span>
+                        ({entries.length})
                     </CardTitle>
-                    <div className="flex gap-2">
-                         <Button onClick={handleExportPdf} variant="outline">
-                             <FileDown className="w-4 h-4 mr-2" /> PDF Export
+                    <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+                         <Button onClick={handleExportPdf} variant="outline" className="flex-1 sm:flex-none text-xs sm:text-sm">
+                             <FileDown className="w-4 h-4 mr-1 sm:mr-2" />
+                             <span className="hidden sm:inline">PDF Export</span>
+                             <span className="sm:hidden">PDF</span>
                          </Button>
-                        <Button onClick={handleAdd}>
-                            <Plus className="w-4 h-4 mr-2" />
-                            Eintrag hinzufügen
+                        <Button onClick={handleAdd} className="flex-1 sm:flex-none text-xs sm:text-sm">
+                            <Plus className="w-4 h-4 mr-1 sm:mr-2" />
+                            <span className="hidden sm:inline">Eintrag hinzufügen</span>
+                            <span className="sm:hidden">Neu</span>
                         </Button>
                     </div>
                 </CardHeader>
@@ -440,9 +445,9 @@ export default function TimesheetManagement({ projectId, project }) {
                                             </TableCell>
                                             <TableCell className="text-right font-semibold">{entry.hours.toFixed(2)}</TableCell>
                                             <TableCell className="text-right">
-                                                <div className="flex justify-end gap-1">
-                                                    <Button variant="ghost" size="icon" onClick={() => handleEdit(entry)}><Edit className="w-4 h-4" /></Button>
-                                                    <Button variant="ghost" size="icon" onClick={() => handleDelete(entry.id)} className="text-red-500 hover:text-red-700"><Trash2 className="w-4 h-4" /></Button>
+                                                <div className="flex justify-end gap-0.5">
+                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(entry)} title="Bearbeiten"><Edit className="w-4 h-4" /></Button>
+                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(entry.id)} title="Löschen"><Trash2 className="w-4 h-4" /></Button>
                                                 </div>
                                             </TableCell>
                                         </motion.tr>
