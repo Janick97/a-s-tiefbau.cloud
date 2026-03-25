@@ -109,11 +109,7 @@ const navigationItems = [
   hasSubmenu: true
 },
 
-{
-  title: "Berichte",
-  url: createPageUrl("Reports"),
-  icon: FileText
-},
+
 {
   title: "Fahrzeugpflege",
   url: createPageUrl("MyVehicleMaintenance"),

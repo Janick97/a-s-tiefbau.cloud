@@ -90,7 +90,6 @@ import Tasks from './pages/Tasks';
 import VAOApplication from './pages/VAOApplication';
 import VAOMonitoring from './pages/VAOMonitoring';
 import TeamPerformanceHistory from './pages/TeamPerformanceHistory';
-import Reports from './pages/Reports';
 import MyVehicleMaintenance from './pages/MyVehicleMaintenance';
 import VehicleMaintenanceOverview from './pages/VehicleMaintenanceOverview';
 import __Layout from './Layout.jsx';
@@ -140,7 +139,6 @@ export const PAGES = {
     "VAOApplication": VAOApplication,
     "VAOMonitoring": VAOMonitoring,
     "TeamPerformanceHistory": TeamPerformanceHistory,
-    "Reports": Reports,
     "MyVehicleMaintenance": MyVehicleMaintenance,
     "VehicleMaintenanceOverview": VehicleMaintenanceOverview,
 }
