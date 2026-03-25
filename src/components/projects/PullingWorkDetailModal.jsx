@@ -53,7 +53,7 @@ export default function PullingWorkDetailModal({ pullingWork, isOpen, onClose, o
             <h4 className="font-semibold text-gray-900">Grundinformationen</h4>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-500">Kabell länge</p>
+                <p className="text-gray-500">Kabellänge</p>
                 <p className="font-medium text-lg text-gray-900">{pullingWork.cable_length || "N/A"} m</p>
               </div>
               <div>
