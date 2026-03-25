@@ -73,7 +73,7 @@ const CATEGORIES = [
 const PULL_INTO_OPTIONS = [
   "Leerrohr",
   "Mikro-Rohr",
-  "Schutzrohr",
+  "Kabelformstein",
   "Kabelkanal",
   "Erdreich (direkt)",
   "Gebäude",
