@@ -340,9 +340,10 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                              {mat.name}
                            </button>
                          ))}
-                        </div>
-                  </div>
-                )}
+                         </div>
+                         )}
+                         </div>
+                         )}
               </motion.div>
             )}
 
