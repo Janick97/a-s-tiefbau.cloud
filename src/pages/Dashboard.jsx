@@ -344,13 +344,13 @@ export default function DashboardPage() {
                  </Card>
                </motion.div>
              </Link>
-             </div>
-          </div>
-          </div>
-          );
-          }
+           </div>
+           </div>
+           </div>
+           );
+           }
 
-          // Oberfläche Dashboard
+           // Oberfläche Dashboard
   if (user && user.position === 'Oberfläche') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50 p-3 md:p-6 lg:p-8">
