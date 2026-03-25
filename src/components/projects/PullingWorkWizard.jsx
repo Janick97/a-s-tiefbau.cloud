@@ -92,7 +92,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   const [data, setData] = useState({
     category: existingWork?.cable_type?.split("|")[0] || "",
-    selectedColor: existingWork?.connected_colors?.[0] || "",
+    selectedColors: existingWork?.connected_colors || [],
     selectedMaterial: existingWork?.cable_type?.split("|")[1] || "",
     point_a: existingWork?.start_point || "",
     point_b: existingWork?.end_point || "",
@@ -111,9 +111,18 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
   const setField = (field, value) => setData(d => ({ ...d, [field]: value }));
 
   // ─── Step 1 validation ────────────────────────────────────────────────────
+  const toggleColor = (colorName) => {
+    setData(d => ({
+      ...d,
+      selectedColors: d.selectedColors.includes(colorName)
+        ? d.selectedColors.filter(c => c !== colorName)
+        : [...d.selectedColors, colorName]
+    }));
+  };
+
   const step1Valid = () => {
     if (!data.category) return false;
-    if (data.category === "einzelne_snr" && !data.selectedColor) return false;
+    if (data.category === "einzelne_snr" && data.selectedColors.length === 0) return false;
     if (data.category === "snr_verband" && !data.selectedMaterial) return false;
     if (data.category === "kupferkabel" && !data.selectedMaterial) return false;
     if (data.category === "mehrfachrohr" && !data.selectedMaterial) return false;
@@ -124,7 +133,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   // ─── Build display label ──────────────────────────────────────────────────
   const getMaterialLabel = () => {
-    if (data.category === "einzelne_snr") return `Einzelne SNR – ${data.selectedColor}`;
+    if (data.category === "einzelne_snr") return `Einzelne SNR – ${data.selectedColors.join(", ")}`;
     if (data.category === "snr_verband") return data.selectedMaterial;
     if (data.category === "kupferkabel") return data.selectedMaterial;
     if (data.category === "mehrfachrohr") return data.selectedMaterial;
@@ -139,12 +148,12 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
       location_name: project.title || "",
       street: project.street || "",
       city: project.city || "",
-      cable_type: `${data.category}|${data.selectedMaterial || data.selectedColor}`,
+      cable_type: `${data.category}|${data.selectedMaterial || data.selectedColors.join(",")}`,
       cable_length: parseFloat(data.meters) || 0,
       start_point: data.point_a,
       end_point: data.point_b,
       work_description: data.pull_into,
-      connected_colors: data.selectedColor ? [data.selectedColor] : [],
+      connected_colors: data.selectedColors,
       notes: data.notes,
       status: existingWork?.status || "planned",
       foreman: existingWork?.foreman || "Nicht zugewiesen",
@@ -230,29 +239,45 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                   </div>
                 </div>
 
-                {/* Einzelne SNR → Farb-Picker */}
+                {/* Einzelne SNR → Farb-Picker (Mehrfachauswahl) */}
                 {data.category === "einzelne_snr" && (
                   <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Farbe auswählen</p>
+                    <p className="text-sm font-semibold text-gray-700 mb-1">Farben auswählen <span className="text-gray-400 font-normal">(mehrere möglich)</span></p>
+                    {data.selectedColors.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {data.selectedColors.map(c => {
+                          const color = SNR_COLORS.find(s => s.name === c);
+                          return (
+                            <span key={c} className="flex items-center gap-1 text-xs bg-blue-50 border border-blue-300 text-blue-700 rounded-full px-2 py-0.5 font-medium">
+                              <span className="w-3 h-3 rounded-full border border-gray-300 inline-block" style={{ backgroundColor: color?.hex }} />
+                              {c}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                     <div className="grid grid-cols-4 gap-2">
-                      {SNR_COLORS.map(color => (
-                        <button
-                          key={color.name}
-                          onClick={() => setField("selectedColor", color.name)}
-                          className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
-                            data.selectedColor === color.name
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 hover:border-gray-300"
-                          }`}
-                        >
-                          <div
-                            className="w-8 h-8 rounded-full border-2 border-gray-300 shadow"
-                            style={{ backgroundColor: color.hex }}
-                          />
-                          <span className="text-[10px] font-medium text-gray-700 text-center">{color.name}</span>
-                          {data.selectedColor === color.name && <Check className="w-3 h-3 text-blue-600" />}
-                        </button>
-                      ))}
+                      {SNR_COLORS.map(color => {
+                        const isSelected = data.selectedColors.includes(color.name);
+                        return (
+                          <button
+                            key={color.name}
+                            onClick={() => toggleColor(color.name)}
+                            className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${
+                              isSelected
+                                ? "border-blue-500 bg-blue-50"
+                                : "border-gray-200 hover:border-gray-300"
+                            }`}
+                          >
+                            <div
+                              className="w-8 h-8 rounded-full border-2 border-gray-300 shadow"
+                              style={{ backgroundColor: color.hex }}
+                            />
+                            <span className="text-[10px] font-medium text-gray-700 text-center">{color.name}</span>
+                            {isSelected && <Check className="w-3 h-3 text-blue-600" />}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
