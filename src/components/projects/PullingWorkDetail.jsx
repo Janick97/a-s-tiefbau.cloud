@@ -3,17 +3,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  MapPin, 
-  Cable, 
-  Calendar, 
-  User, 
-  Package, 
-  Palette, 
+import {
+  MapPin,
+  Cable,
+  Calendar,
+  User,
+  Package,
+  Palette,
   FileText,
   Edit,
-  X
-} from "lucide-react";
+  X } from
+"lucide-react";
 
 const statusColors = {
   planned: "bg-blue-100 text-blue-800",
@@ -23,49 +23,49 @@ const statusColors = {
 
 const statusLabels = {
   planned: "Geplant",
-  in_progress: "In Arbeit", 
+  in_progress: "In Arbeit",
   completed: "Abgeschlossen"
 };
 
 // Farbpalette für die Darstellung
 const COLOR_PALETTE = [
-  { hex: '#FF0000', name: 'Rot' },
-  { hex: '#90EE90', name: 'Hellgrün' },
-  { hex: '#0000FF', name: 'Blau' },
-  { hex: '#FFFF00', name: 'Gelb' },
-  { hex: '#FFFFFF', name: 'Weiß' },
-  { hex: '#808080', name: 'Grau' },
-  { hex: '#8B4513', name: 'Braun' },
-  { hex: '#800080', name: 'Lila' },
-  { hex: '#00FFFF', name: 'Cyan' },
-  { hex: '#000000', name: 'Schwarz' },
-  { hex: '#FFA500', name: 'Orange' },
-  { hex: '#FF8080', name: 'Hellrot' },
-  { hex: '#C8F7C5', name: 'Sehr Hellgrün' },
-  { hex: '#ADD8E6', name: 'Hellblau' },
-  { hex: '#FFFF99', name: 'Hellgelb' },
-  { hex: '#F5F5F5', name: 'Sehr Hellgrau' },
-  { hex: '#D3D3D3', name: 'Hellgrau' },
-  { hex: '#DEB887', name: 'Hellbraun' },
-  { hex: '#DA70D6', name: 'Helllila' },
-  { hex: '#E0FFFF', name: 'Hellcyan' },
-  { hex: '#696969', name: 'Dunkelgrau' }
-];
+{ hex: '#FF0000', name: 'Rot' },
+{ hex: '#90EE90', name: 'Hellgrün' },
+{ hex: '#0000FF', name: 'Blau' },
+{ hex: '#FFFF00', name: 'Gelb' },
+{ hex: '#FFFFFF', name: 'Weiß' },
+{ hex: '#808080', name: 'Grau' },
+{ hex: '#8B4513', name: 'Braun' },
+{ hex: '#800080', name: 'Lila' },
+{ hex: '#00FFFF', name: 'Cyan' },
+{ hex: '#000000', name: 'Schwarz' },
+{ hex: '#FFA500', name: 'Orange' },
+{ hex: '#FF8080', name: 'Hellrot' },
+{ hex: '#C8F7C5', name: 'Sehr Hellgrün' },
+{ hex: '#ADD8E6', name: 'Hellblau' },
+{ hex: '#FFFF99', name: 'Hellgelb' },
+{ hex: '#F5F5F5', name: 'Sehr Hellgrau' },
+{ hex: '#D3D3D3', name: 'Hellgrau' },
+{ hex: '#DEB887', name: 'Hellbraun' },
+{ hex: '#DA70D6', name: 'Helllila' },
+{ hex: '#E0FFFF', name: 'Hellcyan' },
+{ hex: '#696969', name: 'Dunkelgrau' }];
 
-export default function PullingWorkDetail({ 
-  pullingWork, 
-  isOpen, 
-  onClose, 
-  onEdit, 
-  materials = [] 
+
+export default function PullingWorkDetail({
+  pullingWork,
+  isOpen,
+  onClose,
+  onEdit,
+  materials = []
 }) {
   if (!pullingWork) return null;
 
-  const selectedMaterial = materials.find(m => m.id === pullingWork.material_id);
+  const selectedMaterial = materials.find((m) => m.id === pullingWork.material_id);
   const connectedColors = pullingWork.connected_colors || [];
 
   const getColorName = (hex) => {
-    const color = COLOR_PALETTE.find(c => c.hex === hex);
+    const color = COLOR_PALETTE.find((c) => c.hex === hex);
     return color ? color.name : hex;
   };
 
@@ -91,9 +91,9 @@ export default function PullingWorkDetail({
         <div className="space-y-6 py-4">
           {/* Status Header */}
           <div className="flex items-center justify-between">
-            <Badge className={statusColors[pullingWork.status]} size="lg">
-              {statusLabels[pullingWork.status]}
-            </Badge>
+            
+
+            
             <div className="flex items-center gap-2 text-gray-600">
               <User className="w-4 h-4" />
               <span>Bauleiter: {pullingWork.foreman}</span>
@@ -117,8 +117,8 @@ export default function PullingWorkDetail({
                 <label className="text-sm font-medium text-gray-500">Vollständige Adresse</label>
                 <p className="text-gray-900">
                   {pullingWork.street} {pullingWork.house_number}
-                  {pullingWork.postal_code && <><br/>{pullingWork.postal_code} {pullingWork.city}</>}
-                  {!pullingWork.postal_code && <><br/>{pullingWork.city}</>}
+                  {pullingWork.postal_code && <><br />{pullingWork.postal_code} {pullingWork.city}</>}
+                  {!pullingWork.postal_code && <><br />{pullingWork.city}</>}
                 </p>
               </div>
             </CardContent>
@@ -165,8 +165,8 @@ export default function PullingWorkDetail({
           </Card>
 
           {/* Material und Konnektierung */}
-          {(selectedMaterial || connectedColors.length > 0) && (
-            <Card className="bg-green-50">
+          {(selectedMaterial || connectedColors.length > 0) &&
+          <Card className="bg-green-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg text-green-800">
                   <Package className="w-5 h-5" />
@@ -174,8 +174,8 @@ export default function PullingWorkDetail({
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {selectedMaterial && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {selectedMaterial &&
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Verwendetes Material</label>
                       <div className="flex items-center gap-2 mt-1">
@@ -193,66 +193,66 @@ export default function PullingWorkDetail({
                       </p>
                     </div>
                   </div>
-                )}
+              }
 
-                {connectedColors.length > 0 && (
-                  <div>
+                {connectedColors.length > 0 &&
+              <div>
                     <label className="text-sm font-medium text-gray-500 flex items-center gap-2 mb-3">
                       <Palette className="w-4 h-4" />
                       Konnektierte Farben ({connectedColors.length})
                     </label>
                     <div className="flex flex-wrap gap-3">
-                      {connectedColors.map((colorHex, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border shadow-sm"
-                        >
+                      {connectedColors.map((colorHex, index) =>
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg border shadow-sm">
+                    
                           <div
-                            className="w-6 h-6 rounded border-2 border-gray-300"
-                            style={{ backgroundColor: colorHex }}
-                          />
+                      className="w-6 h-6 rounded border-2 border-gray-300"
+                      style={{ backgroundColor: colorHex }} />
+                    
                           <span className="text-sm font-medium text-gray-900">
                             {getColorName(colorHex)}
                           </span>
                         </div>
-                      ))}
+                  )}
                     </div>
                   </div>
-                )}
+              }
               </CardContent>
             </Card>
-          )}
+          }
 
           {/* Termine und Status */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Calendar className="w-5 h-5" />
-                Termine und Abschluss
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Fertigstellungsdatum</label>
-                <p className="text-gray-900">
-                  {pullingWork.completion_date 
-                    ? new Date(pullingWork.completion_date).toLocaleDateString('de-DE')
-                    : 'Nicht geplant'
-                  }
-                </p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Aktueller Status</label>
-                <Badge className={statusColors[pullingWork.status]}>
-                  {statusLabels[pullingWork.status]}
-                </Badge>
-              </div>
-            </CardContent>
+            
+
+
+
+
+            
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
           </Card>
 
           {/* Notizen */}
-          {pullingWork.notes && (
-            <Card>
+          {pullingWork.notes &&
+          <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Zusätzliche Notizen</CardTitle>
               </CardHeader>
@@ -260,9 +260,9 @@ export default function PullingWorkDetail({
                 <p className="text-gray-900 whitespace-pre-wrap">{pullingWork.notes}</p>
               </CardContent>
             </Card>
-          )}
+          }
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
