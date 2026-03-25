@@ -420,20 +420,20 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                                             <p className="font-medium text-gray-800 text-sm sm:text-base">{pm.quantity} {material.unit}</p>
                                             <Badge variant="outline" className="text-xs mt-1">{material.category}</Badge>
                                         </div>
-                                        <div className="flex gap-1 flex-shrink-0">
+                                        <div className="flex gap-2 flex-shrink-0">
                                             <Button 
-                                                size="sm" 
+                                                size="icon" 
                                                 onClick={() => handleEdit(pm)} 
-                                                className="h-8 w-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                                                className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
                                             >
-                                                <Edit className="w-4 h-4" />
+                                                <Edit className="w-5 h-5" />
                                             </Button>
                                             <Button 
-                                                size="sm" 
+                                                size="icon" 
                                                 onClick={() => handleDelete(pm.id)} 
-                                                className="h-8 w-8 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+                                                className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="w-5 h-5" />
                                             </Button>
                                         </div>
                                     </div>
