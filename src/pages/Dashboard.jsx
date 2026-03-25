@@ -13,7 +13,7 @@ import {
   MapPin,
   User as UserIcon,
   Construction,
-  Wrench,
+  Droplets,
   FileText,
   ListRestart,
   AlertCircle,
@@ -310,11 +310,11 @@ export default function DashboardPage() {
                    <CardContent className="p-6">
                      <div className="flex items-center gap-4">
                        <div className="p-3 rounded-lg bg-slate-100">
-                         <Wrench className="w-6 h-6 text-slate-700" />
+                         <Droplets className="w-6 h-6 text-slate-700" />
                        </div>
                        <div className="flex-1 min-w-0">
                          <h3 className="text-lg font-semibold text-gray-900">Fahrzeugpflege</h3>
-                         <p className="text-sm text-gray-500 mt-1">Fahrzeugzustand erfassen</p>
+                         <p className="text-sm text-gray-500 mt-1">Fahrzeugpflege einreichen</p>
                        </div>
                      </div>
                    </CardContent>
