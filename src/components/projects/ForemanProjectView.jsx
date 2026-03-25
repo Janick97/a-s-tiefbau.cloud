@@ -14,7 +14,7 @@ import {
   Loader2, Check, Upload, Ruler, Image as ImageIcon, Navigation, AlertTriangle, Wind
 } from "lucide-react";
 import ExcavationWizard from "./../../components/excavations/ExcavationWizard";
-import PullingWorkForm from "./PullingWorkForm";
+import PullingWorkWizard from "./PullingWorkWizard";
 import BlowingWorkWizard from "./BlowingWorkWizard";
 import ExcavationsManagement from "./ExcavationsManagement";
 import PullingWorkManagement from "./PullingWorkManagement";
@@ -495,14 +495,15 @@ export default function ForemanProjectView({
         )}
       </AnimatePresence>
 
-      {/* Pulling Form */}
+      {/* Pulling Work Wizard */}
       <AnimatePresence>
         {showPullingForm && (
-          <PullingWorkForm
-            pullingWork={editingPulling}
+          <PullingWorkWizard
+            existingWork={editingPulling}
             project={project}
-            onSubmit={handlePullingFormSubmit}
-            onCancel={() => { setShowPullingForm(false); setEditingPulling(null); }}
+            user={user}
+            onClose={() => { setShowPullingForm(false); setEditingPulling(null); }}
+            onSaved={() => { setShowPullingForm(false); setEditingPulling(null); loadData(); }}
           />
         )}
       </AnimatePresence>

@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import ExcavationWizard from "../components/excavations/ExcavationWizard";
-import PullingWorkForm from "../components/projects/PullingWorkForm";
+import PullingWorkWizard from "../components/projects/PullingWorkWizard";
 import MaterialManagement from "../components/projects/MaterialManagement";
 import TimesheetManagement from "../components/projects/TimesheetManagement";
 import DocumentManagement from "../components/projects/DocumentManagement";
@@ -685,18 +685,15 @@ export default function ProjectDetailOberflaechePage() {
         )}
       </AnimatePresence>
 
-      {/* Pulling Form Modal */}
+      {/* Pulling Work Wizard Modal */}
       <AnimatePresence>
         {showPullingForm && (
-          <PullingWorkForm
-            pullingWork={editingPulling}
+          <PullingWorkWizard
+            existingWork={editingPulling}
             project={project}
-            onSubmit={handlePullingFormSubmit}
-            onCancel={() => {
-              setShowPullingForm(false);
-              setEditingPulling(null);
-              setActiveAction(null);
-            }}
+            user={user}
+            onClose={() => { setShowPullingForm(false); setEditingPulling(null); setActiveAction(null); }}
+            onSaved={() => { setShowPullingForm(false); setEditingPulling(null); setActiveAction(null); loadData(); }}
           />
         )}
       </AnimatePresence>
