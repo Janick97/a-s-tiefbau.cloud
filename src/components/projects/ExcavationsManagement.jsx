@@ -1056,13 +1056,14 @@ export default function ExcavationsManagement({
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                <Button variant="outline" onClick={() => setShowBackfillDialog(false)}>
+              <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
+                <Button variant="outline" onClick={() => setShowBackfillDialog(false)} className="w-full sm:w-auto">
                   Abbrechen
                 </Button>
-                <Button onClick={handleBackfillSubmit} className="bg-orange-600 hover:bg-orange-700">
-                  <Package className="w-4 h-4 mr-2" />
-                  Als verfüllt markieren
+                <Button onClick={handleBackfillSubmit} className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700">
+                  <Package className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Als verfüllt markieren</span>
+                  <span className="sm:hidden">Verfüllt</span>
                 </Button>
               </CardFooter>
             </Card>
@@ -1148,13 +1149,14 @@ export default function ExcavationsManagement({
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                <Button variant="outline" onClick={() => setShowAsphaltTragDialog(false)}>
+              <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
+                <Button variant="outline" onClick={() => setShowAsphaltTragDialog(false)} className="w-full sm:w-auto">
                   Abbrechen
                 </Button>
-                <Button onClick={handleAsphaltTragSubmit} className="bg-gray-700 hover:bg-gray-800">
-                  <CheckSquare className="w-4 h-4 mr-2" />
-                  Fertigstellen
+                <Button onClick={handleAsphaltTragSubmit} className="w-full sm:w-auto bg-gray-700 hover:bg-gray-800">
+                  <CheckSquare className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Fertigstellen</span>
+                  <span className="sm:hidden">OK</span>
                 </Button>
               </CardFooter>
             </Card>
@@ -1240,13 +1242,14 @@ export default function ExcavationsManagement({
                   </div>
                 )}
               </CardContent>
-              <CardFooter className="flex justify-end gap-3 bg-gray-50 rounded-b-lg">
-                <Button variant="outline" onClick={() => setShowAsphaltFeinDialog(false)}>
+              <CardFooter className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3 bg-gray-50 rounded-b-lg">
+                <Button variant="outline" onClick={() => setShowAsphaltFeinDialog(false)} className="w-full sm:w-auto">
                   Abbrechen
                 </Button>
-                <Button onClick={handleAsphaltFeinSubmit} className="bg-gray-900 hover:bg-black">
-                  <CheckSquare className="w-4 h-4 mr-2" />
-                  Fertigstellen
+                <Button onClick={handleAsphaltFeinSubmit} className="w-full sm:w-auto bg-gray-900 hover:bg-black">
+                  <CheckSquare className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Fertigstellen</span>
+                  <span className="sm:hidden">OK</span>
                 </Button>
               </CardFooter>
             </Card>
