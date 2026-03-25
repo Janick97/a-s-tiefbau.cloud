@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { User } from "@/entities/all";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,7 +64,7 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
       if (isEdit) {
         await base44.entities.Beweissicherung.update(existingBeweissicherung.id, formData);
       } else {
-        const user = await base44.auth.me();
+        const user = await User.me();
         await base44.entities.Beweissicherung.create({
           montage_auftrag_id: montageAuftragId,
           ...formData,
