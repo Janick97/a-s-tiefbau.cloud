@@ -47,11 +47,16 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
       const svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
       setDraggingNode(prev => ({ ...prev, position_x: svgP.x, position_y: svgP.y }));
     } else if (isDragging) {
-      setTransform(prev => ({
-        ...prev,
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      }));
+      const container = containerRef.current;
+      const cw = container ? container.offsetWidth : 1200;
+      const ch = container ? container.offsetHeight : 650;
+      setTransform(prev => {
+        const newX = e.clientX - dragStart.x;
+        const newY = e.clientY - dragStart.y;
+        const clampedX = Math.min(cw * 0.4, Math.max(-(1200 * prev.scale - cw * 0.6), newX));
+        const clampedY = Math.min(ch * 0.4, Math.max(-(800 * prev.scale - ch * 0.6), newY));
+        return { ...prev, x: clampedX, y: clampedY };
+      });
     }
   }, [draggingNode, isDragging, dragStart]);
 
@@ -124,6 +129,20 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
         }}
       >
         <rect id="background" width="1200" height="800" fill="transparent" />
+
+        {/* PDF Export Rahmen */}
+        <rect
+          x="2" y="2" width="1196" height="796"
+          fill="none"
+          stroke="#f97316"
+          strokeWidth="3"
+          strokeDasharray="16,8"
+          opacity="0.6"
+          className="pointer-events-none"
+        />
+        <text x="10" y="18" fontSize="11" fill="#f97316" opacity="0.8" className="pointer-events-none" fontWeight="600">
+          PDF Export Bereich
+        </text>
 
         {/* Verbindungen */}
         <g>
