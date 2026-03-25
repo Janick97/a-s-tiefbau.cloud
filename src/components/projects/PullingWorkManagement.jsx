@@ -122,26 +122,26 @@ export default function PullingWorkManagement({ projectId }) {
     <>
       <Card className="card-elevation border-none">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Cable className="w-5 h-5" />
-            Einzieharbeiten ({pullingWorks.length})
-          </CardTitle>
-          <Button onClick={handleAdd}>
-            <Plus className="w-4 h-4 mr-2" />
-            Neue Einzieharbeit
-          </Button>
-        </CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Cable className="w-5 h-5" />
+              Einzieharbeiten ({pullingWorks.length})
+            </CardTitle>
+            <Button onClick={handleAdd} size="sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Neu
+            </Button>
 
         <CardContent>
           {pullingWorks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-12 text-gray-500">
               <Cable className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p>Noch keine Einzieharbeiten angelegt</p>
-              <Button onClick={handleAdd} className="mt-3">
+              <p className="mb-4">Noch keine Einzieharbeiten angelegt</p>
+              <Button onClick={handleAdd} size="sm">
+                <Plus className="w-4 h-4 mr-1" />
                 Erste Einzieharbeit hinzufügen
               </Button>
-            </div>
-          ) : (
+              </div>
+              ) : (
             <Table>
               <TableHeader>
                 <TableRow>
