@@ -372,7 +372,7 @@ export default function MaterialManagement({ project, projectMaterials, allMater
                     </Button>
                     <Button onClick={handleAdd} className="flex-1 sm:flex-none text-xs sm:text-sm">
                         <Plus className="w-4 h-4 sm:mr-2" />
-                        <span className="hidden sm:inline">Material</span>
+                        <span className="hidden sm:inline">Material hinzufügen</span>
                     </Button>
                 </div>
             </div>
