@@ -119,119 +119,83 @@ export default function PullingWorkManagement({ projectId }) {
   };
 
   return (
-    <>
-      <Card className="card-elevation border-none">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Cable className="w-5 h-5" />
-            Einzieharbeiten ({pullingWorks.length})
-          </CardTitle>
-          <Button onClick={handleAdd} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Neu
-          </Button>
-        </CardHeader>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
+            <Cable className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
+            Einzieharbeiten
+          </h3>
+          {pullingWorks.length > 0 && (
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+              {pullingWorks.length} Eintrag{pullingWorks.length !== 1 ? "e" : ""}
+            </p>
+          )}
+        </div>
+        <Button onClick={handleAdd} className="bg-blue-600 hover:bg-blue-700 flex-shrink-0 text-xs sm:text-sm px-2.5 sm:px-4">
+          <Plus className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Neu</span>
+        </Button>
+      </div>
 
-        <CardContent>
-          {pullingWorks.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              <Cable className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-              <p className="mb-4">Noch keine Einzieharbeiten angelegt</p>
-              <Button onClick={handleAdd} size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Erste Einzieharbeit hinzufügen
-              </Button>
-              </div>
-              ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Standort</TableHead>
-                  <TableHead>Adresse</TableHead>
-                  <TableHead>Beschreibung</TableHead>
-                  <TableHead>Kabel</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Bauleiter</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <AnimatePresence>
-                  {pullingWorks.map((work, index) => (
-                    <motion.tr
-                      key={work.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="hover:bg-gray-50 cursor-pointer" // Added cursor-pointer
-                      onClick={() => handleViewDetail(work)} // Added onClick to view details
-                    >
-                      <TableCell className="font-medium">
-                        {work.location_name}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm">
-                            {work.street} {work.house_number}, {work.city}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-gray-600">
-                          {work.work_description}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          {work.cable_type && <div>{work.cable_type}</div>}
-                          {work.cable_length && <div>{work.cable_length}m</div>}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[work.status]}>
+      {pullingWorks.length === 0 ? (
+        <div className="text-center py-12 text-gray-400">
+          <Cable className="w-12 h-12 mx-auto mb-3 opacity-20" />
+          <p className="font-medium text-sm">Noch keine Einzieharbeiten angelegt</p>
+          <Button onClick={handleAdd} className="mt-4 bg-blue-600 hover:bg-blue-700 text-sm">
+            <Plus className="w-4 h-4 mr-2" /> Ersten Eintrag erstellen
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {pullingWorks.map((work, i) => (
+            <motion.div key={work.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+              <Card className="border-l-4 border-blue-400 cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleViewDetail(work)}>
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <Badge className="bg-blue-600 text-white text-xs sm:text-sm px-2 py-0.5">
+                          {work.location_name}
+                        </Badge>
+                        <span className="text-xs sm:text-sm font-medium text-gray-700 truncate">{work.cable_type}</span>
+                        {work.cable_length && <span className="text-xs sm:text-sm text-gray-600">{work.cable_length}m</span>}
+                      </div>
+                      <div className="text-xs sm:text-sm text-gray-600">
+                        {work.street} {work.house_number}, {work.city}
+                      </div>
+                      {work.work_description && <p className="text-xs text-gray-600 italic">{work.work_description}</p>}
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <Badge variant="outline" className={statusColors[work.status]}>
                           {statusLabels[work.status]}
                         </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-gray-600">
-                          {work.foreman}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => { // Added e.stopPropagation()
-                              e.stopPropagation();
-                              handleEdit(work);
-                            }}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => { // Added e.stopPropagation()
-                              e.stopPropagation();
-                              handleDelete(work.id);
-                            }}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+                        {work.foreman && <span className="text-xs text-gray-500">Bauleiter: {work.foreman}</span>}
+                      </div>
+                    </div>
+                    <div className="flex gap-0.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-400 hover:text-blue-600 hover:bg-blue-50 h-8 w-8"
+                        onClick={() => handleEdit(work)}
+                      >
+                        <Edit className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-red-400 hover:text-red-600 hover:bg-red-50 h-8 w-8"
+                        onClick={() => handleDelete(work.id)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      )}
 
       <AnimatePresence>
         {showForm && (
@@ -256,6 +220,6 @@ export default function PullingWorkManagement({ projectId }) {
         onEdit={handleEditFromDetail}
         materials={materials}
       />
-    </>
+    </div>
   );
 }
