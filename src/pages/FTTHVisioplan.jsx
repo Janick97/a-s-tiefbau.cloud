@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Lightbulb, Network, AlertTriangle, Plus, Download, Loader2 } from "lucide-react";
-import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 
 import VisioCanvas from "@/components/visio/VisioCanvas";
@@ -32,6 +31,7 @@ export default function FTTHVisioplanPage() {
   const [highlightedElements, setHighlightedElements] = useState({ nodeIds: [], connectionIds: [] });
   const [addMenuOpen, setAddMenuOpen] = useState(false);
   const canvasRef = useRef(null);
+  const svgExportRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -128,38 +128,52 @@ export default function FTTHVisioplanPage() {
   const handleConnectionClick = (connection) => { setSelectedConnection(connection); setSelectedNode(null); };
   const handleStatusChange = (nodeId, newStatus) => updateNodeMutation.mutate({ nodeId, status: newStatus });
 
-  const handleDownloadVisioplan = async () => {
-    const canvasElement = canvasRef.current;
-    if (!canvasElement) return;
-    try {
-      const canvas = await html2canvas(canvasElement, { backgroundColor: '#ffffff', scale: 2, logging: false });
+  const handleDownloadVisioplan = useCallback(() => {
+    const svgEl = svgExportRef.current;
+    if (!svgEl) return;
+    const currentProject = projects.find(p => p.id === selectedProjectId);
+
+    // Clone SVG and reset transform for clean export
+    const clone = svgEl.cloneNode(true);
+    clone.setAttribute('style', '');
+    clone.setAttribute('width', '1200');
+    clone.setAttribute('height', '800');
+    clone.setAttribute('viewBox', '0 0 1200 800');
+
+    // Remove dashed PDF border rect from export
+    const pdfRect = clone.querySelector('#pdf-export-border');
+    if (pdfRect) pdfRect.remove();
+    const pdfLabel = clone.querySelector('#pdf-export-label');
+    if (pdfLabel) pdfLabel.remove();
+
+    const svgData = new XMLSerializer().serializeToString(clone);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 2400;
+      canvas.height = 1600;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, 2400, 1600);
+      ctx.drawImage(img, 0, 0, 2400, 1600);
+      URL.revokeObjectURL(url);
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const margin = 10;
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const margin = 10;
-      const usableWidth = pageWidth - margin * 2;
-      const usableHeight = pageHeight - margin * 2;
-      const imgRatio = canvas.width / canvas.height;
-      const pdfRatio = usableWidth / usableHeight;
-      let imgW, imgH;
-      if (imgRatio > pdfRatio) {
-        imgW = usableWidth;
-        imgH = usableWidth / imgRatio;
-      } else {
-        imgH = usableHeight;
-        imgW = usableHeight * imgRatio;
-      }
-      const currentProject = projects.find(p => p.id === selectedProjectId);
-      pdf.setFontSize(12);
+      pdf.setFontSize(11);
+      pdf.setTextColor(80, 80, 80);
       pdf.text(`Visioplan – ${currentProject?.project_number || ''} ${currentProject?.title || ''}`, margin, margin - 2);
-      pdf.addImage(imgData, 'PNG', margin, margin, imgW, imgH);
+      pdf.addImage(imgData, 'PNG', margin, margin, pageWidth - margin * 2, pageHeight - margin * 2);
       pdf.save(`Visioplan_${currentProject?.project_number || 'Export'}_${new Date().toISOString().split('T')[0]}.pdf`);
       toast({ title: "Download erfolgreich", description: "Visioplan wurde als PDF gespeichert." });
-    } catch (error) {
-      toast({ title: "Download fehlgeschlagen", description: error.message, variant: "destructive" });
-    }
-  };
+    };
+    img.onerror = () => toast({ title: "Export fehlgeschlagen", variant: "destructive" });
+    img.src = url;
+  }, [projects, selectedProjectId, toast]);
 
   const stats = {
     hvtCount: nodes.filter(n => n.node_type === 'HVT').length,
@@ -281,6 +295,7 @@ export default function FTTHVisioplanPage() {
         ) : (
           <div className="relative" ref={canvasRef}>
             <VisioCanvas
+              svgExportRef={svgExportRef}
               nodes={nodes}
               connections={connections}
               onNodeClick={handleNodeClick}

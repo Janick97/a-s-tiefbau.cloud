@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { ZoomIn, ZoomOut, Maximize2, Lock, Unlock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight, onNodeMove, highlightedNodes = [], highlightedConnections = [] }) {
+export default function VisioCanvas({ nodes, connections, onNodeClick, onConnectionClick, showOnlyLight, onNodeMove, highlightedNodes = [], highlightedConnections = [], svgExportRef }) {
   const svgRef = useRef(null);
   const containerRef = useRef(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
@@ -119,7 +119,7 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
       onMouseDown={handleMouseDown}
     >
       <svg
-        ref={svgRef}
+        ref={(el) => { svgRef.current = el; if (svgExportRef) svgExportRef.current = el; }}
         className="w-full h-full"
         viewBox="0 0 1200 800"
         style={{
@@ -128,20 +128,21 @@ export default function VisioCanvas({ nodes, connections, onNodeClick, onConnect
           transition: isDragging || draggingNode ? 'none' : 'transform 0.1s'
         }}
       >
-        <rect id="background" width="1200" height="800" fill="transparent" />
+        <rect id="background" width="1200" height="800" fill="white" />
 
         {/* PDF Export Rahmen */}
         <rect
+          id="pdf-export-border"
           x="2" y="2" width="1196" height="796"
           fill="none"
           stroke="#f97316"
           strokeWidth="3"
           strokeDasharray="16,8"
-          opacity="0.6"
+          opacity="0.7"
           className="pointer-events-none"
         />
-        <text x="10" y="18" fontSize="11" fill="#f97316" opacity="0.8" className="pointer-events-none" fontWeight="600">
-          PDF Export Bereich
+        <text id="pdf-export-label" x="10" y="18" fontSize="11" fill="#f97316" opacity="0.8" className="pointer-events-none" fontWeight="600">
+          ← PDF Export Bereich →
         </text>
 
         {/* Verbindungen */}
