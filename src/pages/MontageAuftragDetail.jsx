@@ -396,9 +396,9 @@ export default function MontageAuftragDetailPage() {
       <AnimatePresence>
         {showLeistungWizard && (
           <MontageLeistungWizard
-            montageAuftrag={montageAuftrag}
-            onClose={() => setShowLeistungWizard(false)}
-            onSaved={() => {
+            montageAuftragId={montageAuftrag.id}
+            onCancel={() => setShowLeistungWizard(false)}
+            onComplete={() => {
               setShowLeistungWizard(false);
               window.location.reload();
             }}
