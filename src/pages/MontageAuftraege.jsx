@@ -243,6 +243,19 @@ export default function MontageAuftraegePage() {
     }
   };
 
+  const handleResetTiefbauOffen = async (auftrag) => {
+    if (!window.confirm("Tiefbau-Status wirklich zurücksetzen?")) return;
+    try {
+      await MontageAuftrag.update(auftrag.id, {
+        tiefbau_offen: false,
+        tiefbau_offen_date: null
+      });
+      loadData();
+    } catch (error) {
+      alert(`Fehler: ${error.message}`);
+    }
+  };
+
   const handleTiefbauOffen = (auftrag) => {
     if (auftrag.tiefbau_offen) {
       alert("Dieser Auftrag wurde bereits als 'Tiefbau offen' gemeldet.");
@@ -734,22 +747,27 @@ export default function MontageAuftraegePage() {
                               </Button>
                             )}
                             <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="outline" size="sm" className="h-8 w-full">
-                                  <MoreVertical className="w-3 h-3" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleMonteurClick(auftrag)}>
-                                  <Users className="w-4 h-4 mr-2" />Monteure zuweisen
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm" className="h-8 w-full">
+                                <MoreVertical className="w-3 h-3" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleMonteurClick(auftrag)}>
+                                <Users className="w-4 h-4 mr-2" />Monteure zuweisen
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleNotesClick(auftrag)}>
+                                <Edit3 className="w-4 h-4 mr-2" />Notizen bearbeiten
+                              </DropdownMenuItem>
+                              {auftrag.tiefbau_offen && (
+                                <DropdownMenuItem onClick={() => handleResetTiefbauOffen(auftrag)} className="text-orange-600 focus:text-orange-600">
+                                  <Construction className="w-4 h-4 mr-2" />TB-Status zurücksetzen
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleNotesClick(auftrag)}>
-                                  <Edit3 className="w-4 h-4 mr-2" />Notizen bearbeiten
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDelete(auftrag.id)} className="text-red-600 focus:text-red-600">
-                                  <Trash2 className="w-4 h-4 mr-2" />Löschen
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
+                              )}
+                              <DropdownMenuItem onClick={() => handleDelete(auftrag.id)} className="text-red-600 focus:text-red-600">
+                                <Trash2 className="w-4 h-4 mr-2" />Löschen
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
                             </DropdownMenu>
                           </div>
                         </div>
