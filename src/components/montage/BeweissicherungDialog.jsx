@@ -220,7 +220,7 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
                 <Input
                   type="number"
                   value={formData.kabel_tiefe_cm}
-                  onChange={(e) => handleChange("kabel_tiefe_cm", e.target.value)}
+                  onChange={(e) => handleChange("kabel_tiefe_cm", e.target.value === '' ? null : parseFloat(e.target.value))}
                   placeholder="z.B. 60"
                 />
               </div>
