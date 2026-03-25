@@ -132,12 +132,12 @@ export default function MyVehicleMaintenancePage() {
     );
   }
 
-  if (!user || !['Bauleiter', 'Oberfläche', 'Monteur'].includes(user.position)) {
+  if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-8">
         <Card><CardContent className="p-8 text-center">
           <AlertCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <p className="text-gray-600">Kein Zugriff.</p>
+          <p className="text-gray-600">Bitte melden Sie sich an.</p>
         </CardContent></Card>
       </div>
     );
