@@ -271,7 +271,7 @@ export default function MontageAuftragDetailPage() {
         </Card>
 
         {/* Action Buttons - nur Mobile für Monteur */}
-        {isMonteur && !readOnly && (
+        {isMonteur && (
           <div className="md:hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Button onClick={() => setShowLeistungWizard(true)} className="bg-blue-700 hover:bg-blue-800 text-white h-12 text-base font-semibold">
               <Plus className="w-5 h-5 mr-2" />Leistung erfassen
@@ -311,7 +311,7 @@ export default function MontageAuftragDetailPage() {
         )}
 
         {/* Einblas- und Einzieharbeiten - nur für Monteure */}
-        {isMonteur && !readOnly && (
+        {isMonteur && (
           <>
             <BlowingWorkTab projectId={montageAuftrag.project_id || montageAuftrag.id} user={user} project={{ id: montageAuftrag.project_id || montageAuftrag.id }} />
             <PullingWorkManagement projectId={montageAuftrag.project_id || montageAuftrag.id} />
@@ -389,6 +389,58 @@ export default function MontageAuftragDetailPage() {
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* Leistung Wizard */}
+      <AnimatePresence>
+        {showLeistungWizard && (
+          <MontageLeistungWizard
+            montageAuftrag={montageAuftrag}
+            onClose={() => setShowLeistungWizard(false)}
+            onSaved={() => {
+              setShowLeistungWizard(false);
+              window.location.reload();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Material Dialog */}
+      <AnimatePresence>
+        {showMaterialDialog && (
+          <MaterialVerbrauchDialog
+            montageAuftragId={montageAuftrag.id}
+            onClose={() => setShowMaterialDialog(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Beweissicherung Dialog */}
+      <AnimatePresence>
+        {showBeweissicherungDialog && (
+          <BeweissicherungDialog
+            montageAuftragId={montageAuftrag.id}
+            onClose={() => setShowBeweissicherungDialog(false)}
+            onSave={() => {
+              setShowBeweissicherungDialog(false);
+              reloadBeweissicherungen();
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Fehlerortung Dialog */}
+      <AnimatePresence>
+        {showFehlerortungDialog && (
+          <FehlerortungDialog
+            montageAuftrag={montageAuftrag}
+            onClose={() => setShowFehlerortungDialog(false)}
+            onSave={() => {
+              setShowFehlerortungDialog(false);
+              window.location.reload();
+            }}
+          />
         )}
       </AnimatePresence>
     </div>
