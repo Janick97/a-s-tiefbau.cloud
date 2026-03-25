@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MontageLeistungMaterial, MontageMaterial } from "@/entities/all";
+import { MontageLeistungMaterial, MontageMaterial, User } from "@/entities/all";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,9 +57,9 @@ export default function MaterialVerbrauchDialog({ montageAuftragId, onClose, onS
 
     setIsSaving(true);
     try {
+      const user = await User.me().catch(() => null);
       for (const material of selectedMaterials) {
         if (material.material_id) {
-          const user = await import('@/api/base44Client').then((m) => m.base44.auth.me()).catch(() => null);
           await MontageLeistungMaterial.create({
             montage_auftrag_id: montageAuftragId,
             material_id: material.material_id,
