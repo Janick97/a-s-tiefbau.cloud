@@ -152,7 +152,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
 
   const step2Valid = () => {
     if (!data.point_a || !data.point_b || !data.pull_into || !data.meters) return false;
-    if (data.pull_into === "Leerrohr" && !data.pipeStatus) return false;
+    if (data.pull_into === "HDPE Leerrohr" && !data.pipeStatus) return false;
     if (data.pipeStatus === "leer" && !data.pipeSize) return false;
     if (data.pull_into === "Mehrfachrohr" && data.pulledIntoTubes.length === 0) return false;
     return true;
@@ -450,7 +450,7 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                         key={opt}
                         onClick={() => {
                           setField("pull_into", opt);
-                          if (opt !== "Leerrohr") {
+                          if (opt !== "HDPE Leerrohr") {
                             setField("pipeStatus", "");
                             setField("pipeSize", "");
                           }
@@ -470,8 +470,8 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                   </div>
                 </div>
 
-                {/* Rohr-Status: Belegt oder Leer (nur bei Leerrohr) */}
-                {data.pull_into === "Leerrohr" && (
+                {/* Rohr-Status: Belegt oder Leer (nur bei HDPE Leerrohr) */}
+                {data.pull_into === "HDPE Leerrohr" && (
                   <div>
                     <Label className="text-sm font-medium">Rohr-Status</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
@@ -496,8 +496,8 @@ export default function PullingWorkWizard({ onClose, onSaved, project, user, exi
                   </div>
                 )}
 
-                {/* Rohrdurchmesser (nur bei Leerrohr + Status gewählt) */}
-                {data.pull_into === "Leerrohr" && data.pipeStatus && (
+                {/* Rohrdurchmesser (nur bei HDPE Leerrohr + Status gewählt) */}
+                {data.pull_into === "HDPE Leerrohr" && data.pipeStatus && (
                   <div>
                     <Label className="text-sm font-medium">Rohrdurchmesser</Label>
                     <div className="grid grid-cols-3 gap-2 mt-2">
