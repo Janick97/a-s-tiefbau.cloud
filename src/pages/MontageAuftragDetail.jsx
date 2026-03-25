@@ -18,6 +18,8 @@ import DocumentManagement from "../components/projects/DocumentManagement";
 import MontageAuftragPdfReport from "../components/montage/MontageAuftragPdfReport";
 import AuditLog from "../components/montage/AuditLog";
 import ProjectChat from "../components/projects/ProjectChat";
+import BlowingWorkTab from "../components/projects/BlowingWorkTab";
+import PullingWorkManagement from "../components/projects/PullingWorkManagement";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function MontageAuftragDetailPage() {
@@ -308,6 +310,14 @@ export default function MontageAuftragDetailPage() {
           </div>
         )}
 
+        {/* Einblas- und Einzieharbeiten - nur für Monteure */}
+        {isMonteur && !readOnly && (
+          <>
+            <BlowingWorkTab projectId={montageAuftrag.project_id || montageAuftrag.id} user={user} project={{ id: montageAuftrag.project_id || montageAuftrag.id }} />
+            <PullingWorkManagement projectId={montageAuftrag.project_id || montageAuftrag.id} />
+          </>
+        )}
+
         {/* Leistungen */}
         <div>
           <MontageLeistungenManagement
@@ -319,66 +329,6 @@ export default function MontageAuftragDetailPage() {
             onReloadBeweissicherungen={reloadBeweissicherungen}
           />
         </div>
-      </div>
-
-      {/* Leistung Wizard */}
-      <AnimatePresence>
-        {showLeistungWizard && (
-          <MontageLeistungWizard
-            montageAuftragId={montageAuftrag.id}
-            availableMonteure={Array.isArray(montageAuftrag.assigned_monteure) ? montageAuftrag.assigned_monteure.filter((m) => m.id !== user?.id) : []}
-            onComplete={() => { setShowLeistungWizard(false); setShowMaterialDialog(true); }}
-            onCancel={() => setShowLeistungWizard(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Material Dialog */}
-      <AnimatePresence>
-        {showMaterialDialog && (
-          <MaterialVerbrauchDialog
-            montageAuftragId={montageAuftrag.id}
-            onClose={() => setShowMaterialDialog(false)}
-            onSave={() => setShowMaterialDialog(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Fehlerortung Dialog */}
-      <AnimatePresence>
-        {showFehlerortungDialog && (
-          <FehlerortungDialog
-            montageAuftrag={montageAuftrag}
-            user={user}
-            onClose={() => setShowFehlerortungDialog(false)}
-            onReload={async () => { const updated = await MontageAuftrag.get(montageAuftragId); setMontageAuftrag(updated); }}
-            onOpenLeistungWizard={() => setShowLeistungWizard(true)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Beweissicherung Dialog */}
-      <AnimatePresence>
-        {showBeweissicherungDialog && (
-          <BeweissicherungDialog
-            montageAuftragId={montageAuftrag.id}
-            onClose={() => setShowBeweissicherungDialog(false)}
-            onSave={async () => { setShowBeweissicherungDialog(false); reloadBeweissicherungen(); }}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Documents Modal */}
-      <AnimatePresence>
-        {showDocuments && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="bg-white w-full h-full flex flex-col">
-              <div className="bg-slate-400 text-black px-4 py-1 flex items-center justify-between border-b">
-                <h3 className="text-slate-50 text-lg font-bold">Projektdokumente</h3>
-                <button onClick={() => setShowDocuments(false)} className="p-2 rounded-lg hover:bg-gray-200 transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center">
-                  <X className="text-slate-50 w-6 h-6" />
-                </button>
-              </div>
               <div className="flex-1 overflow-hidden">
                 <DocumentManagement projectId={montageAuftrag.project_id || montageAuftrag.id} project={{ id: montageAuftrag.project_id || montageAuftrag.id }} loadData={() => {}} readOnly={user?.position === 'Monteur'} />
               </div>
