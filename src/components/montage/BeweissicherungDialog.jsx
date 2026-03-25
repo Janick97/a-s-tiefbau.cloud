@@ -61,13 +61,17 @@ export default function BeweissicherungDialog({ montageAuftragId, existingBeweis
     }
     setIsLoading(true);
     try {
+      const dataToSave = { ...formData };
+      if (dataToSave.kabel_tiefe_cm === '' || dataToSave.kabel_tiefe_cm === null) {
+        delete dataToSave.kabel_tiefe_cm;
+      }
       if (isEdit) {
-        await base44.entities.Beweissicherung.update(existingBeweissicherung.id, formData);
+        await base44.entities.Beweissicherung.update(existingBeweissicherung.id, dataToSave);
       } else {
         const user = await User.me();
         await base44.entities.Beweissicherung.create({
           montage_auftrag_id: montageAuftragId,
-          ...formData,
+          ...dataToSave,
           erfasst_von: user.full_name,
           erfasst_von_user_id: user.id,
           erfassungsdatum: new Date().toISOString().split("T")[0]
