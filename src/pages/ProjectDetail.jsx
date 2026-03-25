@@ -79,6 +79,7 @@ import ExcavationWizard from "../components/excavations/ExcavationWizard";
 import PullingWorkForm from "../components/projects/PullingWorkForm";
 import BlowingWorkWizard from "../components/projects/BlowingWorkWizard";
 import BlowingWorkTab from "../components/projects/BlowingWorkTab";
+import MaterialPdfExport from "../components/projects/MaterialPdfExport";
 import EVergabeExport from "../components/projects/EVergabeExport";
 import EVergabeEditor from "../components/projects/EVergabeEditor";
 import MontageLeistungenManagement from "../components/projects/MontageLeistungenManagement";
@@ -143,6 +144,8 @@ export default function ProjectDetailPage() {
   const [currentProjectForCoverSheet, setCurrentProjectForCoverSheet] = useState(null);
   const [hasVisioplan, setHasVisioplan] = useState(false);
   const [showBlowingWizard, setShowBlowingWizard] = useState(false);
+  const [isExportingMaterial, setIsExportingMaterial] = useState(false);
+  const materialExportRef = useRef(null);
 
   const coverSheetRef = useRef(null);
   const servicesOverviewRef = useRef(null);
@@ -674,6 +677,47 @@ export default function ProjectDetailPage() {
     }
   };
 
+  const handleExportMaterialPdf = async () => {
+    if (!materialExportRef.current) return;
+    setIsExportingMaterial(true);
+    try {
+      const el = materialExportRef.current;
+      el.style.position = 'fixed';
+      el.style.left = '0';
+      el.style.top = '0';
+      el.style.zIndex = '9999';
+      el.style.width = '210mm';
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      el.style.position = 'absolute';
+      el.style.left = '-9999px';
+      el.style.top = '0';
+      el.style.zIndex = '';
+      el.style.width = '';
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      pdf.save(`Material_${project.project_number}.pdf`);
+    } catch (error) {
+      alert('Fehler beim Erstellen des Material-PDFs.');
+      if (materialExportRef.current) { materialExportRef.current.style.position = 'absolute'; materialExportRef.current.style.left = '-9999px'; }
+    } finally {
+      setIsExportingMaterial(false);
+    }
+  };
+
   const handleExportMontagePdf = async () => {
     if (!montageExportRef.current) {
       alert("Fehler: Montage-Export-Komponente nicht gefunden.");
@@ -1071,6 +1115,10 @@ export default function ProjectDetailPage() {
                     <DropdownMenuItem onClick={handleExportCoverSheetPdf}>
                       <FileText className="w-4 h-4 mr-2 text-gray-600" />
                       Deckblatt Export
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleExportMaterialPdf}>
+                      <FileText className="w-4 h-4 mr-2 text-green-600" />
+                      Materialübersicht Export
                     </DropdownMenuItem>
                     {montageAuftrag && (
                       <DropdownMenuItem onClick={handleExportMontagePdf}>
@@ -1871,6 +1919,17 @@ export default function ProjectDetailPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Material PDF Export - positioned off-screen */}
+      <div ref={materialExportRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
+        <MaterialPdfExport
+          project={project}
+          projectMaterials={projectMaterials}
+          allMaterials={materials}
+          excavations={excavations}
+          priceItems={priceItems}
+        />
+      </div>
 
       {/* Montage PDF Export - positioned off-screen */}
       <div ref={montageExportRef} style={{ position: 'absolute', left: '-9999px', top: 0 }}>
