@@ -4,8 +4,8 @@ import { Check } from 'lucide-react';
 export default function MultiTubeSelector({ selectedTubes, onChange }) {
   const TUBES = [
     { id: 'tube1', label: '28mm', size: '28' },
-    { id: 'tube2', label: '28mm', size: '28' },
-    { id: 'tube3', label: '35mm', size: '35' },
+    { id: 'tube2', label: '35mm', size: '35' },
+    { id: 'tube3', label: '28mm', size: '28' },
     { id: 'tube4', label: '35mm', size: '35' },
   ];
 
