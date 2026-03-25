@@ -122,14 +122,15 @@ export default function PullingWorkManagement({ projectId }) {
     <>
       <Card className="card-elevation border-none">
         <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <Cable className="w-5 h-5" />
-              Einzieharbeiten ({pullingWorks.length})
-            </CardTitle>
-            <Button onClick={handleAdd} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Neu
-            </Button>
+          <CardTitle className="flex items-center gap-2">
+            <Cable className="w-5 h-5" />
+            Einzieharbeiten ({pullingWorks.length})
+          </CardTitle>
+          <Button onClick={handleAdd} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Neu
+          </Button>
+        </CardHeader>
 
         <CardContent>
           {pullingWorks.length === 0 ? (
