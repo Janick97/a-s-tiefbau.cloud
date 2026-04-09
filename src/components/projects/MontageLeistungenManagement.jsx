@@ -596,7 +596,7 @@ function MaterialUsageDialog({ montageAuftragId, editingMaterial, onClose }) {
 
 }
 
-export default function MontageLeistungenManagement({ montageAuftragId, readOnly = false, isMonteur = false, beweissicherungen = [], onReloadBeweissicherungen, hidePrices = false }) {
+export default function MontageLeistungenManagement({ montageAuftragId, refreshKey = 0, readOnly = false, isMonteur = false, beweissicherungen = [], onReloadBeweissicherungen, hidePrices = false }) {
   const [leistungen, setLeistungen] = useState([]);
   const [materialUsage, setMaterialUsage] = useState([]);
   const [materials, setMaterials] = useState([]);
@@ -638,7 +638,7 @@ export default function MontageLeistungenManagement({ montageAuftragId, readOnly
     if (montageAuftragId) {
       loadData();
     }
-  }, [montageAuftragId]);
+  }, [montageAuftragId, refreshKey]);
 
   const handleSubmit = async (data) => {
     try {

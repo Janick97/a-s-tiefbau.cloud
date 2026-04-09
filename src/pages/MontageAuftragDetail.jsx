@@ -31,6 +31,7 @@ export default function MontageAuftragDetailPage() {
   const [error, setError] = useState(null);
   const [showLeistungWizard, setShowLeistungWizard] = useState(false);
   const [showMaterialDialog, setShowMaterialDialog] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [showBeweissicherungDialog, setShowBeweissicherungDialog] = useState(false);
   const [showFehlerortungDialog, setShowFehlerortungDialog] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -322,6 +323,7 @@ export default function MontageAuftragDetailPage() {
         <div>
           <MontageLeistungenManagement
             montageAuftragId={montageAuftrag.id}
+            refreshKey={refreshKey}
             readOnly={readOnly}
             isMonteur={isMonteur}
             hidePrices={isMonteur}
@@ -400,7 +402,7 @@ export default function MontageAuftragDetailPage() {
             onCancel={() => setShowLeistungWizard(false)}
             onComplete={() => {
               setShowLeistungWizard(false);
-              window.location.reload();
+              setRefreshKey(k => k + 1);
             }}
           />
         )}
@@ -414,7 +416,7 @@ export default function MontageAuftragDetailPage() {
            onClose={() => setShowMaterialDialog(false)}
            onSave={() => {
              setShowMaterialDialog(false);
-             window.location.reload();
+             setRefreshKey(k => k + 1);
            }}
          />
        )}
@@ -429,6 +431,7 @@ export default function MontageAuftragDetailPage() {
             onSave={() => {
               setShowBeweissicherungDialog(false);
               reloadBeweissicherungen();
+              setRefreshKey(k => k + 1);
             }}
           />
         )}
