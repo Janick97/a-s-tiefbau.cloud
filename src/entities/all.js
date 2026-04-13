@@ -1,83 +1,35 @@
 class Project {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static list() { return []; }
 }
 
 class Excavation {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static list() { return []; }
 }
 
 class User {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static me() { return null; }
+  static list() { return []; }
 }
 
 class PriceItem {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static list() { return []; }
 }
 
 class MontageLeistung {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static list() { return []; }
+  static create(data) { return data; }
 }
 
 class MontageAuftrag {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  static list() { return []; }
 }
 
 class Ticket {
-    static list() {
-        // method implementation
-    }
-    static me() {
-        // method implementation
-    }
-    static create() {
-        // method implementation
-    }
+  constructor(id, title, description) {
+    this.id = id;
+    this.title = title;
+    this.description = description;
+  }
 }
+
+export { Project, Excavation, User, PriceItem, MontageLeistung, MontageAuftrag, Ticket };
