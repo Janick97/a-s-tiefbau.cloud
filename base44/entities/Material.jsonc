@@ -1,0 +1,69 @@
+{
+  "name": "Material",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name des Materials"
+    },
+    "article_number": {
+      "type": "string",
+      "description": "Artikelnummer"
+    },
+    "unit": {
+      "type": "string",
+      "enum": [
+        "M",
+        "ST",
+        "PAK",
+        "KG"
+      ],
+      "description": "Einheit des Materials"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "SNRVe",
+        "Mikro-Rohr",
+        "Mauerdurchf\u00fchrung",
+        "KVz",
+        "Kabel",
+        "Stecker",
+        "Geh\u00e4use",
+        "Befestigung",
+        "Werkzeug",
+        "Sonstiges"
+      ],
+      "description": "Materialkategorie"
+    },
+    "current_stock": {
+      "type": "number",
+      "default": 0,
+      "description": "Aktueller Lagerbestand"
+    },
+    "min_stock": {
+      "type": "number",
+      "default": 0,
+      "description": "Mindestlagerbestand"
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "St\u00fcckkosten in Euro"
+    },
+    "supplier": {
+      "type": "string",
+      "description": "Lieferant"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notizen zum Material"
+    }
+  },
+  "required": [
+    "name",
+    "article_number",
+    "unit",
+    "category"
+  ]
+}
