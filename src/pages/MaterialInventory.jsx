@@ -9,7 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
-import { Package, Plus, Edit, AlertTriangle, Search, TrendingDown, Euro, Loader2 } from "lucide-react";
+import { Package, Plus, Edit, AlertTriangle, Search, TrendingDown, Euro, Loader2, Upload, Image as ImageIcon } from "lucide-react";
+import { base44 } from "@/api/base44Client";
 import { Textarea } from "@/components/ui/textarea";
 
 export default function MaterialInventoryPage() {
@@ -28,8 +29,10 @@ export default function MaterialInventoryPage() {
     min_stock: 0,
     unit_cost: 0,
     supplier: "",
-    notes: ""
+    notes: "",
+    image_url: ""
   });
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   useEffect(() => {
     loadMaterials();
@@ -58,9 +61,19 @@ export default function MaterialInventoryPage() {
       min_stock: 0,
       unit_cost: 0,
       supplier: "",
-      notes: ""
+      notes: "",
+      image_url: ""
     });
     setShowForm(true);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingImage(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setFormData(prev => ({ ...prev, image_url: file_url }));
+    setUploadingImage(false);
   };
 
   const handleEdit = (material) => {
@@ -74,7 +87,8 @@ export default function MaterialInventoryPage() {
       min_stock: material.min_stock || 0,
       unit_cost: material.unit_cost || 0,
       supplier: material.supplier || "",
-      notes: material.notes || ""
+      notes: material.notes || "",
+      image_url: material.image_url || ""
     });
     setShowForm(true);
   };
@@ -213,12 +227,17 @@ export default function MaterialInventoryPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Alle Kategorien</SelectItem>
-                  <SelectItem value="SNRVe">SNRVe</SelectItem>
-                  <SelectItem value="Mikro-Rohr">Mikro-Rohr</SelectItem>
-                  <SelectItem value="Mauerdurchführung">Mauerdurchführung</SelectItem>
-                  <SelectItem value="KVz">KVz</SelectItem>
-                  <SelectItem value="Kabel">Kabel</SelectItem>
+                <SelectItem value="all">Alle Kategorien</SelectItem>
+                <SelectItem value="SNRVe">SNRVe</SelectItem>
+                <SelectItem value="Mikro-Rohr">Mikro-Rohr</SelectItem>
+                <SelectItem value="Mauerdurchführung">Mauerdurchführung</SelectItem>
+                <SelectItem value="KVz">KVz</SelectItem>
+                <SelectItem value="Kabel">Kabel</SelectItem>
+                <SelectItem value="Stecker">Stecker</SelectItem>
+                <SelectItem value="Gehäuse">Gehäuse</SelectItem>
+                <SelectItem value="Befestigung">Befestigung</SelectItem>
+                <SelectItem value="Werkzeug">Werkzeug</SelectItem>
+                <SelectItem value="Sonstiges">Sonstiges</SelectItem>
                 </SelectContent>
               </Select>
               <Button onClick={handleAdd} className="bg-gradient-to-r from-orange-500 to-amber-600">
@@ -236,7 +255,8 @@ export default function MaterialInventoryPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Material</TableHead>
+                    <TableHead>Bild</TableHead>
+                  <TableHead>Material</TableHead>
                     <TableHead>Art-Nr.</TableHead>
                     <TableHead>Kategorie</TableHead>
                     <TableHead>Lagerbestand</TableHead>
@@ -255,7 +275,16 @@ export default function MaterialInventoryPage() {
 
                     return (
                       <TableRow key={material.id} className={isLowStock ? 'bg-red-50' : ''}>
-                        <TableCell className="font-semibold">{material.name}</TableCell>
+                       <TableCell>
+                         {material.image_url ? (
+                           <img src={material.image_url} alt={material.name} className="w-10 h-10 object-contain rounded border bg-white" />
+                         ) : (
+                           <div className="w-10 h-10 rounded border bg-gray-100 flex items-center justify-center">
+                             <ImageIcon className="w-4 h-4 text-gray-300" />
+                           </div>
+                         )}
+                       </TableCell>
+                       <TableCell className="font-semibold">{material.name}</TableCell>
                         <TableCell className="font-mono text-sm">{material.article_number}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{material.category}</Badge>
@@ -333,11 +362,16 @@ export default function MaterialInventoryPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SNRVe">SNRVe</SelectItem>
-                      <SelectItem value="Mikro-Rohr">Mikro-Rohr</SelectItem>
-                      <SelectItem value="Mauerdurchführung">Mauerdurchführung</SelectItem>
-                      <SelectItem value="KVz">KVz</SelectItem>
-                      <SelectItem value="Kabel">Kabel</SelectItem>
+                     <SelectItem value="SNRVe">SNRVe</SelectItem>
+                     <SelectItem value="Mikro-Rohr">Mikro-Rohr</SelectItem>
+                     <SelectItem value="Mauerdurchführung">Mauerdurchführung</SelectItem>
+                     <SelectItem value="KVz">KVz</SelectItem>
+                     <SelectItem value="Kabel">Kabel</SelectItem>
+                     <SelectItem value="Stecker">Stecker</SelectItem>
+                     <SelectItem value="Gehäuse">Gehäuse</SelectItem>
+                     <SelectItem value="Befestigung">Befestigung</SelectItem>
+                     <SelectItem value="Werkzeug">Werkzeug</SelectItem>
+                     <SelectItem value="Sonstiges">Sonstiges</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -390,6 +424,31 @@ export default function MaterialInventoryPage() {
                   value={formData.supplier}
                   onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
                 />
+              </div>
+
+              <div>
+                <Label>Foto</Label>
+                <div className="flex items-center gap-3 mt-1">
+                  {formData.image_url && (
+                    <img src={formData.image_url} alt="Vorschau" className="w-16 h-16 object-contain rounded border bg-white" />
+                  )}
+                  <label className="cursor-pointer flex-1">
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:border-orange-400 hover:bg-orange-50 transition-colors">
+                      {uploadingImage ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+                          <span className="text-sm text-gray-600">Wird hochgeladen...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center gap-2">
+                          <Upload className="w-4 h-4 text-gray-400" />
+                          <span className="text-sm text-gray-600">{formData.image_url ? 'Foto ändern' : 'Foto hochladen'}</span>
+                        </div>
+                      )}
+                    </div>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+                </div>
               </div>
 
               <div>

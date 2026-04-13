@@ -58,6 +58,10 @@
     "notes": {
       "type": "string",
       "description": "Notizen zum Material"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "URL zum Produktbild"
     }
   },
   "required": [
