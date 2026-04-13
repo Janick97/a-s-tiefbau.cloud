@@ -1,9 +1,35 @@
 import { base44 } from './base44Client';
 
+export const Project = base44.entities.Project;
+export const Excavation = base44.entities.Excavation;
+export const PriceItem = base44.entities.PriceItem;
+export const ContactPerson = base44.entities.ContactPerson;
+export const City = base44.entities.City;
+export const Material = base44.entities.Material;
+export const ProjectMaterial = base44.entities.ProjectMaterial;
+export const TimesheetEntry = base44.entities.TimesheetEntry;
+export const ProjectDocument = base44.entities.ProjectDocument;
+export const PullingWork = base44.entities.PullingWork;
+export const ProjectComment = base44.entities.ProjectComment;
+export const MontageAuftrag = base44.entities.MontageAuftrag;
+export const ExcavationMaterial = base44.entities.ExcavationMaterial;
+export const MontagePreisItem = base44.entities.MontagePreisItem;
+export const MontageLeistung = base44.entities.MontageLeistung;
+export const MontageLeistungMaterial = base44.entities.MontageLeistungMaterial;
+export const MontageMaterial = base44.entities.MontageMaterial;
+export const Schaediger = base44.entities.Schaediger;
+export const ExcavationClosure = base44.entities.ExcavationClosure;
+export const ProjectActivity = base44.entities.ProjectActivity;
+export const KolonnenSollwert = base44.entities.KolonnenSollwert;
+export const Task = base44.entities.Task;
+export const Notification = base44.entities.Notification;
+export const BueroUserActivity = base44.entities.BueroUserActivity;
+export const VisioNode = base44.entities.VisioNode;
+export const VisioConnection = base44.entities.VisioConnection;
+export const VehicleMaintenance = base44.entities.VehicleMaintenance;
+export const BlowingWork = base44.entities.BlowingWork;
+export const Beweissicherung = base44.entities.Beweissicherung;
+export const Ticket = base44.entities.Ticket;
+export const MaterialWithdrawal = base44.entities.MaterialWithdrawal;
 
-export const Query = base44.entities.Query;
-
-
-
-// auth sdk:
 export const User = base44.auth;
