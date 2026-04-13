@@ -161,7 +161,7 @@ function StepMaterialCatalog({ onNext, onBack, cart, setCart }) {
                 className={`relative p-4 rounded-xl border-2 text-left transition-all hover:shadow-md ${CATEGORY_COLORS[cat] || 'bg-gray-100 border-gray-200'}`}
               >
                 <Package className="w-6 h-6 mb-2 opacity-70" />
-                <p className="font-semibold text-sm">{cat}</p>
+                <p className="font-semibold text-sm">{cat === 'Mauerdurchführung' ? 'Mauerdurchf.' : cat}</p>
                 <p className="text-xs opacity-60">{count} Artikel</p>
                 {inCart > 0 && (
                   <div className="absolute top-2 right-2 w-5 h-5 bg-orange-500 text-white rounded-full text-[10px] flex items-center justify-center font-bold">
