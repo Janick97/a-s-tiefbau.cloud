@@ -1,19 +1,83 @@
-// Exporting Ticket and User entities
+class Project {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
+}
 
-class Ticket {
-  constructor(id, title, description) {
-    this.id = id;
-    this.title = title;
-    this.description = description;
-  }
+class Excavation {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
 }
 
 class User {
-  constructor(id, name, email) {
-    this.id = id;
-    this.name = name;
-    this.email = email;
-  }
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
 }
 
-export { Ticket, User };
+class PriceItem {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
+}
+
+class MontageLeistung {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
+}
+
+class MontageAuftrag {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
+}
+
+class Ticket {
+    static list() {
+        // method implementation
+    }
+    static me() {
+        // method implementation
+    }
+    static create() {
+        // method implementation
+    }
+}
