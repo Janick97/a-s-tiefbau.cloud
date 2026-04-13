@@ -341,6 +341,21 @@ function StepProjectAssignment({ cart, user, onFinish, onBack }) {
             quantity: quantity
           });
         }
+
+        // 3. Log withdrawal history
+        await base44.entities.MaterialWithdrawal.create({
+          user_id: user.id,
+          user_name: user.full_name,
+          material_id: material.id,
+          material_name: material.name,
+          material_article_number: material.article_number || '',
+          quantity: quantity,
+          unit: material.unit,
+          project_id: selectedProject.id,
+          project_title: selectedProject.title,
+          project_number: selectedProject.project_number || '',
+          sm_number: selectedProject.sm_number || ''
+        });
       }
       onFinish(selectedProject);
     } catch (err) {

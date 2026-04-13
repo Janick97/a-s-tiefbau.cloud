@@ -1,0 +1,60 @@
+{
+  "name": "MaterialWithdrawal",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID des Mitarbeiters"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Name des Mitarbeiters"
+    },
+    "material_id": {
+      "type": "string",
+      "description": "ID des Materials"
+    },
+    "material_name": {
+      "type": "string",
+      "description": "Name des Materials"
+    },
+    "material_article_number": {
+      "type": "string",
+      "description": "Artikelnummer des Materials"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Entnommene Menge"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Einheit"
+    },
+    "project_id": {
+      "type": "string",
+      "description": "ID des Projekts"
+    },
+    "project_title": {
+      "type": "string",
+      "description": "Projekttitel"
+    },
+    "project_number": {
+      "type": "string",
+      "description": "Projektnummer"
+    },
+    "sm_number": {
+      "type": "string",
+      "description": "SM Nummer"
+    }
+  },
+  "required": [
+    "user_id",
+    "user_name",
+    "material_id",
+    "material_name",
+    "quantity",
+    "unit",
+    "project_id",
+    "project_title"
+  ]
+}

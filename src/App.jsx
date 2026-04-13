@@ -11,6 +11,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import TicketSystemPage from '@/pages/TicketSystem';
 import MaterialWizardPage from '@/pages/MaterialWizard';
+import MaterialHistoryPage from '@/pages/MaterialHistory';
 import DailyReportPage from '@/pages/DailyReport';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -66,6 +67,11 @@ const AuthenticatedApp = () => {
       <Route path="/TicketSystem" element={
         <LayoutWrapper currentPageName="TicketSystem">
           <TicketSystemPage />
+        </LayoutWrapper>
+      } />
+      <Route path="/MaterialHistory" element={
+        <LayoutWrapper currentPageName="MaterialHistory">
+          <MaterialHistoryPage />
         </LayoutWrapper>
       } />
       <Route path="/MaterialWizard" element={
