@@ -28,6 +28,7 @@ import {
   Network,
   Fuel,
   CalendarDays,
+  Warehouse,
   Ticket as TicketIcon } from
 "lucide-react";
 import {
@@ -677,6 +678,17 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
 
                                         <Package className="w-4 h-4 mr-2 flex-shrink-0" />
                                         <span>Materiallager</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                  <SidebarMenuSubItem>
+                                    <SidebarMenuSubButton asChild>
+                                      <Link
+                                        to="/MaterialWizard"
+                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
+                                        onClick={handleLinkClick}>
+                                        <Warehouse className="w-4 h-4 mr-2 flex-shrink-0" />
+                                        <span>Materialentnahme</span>
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
