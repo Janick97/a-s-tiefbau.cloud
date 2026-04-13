@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Edit, Trash2, Package, Loader2, FileDown } from "lucide-react";
-import { ProjectMaterial, Material, ExcavationMaterial, MontageMaterial, MontageLeistungMaterial, MontageLeistung, Excavation } from "@/entities/all";
+import { ProjectMaterial, Material, ExcavationMaterial, MontageLeistungMaterial, MontageLeistung, Excavation } from "@/entities/all";
 import { jsPDF } from 'jspdf';
 
 function MaterialForm({ open, setOpen, project, projectMaterial, allMaterials, onSubmit }) {
@@ -171,13 +171,11 @@ export default function MaterialManagement({ project, projectMaterials, allMater
 
             // Lade MontageLeistungMaterial für dieses Projekt
             if (project.montage_auftrag_id) {
-                const [leistungenData, montageMaterialsData, montageMaterialUsageData] = await Promise.all([
+                const [leistungenData, montageMaterialUsageData] = await Promise.all([
                     MontageLeistung.filter({ montage_auftrag_id: project.montage_auftrag_id }).catch(() => []),
-                    MontageMaterial.list().catch(() => []),
                     MontageLeistungMaterial.filter({ montage_auftrag_id: project.montage_auftrag_id }).catch(() => [])
                 ]);
                 setMontageLeistungen(leistungenData);
-                setMontageMaterials(montageMaterialsData);
                 setExcavationMaterials(prev => [...prev, ...montageMaterialUsageData]);
             }
         } catch (error) {
