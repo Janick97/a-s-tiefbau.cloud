@@ -70,7 +70,7 @@ import MitarbeiterDetail from './pages/MitarbeiterDetail';
 import MontageAuftraege from './pages/MontageAuftraege';
 import MontageAuftraegeArchiv from './pages/MontageAuftraegeArchiv';
 import MontageAuftragDetail from './pages/MontageAuftragDetail';
-import MontageMaterialInventory from './pages/MontageMaterialInventory';
+
 import MontagePriceList from './pages/MontagePriceList';
 import MyMontageAuftraege from './pages/MyMontageAuftraege';
 import MyProjects from './pages/MyProjects';
@@ -119,7 +119,7 @@ export const PAGES = {
     "MontageAuftraege": MontageAuftraege,
     "MontageAuftraegeArchiv": MontageAuftraegeArchiv,
     "MontageAuftragDetail": MontageAuftragDetail,
-    "MontageMaterialInventory": MontageMaterialInventory,
+
     "MontagePriceList": MontagePriceList,
     "MyMontageAuftraege": MyMontageAuftraege,
     "MyProjects": MyProjects,

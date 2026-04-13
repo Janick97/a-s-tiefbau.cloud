@@ -692,18 +692,7 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
                                       </Link>
                                     </SidebarMenuSubButton>
                                   </SidebarMenuSubItem>
-                                  <SidebarMenuSubItem>
-                                    <SidebarMenuSubButton asChild>
-                                      <Link
-                                        to={createPageUrl("MontageMaterialInventory")}
-                                        className="text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded-lg py-2 px-3 text-xs whitespace-normal break-words"
-                                        onClick={handleLinkClick}>
 
-                                        <Package className="w-4 h-4 mr-2 flex-shrink-0" />
-                                        <span>Montage-Materiallager</span>
-                                      </Link>
-                                    </SidebarMenuSubButton>
-                                  </SidebarMenuSubItem>
                                   <SidebarMenuSubItem>
                                     <SidebarMenuSubButton asChild>
                                       <a
