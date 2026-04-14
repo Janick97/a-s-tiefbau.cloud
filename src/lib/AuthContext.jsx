@@ -1,3 +1,125 @@
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
+
+const AuthContext = createContext(null);
+
+async function loadProfile(userId) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [isLoadingPublicSettings] = useState(false);
+  const [authError, setAuthError] = useState(null);
+
+  const hydrateFromSession = useCallback(async (session) => {
+    if (!session?.user) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setAuthError(null);
+      return;
+    }
+    try {
+      const profile = await loadProfile(session.user.id);
+      if (!profile) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setAuthError({ type: 'user_not_registered', message: 'Kein Profil für diesen Account.' });
+        return;
+      }
+      if (profile.is_active === false) {
+        await supabase.auth.signOut();
+        setUser(null);
+        setIsAuthenticated(false);
+        setAuthError({ type: 'user_disabled', message: 'Dieser Account ist deaktiviert.' });
+        return;
+      }
+      setUser(profile);
+      setIsAuthenticated(true);
+      setAuthError(null);
+    } catch (err) {
+      console.error('[auth] profile load failed', err);
+      setAuthError({ type: 'unknown', message: err.message || 'Fehler beim Laden des Profils' });
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!mounted) return;
+      await hydrateFromSession(data.session);
+      setIsLoadingAuth(false);
+    })();
+    const { data: sub } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setIsLoadingAuth(true);
+      await hydrateFromSession(session);
+      setIsLoadingAuth(false);
+    });
+    return () => {
+      mounted = false;
+      sub?.subscription?.unsubscribe?.();
+    };
+  }, [hydrateFromSession]);
+
+  const navigateToLogin = useCallback(() => {
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      window.location.href = '/login';
+    }
+  }, []);
+
+  const login = useCallback(async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    return data;
+  }, []);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setIsAuthenticated(false);
+    window.location.href = '/login';
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const { data } = await supabase.auth.getSession();
+    await hydrateFromSession(data.session);
+  }, [hydrateFromSession]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        isLoadingAuth,
+        isLoadingPublicSettings,
+        authError,
+        navigateToLogin,
+        login,
+        logout,
+        refreshUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used inside <AuthProvider>');
+  return ctx;
+};
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
