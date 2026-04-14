@@ -11,10 +11,29 @@ if (!url || !anonKey) {
   );
 }
 
+// In-memory per-tab lock. Avoids navigator.locks contention ("another request
+// stole it") between concurrent User.me() / query / auto-refresh calls in this tab.
+// Single-page app -> a simple serial mutex per lock name is enough.
+const memLocks = new Map();
+async function memLock(name, _acquireTimeout, fn) {
+  const prev = memLocks.get(name) || Promise.resolve();
+  let release;
+  const next = prev.then(() => new Promise((r) => (release = r)));
+  memLocks.set(name, next);
+  try {
+    await prev;
+    return await fn();
+  } finally {
+    release();
+    if (memLocks.get(name) === next) memLocks.delete(name);
+  }
+}
+
 export const supabase = createClient(url ?? '', anonKey ?? '', {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    lock: memLock,
   },
 });
