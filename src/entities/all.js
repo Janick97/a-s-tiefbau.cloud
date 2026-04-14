@@ -1,14 +1,8 @@
 // Entity barrel.
-// - `User` is backed by Supabase (Auth + profiles table) â no Base44 dependency.
-// - All other entities still come from the Base44 SDK for now; migrate incrementally.
-//
-// The `User` adapter exposes the same shape the app already uses:
-//   User.me()              -> profile row  { id, email, full_name, role, position, ... }
-//   User.list()            -> profile rows (admins see all, others visible via RLS)
-//   User.get(id)           -> single profile
-//   User.updateMyUserData  -> update own profile
-//   User.logout()          -> sign out of supabase
-//
+// - `User` is backed by Supabase (Auth + profiles table).
+// - `Project` is backed by Supabase (projects table).
+// - All other entities still come from the Base44 stub for now; migrate incrementally.
+
 import { supabase } from "@/lib/supabase";
 import { base44 } from "@/api/base44Client";
 
@@ -33,7 +27,7 @@ export const User = {
     const id = await currentAuthUserId();
     if (!id) throw new Error("Nicht eingeloggt");
     const profile = await fetchProfile(id);
-    if (!profile) throw new Error("Kein Profil fÃ¼r diesen Account");
+    if (!profile) throw new Error("Kein Profil für diesen Account");
     return profile;
   },
   async list() {
@@ -78,8 +72,99 @@ export const User = {
   },
 };
 
+// --- Supabase-backed Project ---
+function parseSort(sort) {
+  if (!sort) return { column: "created_at", ascending: false };
+  let column = sort;
+  let ascending = true;
+  if (column.startsWith("-")) {
+    ascending = false;
+    column = column.slice(1);
+  }
+  if (column === "created_date") column = "created_at";
+  if (column === "updated_date") column = "updated_at";
+  return { column, ascending };
+}
+
+function normalizeProjectPayload(data) {
+  if (!data) return data;
+  const out = { ...data };
+  delete out.created_date;
+  delete out.updated_date;
+  return out;
+}
+
+async function projectQuery({ filter, sort, limit } = {}) {
+  let q = supabase.from("projects").select("*");
+  if (filter && typeof filter === "object") {
+    for (const [k, v] of Object.entries(filter)) {
+      if (v === undefined) continue;
+      if (v === null) q = q.is(k, null);
+      else if (Array.isArray(v)) q = q.in(k, v);
+      else q = q.eq(k, v);
+    }
+  }
+  const { column, ascending } = parseSort(sort);
+  q = q.order(column, { ascending, nullsFirst: false });
+  if (typeof limit === "number" && limit > 0) q = q.limit(limit);
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export const Project = {
+  async list(sort, limit) {
+    return projectQuery({ sort, limit });
+  },
+  async filter(criteria, sort, limit) {
+    return projectQuery({ filter: criteria, sort, limit });
+  },
+  async get(id) {
+    if (!id) return null;
+    const { data, error } = await supabase
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async find(criteria) {
+    const rows = await projectQuery({ filter: criteria, limit: 1 });
+    return rows[0] ?? null;
+  },
+  async findOne(criteria) {
+    return this.find(criteria);
+  },
+  async create(payload) {
+    const row = normalizeProjectPayload(payload);
+    const { data, error } = await supabase
+      .from("projects")
+      .insert(row)
+      .select("*")
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async update(id, patch) {
+    const row = normalizeProjectPayload(patch);
+    const { data, error } = await supabase
+      .from("projects")
+      .update(row)
+      .eq("id", id)
+      .select("*")
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id) {
+    const { error } = await supabase.from("projects").delete().eq("id", id);
+    if (error) throw error;
+    return { ok: true };
+  },
+};
+
 // --- Base44-backed entities (unchanged, migrate later) ---
-export const Project = base44.entities.Project;
 export const Excavation = base44.entities.Excavation;
 export const PriceItem = base44.entities.PriceItem;
 export const ContactPerson = base44.entities.ContactPerson;
@@ -110,4 +195,3 @@ export const BlowingWork = base44.entities.BlowingWork;
 export const Beweissicherung = base44.entities.Beweissicherung;
 export const Ticket = base44.entities.Ticket;
 export const MaterialWithdrawal = base44.entities.MaterialWithdrawal;
-// src/entities/all.js
