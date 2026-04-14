@@ -11,7 +11,7 @@ const ROLES = ["admin", "bauleiter", "foreman", "monteur", "user"];
 
 // ---- Edge-function caller -------------------------------------------------
 async function callAdmin(action, payload = {}) {
-  const { data, error } = await supabase.functions.invoke("admin-users", {
+  const { data, error } = await supabase.functions.invoke("bright-function", {
     body: { action, ...payload },
   });
   if (error) {
