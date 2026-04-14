@@ -5,7 +5,7 @@ import { queryClientInstance } from '@/lib/query-client'
 import VisualEditAgent from '@/lib/VisualEditAgent'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -13,6 +13,8 @@ import TicketSystemPage from '@/pages/TicketSystem';
 import MaterialWizardPage from '@/pages/MaterialWizard';
 import MaterialHistoryPage from '@/pages/MaterialHistory';
 import DailyReportPage from '@/pages/DailyReport';
+import Login from '@/pages/Login';
+import UserManagement from '@/pages/UserManagement';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -22,76 +24,75 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated, navigateToLogin } = useAuth();
+const RequireAuth = ({ children }) => {
+  const { isAuthenticated, isLoadingAuth } = useAuth();
+  const location = useLocation();
+  if (isLoadingAuth) return null;
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+  return children;
+};
 
-  // Show loading spinner while checking app public settings or auth
+const AuthenticatedApp = () => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError, isAuthenticated } = useAuth();
+
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
-      navigateToLogin();
-      return null;
-    }
+  if (authError?.type === 'user_not_registered') {
+    return <UserNotRegisteredError />;
   }
 
-  // Render the main app
   return (
     <Routes>
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
+        <RequireAuth>
+          <LayoutWrapper currentPageName={mainPageKey}>
+            <MainPage />
+          </LayoutWrapper>
+        </RequireAuth>
       } />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}
           path={`/${path}`}
           element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
+            <RequireAuth>
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            </RequireAuth>
           }
         />
       ))}
       <Route path="/TicketSystem" element={
-        <LayoutWrapper currentPageName="TicketSystem">
-          <TicketSystemPage />
-        </LayoutWrapper>
+        <RequireAuth><LayoutWrapper currentPageName="TicketSystem"><TicketSystemPage /></LayoutWrapper></RequireAuth>
       } />
       <Route path="/MaterialHistory" element={
-        <LayoutWrapper currentPageName="MaterialHistory">
-          <MaterialHistoryPage />
-        </LayoutWrapper>
+        <RequireAuth><LayoutWrapper currentPageName="MaterialHistory"><MaterialHistoryPage /></LayoutWrapper></RequireAuth>
       } />
       <Route path="/MaterialWizard" element={
-        <LayoutWrapper currentPageName="MaterialWizard">
-          <MaterialWizardPage />
-        </LayoutWrapper>
+        <RequireAuth><LayoutWrapper currentPageName="MaterialWizard"><MaterialWizardPage /></LayoutWrapper></RequireAuth>
       } />
       <Route path="/DailyReport" element={
-        <LayoutWrapper currentPageName="DailyReport">
-          <DailyReportPage />
-        </LayoutWrapper>
+        <RequireAuth><LayoutWrapper currentPageName="DailyReport"><DailyReportPage /></LayoutWrapper></RequireAuth>
+      } />
+      <Route path="/UserManagement" element={
+        <RequireAuth><LayoutWrapper currentPageName="UserManagement"><UserManagement /></LayoutWrapper></RequireAuth>
       } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
