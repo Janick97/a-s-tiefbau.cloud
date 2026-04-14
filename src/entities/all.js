@@ -17,15 +17,20 @@ async function fetchProfile(id) {
   return data;
 }
 
+async function currentAuthUser() {
+  // Use getSession() (in-memory/localStorage read) instead of getUser() to avoid
+  // Supabase's auth lock contention when many components call me() in parallel.
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.user ?? null;
+}
 async function currentAuthUserId() {
-  const { data } = await supabase.auth.getUser();
-  return data?.user?.id ?? null;
+  const u = await currentAuthUser();
+  return u?.id ?? null;
 }
 
 export const User = {
   async me() {
-    const { data: authData } = await supabase.auth.getUser();
-    const authUser = authData?.user;
+    const authUser = await currentAuthUser();
     if (!authUser) throw new Error("Nicht eingeloggt");
     let profile = await fetchProfile(authUser.id);
     if (!profile) {
