@@ -29,7 +29,8 @@ import {
   Fuel,
   CalendarDays,
   Warehouse,
-  Ticket as TicketIcon } from
+  Ticket as TicketIcon,
+  ShieldCheck } from
 "lucide-react";
 import {
   Sidebar,
@@ -135,6 +136,12 @@ const navigationItems = [
   title: "Ticketsystem",
   url: "/TicketSystem",
   icon: TicketIcon
+},
+{
+  title: "Admin Center",
+  url: "/UserManagement",
+  icon: ShieldCheck,
+  adminOnly: true
 }];
 
 
@@ -157,6 +164,10 @@ function LayoutContent({ children, currentPageName, user, bauleiter, monteure, h
     }
 
     return navigationItems.filter((item) => {
+      // Admin-only items
+      if (item.adminOnly) {
+        return user.role === 'admin';
+      }
       // "Meine Montageaufträge" nur für Monteure, nicht für Admins
       if (item.title === 'Meine Montageaufträge') {
         return user.position === 'Monteur';
