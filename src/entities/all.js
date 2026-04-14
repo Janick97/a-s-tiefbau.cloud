@@ -1,31 +1,125 @@
-// Entity barrel.
-// - `User` is backed by Supabase (Auth + profiles table).
-// - `Project` is backed by Supabase (projects table).
-// - All other entities still come from the Base44 stub for now; migrate incrementally.
+// Entity barrel — all entities now backed by Supabase.
+// Base44 stub is retained as a no-op fallback during transition (unused).
 
 import { supabase } from "@/lib/supabase";
-import { base44 } from "@/api/base44Client";
 
-// --- Supabase-backed User ---
+// --- Common helpers ---------------------------------------------------------
+async function currentAuthUserId() {
+  const { data } = await supabase.auth.getSession();
+  return data?.session?.user?.id ?? null;
+}
+
+// Base44 sort format: "-field" = DESC, "field" = ASC.
+// Base44 `created_date`/`updated_date` → Supabase `created_at`/`updated_at`.
+function parseSort(sort, defaultCol = "created_at") {
+  if (!sort) return { column: defaultCol, ascending: false };
+  let column = sort;
+  let ascending = true;
+  if (column.startsWith("-")) {
+    ascending = false;
+    column = column.slice(1);
+  }
+  if (column === "created_date") column = "created_at";
+  if (column === "updated_date") column = "updated_at";
+  return { column, ascending };
+}
+
+// Drop fields that don't belong on Supabase rows. Everything else passes through.
+function normalizePayload(data) {
+  if (!data) return data;
+  const out = { ...data };
+  delete out.created_date;
+  delete out.updated_date;
+  return out;
+}
+
+// Generic Supabase entity adapter — mirrors the Base44 SDK shape.
+function makeEntity(table) {
+  async function query({ filter, sort, limit } = {}) {
+    let q = supabase.from(table).select("*");
+    if (filter && typeof filter === "object") {
+      for (const [k, v] of Object.entries(filter)) {
+        if (v === undefined) continue;
+        if (v === null) q = q.is(k, null);
+        else if (Array.isArray(v)) q = q.in(k, v);
+        else q = q.eq(k, v);
+      }
+    }
+    const { column, ascending } = parseSort(sort);
+    q = q.order(column, { ascending, nullsFirst: false });
+    if (typeof limit === "number" && limit > 0) q = q.limit(limit);
+    const { data, error } = await q;
+    if (error) throw error;
+    return data ?? [];
+  }
+
+  return {
+    async list(sort, limit) {
+      return query({ sort, limit });
+    },
+    async filter(criteria, sort, limit) {
+      return query({ filter: criteria, sort, limit });
+    },
+    async get(id) {
+      if (!id) return null;
+      const { data, error } = await supabase
+        .from(table).select("*").eq("id", id).maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    async find(criteria) {
+      const rows = await query({ filter: criteria, limit: 1 });
+      return rows[0] ?? null;
+    },
+    async findOne(criteria) {
+      return this.find(criteria);
+    },
+    async findById(id) {
+      return this.get(id);
+    },
+    async create(payload) {
+      const row = normalizePayload(payload);
+      const { data, error } = await supabase
+        .from(table).insert(row).select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    async update(id, patch) {
+      const row = normalizePayload(patch);
+      const { data, error } = await supabase
+        .from(table).update(row).eq("id", id).select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    async upsert(payload) {
+      const row = normalizePayload(payload);
+      const { data, error } = await supabase
+        .from(table).upsert(row).select("*").maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    async delete(id) {
+      const { error } = await supabase.from(table).delete().eq("id", id);
+      if (error) throw error;
+      return { ok: true };
+    },
+    async remove(id) {
+      return this.delete(id);
+    },
+  };
+}
+
+// --- User (Supabase Auth + profiles) ---------------------------------------
 async function fetchProfile(id) {
   const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
+    .from("profiles").select("*").eq("id", id).maybeSingle();
   if (error) throw error;
   return data;
 }
 
 async function currentAuthUser() {
-  // Use getSession() (in-memory/localStorage read) instead of getUser() to avoid
-  // Supabase's auth lock contention when many components call me() in parallel.
   const { data } = await supabase.auth.getSession();
   return data?.session?.user ?? null;
-}
-async function currentAuthUserId() {
-  const u = await currentAuthUser();
-  return u?.id ?? null;
 }
 
 export const User = {
@@ -37,15 +131,15 @@ export const User = {
       const fallback = {
         id: authUser.id,
         email: authUser.email ?? null,
-        full_name: authUser.user_metadata?.full_name || authUser.email || "Neuer Benutzer",
+        full_name:
+          authUser.user_metadata?.full_name || authUser.email || "Neuer Benutzer",
         role: "user",
       };
       const { data: created, error: createErr } = await supabase
-        .from("profiles")
-        .insert(fallback)
-        .select("*")
-        .maybeSingle();
+        .from("profiles").insert(fallback).select("*").maybeSingle();
       if (createErr) {
+        // eslint-disable-next-line no-console
+        console.warn("[User.me] could not auto-create profile", createErr);
         profile = { ...fallback };
       } else {
         profile = created ?? fallback;
@@ -55,9 +149,20 @@ export const User = {
   },
   async list() {
     const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
+      .from("profiles").select("*")
       .order("full_name", { ascending: true, nullsFirst: false });
+    if (error) throw error;
+    return data ?? [];
+  },
+  async filter(criteria = {}) {
+    let q = supabase.from("profiles").select("*");
+    for (const [k, v] of Object.entries(criteria)) {
+      if (v === undefined) continue;
+      if (v === null) q = q.is(k, null);
+      else if (Array.isArray(v)) q = q.in(k, v);
+      else q = q.eq(k, v);
+    }
+    const { data, error } = await q;
     if (error) throw error;
     return data ?? [];
   },
@@ -72,21 +177,13 @@ export const User = {
       Object.entries(updates || {}).filter(([k]) => allowed.includes(k))
     );
     const { data, error } = await supabase
-      .from("profiles")
-      .update(patch)
-      .eq("id", id)
-      .select("*")
-      .maybeSingle();
+      .from("profiles").update(patch).eq("id", id).select("*").maybeSingle();
     if (error) throw error;
     return data;
   },
   async update(id, updates) {
     const { data, error } = await supabase
-      .from("profiles")
-      .update(updates)
-      .eq("id", id)
-      .select("*")
-      .maybeSingle();
+      .from("profiles").update(updates).eq("id", id).select("*").maybeSingle();
     if (error) throw error;
     return data;
   },
@@ -95,126 +192,35 @@ export const User = {
   },
 };
 
-// --- Supabase-backed Project ---
-function parseSort(sort) {
-  if (!sort) return { column: "created_at", ascending: false };
-  let column = sort;
-  let ascending = true;
-  if (column.startsWith("-")) {
-    ascending = false;
-    column = column.slice(1);
-  }
-  if (column === "created_date") column = "created_at";
-  if (column === "updated_date") column = "updated_at";
-  return { column, ascending };
-}
-
-function normalizeProjectPayload(data) {
-  if (!data) return data;
-  const out = { ...data };
-  delete out.created_date;
-  delete out.updated_date;
-  return out;
-}
-
-async function projectQuery({ filter, sort, limit } = {}) {
-  let q = supabase.from("projects").select("*");
-  if (filter && typeof filter === "object") {
-    for (const [k, v] of Object.entries(filter)) {
-      if (v === undefined) continue;
-      if (v === null) q = q.is(k, null);
-      else if (Array.isArray(v)) q = q.in(k, v);
-      else q = q.eq(k, v);
-    }
-  }
-  const { column, ascending } = parseSort(sort);
-  q = q.order(column, { ascending, nullsFirst: false });
-  if (typeof limit === "number" && limit > 0) q = q.limit(limit);
-  const { data, error } = await q;
-  if (error) throw error;
-  return data ?? [];
-}
-
-export const Project = {
-  async list(sort, limit) {
-    return projectQuery({ sort, limit });
-  },
-  async filter(criteria, sort, limit) {
-    return projectQuery({ filter: criteria, sort, limit });
-  },
-  async get(id) {
-    if (!id) return null;
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-  async find(criteria) {
-    const rows = await projectQuery({ filter: criteria, limit: 1 });
-    return rows[0] ?? null;
-  },
-  async findOne(criteria) {
-    return this.find(criteria);
-  },
-  async create(payload) {
-    const row = normalizeProjectPayload(payload);
-    const { data, error } = await supabase
-      .from("projects")
-      .insert(row)
-      .select("*")
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-  async update(id, patch) {
-    const row = normalizeProjectPayload(patch);
-    const { data, error } = await supabase
-      .from("projects")
-      .update(row)
-      .eq("id", id)
-      .select("*")
-      .maybeSingle();
-    if (error) throw error;
-    return data;
-  },
-  async delete(id) {
-    const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) throw error;
-    return { ok: true };
-  },
-};
-
-// --- Base44-backed entities (unchanged, migrate later) ---
-export const Excavation = base44.entities.Excavation;
-export const PriceItem = base44.entities.PriceItem;
-export const ContactPerson = base44.entities.ContactPerson;
-export const City = base44.entities.City;
-export const Material = base44.entities.Material;
-export const ProjectMaterial = base44.entities.ProjectMaterial;
-export const TimesheetEntry = base44.entities.TimesheetEntry;
-export const ProjectDocument = base44.entities.ProjectDocument;
-export const PullingWork = base44.entities.PullingWork;
-export const ProjectComment = base44.entities.ProjectComment;
-export const MontageAuftrag = base44.entities.MontageAuftrag;
-export const ExcavationMaterial = base44.entities.ExcavationMaterial;
-export const MontagePreisItem = base44.entities.MontagePreisItem;
-export const MontageLeistung = base44.entities.MontageLeistung;
-export const MontageLeistungMaterial = base44.entities.MontageLeistungMaterial;
-export const MontageMaterial = base44.entities.MontageMaterial;
-export const Schaediger = base44.entities.Schaediger;
-export const ExcavationClosure = base44.entities.ExcavationClosure;
-export const ProjectActivity = base44.entities.ProjectActivity;
-export const KolonnenSollwert = base44.entities.KolonnenSollwert;
-export const Task = base44.entities.Task;
-export const Notification = base44.entities.Notification;
-export const BueroUserActivity = base44.entities.BueroUserActivity;
-export const VisioNode = base44.entities.VisioNode;
-export const VisioConnection = base44.entities.VisioConnection;
-export const VehicleMaintenance = base44.entities.VehicleMaintenance;
-export const BlowingWork = base44.entities.BlowingWork;
-export const Beweissicherung = base44.entities.Beweissicherung;
-export const Ticket = base44.entities.Ticket;
-export const MaterialWithdrawal = base44.entities.MaterialWithdrawal;
+// --- Project + alle anderen Entitäten über den generischen Adapter ---
+export const Project                 = makeEntity("projects");
+export const Excavation              = makeEntity("excavations");
+export const PriceItem               = makeEntity("price_items");
+export const ContactPerson           = makeEntity("contact_persons");
+export const City                    = makeEntity("cities");
+export const Material                = makeEntity("materials");
+export const ProjectMaterial         = makeEntity("project_materials");
+export const TimesheetEntry          = makeEntity("timesheet_entries");
+export const ProjectDocument         = makeEntity("project_documents");
+export const PullingWork             = makeEntity("pulling_works");
+export const ProjectComment          = makeEntity("project_comments");
+export const MontageAuftrag          = makeEntity("montage_auftraege");
+export const ExcavationMaterial      = makeEntity("excavation_materials");
+export const MontagePreisItem        = makeEntity("montage_preis_items");
+export const MontageLeistung         = makeEntity("montage_leistungen");
+export const MontageLeistungMaterial = makeEntity("montage_leistung_materials");
+export const MontageMaterial         = makeEntity("montage_materials");
+export const Schaediger              = makeEntity("schaediger");
+export const ExcavationClosure       = makeEntity("excavation_closures");
+export const ProjectActivity         = makeEntity("project_activities");
+export const KolonnenSollwert        = makeEntity("kolonnen_sollwerte");
+export const Task                    = makeEntity("tasks");
+export const Notification            = makeEntity("notifications");
+export const BueroUserActivity       = makeEntity("buero_user_activities");
+export const VisioNode               = makeEntity("visio_nodes");
+export const VisioConnection         = makeEntity("visio_connections");
+export const VehicleMaintenance      = makeEntity("vehicle_maintenances");
+export const BlowingWork             = makeEntity("blowing_works");
+export const Beweissicherung         = makeEntity("beweissicherungen");
+export const Ticket                  = makeEntity("tickets");
+export const MaterialWithdrawal      = makeEntity("material_withdrawals");
