@@ -1,61 +1,60 @@
-// src/api/base44Client.js
-// Phase-1 stub: the real Base44 backend is being replaced by Supabase.
-// Until each entity is migrated, all calls to base44.entities.<X>.<method>(...)
-// return safe defaults (empty arrays / null) so the UI does not crash.
+// Stub replacement for the Base44 SDK client.
+// Returns safe defaults for every entity / integration / function call
+// so the app can render while we migrate to Supabase.
 
-const listMethods = new Set([
-  'list', 'filter', 'find', 'findAll', 'search', 'query',
-  'getAll', 'all', 'fetch', 'fetchAll',
-]);
-
-const singleMethods = new Set([
-  'get', 'getOne', 'findOne', 'findById', 'byId', 'one',
-]);
-
-const writeMethods = new Set([
-  'create', 'insert', 'update', 'upsert', 'save',
-  'delete', 'remove', 'destroy',
-]);
+const listMethods = new Set(['list', 'filter', 'find', 'findAll', 'search', 'query', 'getAll', 'all', 'fetch', 'fetchAll']);
+const singleMethods = new Set(['get', 'getOne', 'findOne', 'findById', 'byId', 'one']);
+const writeMethods = new Set(['create', 'insert', 'update', 'upsert', 'save', 'delete', 'remove', 'destroy']);
 
 function makeEntityProxy(name) {
   return new Proxy(function () {}, {
     get(_t, method) {
-      if (method === 'then') return undefined; // not a thenable
+      if (method === 'then') return undefined;
       if (method === Symbol.toPrimitive) return () => name;
       return async (...args) => {
         if (listMethods.has(String(method))) return [];
         if (singleMethods.has(String(method))) return null;
         if (writeMethods.has(String(method))) return { ok: true };
-        // Fallback: return empty array (safest for map/filter consumers)
         return [];
       };
     },
   });
 }
 
-const entities = new Proxy({}, {
-  get(_t, name) {
-    if (typeof name !== 'string') return undefined;
-    return makeEntityProxy(name);
-  },
-});
-
-const auth = {
-  me: async () => null,
-  login: async () => null,
-  logout: async () => null,
-  signUp: async () => null,
-};
-
-const integrations = new Proxy({}, {
-  get() { return async () => ({ ok: true }); },
-});
+// Recursive callable proxy: any property access returns another proxy,
+// and any call returns a resolved promise with a safe empty payload.
+function makeCallableProxy() {
+  const fn = function () {};
+  return new Proxy(fn, {
+    get(_t, prop) {
+      if (prop === 'then') return undefined;
+      if (prop === Symbol.toPrimitive) return () => '';
+      return makeCallableProxy();
+    },
+    apply() {
+      return Promise.resolve({ ok: true });
+    },
+    construct() {
+      return makeCallableProxy();
+    },
+  });
+}
 
 export const base44 = {
-  entities,
-  auth,
-  integrations,
-  functions: new Proxy({}, { get() { return async () => ({ ok: true }); } }),
+  entities: new Proxy({}, {
+    get(_t, name) {
+      if (typeof name !== 'string') return undefined;
+      return makeEntityProxy(name);
+    },
+  }),
+  auth: {
+    me: async () => null,
+    login: async () => null,
+    logout: async () => null,
+    signUp: async () => null,
+  },
+  integrations: makeCallableProxy(),
+  functions: makeCallableProxy(),
   realtime: {
     subscribe: () => ({ unsubscribe: () => {} }),
     on: () => () => {},
