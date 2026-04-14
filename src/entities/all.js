@@ -111,7 +111,6 @@ export const Beweissicherung = base44.entities.Beweissicherung;
 export const Ticket = base44.entities.Ticket;
 export const MaterialWithdrawal = base44.entities.MaterialWithdrawal;
 // src/entities/all.js
-import { base44 } from "@/api/base44Client";
 
 export const Project = base44.entities.Project;
 export const Excavation = base44.entities.Excavation;
