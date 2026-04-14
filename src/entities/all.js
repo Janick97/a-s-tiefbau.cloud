@@ -24,10 +24,28 @@ async function currentAuthUserId() {
 
 export const User = {
   async me() {
-    const id = await currentAuthUserId();
-    if (!id) throw new Error("Nicht eingeloggt");
-    const profile = await fetchProfile(id);
-    if (!profile) throw new Error("Kein Profil für diesen Account");
+    const { data: authData } = await supabase.auth.getUser();
+    const authUser = authData?.user;
+    if (!authUser) throw new Error("Nicht eingeloggt");
+    let profile = await fetchProfile(authUser.id);
+    if (!profile) {
+      const fallback = {
+        id: authUser.id,
+        email: authUser.email ?? null,
+        full_name: authUser.user_metadata?.full_name || authUser.email || "Neuer Benutzer",
+        role: "user",
+      };
+      const { data: created, error: createErr } = await supabase
+        .from("profiles")
+        .insert(fallback)
+        .select("*")
+        .maybeSingle();
+      if (createErr) {
+        profile = { ...fallback };
+      } else {
+        profile = created ?? fallback;
+      }
+    }
     return profile;
   },
   async list() {
