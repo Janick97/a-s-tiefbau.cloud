@@ -21,8 +21,6 @@ function makeEntityProxy(name) {
   });
 }
 
-// Recursive callable proxy: any property access returns another proxy,
-// and any call returns a resolved promise with a safe empty payload.
 function makeCallableProxy() {
   const fn = function () {};
   return new Proxy(fn, {
@@ -40,7 +38,7 @@ function makeCallableProxy() {
   });
 }
 
-export const base44 = {
+const realFields = {
   entities: new Proxy({}, {
     get(_t, name) {
       if (typeof name !== 'string') return undefined;
@@ -62,5 +60,14 @@ export const base44 = {
     emit: () => {},
   },
 };
+
+export const base44 = new Proxy(realFields, {
+  get(target, prop) {
+    if (prop in target) return target[prop];
+    if (prop === 'then') return undefined;
+    if (typeof prop === 'symbol') return undefined;
+    return makeCallableProxy();
+  },
+});
 
 export default base44;
